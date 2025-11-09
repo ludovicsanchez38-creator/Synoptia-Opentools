@@ -20,27 +20,53 @@
             <form id="form">
                 <div class="input-grid">
                     <div class="form-group">
-                        <label for="price" class="form-label"><i class="fas fa-tag"></i> Prix de vente (€)</label>
+                        <label for="price" class="form-label"><i class="fas fa-tag"></i> Prix de vente unitaire (€)</label>
                         <input type="number" id="price" class="form-input" value="100" min="0" step="0.01" required>
+                        <span class="form-help">Prix de vente du produit</span>
                     </div>
                     <div class="form-group">
-                        <label for="varCost" class="form-label"><i class="fas fa-box"></i> Coût variable (€)</label>
+                        <label for="varCost" class="form-label"><i class="fas fa-box"></i> Coût variable unitaire (€)</label>
                         <input type="number" id="varCost" class="form-input" value="60" min="0" step="0.01" required>
+                        <span class="form-help">Matières premières, main d'œuvre directe, etc.</span>
+                    </div>
+                    <div class="form-group">
+                        <label for="quantity" class="form-label"><i class="fas fa-cubes"></i> Quantité vendue</label>
+                        <input type="number" id="quantity" class="form-input" value="100" min="1" required>
+                        <span class="form-help">Nombre d'unités vendues</span>
+                    </div>
+                    <div class="form-group">
+                        <label for="fixedCost" class="form-label"><i class="fas fa-building"></i> Coûts fixes (€)</label>
+                        <input type="number" id="fixedCost" class="form-input" value="2000" min="0" step="0.01">
+                        <span class="form-help">Loyer, salaires fixes, amortissement (optionnel)</span>
                     </div>
                 </div>
                 <button type="submit" class="btn btn-primary"><i class="fas fa-calculator"></i> Calculer</button>
             </form>
         </section>
         <section class="tool-output" id="results" style="display: none;">
+            <h2><i class="fas fa-chart-bar"></i> Résultats</h2>
             <div class="results-grid">
-                <div class="result-item success"><div class="result-label">Marge de contribution</div><div class="result-value success" id="margin">-</div></div>
+                <div class="result-item success"><div class="result-label">Marge unitaire</div><div class="result-value success" id="margin">-</div></div>
                 <div class="result-item"><div class="result-label">Taux de marge</div><div class="result-value highlight" id="rate">-</div></div>
                 <div class="result-item"><div class="result-label">Ratio coût variable</div><div class="result-value" id="ratio">-</div></div>
+                <div class="result-item"><div class="result-label">Marge totale</div><div class="result-value success" id="totalMargin">-</div></div>
+                <div class="result-item"><div class="result-label">Résultat net</div><div class="result-value" id="netProfit">-</div></div>
+                <div class="result-item"><div class="result-label">Seuil de rentabilité</div><div class="result-value" id="breakeven">-</div></div>
             </div>
         </section>
         <section class="tool-help">
-            <h3><i class="fas fa-info-circle"></i> Formule</h3>
-            <code>Marge de contribution = Prix de vente - Coût variable\nTaux = (Marge / Prix) × 100</code>
+            <h3><i class="fas fa-info-circle"></i> Formules</h3>
+            <code>Marge unitaire = Prix de vente - Coût variable unitaire
+Taux de marge = (Marge unitaire / Prix) × 100
+Marge totale = Marge unitaire × Quantité
+Résultat net = Marge totale - Coûts fixes
+Seuil de rentabilité = Coûts fixes / Marge unitaire</code>
+            <h3><i class="fas fa-lightbulb"></i> Utilité</h3>
+            <ul>
+                <li><strong>Décision de prix</strong> : Déterminez le prix minimum viable</li>
+                <li><strong>Mix produits</strong> : Identifiez les produits les plus rentables</li>
+                <li><strong>Seuil de rentabilité</strong> : Calculez le volume nécessaire pour être rentable</li>
+            </ul>
         </section>
     </main>
     <footer class="tool-footer"><a href="../../index.html"><i class="fas fa-arrow-left"></i> Retour</a></footer>
@@ -51,12 +77,23 @@
             e.preventDefault();
             const price = parseFloat(document.getElementById('price').value);
             const varCost = parseFloat(document.getElementById('varCost').value);
+            const quantity = parseFloat(document.getElementById('quantity').value);
+            const fixedCost = parseFloat(document.getElementById('fixedCost').value) || 0;
+
             const margin = price - varCost;
             const rate = (margin / price) * 100;
             const ratio = (varCost / price) * 100;
+            const totalMargin = margin * quantity;
+            const netProfit = totalMargin - fixedCost;
+            const breakeven = fixedCost > 0 ? Math.ceil(fixedCost / margin) : 0;
+
             document.getElementById('margin').textContent = formatCurrency(margin);
             document.getElementById('rate').textContent = formatPercentage(rate);
             document.getElementById('ratio').textContent = formatPercentage(ratio);
+            document.getElementById('totalMargin').textContent = formatCurrency(totalMargin);
+            document.getElementById('netProfit').textContent = formatCurrency(netProfit);
+            document.getElementById('breakeven').textContent = breakeven > 0 ? `${breakeven} unités` : 'N/A';
+
             document.getElementById('results').style.display = 'block';
             showNotification('Calcul effectué !', 'success');
         });

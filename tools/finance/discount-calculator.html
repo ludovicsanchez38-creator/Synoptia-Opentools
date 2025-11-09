@@ -27,10 +27,22 @@
                     <div class="form-group">
                         <label for="originalPrice" class="form-label"><i class="fas fa-euro-sign"></i> Prix original (€)</label>
                         <input type="number" id="originalPrice" class="form-input" placeholder="Ex: 100" min="0" step="0.01" value="100" required>
+                        <span class="form-help">Prix avant remise</span>
                     </div>
                     <div class="form-group">
                         <label for="discount" class="form-label"><i class="fas fa-percent"></i> Remise (%)</label>
                         <input type="number" id="discount" class="form-input" placeholder="Ex: 20" min="0" max="100" step="0.1" value="20" required>
+                        <span class="form-help">Pourcentage de réduction</span>
+                    </div>
+                    <div class="form-group">
+                        <label for="quantity" class="form-label"><i class="fas fa-shopping-cart"></i> Quantité</label>
+                        <input type="number" id="quantity" class="form-input" placeholder="Ex: 1" min="1" value="1" required>
+                        <span class="form-help">Nombre d'articles</span>
+                    </div>
+                    <div class="form-group">
+                        <label for="additionalDiscount" class="form-label"><i class="fas fa-tags"></i> Remise additionnelle (%)</label>
+                        <input type="number" id="additionalDiscount" class="form-input" placeholder="Ex: 5" min="0" max="100" step="0.1" value="0">
+                        <span class="form-help">Remise cumulée (optionnel)</span>
                     </div>
                 </div>
                 <div class="action-buttons">
@@ -42,9 +54,11 @@
         <section class="tool-output" id="results" style="display: none;">
             <h2><i class="fas fa-chart-bar"></i> Résultats</h2>
             <div class="results-grid">
-                <div class="result-item"><div class="result-label">Nouveau prix</div><div class="result-value highlight" id="newPrice">-</div></div>
-                <div class="result-item success"><div class="result-label">Économie</div><div class="result-value success" id="savings">-</div></div>
-                <div class="result-item"><div class="result-label">Remise appliquée</div><div class="result-value" id="appliedDiscount">-</div></div>
+                <div class="result-item"><div class="result-label">Prix unitaire réduit</div><div class="result-value highlight" id="newPrice">-</div></div>
+                <div class="result-item success"><div class="result-label">Économie unitaire</div><div class="result-value success" id="savings">-</div></div>
+                <div class="result-item"><div class="result-label">Prix total</div><div class="result-value" id="totalPrice">-</div></div>
+                <div class="result-item success"><div class="result-label">Économie totale</div><div class="result-value success" id="totalSavings">-</div></div>
+                <div class="result-item"><div class="result-label">Remise totale</div><div class="result-value" id="totalDiscount">-</div></div>
             </div>
         </section>
 
@@ -52,11 +66,18 @@
             <h3><i class="fas fa-question-circle"></i> Comment utiliser cet outil ?</h3>
             <ol>
                 <li>Entrez le <strong>prix original</strong> du produit</li>
-                <li>Indiquez le <strong>pourcentage de remise</strong></li>
+                <li>Indiquez le <strong>pourcentage de remise</strong> principal</li>
+                <li>Ajoutez la <strong>quantité</strong> d'articles</li>
+                <li>Ajoutez une <strong>remise additionnelle</strong> si applicable (ex: coupon, fidélité)</li>
                 <li>Obtenez le nouveau prix et le montant économisé</li>
             </ol>
             <h3><i class="fas fa-calculator"></i> Formules</h3>
-            <code>Nouveau prix = Prix original × (1 - Remise/100)\nÉconomie = Prix original - Nouveau prix</code>
+            <code>Prix après 1ère remise = Prix × (1 - Remise1/100)
+Prix final = Prix après 1ère remise × (1 - Remise2/100)
+Économie = Prix original - Prix final
+Prix total = Prix final × Quantité</code>
+            <h3><i class="fas fa-lightbulb"></i> Astuce remises multiples</h3>
+            <p>Deux remises de 20% + 10% ne font pas 30% ! Le calcul se fait en cascade : 100€ -20% = 80€, puis 80€ -10% = 72€ (soit 28% de remise totale).</p>
         </section>
     </main>
 
@@ -69,13 +90,24 @@
             e.preventDefault();
             const price = parseFloat(document.getElementById('originalPrice').value);
             const discount = parseFloat(document.getElementById('discount').value);
+            const quantity = parseInt(document.getElementById('quantity').value);
+            const additionalDiscount = parseFloat(document.getElementById('additionalDiscount').value) || 0;
 
-            const newPrice = price * (1 - discount / 100);
-            const savings = price - newPrice;
+            // Calcul en cascade des remises
+            const priceAfterFirst = price * (1 - discount / 100);
+            const finalPrice = priceAfterFirst * (1 - additionalDiscount / 100);
+            const savings = price - finalPrice;
+            const totalPrice = finalPrice * quantity;
+            const totalSavings = savings * quantity;
 
-            document.getElementById('newPrice').textContent = formatCurrency(newPrice);
+            // Remise totale effective
+            const totalDiscountRate = ((price - finalPrice) / price) * 100;
+
+            document.getElementById('newPrice').textContent = formatCurrency(finalPrice);
             document.getElementById('savings').textContent = formatCurrency(savings);
-            document.getElementById('appliedDiscount').textContent = formatPercentage(discount);
+            document.getElementById('totalPrice').textContent = formatCurrency(totalPrice);
+            document.getElementById('totalSavings').textContent = formatCurrency(totalSavings);
+            document.getElementById('totalDiscount').textContent = formatPercentage(totalDiscountRate);
 
             document.getElementById('results').style.display = 'block';
             scrollToElement('#results', 100);
