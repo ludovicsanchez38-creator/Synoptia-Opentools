@@ -92,9 +92,26 @@ Autres outils utiles pour entreprises
 - Générateur de NDA
 - Et plus encore...
 
+## 📊 Statut du Projet
+
+**Progression globale : 22/100 outils complets (22%)**
+
+| Catégorie | Progression | Outils Complets |
+|-----------|-------------|-----------------|
+| 💰 Finance | ✅ 13/13 (100%) | Tous les calculateurs financiers |
+| 🧾 Facturation | 🔄 3/10 (30%) | Invoice, Quote, Payment Tracker |
+| ⏰ Temps | 🔄 3/15 (20%) | Time Tracker, Pomodoro, Kanban |
+| 📢 Marketing | 🔄 1/17 (6%) | QR Code Generator |
+| 👥 RH | 🔄 1/10 (10%) | Calculateur Salaire |
+| 📦 Inventaire | ⏳ 0/10 (0%) | À développer |
+| 📊 Analytics | ⏳ 0/10 (0%) | À développer |
+| 🔧 Divers | ⏳ 0/15 (0%) | À développer |
+
+**Prochaines étapes** : Compléter les 78 outils restants (voir Roadmap ci-dessous)
+
 ## ⭐ Outils Complets et Avancés
 
-Parmi les 100 outils, **6 outils phares** ont été développés avec des fonctionnalités avancées et complètes :
+**8 outils phares** ont été développés avec des fonctionnalités avancées et complètes :
 
 ### 1. 🧾 Générateur de Factures Professionnel
 **[`/tools/invoicing/invoice-generator.html`](tools/invoicing/invoice-generator.html)**
