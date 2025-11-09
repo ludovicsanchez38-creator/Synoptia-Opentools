@@ -92,6 +92,71 @@ Autres outils utiles pour entreprises
 - Générateur de NDA
 - Et plus encore...
 
+## ⭐ Outils Complets et Avancés
+
+Parmi les 100 outils, **6 outils phares** ont été développés avec des fonctionnalités avancées et complètes :
+
+### 1. 🧾 Générateur de Factures Professionnel
+**[`/tools/invoicing/invoice-generator.html`](tools/invoicing/invoice-generator.html)**
+- ✅ Ajout dynamique de lignes produits/services
+- ✅ Calculs automatiques HT/TVA/TTC
+- ✅ Informations entreprise et client
+- ✅ Aperçu professionnel formaté
+- ✅ Export PDF et impression
+- ✅ Pré-rempli avec données Synoptia
+
+### 2. ⏱️ Time Tracker Automatique
+**[`/tools/time/time-tracker.html`](tools/time/time-tracker.html)**
+- ✅ Chronomètre complet (Start/Pause/Resume/Stop)
+- ✅ Gestion de tâches avec nom personnalisable
+- ✅ Historique de toutes les sessions
+- ✅ Statistiques journalières et totales
+- ✅ Persistance avec localStorage
+- ✅ Export CSV pour analyse Excel
+
+### 3. 🍅 Minuteur Pomodoro Visuel
+**[`/tools/time/pomodoro.html`](tools/time/pomodoro.html)**
+- ✅ Timer visuel avec cercle de progression SVG
+- ✅ Configuration personnalisable (durée travail/pause/longue pause)
+- ✅ Auto-switch entre sessions de travail et pauses
+- ✅ Compteur de sessions avec badges visuels
+- ✅ Notification sonore en fin de session
+- ✅ Statistiques quotidiennes de productivité
+
+### 4. 💶 Calculateur Salaire Net (France)
+**[`/tools/hr/salary-calculator.html`](tools/hr/salary-calculator.html)**
+- ✅ Calcul Brut → Net avec taux réels 2024
+- ✅ Mode Cadre/Non-cadre et Privé/Public
+- ✅ Détail complet des charges sociales (Sécurité sociale, Retraite, CSG/CRDS, etc.)
+- ✅ Calcul mensuel et annuel
+- ✅ Tableau récapitulatif part salariale/employeur
+- ✅ Base de calcul CSG conforme (98,25% du brut)
+
+### 5. 📱 Générateur de QR Codes Multi-formats
+**[`/tools/marketing/qr-generator.html`](tools/marketing/qr-generator.html)**
+- ✅ 7 types de QR codes : Texte, URL, Email, Téléphone, SMS, WiFi, vCard
+- ✅ Personnalisation des couleurs et taille
+- ✅ Téléchargement PNG haute qualité
+- ✅ Formulaires adaptés à chaque type
+- ✅ Aperçu en temps réel
+- ✅ Intégration QRCode.js pour génération côté client
+
+### 6. 📋 Tableau Kanban Interactif
+**[`/tools/time/kanban-board.html`](tools/time/kanban-board.html)**
+- ✅ Drag & drop HTML5 entre 4 colonnes (À faire, En cours, Revue, Terminé)
+- ✅ Création/modification/suppression de tâches via modal
+- ✅ Gestion des priorités (Haute/Moyenne/Basse) avec codes couleur
+- ✅ Assignation de tâches à des personnes
+- ✅ Persistance localStorage avec tâches de démonstration
+- ✅ Export JSON pour backup/migration
+
+**Tous ces outils** incluent :
+- 📱 Design responsive mobile-first
+- 💾 Sauvegarde automatique localStorage
+- ✨ Notifications utilisateur
+- 🎨 Interface moderne et intuitive
+- ⚡ Performance optimale sans backend
+
 ## 🎯 Utilisation
 
 ### Option 1 : Utilisation en ligne (recommandé)
@@ -202,15 +267,22 @@ Les contributions sont les bienvenues ! Voici comment contribuer :
 - [x] Design system CSS
 - [x] Page d'accueil avec recherche et filtres
 - [x] 10 premiers outils essentiels
+- [x] **6 outils phares complets avec fonctionnalités avancées** ⭐
 
 ### Phase 2 🚧 (En cours)
-- [ ] 30 outils supplémentaires
+- [x] Générateur de factures professionnel
+- [x] Time tracker avec chronomètre
+- [x] Minuteur Pomodoro visuel
+- [x] Calculateur salaire net France
+- [x] Générateur QR codes multi-formats
+- [x] Tableau Kanban drag & drop
+- [ ] 24 outils supplémentaires
 - [ ] Mode sombre
-- [ ] Export PDF pour tous les outils
 - [ ] Système de favoris
 
 ### Phase 3 📋 (À venir)
 - [ ] 60 outils restants
+- [ ] Export PDF pour tous les outils
 - [ ] Progressive Web App (PWA)
 - [ ] Mode offline complet
 - [ ] Internationalisation (EN, ES, DE)
@@ -270,4 +342,5 @@ Si ce projet vous est utile, n'hésitez pas à :
 © 2025 Synoptia - Tous droits réservés sous Licence MIT
 Contact: ludo@synoptia.fr | www.synoptia.fr
 
-*Dernière mise à jour : Janvier 2025*
+*Dernière mise à jour : Février 2025*
+*Version 1.1 - 6 outils complets disponibles*
