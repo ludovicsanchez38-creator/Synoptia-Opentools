@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculateur de TAEG - Business Tools</title>
+    <link rel="stylesheet" href="../../assets/css/main.css">
+    <link rel="stylesheet" href="../../assets/css/tools.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav class="breadcrumb"><a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> > <a href="../../index.html#tools">Finance</a> > <span>TAEG</span></nav>
+    <main class="tool-container">
+        <header class="tool-header">
+            <h1><i class="fas fa-percentage"></i> Calculateur de TAEG</h1>
+            <p class="tool-description">Calculez le Taux Annuel Effectif Global incluant tous les frais du crédit.</p>
+        </header>
+        <section class="tool-input">
+            <form id="form">
+                <div class="input-grid">
+                    <div class="form-group">
+                        <label for="amount" class="form-label"><i class="fas fa-euro-sign"></i> Montant emprunté (€)</label>
+                        <input type="number" id="amount" class="form-input" value="10000" min="1" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="rate" class="form-label"><i class="fas fa-percent"></i> Taux nominal (%)</label>
+                        <input type="number" id="rate" class="form-input" value="5" min="0" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="duration" class="form-label"><i class="fas fa-calendar"></i> Durée (mois)</label>
+                        <input type="number" id="duration" class="form-input" value="60" min="1" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="fees" class="form-label"><i class="fas fa-file-invoice-dollar"></i> Frais de dossier (€)</label>
+                        <input type="number" id="fees" class="form-input" value="200" min="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="insurance" class="form-label"><i class="fas fa-shield-alt"></i> Assurance mensuelle (€)</label>
+                        <input type="number" id="insurance" class="form-input" value="20" min="0" step="0.01" required>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary"><i class="fas fa-calculator"></i> Calculer</button>
+            </form>
+        </section>
+        <section class="tool-output" id="results" style="display: none;">
+            <div class="results-grid">
+                <div class="result-item"><div class="result-label">Taux nominal</div><div class="result-value" id="nominalRate">-</div></div>
+                <div class="result-item"><div class="result-label">TAEG</div><div class="result-value highlight" id="taeg">-</div></div>
+                <div class="result-item"><div class="result-label">Coût total du crédit</div><div class="result-value danger" id="totalCost">-</div></div>
+                <div class="result-item"><div class="result-label">Mensualité TTC</div><div class="result-value" id="monthly">-</div></div>
+            </div>
+        </section>
+        <section class="tool-help">
+            <h3><i class="fas fa-info-circle"></i> Qu'est-ce que le TAEG ?</h3>
+            <p>Le TAEG (Taux Annuel Effectif Global) inclut le taux nominal + frais de dossier + assurance + tous les frais obligatoires.</p>
+        </section>
+    </main>
+    <footer class="tool-footer"><a href="../../index.html"><i class="fas fa-arrow-left"></i> Retour</a></footer>
+    <script src="../../assets/js/utils.js"></script>
+    <script src="../../assets/js/main.js"></script>
+    <script>
+        document.getElementById('form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const amount = parseFloat(document.getElementById('amount').value);
+            const rate = parseFloat(document.getElementById('rate').value);
+            const duration = parseInt(document.getElementById('duration').value);
+            const fees = parseFloat(document.getElementById('fees').value);
+            const insurance = parseFloat(document.getElementById('insurance').value);
+
+            const monthlyRate = rate / 100 / 12;
+            const monthlyPayment = amount * (monthlyRate * Math.pow(1 + monthlyRate, duration)) / (Math.pow(1 + monthlyRate, duration) - 1);
+            const totalPaid = monthlyPayment * duration;
+            const totalInterest = totalPaid - amount;
+
+            const totalInsurance = insurance * duration;
+            const totalCost = totalInterest + fees + totalInsurance;
+            const monthlyWithInsurance = monthlyPayment + insurance;
+
+            // TAEG simplifié (approximation)
+            const taeg = ((totalCost / amount) / (duration / 12)) * 100;
+
+            document.getElementById('nominalRate').textContent = formatPercentage(rate);
+            document.getElementById('taeg').textContent = formatPercentage(taeg);
+            document.getElementById('totalCost').textContent = formatCurrency(totalCost);
+            document.getElementById('monthly').textContent = formatCurrency(monthlyWithInsurance);
+
+            document.getElementById('results').style.display = 'block';
+            showNotification('TAEG calculé !', 'success');
+        });
+        window.addEventListener('load', () => document.getElementById('form').dispatchEvent(new Event('submit')));
+    </script>
+</body>
+</html>

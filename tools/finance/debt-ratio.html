@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculateur Ratio Dette/Revenu - Business Tools</title>
+    <link rel="stylesheet" href="../../assets/css/main.css">
+    <link rel="stylesheet" href="../../assets/css/tools.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav class="breadcrumb"><a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> > <a href="../../index.html#tools">Finance</a> > <span>Ratio Dette/Revenu</span></nav>
+    <main class="tool-container">
+        <header class="tool-header">
+            <h1><i class="fas fa-scale-balanced"></i> Calculateur Ratio Dette/Revenu</h1>
+            <p class="tool-description">Évaluez la capacité d'endettement de votre entreprise.</p>
+        </header>
+        <section class="tool-input">
+            <form id="form">
+                <div class="input-grid">
+                    <div class="form-group">
+                        <label for="debt" class="form-label"><i class="fas fa-coins"></i> Dettes totales (€)</label>
+                        <input type="number" id="debt" class="form-input" value="50000" min="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="revenue" class="form-label"><i class="fas fa-chart-line"></i> Revenus annuels (€)</label>
+                        <input type="number" id="revenue" class="form-input" value="150000" min="1" required>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary"><i class="fas fa-calculator"></i> Calculer</button>
+            </form>
+        </section>
+        <section class="tool-output" id="results" style="display: none;">
+            <div class="results-grid">
+                <div class="result-item"><div class="result-label">Ratio dette/revenu</div><div class="result-value highlight" id="ratio">-</div></div>
+                <div class="result-item"><div class="result-label">Capacité d'endettement</div><div class="result-value" id="capacity">-</div></div>
+            </div>
+            <div class="alert" id="interpretation"></div>
+        </section>
+        <section class="tool-help">
+            <h3><i class="fas fa-info-circle"></i> Interprétation</h3>
+            <ul>
+                <li><strong>&lt; 30%</strong> : Excellente santé financière</li>
+                <li><strong>30-50%</strong> : Situation saine</li>
+                <li><strong>50-70%</strong> : Attention prudence</li>
+                <li><strong>&gt; 70%</strong> : Endettement élevé</li>
+            </ul>
+        </section>
+    </main>
+    <footer class="tool-footer"><a href="../../index.html"><i class="fas fa-arrow-left"></i> Retour</a></footer>
+    <script src="../../assets/js/utils.js"></script>
+    <script src="../../assets/js/main.js"></script>
+    <script>
+        document.getElementById('form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const debt = parseFloat(document.getElementById('debt').value);
+            const revenue = parseFloat(document.getElementById('revenue').value);
+            const ratio = (debt / revenue) * 100;
+            const capacity = revenue * 0.33; // 33% max recommandé
+
+            document.getElementById('ratio').textContent = formatPercentage(ratio);
+            document.getElementById('capacity').textContent = formatCurrency(capacity);
+
+            let interpretation = '';
+            let alertClass = 'alert-info';
+            if (ratio < 30) {
+                interpretation = '<strong>✅ Excellente santé financière !</strong> Votre ratio dette/revenu est très bon.';
+                alertClass = 'alert-success';
+            } else if (ratio < 50) {
+                interpretation = '<strong>👍 Situation saine</strong> Votre endettement est maîtrisé.';
+                alertClass = 'alert-success';
+            } else if (ratio < 70) {
+                interpretation = '<strong>⚡ Attention</strong> Votre taux d\'endettement commence à être élevé.';
+                alertClass = 'alert-warning';
+            } else {
+                interpretation = '<strong>⚠️ Endettement élevé !</strong> Réduisez vos dettes pour améliorer votre situation.';
+                alertClass = 'alert-danger';
+            }
+
+            const interpDiv = document.getElementById('interpretation');
+            interpDiv.className = `alert ${alertClass}`;
+            interpDiv.innerHTML = interpretation;
+
+            document.getElementById('results').style.display = 'block';
+            showNotification('Ratio calculé !', 'success');
+        });
+        window.addEventListener('load', () => document.getElementById('form').dispatchEvent(new Event('submit')));
+    </script>
+</body>
+</html>

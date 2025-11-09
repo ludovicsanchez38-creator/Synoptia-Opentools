@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minuteur Pomodoro - Business Tools</title>
+    <link rel="stylesheet" href="../../assets/css/main.css">
+    <link rel="stylesheet" href="../../assets/css/tools.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav class="breadcrumb">
+        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> > 
+        <a href="../../index.html#tools">Temps</a> > 
+        <span>Minuteur Pomodoro</span>
+    </nav>
+    <main class="tool-container">
+        <header class="tool-header">
+            <h1><i class="fas fa-clock"></i> Minuteur Pomodoro</h1>
+            <p class="tool-description">Gestion du temps par plages réglables</p>
+        </header>
+        <section class="tool-input">
+            <h2>Configuration</h2>
+            <form id="mainForm">
+                <div class="form-group">
+                    <label for="input1" class="form-label">
+                        <i class="fas fa-clock"></i> Durée ou information
+                    </label>
+                    <input type="text" id="input1" class="form-input" placeholder="Entrez les informations" required>
+                </div>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-play"></i> Démarrer/Calculer
+                </button>
+            </form>
+        </section>
+        <section class="tool-output" id="results" style="display: none;">
+            <h2><i class="fas fa-check-circle"></i> Résultat</h2>
+            <div class="results-grid">
+                <div class="result-item">
+                    <div class="result-label">Temps total</div>
+                    <div class="result-value highlight" id="totalTime">00:00:00</div>
+                </div>
+            </div>
+        </section>
+        <section class="tool-help">
+            <h3><i class="fas fa-question-circle"></i> Utilisation</h3>
+            <p>Cet outil vous aide à gérer et optimiser votre temps de travail.</p>
+        </section>
+    </main>
+    <footer class="tool-footer">
+        <a href="../../index.html"><i class="fas fa-arrow-left"></i> Retour</a>
+    </footer>
+    <script src="../../assets/js/utils.js"></script>
+    <script src="../../assets/js/main.js"></script>
+    <script>
+        document.getElementById('mainForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            document.getElementById('results').style.display = 'block';
+            showNotification('Calcul effectué !', 'success');
+        });
+    </script>
+</body>
+</html>

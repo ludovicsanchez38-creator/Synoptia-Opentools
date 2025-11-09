@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculateur de CPC - Business Tools</title>
+    <link rel="stylesheet" href="../../assets/css/main.css">
+    <link rel="stylesheet" href="../../assets/css/tools.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav class="breadcrumb">
+        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> > 
+        <a href="../../index.html#tools">Marketing</a> > 
+        <span>Calculateur de CPC</span>
+    </nav>
+    <main class="tool-container">
+        <header class="tool-header">
+            <h1><i class="fas fa-mouse-pointer"></i> Calculateur de CPC</h1>
+            <p class="tool-description">Outil marketing pour optimiser vos campagnes.</p>
+        </header>
+        <section class="tool-input">
+            <form id="mainForm">
+                <div class="input-grid">
+                    <div class="form-group">
+                        <label for="input1" class="form-label">Valeur 1</label>
+                        <input type="number" id="input1" class="form-input" value="100" min="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="input2" class="form-label">Valeur 2</label>
+                        <input type="number" id="input2" class="form-input" value="50" min="0" required>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary"><i class="fas fa-calculator"></i> Calculer</button>
+            </form>
+        </section>
+        <section class="tool-output" id="results" style="display: none;">
+            <div class="results-grid">
+                <div class="result-item">
+                    <div class="result-label">Résultat</div>
+                    <div class="result-value highlight" id="result">-</div>
+                </div>
+            </div>
+        </section>
+        <section class="tool-help">
+            <h3><i class="fas fa-info-circle"></i> Information</h3>
+            <p>Optimisez vos campagnes marketing avec cet outil.</p>
+        </section>
+    </main>
+    <footer class="tool-footer"><a href="../../index.html"><i class="fas fa-arrow-left"></i> Retour</a></footer>
+    <script src="../../assets/js/utils.js"></script>
+    <script src="../../assets/js/main.js"></script>
+    <script>
+        document.getElementById('mainForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const val1 = parseFloat(document.getElementById('input1').value);
+            const val2 = parseFloat(document.getElementById('input2').value);
+            const result = val2 > 0 ? (val1 / val2) : 0;
+            document.getElementById('result').textContent = result.toFixed(2);
+            document.getElementById('results').style.display = 'block';
+            showNotification('Calcul effectué !', 'success');
+        });
+        window.addEventListener('load', () => document.getElementById('mainForm').dispatchEvent(new Event('submit')));
+    </script>
+</body>
+</html>
