@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Outil Business - Business Tools</title>
+    <title>Prix de Revient - Business Tools</title>
     <link rel="stylesheet" href="../../assets/css/main.css">
     <link rel="stylesheet" href="../../assets/css/tools.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -11,49 +11,130 @@
 </head>
 <body>
     <nav class="breadcrumb">
-        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> > 
-        <a href="../../index.html#tools">Divers</a> > 
-        <span>Outil</span>
+        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> >
+        <a href="../../index.html#tools">Divers</a> >
+        <span>Prix de Revient</span>
     </nav>
     <main class="tool-container">
         <header class="tool-header">
-            <h1><i class="fas fa-tools"></i> Outil Business</h1>
-            <p class="tool-description">Outil professionnel pour optimiser votre activité.</p>
+            <h1><i class="fas fa-coins"></i> Calculateur de Prix de Revient</h1>
+            <p class="tool-description">Calculez le coût complet de votre produit ou service.</p>
         </header>
+
         <section class="tool-input">
-            <form id="mainForm">
+            <h3>Coûts directs</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin: 1rem 0;">
                 <div class="form-group">
-                    <label for="input1" class="form-label">Donnée d'entrée</label>
-                    <input type="number" id="input1" class="form-input" value="100" min="0" required>
+                    <label class="form-label">Matières premières (€)</label>
+                    <input type="number" id="materials" class="form-input" value="20" min="0" step="0.01">
                 </div>
-                <button type="submit" class="btn btn-primary"><i class="fas fa-calculator"></i> Calculer</button>
-            </form>
-        </section>
-        <section class="tool-output" id="results" style="display: none;">
-            <div class="results-grid">
-                <div class="result-item">
-                    <div class="result-label">Résultat</div>
-                    <div class="result-value highlight" id="result">-</div>
+                <div class="form-group">
+                    <label class="form-label">Main d'œuvre directe (€)</label>
+                    <input type="number" id="directLabor" class="form-input" value="15" min="0" step="0.01">
                 </div>
             </div>
+
+            <h3>Coûts indirects</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin: 1rem 0;">
+                <div class="form-group">
+                    <label class="form-label">Frais généraux (€)</label>
+                    <input type="number" id="overhead" class="form-input" value="10" min="0" step="0.01">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Amortissements (€)</label>
+                    <input type="number" id="depreciation" class="form-input" value="5" min="0" step="0.01">
+                </div>
+            </div>
+
+            <h3>Prix de vente souhaité</h3>
+            <div class="form-group" style="max-width: 300px;">
+                <label class="form-label">Marge souhaitée (%)</label>
+                <input type="number" id="targetMargin" class="form-input" value="40" min="0" max="100">
+            </div>
+
+            <button class="btn btn-primary" id="calculateBtn">
+                <i class="fas fa-calculator"></i> Calculer
+            </button>
         </section>
+
+        <section class="tool-output">
+            <div class="results-grid">
+                <div class="result-item">
+                    <div class="result-label">Prix de revient</div>
+                    <div class="result-value highlight" id="costPrice">-</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Prix de vente HT</div>
+                    <div class="result-value success" id="sellingPrice">-</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Marge unitaire</div>
+                    <div class="result-value" id="unitMargin">-</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Coefficient</div>
+                    <div class="result-value" id="coefficient">-</div>
+                </div>
+            </div>
+
+            <div style="margin-top: 1.5rem; padding: 1rem; background: white; border-radius: var(--radius);">
+                <h3>Composition du prix de revient</h3>
+                <div id="breakdown"></div>
+            </div>
+        </section>
+
         <section class="tool-help">
-            <h3><i class="fas fa-info-circle"></i> Aide</h3>
-            <p>Utilisez cet outil pour optimiser votre gestion d'entreprise.</p>
+            <h3><i class="fas fa-info-circle"></i> Formules</h3>
+            <ul>
+                <li><strong>Prix de revient</strong> = Coûts directs + Coûts indirects</li>
+                <li><strong>Prix de vente</strong> = Prix de revient / (1 - Marge%)</li>
+                <li><strong>Coefficient</strong> = Prix de vente / Prix de revient</li>
+            </ul>
         </section>
     </main>
-    <footer class="tool-footer"><a href="../../index.html"><i class="fas fa-arrow-left"></i> Retour</a></footer>
+    <footer class="tool-footer">
+        <a href="../../index.html"><i class="fas fa-arrow-left"></i> Retour</a>
+    </footer>
     <script src="../../assets/js/utils.js"></script>
     <script src="../../assets/js/main.js"></script>
     <script>
-        document.getElementById('mainForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const val = parseFloat(document.getElementById('input1').value);
-            document.getElementById('result').textContent = val.toFixed(2);
-            document.getElementById('results').style.display = 'block';
-            showNotification('Opération réussie !', 'success');
+        document.getElementById('calculateBtn').addEventListener('click', function() {
+            const materials = parseFloat(document.getElementById('materials').value) || 0;
+            const directLabor = parseFloat(document.getElementById('directLabor').value) || 0;
+            const overhead = parseFloat(document.getElementById('overhead').value) || 0;
+            const depreciation = parseFloat(document.getElementById('depreciation').value) || 0;
+            const targetMargin = parseFloat(document.getElementById('targetMargin').value) || 0;
+
+            const costPrice = materials + directLabor + overhead + depreciation;
+            const sellingPrice = costPrice / (1 - targetMargin / 100);
+            const unitMargin = sellingPrice - costPrice;
+            const coefficient = costPrice > 0 ? sellingPrice / costPrice : 0;
+
+            document.getElementById('costPrice').textContent = formatCurrency(costPrice);
+            document.getElementById('sellingPrice').textContent = formatCurrency(sellingPrice);
+            document.getElementById('unitMargin').textContent = formatCurrency(unitMargin);
+            document.getElementById('coefficient').textContent = coefficient.toFixed(2);
+
+            const breakdown = '<div style="margin-top:1rem;">' +
+                '<div style="margin-bottom:0.5rem;">Matières premières : ' + formatCurrency(materials) + ' (' + ((materials / costPrice) * 100).toFixed(1) + '%)</div>' +
+                '<div style="margin-bottom:0.5rem;">Main d\'œuvre directe : ' + formatCurrency(directLabor) + ' (' + ((directLabor / costPrice) * 100).toFixed(1) + '%)</div>' +
+                '<div style="margin-bottom:0.5rem;">Frais généraux : ' + formatCurrency(overhead) + ' (' + ((overhead / costPrice) * 100).toFixed(1) + '%)</div>' +
+                '<div style="margin-bottom:0.5rem;">Amortissements : ' + formatCurrency(depreciation) + ' (' + ((depreciation / costPrice) * 100).toFixed(1) + '%)</div>' +
+                '<br><div style="font-weight:700;">Total : ' + formatCurrency(costPrice) + '</div>' +
+                '<div style="margin-top:1rem;color:#666;">Pour atteindre ' + targetMargin + '% de marge, vendez à ' + formatCurrency(sellingPrice) + '</div>' +
+                '</div>';
+
+            document.getElementById('breakdown').innerHTML = breakdown;
+            showNotification('Prix de revient calculé !', 'success');
         });
-        window.addEventListener('load', () => document.getElementById('mainForm').dispatchEvent(new Event('submit')));
+
+        ['materials', 'directLabor', 'overhead', 'depreciation', 'targetMargin'].forEach(function(id) {
+            document.getElementById(id).addEventListener('input', function() {
+                document.getElementById('calculateBtn').click();
+            });
+        });
+
+        document.getElementById('calculateBtn').click();
     </script>
 </body>
 </html>

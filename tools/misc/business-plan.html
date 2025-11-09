@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Outil Business - Business Tools</title>
+    <title>Générateur Business Plan - Business Tools</title>
     <link rel="stylesheet" href="../../assets/css/main.css">
     <link rel="stylesheet" href="../../assets/css/tools.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -11,49 +11,101 @@
 </head>
 <body>
     <nav class="breadcrumb">
-        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> > 
-        <a href="../../index.html#tools">Divers</a> > 
-        <span>Outil</span>
+        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> >
+        <a href="../../index.html#tools">Divers</a> >
+        <span>Business Plan</span>
     </nav>
     <main class="tool-container">
         <header class="tool-header">
-            <h1><i class="fas fa-tools"></i> Outil Business</h1>
-            <p class="tool-description">Outil professionnel pour optimiser votre activité.</p>
+            <h1><i class="fas fa-briefcase"></i> Générateur de Business Plan</h1>
+            <p class="tool-description">Créez la structure de votre business plan.</p>
         </header>
+
         <section class="tool-input">
-            <form id="mainForm">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; margin: 1.5rem 0;">
                 <div class="form-group">
-                    <label for="input1" class="form-label">Donnée d'entrée</label>
-                    <input type="number" id="input1" class="form-input" value="100" min="0" required>
+                    <label class="form-label">Nom du projet</label>
+                    <input type="text" id="project" class="form-input" value="Mon Entreprise">
                 </div>
-                <button type="submit" class="btn btn-primary"><i class="fas fa-calculator"></i> Calculer</button>
-            </form>
-        </section>
-        <section class="tool-output" id="results" style="display: none;">
-            <div class="results-grid">
-                <div class="result-item">
-                    <div class="result-label">Résultat</div>
-                    <div class="result-value highlight" id="result">-</div>
+                <div class="form-group">
+                    <label class="form-label">Secteur d'activité</label>
+                    <input type="text" id="sector" class="form-input" value="Tech / SaaS">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Montant recherché (€)</label>
+                    <input type="number" id="funding" class="form-input" value="500000" min="0">
                 </div>
             </div>
+
+            <button class="btn btn-primary" id="generateBtn">
+                <i class="fas fa-file-alt"></i> Générer le plan
+            </button>
         </section>
+
+        <section class="tool-output">
+            <div id="plan" style="padding: 2rem; background: white; border-radius: var(--radius);"></div>
+            <button class="btn btn-secondary" id="printBtn" style="margin-top: 1rem;">
+                <i class="fas fa-print"></i> Imprimer
+            </button>
+        </section>
+
         <section class="tool-help">
-            <h3><i class="fas fa-info-circle"></i> Aide</h3>
-            <p>Utilisez cet outil pour optimiser votre gestion d'entreprise.</p>
+            <h3><i class="fas fa-info-circle"></i> Sections du Business Plan</h3>
+            <p>Un business plan complet contient : Executive Summary, Marché, Offre, Stratégie, Équipe, Financier.</p>
         </section>
     </main>
-    <footer class="tool-footer"><a href="../../index.html"><i class="fas fa-arrow-left"></i> Retour</a></footer>
+    <footer class="tool-footer">
+        <a href="../../index.html"><i class="fas fa-arrow-left"></i> Retour</a>
+    </footer>
     <script src="../../assets/js/utils.js"></script>
     <script src="../../assets/js/main.js"></script>
     <script>
-        document.getElementById('mainForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const val = parseFloat(document.getElementById('input1').value);
-            document.getElementById('result').textContent = val.toFixed(2);
-            document.getElementById('results').style.display = 'block';
-            showNotification('Opération réussie !', 'success');
+        document.getElementById('generateBtn').addEventListener('click', function() {
+            const project = document.getElementById('project').value || 'Projet';
+            const sector = document.getElementById('sector').value || 'Secteur';
+            const funding = formatCurrency(parseFloat(document.getElementById('funding').value) || 0);
+
+            const plan = '<h1 style="text-align:center;margin-bottom:2rem;">BUSINESS PLAN<br>' + project + '</h1>' +
+                '<div style="text-align:center;margin-bottom:3rem;color:#666;">' + sector + '</div>' +
+                '<h2>1. EXECUTIVE SUMMARY</h2>' +
+                '<p><em>[Résumé de 1-2 pages : problème, solution, marché, traction, besoin de financement]</em></p>' +
+                '<ul><li><strong>Problème :</strong> _______________</li>' +
+                '<li><strong>Solution :</strong> _______________</li>' +
+                '<li><strong>Marché cible :</strong> _______________</li>' +
+                '<li><strong>Montant recherché :</strong> ' + funding + '</li></ul>' +
+                '<h2>2. ANALYSE DU MARCHÉ</h2>' +
+                '<h3>2.1 Taille du marché</h3><p><em>[TAM, SAM, SOM]</em></p>' +
+                '<h3>2.2 Concurrence</h3><p><em>[Analyse concurrentielle]</em></p>' +
+                '<h3>2.3 Opportunités</h3><p><em>[Tendances du marché]</em></p>' +
+                '<h2>3. OFFRE</h2>' +
+                '<h3>3.1 Produit/Service</h3><p><em>[Description détaillée]</em></p>' +
+                '<h3>3.2 Valeur ajoutée</h3><p><em>[Différenciation]</em></p>' +
+                '<h2>4. STRATÉGIE</h2>' +
+                '<h3>4.1 Business Model</h3><p><em>[Comment vous générez du chiffre d\'affaires]</em></p>' +
+                '<h3>4.2 Go-to-Market</h3><p><em>[Stratégie d\'acquisition clients]</em></p>' +
+                '<h2>5. ÉQUIPE</h2>' +
+                '<p><em>[Présentation des fondateurs et compétences clés]</em></p>' +
+                '<h2>6. PRÉVISIONS FINANCIÈRES</h2>' +
+                '<h3>6.1 Compte de résultat prévisionnel (3 ans)</h3>' +
+                '<table style="width:100%;border-collapse:collapse;margin:1rem 0;">' +
+                '<tr style="background:#f5f5f5;"><th style="padding:0.5rem;">Année</th><th style="padding:0.5rem;text-align:right;">CA</th><th style="padding:0.5rem;text-align:right;">Charges</th><th style="padding:0.5rem;text-align:right;">Résultat</th></tr>' +
+                '<tr><td style="padding:0.5rem;">An 1</td><td style="padding:0.5rem;text-align:right;">________</td><td style="padding:0.5rem;text-align:right;">________</td><td style="padding:0.5rem;text-align:right;">________</td></tr>' +
+                '<tr><td style="padding:0.5rem;">An 2</td><td style="padding:0.5rem;text-align:right;">________</td><td style="padding:0.5rem;text-align:right;">________</td><td style="padding:0.5rem;text-align:right;">________</td></tr>' +
+                '<tr><td style="padding:0.5rem;">An 3</td><td style="padding:0.5rem;text-align:right;">________</td><td style="padding:0.5rem;text-align:right;">________</td><td style="padding:0.5rem;text-align:right;">________</td></tr>' +
+                '</table>' +
+                '<h3>6.2 Utilisation des fonds</h3><p><em>[Détail de l\'allocation du financement de ' + funding + ']</em></p>' +
+                '<h2>7. RISQUES ET ATTÉNUATION</h2><p><em>[Principaux risques et solutions]</em></p>' +
+                '<h2>8. CALENDRIER</h2><p><em>[Milestones clés sur 12-24 mois]</em></p>';
+
+            document.getElementById('plan').innerHTML = plan;
+            showNotification('Business plan généré !', 'success');
         });
-        window.addEventListener('load', () => document.getElementById('mainForm').dispatchEvent(new Event('submit')));
+
+        document.getElementById('printBtn').addEventListener('click', function() {
+            window.print();
+        });
+
+        document.getElementById('generateBtn').click();
     </script>
 </body>
 </html>

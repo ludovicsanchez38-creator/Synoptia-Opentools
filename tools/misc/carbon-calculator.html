@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Outil Business - Business Tools</title>
+    <title>Calculateur Empreinte Carbone - Business Tools</title>
     <link rel="stylesheet" href="../../assets/css/main.css">
     <link rel="stylesheet" href="../../assets/css/tools.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -11,49 +11,141 @@
 </head>
 <body>
     <nav class="breadcrumb">
-        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> > 
-        <a href="../../index.html#tools">Divers</a> > 
-        <span>Outil</span>
+        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> >
+        <a href="../../index.html#tools">Divers</a> >
+        <span>Empreinte Carbone</span>
     </nav>
     <main class="tool-container">
         <header class="tool-header">
-            <h1><i class="fas fa-tools"></i> Outil Business</h1>
-            <p class="tool-description">Outil professionnel pour optimiser votre activité.</p>
+            <h1><i class="fas fa-leaf"></i> Calculateur d'Empreinte Carbone</h1>
+            <p class="tool-description">Estimez l'empreinte carbone de votre entreprise.</p>
         </header>
+
         <section class="tool-input">
-            <form id="mainForm">
+            <h3>🚗 Transports</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin: 1rem 0;">
                 <div class="form-group">
-                    <label for="input1" class="form-label">Donnée d'entrée</label>
-                    <input type="number" id="input1" class="form-input" value="100" min="0" required>
+                    <label class="form-label">Km voiture/an</label>
+                    <input type="number" id="carKm" class="form-input" value="10000" min="0">
                 </div>
-                <button type="submit" class="btn btn-primary"><i class="fas fa-calculator"></i> Calculer</button>
-            </form>
-        </section>
-        <section class="tool-output" id="results" style="display: none;">
-            <div class="results-grid">
-                <div class="result-item">
-                    <div class="result-label">Résultat</div>
-                    <div class="result-value highlight" id="result">-</div>
+                <div class="form-group">
+                    <label class="form-label">Vols avion/an</label>
+                    <input type="number" id="flights" class="form-input" value="5" min="0">
                 </div>
             </div>
+
+            <h3>⚡ Énergie</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin: 1rem 0;">
+                <div class="form-group">
+                    <label class="form-label">Électricité (kWh/an)</label>
+                    <input type="number" id="electricity" class="form-input" value="50000" min="0">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Gaz (kWh/an)</label>
+                    <input type="number" id="gas" class="form-input" value="20000" min="0">
+                </div>
+            </div>
+
+            <h3>👥 Personnel</h3>
+            <div class="form-group" style="max-width: 300px;">
+                <label class="form-label">Nombre d'employés</label>
+                <input type="number" id="employees" class="form-input" value="10" min="1">
+            </div>
+
+            <button class="btn btn-primary" id="calculateBtn">
+                <i class="fas fa-calculator"></i> Calculer
+            </button>
         </section>
+
+        <section class="tool-output">
+            <div class="results-grid">
+                <div class="result-item">
+                    <div class="result-label">Empreinte totale</div>
+                    <div class="result-value highlight" id="totalCarbon">-</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Par employé</div>
+                    <div class="result-value success" id="perEmployee">-</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Équivalent arbres</div>
+                    <div class="result-value" id="trees">-</div>
+                </div>
+            </div>
+
+            <div style="margin-top: 1.5rem; padding: 1rem; background: white; border-radius: var(--radius);">
+                <h3>🌍 Répartition des émissions</h3>
+                <div id="breakdown"></div>
+            </div>
+
+            <div style="margin-top: 1.5rem; padding: 1rem; background: #e8f5e9; border-left: 4px solid #4caf50; border-radius: var(--radius);">
+                <h3 style="margin-top:0;">💡 Recommandations</h3>
+                <div id="recommendations"></div>
+            </div>
+        </section>
+
         <section class="tool-help">
-            <h3><i class="fas fa-info-circle"></i> Aide</h3>
-            <p>Utilisez cet outil pour optimiser votre gestion d'entreprise.</p>
+            <h3><i class="fas fa-info-circle"></i> Facteurs d'émission</h3>
+            <ul>
+                <li>Voiture : 0.19 kg CO2/km</li>
+                <li>Vol avion : 250 kg CO2/vol (moyenne)</li>
+                <li>Électricité : 0.08 kg CO2/kWh</li>
+                <li>Gaz : 0.23 kg CO2/kWh</li>
+                <li>1 arbre absorbe ~25 kg CO2/an</li>
+            </ul>
         </section>
     </main>
-    <footer class="tool-footer"><a href="../../index.html"><i class="fas fa-arrow-left"></i> Retour</a></footer>
+    <footer class="tool-footer">
+        <a href="../../index.html"><i class="fas fa-arrow-left"></i> Retour</a>
+    </footer>
     <script src="../../assets/js/utils.js"></script>
     <script src="../../assets/js/main.js"></script>
     <script>
-        document.getElementById('mainForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const val = parseFloat(document.getElementById('input1').value);
-            document.getElementById('result').textContent = val.toFixed(2);
-            document.getElementById('results').style.display = 'block';
-            showNotification('Opération réussie !', 'success');
+        document.getElementById('calculateBtn').addEventListener('click', function() {
+            const carKm = parseFloat(document.getElementById('carKm').value) || 0;
+            const flights = parseFloat(document.getElementById('flights').value) || 0;
+            const electricity = parseFloat(document.getElementById('electricity').value) || 0;
+            const gas = parseFloat(document.getElementById('gas').value) || 0;
+            const employees = parseFloat(document.getElementById('employees').value) || 1;
+
+            const carEmissions = carKm * 0.19;
+            const flightEmissions = flights * 250;
+            const electricityEmissions = electricity * 0.08;
+            const gasEmissions = gas * 0.23;
+
+            const totalEmissions = carEmissions + flightEmissions + electricityEmissions + gasEmissions;
+            const perEmployee = totalEmissions / employees;
+            const treesNeeded = Math.ceil(totalEmissions / 25);
+
+            document.getElementById('totalCarbon').textContent = totalEmissions.toFixed(0) + ' kg CO2';
+            document.getElementById('perEmployee').textContent = perEmployee.toFixed(0) + ' kg CO2';
+            document.getElementById('trees').textContent = treesNeeded + ' arbres/an';
+
+            const breakdown = '<div style="margin-top:1rem;">' +
+                '<div style="margin-bottom:0.5rem;">🚗 Transports : ' + (carEmissions + flightEmissions).toFixed(0) + ' kg CO2 (' + (((carEmissions + flightEmissions) / totalEmissions) * 100).toFixed(1) + '%)</div>' +
+                '<div style="margin-bottom:0.5rem;">⚡ Énergie : ' + (electricityEmissions + gasEmissions).toFixed(0) + ' kg CO2 (' + (((electricityEmissions + gasEmissions) / totalEmissions) * 100).toFixed(1) + '%)</div>' +
+                '</div>';
+
+            document.getElementById('breakdown').innerHTML = breakdown;
+
+            let recs = [];
+            recs.push('🌱 Plantez ou financez ' + treesNeeded + ' arbres pour compenser vos émissions');
+            if (carKm > 10000) recs.push('🚗 Privilégiez le covoiturage ou les véhicules électriques');
+            if (flights > 10) recs.push('✈️ Limitez les vols ou compensez via des crédits carbone');
+            if (electricity > 30000) recs.push('💡 Passez à l\'électricité verte');
+            recs.push('📊 Objectif : -50% d\'émissions d\'ici 2030');
+
+            document.getElementById('recommendations').innerHTML = recs.map(function(r) { return '<div>• ' + r + '</div>'; }).join('');
+            showNotification('Empreinte calculée !', 'success');
         });
-        window.addEventListener('load', () => document.getElementById('mainForm').dispatchEvent(new Event('submit')));
+
+        ['carKm', 'flights', 'electricity', 'gas', 'employees'].forEach(function(id) {
+            document.getElementById(id).addEventListener('input', function() {
+                document.getElementById('calculateBtn').click();
+            });
+        });
+
+        document.getElementById('calculateBtn').click();
     </script>
 </body>
 </html>

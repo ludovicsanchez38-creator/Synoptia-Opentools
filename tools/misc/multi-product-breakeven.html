@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Outil Business - Business Tools</title>
+    <title>Seuil Multi-Produits - Business Tools</title>
     <link rel="stylesheet" href="../../assets/css/main.css">
     <link rel="stylesheet" href="../../assets/css/tools.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -11,49 +11,157 @@
 </head>
 <body>
     <nav class="breadcrumb">
-        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> > 
-        <a href="../../index.html#tools">Divers</a> > 
-        <span>Outil</span>
+        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> >
+        <a href="../../index.html#tools">Divers</a> >
+        <span>Seuil Multi-Produits</span>
     </nav>
     <main class="tool-container">
         <header class="tool-header">
-            <h1><i class="fas fa-tools"></i> Outil Business</h1>
-            <p class="tool-description">Outil professionnel pour optimiser votre activité.</p>
+            <h1><i class="fas fa-balance-scale"></i> Seuil de Rentabilité Multi-Produits</h1>
+            <p class="tool-description">Calculez le seuil de rentabilité pour plusieurs produits.</p>
         </header>
+
         <section class="tool-input">
-            <form id="mainForm">
-                <div class="form-group">
-                    <label for="input1" class="form-label">Donnée d'entrée</label>
-                    <input type="number" id="input1" class="form-input" value="100" min="0" required>
-                </div>
-                <button type="submit" class="btn btn-primary"><i class="fas fa-calculator"></i> Calculer</button>
-            </form>
-        </section>
-        <section class="tool-output" id="results" style="display: none;">
-            <div class="results-grid">
-                <div class="result-item">
-                    <div class="result-label">Résultat</div>
-                    <div class="result-value highlight" id="result">-</div>
+            <h3>Frais fixes</h3>
+            <div class="form-group" style="max-width: 400px; margin-bottom: 1.5rem;">
+                <label class="form-label">Charges fixes totales (€)</label>
+                <input type="number" id="fixedCosts" class="form-input" value="50000" min="0">
+            </div>
+
+            <h3>Produits</h3>
+            <div style="margin-bottom: 1rem;">
+                <div style="display: grid; grid-template-columns: 2fr 1fr 1fr 1fr auto; gap: 0.5rem; align-items:end;">
+                    <div class="form-group">
+                        <label class="form-label">Produit</label>
+                        <input type="text" id="productName" class="form-input" value="Produit A">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Prix (€)</label>
+                        <input type="number" id="price" class="form-input" value="100" min="0">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Coût var. (€)</label>
+                        <input type="number" id="varCost" class="form-input" value="60" min="0">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Mix (%)</label>
+                        <input type="number" id="mix" class="form-input" value="50" min="0" max="100">
+                    </div>
+                    <button class="btn btn-primary" id="addBtn">
+                        <i class="fas fa-plus"></i>
+                    </button>
                 </div>
             </div>
+
+            <button class="btn btn-secondary" id="clearBtn">
+                <i class="fas fa-trash"></i> Effacer
+            </button>
+            <button class="btn btn-primary" id="calculateBtn" style="margin-left: 0.5rem;">
+                <i class="fas fa-calculator"></i> Calculer
+            </button>
         </section>
+
+        <section class="tool-output">
+            <div id="products"></div>
+            <div id="results" style="margin-top: 1.5rem;"></div>
+        </section>
+
         <section class="tool-help">
-            <h3><i class="fas fa-info-circle"></i> Aide</h3>
-            <p>Utilisez cet outil pour optimiser votre gestion d'entreprise.</p>
+            <h3><i class="fas fa-info-circle"></i> Méthode</h3>
+            <p>Marge pondérée = Σ (Marge produit × Mix produit)</p>
+            <p>Seuil = Charges fixes / Marge pondérée</p>
         </section>
     </main>
-    <footer class="tool-footer"><a href="../../index.html"><i class="fas fa-arrow-left"></i> Retour</a></footer>
+    <footer class="tool-footer">
+        <a href="../../index.html"><i class="fas fa-arrow-left"></i> Retour</a>
+    </footer>
     <script src="../../assets/js/utils.js"></script>
     <script src="../../assets/js/main.js"></script>
     <script>
-        document.getElementById('mainForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const val = parseFloat(document.getElementById('input1').value);
-            document.getElementById('result').textContent = val.toFixed(2);
-            document.getElementById('results').style.display = 'block';
-            showNotification('Opération réussie !', 'success');
+        let products = [];
+
+        document.getElementById('addBtn').addEventListener('click', function() {
+            const name = document.getElementById('productName').value.trim() || 'Produit';
+            const price = parseFloat(document.getElementById('price').value) || 0;
+            const varCost = parseFloat(document.getElementById('varCost').value) || 0;
+            const mix = parseFloat(document.getElementById('mix').value) || 0;
+
+            products.push({ id: Date.now(), name: name, price: price, varCost: varCost, mix: mix });
+            render();
+            document.getElementById('productName').value = '';
         });
-        window.addEventListener('load', () => document.getElementById('mainForm').dispatchEvent(new Event('submit')));
+
+        document.getElementById('clearBtn').addEventListener('click', function() {
+            products = [];
+            render();
+        });
+
+        document.getElementById('calculateBtn').addEventListener('click', calculate);
+
+        function render() {
+            if (products.length === 0) {
+                document.getElementById('products').innerHTML = '<p style="color:#999;text-align:center;">Aucun produit ajouté</p>';
+                document.getElementById('results').innerHTML = '';
+                return;
+            }
+
+            const html = '<table style="width:100%;border-collapse:collapse;margin-top:1rem;">' +
+                '<tr style="background:#f5f5f5;"><th style="padding:0.5rem;">Produit</th><th style="padding:0.5rem;text-align:right;">Prix</th><th style="padding:0.5rem;text-align:right;">Coût var.</th><th style="padding:0.5rem;text-align:right;">Marge</th><th style="padding:0.5rem;text-align:right;">Mix</th><th></th></tr>' +
+                products.map(function(p) {
+                    const margin = p.price - p.varCost;
+                    return '<tr><td style="padding:0.5rem;">' + p.name + '</td>' +
+                        '<td style="padding:0.5rem;text-align:right;">' + formatCurrency(p.price) + '</td>' +
+                        '<td style="padding:0.5rem;text-align:right;">' + formatCurrency(p.varCost) + '</td>' +
+                        '<td style="padding:0.5rem;text-align:right;font-weight:700;">' + formatCurrency(margin) + '</td>' +
+                        '<td style="padding:0.5rem;text-align:right;">' + p.mix + '%</td>' +
+                        '<td style="padding:0.5rem;"><button onclick="deleteProduct(' + p.id + ')" style="border:none;background:#ff6b6b;color:white;padding:0.3rem 0.8rem;border-radius:4px;cursor:pointer;"><i class="fas fa-trash"></i></button></td></tr>';
+                }).join('') +
+                '</table>';
+
+            document.getElementById('products').innerHTML = html;
+        }
+
+        function calculate() {
+            if (products.length === 0) {
+                showNotification('Ajoutez au moins un produit', 'error');
+                return;
+            }
+
+            const fixedCosts = parseFloat(document.getElementById('fixedCosts').value) || 0;
+            
+            let weightedMargin = 0;
+            let totalMix = products.reduce(function(sum, p) { return sum + p.mix; }, 0);
+            
+            products.forEach(function(p) {
+                const margin = p.price - p.varCost;
+                const weight = totalMix > 0 ? p.mix / totalMix : 0;
+                weightedMargin += margin * weight;
+            });
+
+            const breakeven = weightedMargin > 0 ? fixedCosts / weightedMargin : 0;
+            
+            const html = '<div class="results-grid">' +
+                '<div class="result-item"><div class="result-label">Marge pondérée</div><div class="result-value">' + formatCurrency(weightedMargin) + '</div></div>' +
+                '<div class="result-item"><div class="result-label">Seuil global (unités)</div><div class="result-value highlight">' + Math.ceil(breakeven) + '</div></div>' +
+                '</div>' +
+                '<div style="margin-top:1rem;padding:1rem;background:white;border-radius:var(--radius);"><h4>Répartition par produit</h4>' +
+                products.map(function(p) {
+                    const units = Math.ceil(breakeven * (p.mix / totalMix));
+                    const revenue = units * p.price;
+                    return '<div style="margin:0.5rem 0;">' + p.name + ' : <strong>' + units + ' unités</strong> (' + formatCurrency(revenue) + ')</div>';
+                }).join('') +
+                '</div>';
+
+            document.getElementById('results').innerHTML = html;
+            showNotification('Seuil calculé !', 'success');
+        }
+
+        window.deleteProduct = function(id) {
+            products = products.filter(function(p) { return p.id !== id; });
+            render();
+        };
+
+        render();
     </script>
 </body>
 </html>

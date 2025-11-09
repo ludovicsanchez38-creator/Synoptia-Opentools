@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Outil Business - Business Tools</title>
+    <title>Générateur NDA - Business Tools</title>
     <link rel="stylesheet" href="../../assets/css/main.css">
     <link rel="stylesheet" href="../../assets/css/tools.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -11,49 +11,96 @@
 </head>
 <body>
     <nav class="breadcrumb">
-        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> > 
-        <a href="../../index.html#tools">Divers</a> > 
-        <span>Outil</span>
+        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> >
+        <a href="../../index.html#tools">Divers</a> >
+        <span>NDA</span>
     </nav>
     <main class="tool-container">
         <header class="tool-header">
-            <h1><i class="fas fa-tools"></i> Outil Business</h1>
-            <p class="tool-description">Outil professionnel pour optimiser votre activité.</p>
+            <h1><i class="fas fa-lock"></i> Générateur d'Accord de Confidentialité (NDA)</h1>
+            <p class="tool-description">Créez un accord de non-divulgation.</p>
         </header>
+
         <section class="tool-input">
-            <form id="mainForm">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; margin: 1.5rem 0;">
                 <div class="form-group">
-                    <label for="input1" class="form-label">Donnée d'entrée</label>
-                    <input type="number" id="input1" class="form-input" value="100" min="0" required>
+                    <label class="form-label">Partie divulgatrice</label>
+                    <input type="text" id="discloser" class="form-input" value="Ma Société">
                 </div>
-                <button type="submit" class="btn btn-primary"><i class="fas fa-calculator"></i> Calculer</button>
-            </form>
-        </section>
-        <section class="tool-output" id="results" style="display: none;">
-            <div class="results-grid">
-                <div class="result-item">
-                    <div class="result-label">Résultat</div>
-                    <div class="result-value highlight" id="result">-</div>
+                <div class="form-group">
+                    <label class="form-label">Partie bénéficiaire</label>
+                    <input type="text" id="recipient" class="form-input" value="Entreprise Partenaire">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Durée (années)</label>
+                    <input type="number" id="duration" class="form-input" value="3" min="1">
                 </div>
             </div>
+
+            <button class="btn btn-primary" id="generateBtn">
+                <i class="fas fa-file-alt"></i> Générer le NDA
+            </button>
         </section>
+
+        <section class="tool-output">
+            <div id="nda" style="padding: 2rem; background: white; border-radius: var(--radius);"></div>
+            <button class="btn btn-secondary" id="printBtn" style="margin-top: 1rem;">
+                <i class="fas fa-print"></i> Imprimer
+            </button>
+        </section>
+
         <section class="tool-help">
-            <h3><i class="fas fa-info-circle"></i> Aide</h3>
-            <p>Utilisez cet outil pour optimiser votre gestion d'entreprise.</p>
+            <h3><i class="fas fa-exclamation-triangle"></i> Avertissement</h3>
+            <p>Ce document est un modèle de base. Pour une protection juridique optimale, consultez un avocat.</p>
         </section>
     </main>
-    <footer class="tool-footer"><a href="../../index.html"><i class="fas fa-arrow-left"></i> Retour</a></footer>
+    <footer class="tool-footer">
+        <a href="../../index.html"><i class="fas fa-arrow-left"></i> Retour</a>
+    </footer>
     <script src="../../assets/js/utils.js"></script>
     <script src="../../assets/js/main.js"></script>
     <script>
-        document.getElementById('mainForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const val = parseFloat(document.getElementById('input1').value);
-            document.getElementById('result').textContent = val.toFixed(2);
-            document.getElementById('results').style.display = 'block';
-            showNotification('Opération réussie !', 'success');
+        document.getElementById('generateBtn').addEventListener('click', function() {
+            const discloser = document.getElementById('discloser').value || 'Partie A';
+            const recipient = document.getElementById('recipient').value || 'Partie B';
+            const duration = document.getElementById('duration').value || '3';
+            const date = new Date().toLocaleDateString('fr-FR');
+
+            const nda = '<h2 style="text-align:center;margin-bottom:2rem;">ACCORD DE CONFIDENTIALITÉ</h2>' +
+                '<p><em>Fait à __________, le ' + date + '</em></p>' +
+                '<h3>ENTRE LES SOUSSIGNÉS :</h3>' +
+                '<p><strong>' + discloser + '</strong> (ci-après « la Partie Divulgatrice »)</p>' +
+                '<p>ET</p>' +
+                '<p><strong>' + recipient + '</strong> (ci-après « la Partie Bénéficiaire »)</p>' +
+                '<h3>IL A ÉTÉ CONVENU CE QUI SUIT :</h3>' +
+                '<h4>Article 1 - Objet</h4>' +
+                '<p>Le présent accord a pour objet de définir les conditions dans lesquelles la Partie Divulgatrice communiquera des informations confidentielles à la Partie Bénéficiaire.</p>' +
+                '<h4>Article 2 - Définition des Informations Confidentielles</h4>' +
+                '<p>Sont considérées comme confidentielles toutes informations techniques, commerciales, financières, ou de toute autre nature communiquées par la Partie Divulgatrice.</p>' +
+                '<h4>Article 3 - Obligations de la Partie Bénéficiaire</h4>' +
+                '<p>La Partie Bénéficiaire s\'engage à :</p>' +
+                '<ul><li>Ne pas divulguer les informations confidentielles à des tiers</li>' +
+                '<li>Utiliser les informations uniquement dans le cadre défini</li>' +
+                '<li>Protéger les informations avec le même niveau de protection que ses propres informations</li></ul>' +
+                '<h4>Article 4 - Durée</h4>' +
+                '<p>Le présent accord est conclu pour une durée de <strong>' + duration + ' ans</strong> à compter de sa signature.</p>' +
+                '<h4>Article 5 - Droit Applicable</h4>' +
+                '<p>Le présent accord est soumis au droit français.</p>' +
+                '<div style="margin-top:3rem;display:grid;grid-template-columns:1fr 1fr;gap:2rem;">' +
+                '<div><strong>Pour ' + discloser + '</strong><br><br>Signature :<br>_________________</div>' +
+                '<div><strong>Pour ' + recipient + '</strong><br><br>Signature :<br>_________________</div>' +
+                '</div>' +
+                '<div style="margin-top:2rem;padding:1rem;background:#f5f5f5;border-radius:var(--radius);"><strong>Note :</strong> Ce document est fourni à titre informatif. Consultez un avocat pour un accord adapté à votre situation.</div>';
+
+            document.getElementById('nda').innerHTML = nda;
+            showNotification('NDA généré !', 'success');
         });
-        window.addEventListener('load', () => document.getElementById('mainForm').dispatchEvent(new Event('submit')));
+
+        document.getElementById('printBtn').addEventListener('click', function() {
+            window.print();
+        });
+
+        document.getElementById('generateBtn').click();
     </script>
 </body>
 </html>

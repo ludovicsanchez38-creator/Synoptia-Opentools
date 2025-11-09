@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Outil Business - Business Tools</title>
+    <title>Planificateur Budget - Business Tools</title>
     <link rel="stylesheet" href="../../assets/css/main.css">
     <link rel="stylesheet" href="../../assets/css/tools.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -11,49 +11,137 @@
 </head>
 <body>
     <nav class="breadcrumb">
-        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> > 
-        <a href="../../index.html#tools">Divers</a> > 
-        <span>Outil</span>
+        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> >
+        <a href="../../index.html#tools">Divers</a> >
+        <span>Planificateur Budget</span>
     </nav>
     <main class="tool-container">
         <header class="tool-header">
-            <h1><i class="fas fa-tools"></i> Outil Business</h1>
-            <p class="tool-description">Outil professionnel pour optimiser votre activité.</p>
+            <h1><i class="fas fa-calculator"></i> Planificateur de Budget Annuel</h1>
+            <p class="tool-description">Planifiez et suivez votre budget d'entreprise.</p>
         </header>
+
         <section class="tool-input">
-            <form id="mainForm">
+            <h3>💰 Budget annuel prévisionnel</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin: 1.5rem 0;">
                 <div class="form-group">
-                    <label for="input1" class="form-label">Donnée d'entrée</label>
-                    <input type="number" id="input1" class="form-input" value="100" min="0" required>
+                    <label class="form-label">CA prévisionnel (€)</label>
+                    <input type="number" id="revenue" class="form-input" value="500000" min="0">
                 </div>
-                <button type="submit" class="btn btn-primary"><i class="fas fa-calculator"></i> Calculer</button>
-            </form>
-        </section>
-        <section class="tool-output" id="results" style="display: none;">
-            <div class="results-grid">
-                <div class="result-item">
-                    <div class="result-label">Résultat</div>
-                    <div class="result-value highlight" id="result">-</div>
+                <div class="form-group">
+                    <label class="form-label">Budget RH (€)</label>
+                    <input type="number" id="hr" class="form-input" value="200000" min="0">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Budget Marketing (€)</label>
+                    <input type="number" id="marketing" class="form-input" value="50000" min="0">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Budget IT (€)</label>
+                    <input type="number" id="it" class="form-input" value="30000" min="0">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Budget locaux (€)</label>
+                    <input type="number" id="facilities" class="form-input" value="40000" min="0">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Autres charges (€)</label>
+                    <input type="number" id="other" class="form-input" value="30000" min="0">
                 </div>
             </div>
+
+            <button class="btn btn-primary" id="calculateBtn">
+                <i class="fas fa-chart-pie"></i> Analyser le budget
+            </button>
         </section>
+
+        <section class="tool-output">
+            <div class="results-grid">
+                <div class="result-item">
+                    <div class="result-label">Budget total</div>
+                    <div class="result-value highlight" id="totalBudget">-</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Résultat prévu</div>
+                    <div class="result-value" id="result">-</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Marge prévue</div>
+                    <div class="result-value success" id="margin">-</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Budget/mois</div>
+                    <div class="result-value" id="monthly">-</div>
+                </div>
+            </div>
+
+            <div style="margin-top: 1.5rem; padding: 1rem; background: white; border-radius: var(--radius);">
+                <h3>📊 Répartition du budget</h3>
+                <div id="breakdown"></div>
+            </div>
+        </section>
+
         <section class="tool-help">
-            <h3><i class="fas fa-info-circle"></i> Aide</h3>
-            <p>Utilisez cet outil pour optimiser votre gestion d'entreprise.</p>
+            <h3><i class="fas fa-info-circle"></i> Benchmarks secteur</h3>
+            <ul>
+                <li>RH : 30-50% du CA</li>
+                <li>Marketing : 5-15% du CA</li>
+                <li>IT : 3-8% du CA</li>
+                <li>Locaux : 5-10% du CA</li>
+            </ul>
         </section>
     </main>
-    <footer class="tool-footer"><a href="../../index.html"><i class="fas fa-arrow-left"></i> Retour</a></footer>
+    <footer class="tool-footer">
+        <a href="../../index.html"><i class="fas fa-arrow-left"></i> Retour</a>
+    </footer>
     <script src="../../assets/js/utils.js"></script>
     <script src="../../assets/js/main.js"></script>
     <script>
-        document.getElementById('mainForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const val = parseFloat(document.getElementById('input1').value);
-            document.getElementById('result').textContent = val.toFixed(2);
-            document.getElementById('results').style.display = 'block';
-            showNotification('Opération réussie !', 'success');
+        document.getElementById('calculateBtn').addEventListener('click', function() {
+            const revenue = parseFloat(document.getElementById('revenue').value) || 0;
+            const hr = parseFloat(document.getElementById('hr').value) || 0;
+            const marketing = parseFloat(document.getElementById('marketing').value) || 0;
+            const it = parseFloat(document.getElementById('it').value) || 0;
+            const facilities = parseFloat(document.getElementById('facilities').value) || 0;
+            const other = parseFloat(document.getElementById('other').value) || 0;
+
+            const totalBudget = hr + marketing + it + facilities + other;
+            const result = revenue - totalBudget;
+            const margin = revenue > 0 ? (result / revenue) * 100 : 0;
+            const monthly = totalBudget / 12;
+
+            document.getElementById('totalBudget').textContent = formatCurrency(totalBudget);
+            document.getElementById('result').textContent = formatCurrency(result);
+            document.getElementById('margin').textContent = margin.toFixed(1) + '%';
+            document.getElementById('monthly').textContent = formatCurrency(monthly);
+
+            const items = [
+                { name: 'RH', value: hr, pct: (hr / totalBudget) * 100 },
+                { name: 'Marketing', value: marketing, pct: (marketing / totalBudget) * 100 },
+                { name: 'IT', value: it, pct: (it / totalBudget) * 100 },
+                { name: 'Locaux', value: facilities, pct: (facilities / totalBudget) * 100 },
+                { name: 'Autres', value: other, pct: (other / totalBudget) * 100 }
+            ].sort(function(a, b) { return b.value - a.value; });
+
+            const breakdown = items.map(function(item) {
+                return '<div style="margin-bottom:1rem;">' +
+                    '<div style="display:flex;justify-content:space-between;margin-bottom:0.3rem;">' +
+                    '<strong>' + item.name + '</strong><span>' + formatCurrency(item.value) + ' (' + item.pct.toFixed(1) + '%)</span></div>' +
+                    '<div style="width:100%;height:20px;background:#e0e0e0;border-radius:4px;overflow:hidden;">' +
+                    '<div style="width:' + item.pct + '%;height:100%;background:#2196f3;"></div></div></div>';
+            }).join('');
+
+            document.getElementById('breakdown').innerHTML = breakdown;
+            showNotification('Budget analysé !', 'success');
         });
-        window.addEventListener('load', () => document.getElementById('mainForm').dispatchEvent(new Event('submit')));
+
+        ['revenue', 'hr', 'marketing', 'it', 'facilities', 'other'].forEach(function(id) {
+            document.getElementById(id).addEventListener('input', function() {
+                document.getElementById('calculateBtn').click();
+            });
+        });
+
+        document.getElementById('calculateBtn').click();
     </script>
 </body>
 </html>

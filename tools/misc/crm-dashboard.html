@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Outil Business - Business Tools</title>
+    <title>Tableau de Bord CRM - Business Tools</title>
     <link rel="stylesheet" href="../../assets/css/main.css">
     <link rel="stylesheet" href="../../assets/css/tools.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -11,49 +11,129 @@
 </head>
 <body>
     <nav class="breadcrumb">
-        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> > 
-        <a href="../../index.html#tools">Divers</a> > 
-        <span>Outil</span>
+        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> >
+        <a href="../../index.html#tools">Divers</a> >
+        <span>CRM Dashboard</span>
     </nav>
     <main class="tool-container">
         <header class="tool-header">
-            <h1><i class="fas fa-tools"></i> Outil Business</h1>
-            <p class="tool-description">Outil professionnel pour optimiser votre activité.</p>
+            <h1><i class="fas fa-users-cog"></i> Tableau de Bord CRM Simplifié</h1>
+            <p class="tool-description">Suivez votre pipeline commercial.</p>
         </header>
+
         <section class="tool-input">
-            <form id="mainForm">
+            <h3>Ajouter une opportunité</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-bottom: 1rem;">
                 <div class="form-group">
-                    <label for="input1" class="form-label">Donnée d'entrée</label>
-                    <input type="number" id="input1" class="form-input" value="100" min="0" required>
+                    <label class="form-label">Prospect</label>
+                    <input type="text" id="prospect" class="form-input" placeholder="Nom">
                 </div>
-                <button type="submit" class="btn btn-primary"><i class="fas fa-calculator"></i> Calculer</button>
-            </form>
-        </section>
-        <section class="tool-output" id="results" style="display: none;">
-            <div class="results-grid">
-                <div class="result-item">
-                    <div class="result-label">Résultat</div>
-                    <div class="result-value highlight" id="result">-</div>
+                <div class="form-group">
+                    <label class="form-label">Montant (€)</label>
+                    <input type="number" id="amount" class="form-input" value="10000" min="0">
                 </div>
+                <div class="form-group">
+                    <label class="form-label">Étape</label>
+                    <select id="stage" class="form-input">
+                        <option value="lead">Lead</option>
+                        <option value="qualified">Qualifié</option>
+                        <option value="proposal">Proposition</option>
+                        <option value="negotiation">Négociation</option>
+                        <option value="closed-won">Gagné</option>
+                    </select>
+                </div>
+                <button class="btn btn-primary" id="addBtn" style="align-self:end;">
+                    <i class="fas fa-plus"></i> Ajouter
+                </button>
             </div>
         </section>
+
+        <section class="tool-output">
+            <div class="results-grid">
+                <div class="result-item">
+                    <div class="result-label">Pipeline total</div>
+                    <div class="result-value highlight" id="totalPipeline">0 €</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Opportunités</div>
+                    <div class="result-value" id="totalOpps">0</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Taux conversion</div>
+                    <div class="result-value success" id="convRate">0%</div>
+                </div>
+            </div>
+
+            <div style="margin-top: 1.5rem;">
+                <h3>Pipeline par étape</h3>
+                <div id="pipeline"></div>
+            </div>
+        </section>
+
         <section class="tool-help">
-            <h3><i class="fas fa-info-circle"></i> Aide</h3>
-            <p>Utilisez cet outil pour optimiser votre gestion d'entreprise.</p>
+            <h3><i class="fas fa-info-circle"></i> Étapes du pipeline</h3>
+            <ul>
+                <li>Lead : Premier contact</li>
+                <li>Qualifié : Besoin identifié</li>
+                <li>Proposition : Offre envoyée</li>
+                <li>Négociation : Discussion prix</li>
+                <li>Gagné : Contrat signé</li>
+            </ul>
         </section>
     </main>
-    <footer class="tool-footer"><a href="../../index.html"><i class="fas fa-arrow-left"></i> Retour</a></footer>
+    <footer class="tool-footer">
+        <a href="../../index.html"><i class="fas fa-arrow-left"></i> Retour</a>
+    </footer>
     <script src="../../assets/js/utils.js"></script>
     <script src="../../assets/js/main.js"></script>
     <script>
-        document.getElementById('mainForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const val = parseFloat(document.getElementById('input1').value);
-            document.getElementById('result').textContent = val.toFixed(2);
-            document.getElementById('results').style.display = 'block';
-            showNotification('Opération réussie !', 'success');
+        let opportunities = JSON.parse(localStorage.getItem('crm_opportunities') || '[]');
+
+        document.getElementById('addBtn').addEventListener('click', function() {
+            const prospect = document.getElementById('prospect').value.trim();
+            const amount = parseFloat(document.getElementById('amount').value) || 0;
+            const stage = document.getElementById('stage').value;
+
+            if (prospect) {
+                opportunities.push({ id: Date.now(), prospect: prospect, amount: amount, stage: stage });
+                localStorage.setItem('crm_opportunities', JSON.stringify(opportunities));
+                document.getElementById('prospect').value = '';
+                render();
+                showNotification('Opportunité ajoutée !', 'success');
+            }
         });
-        window.addEventListener('load', () => document.getElementById('mainForm').dispatchEvent(new Event('submit')));
+
+        function render() {
+            const total = opportunities.reduce(function(sum, o) { return sum + o.amount; }, 0);
+            const won = opportunities.filter(function(o) { return o.stage === 'closed-won'; });
+            const convRate = opportunities.length > 0 ? (won.length / opportunities.length) * 100 : 0;
+
+            document.getElementById('totalPipeline').textContent = formatCurrency(total);
+            document.getElementById('totalOpps').textContent = opportunities.length;
+            document.getElementById('convRate').textContent = convRate.toFixed(1) + '%';
+
+            const stages = {
+                lead: { name: 'Lead', color: '#9e9e9e' },
+                qualified: { name: 'Qualifié', color: '#2196f3' },
+                proposal: { name: 'Proposition', color: '#ff9800' },
+                negotiation: { name: 'Négociation', color: '#9c27b0' },
+                'closed-won': { name: 'Gagné', color: '#4caf50' }
+            };
+
+            let pipelineHTML = '';
+            for (let key in stages) {
+                const opps = opportunities.filter(function(o) { return o.stage === key; });
+                const amount = opps.reduce(function(sum, o) { return sum + o.amount; }, 0);
+                
+                pipelineHTML += '<div style="margin-bottom:1rem;padding:1rem;background:white;border-left:4px solid ' + stages[key].color + ';border-radius:var(--radius);">' +
+                    '<div style="display:flex;justify-content:space-between;margin-bottom:0.5rem;"><strong>' + stages[key].name + '</strong><span>' + formatCurrency(amount) + '</span></div>' +
+                    '<div style="font-size:0.9em;color:#666;">' + opps.length + ' opportunité(s)</div></div>';
+            }
+
+            document.getElementById('pipeline').innerHTML = pipelineHTML || '<p style="color:#999;text-align:center;">Aucune opportunité</p>';
+        }
+
+        render();
     </script>
 </body>
 </html>
