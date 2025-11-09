@@ -8,89 +8,432 @@
     <link rel="stylesheet" href="../../assets/css/tools.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+        .stat-card {
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: white;
+            padding: 1.5rem;
+            border-radius: var(--radius-lg);
+            text-align: center;
+        }
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            margin: 0.5rem 0;
+        }
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        .expense-item {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1rem;
+            margin-bottom: 0.75rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .expense-info {
+            flex: 1;
+        }
+        .expense-category {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: var(--radius);
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        .category-alimentation { background: #FFE5E5; color: #D32F2F; }
+        .category-transport { background: #E3F2FD; color: #1976D2; }
+        .category-bureau { background: #F3E5F5; color: #7B1FA2; }
+        .category-marketing { background: #E8F5E9; color: #388E3C; }
+        .category-salaires { background: #FFF3E0; color: #F57C00; }
+        .category-loyer { background: #E0F2F1; color: #00796B; }
+        .category-equipement { background: #FBE9E7; color: #E64A19; }
+        .category-autres { background: #F5F5F5; color: #616161; }
+        .expense-amount {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+        .filter-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin: 2rem 0;
+        }
+        @media (max-width: 768px) {
+            .expense-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .expense-actions {
+                margin-top: 1rem;
+                width: 100%;
+            }
+        }
+    </style>
 </head>
 <body>
     <nav class="breadcrumb">
-        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> > 
-        <a href="../../index.html#tools">Facturation</a> > 
+        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> >
+        <a href="../../index.html#tools">Facturation</a> >
         <span>Suivi des Dépenses</span>
     </nav>
     <main class="tool-container">
         <header class="tool-header">
             <h1><i class="fas fa-wallet"></i> Suivi des Dépenses</h1>
-            <p class="tool-description">Analyse et catégorise les dépenses</p>
+            <p class="tool-description">Gérez et analysez vos dépenses professionnelles</p>
         </header>
+
+        <!-- Statistics -->
+        <section class="stats-grid">
+            <div class="stat-card">
+                <i class="fas fa-calendar-day" style="font-size: 2rem;"></i>
+                <div class="stat-value" id="monthTotal">0,00 €</div>
+                <div class="stat-label">Ce mois</div>
+            </div>
+            <div class="stat-card" style="background: linear-gradient(135deg, var(--accent), var(--secondary));">
+                <i class="fas fa-calendar-alt" style="font-size: 2rem;"></i>
+                <div class="stat-value" id="yearTotal">0,00 €</div>
+                <div class="stat-label">Cette année</div>
+            </div>
+            <div class="stat-card" style="background: linear-gradient(135deg, var(--secondary), var(--primary));">
+                <i class="fas fa-receipt" style="font-size: 2rem;"></i>
+                <div class="stat-value" id="expenseCount">0</div>
+                <div class="stat-label">Dépenses totales</div>
+            </div>
+        </section>
+
+        <!-- Add Expense Form -->
         <section class="tool-input">
-            <h2>Informations</h2>
-            <form id="mainForm">
+            <h2><i class="fas fa-plus-circle"></i> Ajouter une dépense</h2>
+            <form id="expenseForm">
+                <div class="input-grid">
+                    <div class="form-group">
+                        <label class="form-label">Date</label>
+                        <input type="date" id="expenseDate" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Catégorie</label>
+                        <select id="expenseCategory" class="form-input" required>
+                            <option value="">Sélectionner...</option>
+                            <option value="alimentation">🍽️ Alimentation</option>
+                            <option value="transport">🚗 Transport</option>
+                            <option value="bureau">🏢 Fournitures bureau</option>
+                            <option value="marketing">📢 Marketing</option>
+                            <option value="salaires">👥 Salaires</option>
+                            <option value="loyer">🏠 Loyer</option>
+                            <option value="equipement">💻 Équipement</option>
+                            <option value="autres">📦 Autres</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Montant (€)</label>
+                        <input type="number" id="expenseAmount" class="form-input" min="0" step="0.01" required>
+                    </div>
+                </div>
                 <div class="form-group">
-                    <label for="input1" class="form-label">
-                        <i class="fas fa-edit"></i> Champ principal
-                    </label>
-                    <input type="text" id="input1" class="form-input" placeholder="Entrez les informations" required>
+                    <label class="form-label">Description</label>
+                    <input type="text" id="expenseDescription" class="form-input" placeholder="Ex: Déjeuner client, Essence, etc." required>
                 </div>
-                <div class="action-buttons">
-                    <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-save"></i> Générer
-                    </button>
-                    <button type="button" class="btn btn-outline" id="resetBtn">
-                        <i class="fas fa-redo"></i> Réinitialiser
-                    </button>
-                </div>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Ajouter la dépense
+                </button>
             </form>
         </section>
-        <section class="tool-output" id="results" style="display: none;">
-            <h2><i class="fas fa-check-circle"></i> Résultat</h2>
-            <div class="alert alert-success">
-                <strong>✓ Succès !</strong> Votre document a été généré.
-            </div>
-            <div class="action-buttons">
-                <button class="btn btn-accent" id="downloadBtn">
-                    <i class="fas fa-download"></i> Télécharger
-                </button>
-                <button class="btn btn-secondary" id="printBtn">
-                    <i class="fas fa-print"></i> Imprimer
-                </button>
+
+        <!-- Chart -->
+        <section style="background: white; padding: 2rem; border-radius: var(--radius-lg); margin: 2rem 0;">
+            <h2><i class="fas fa-chart-pie"></i> Répartition par catégorie</h2>
+            <div class="chart-container">
+                <canvas id="expenseChart"></canvas>
             </div>
         </section>
+
+        <!-- Expenses List -->
+        <section class="tool-output">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                <h2><i class="fas fa-list"></i> Liste des dépenses</h2>
+                <div>
+                    <button class="btn btn-success" id="exportBtn">
+                        <i class="fas fa-file-csv"></i> Exporter CSV
+                    </button>
+                    <button class="btn btn-danger" id="clearBtn">
+                        <i class="fas fa-trash"></i> Tout effacer
+                    </button>
+                </div>
+            </div>
+
+            <div class="filter-buttons">
+                <button class="btn btn-primary btn-sm" data-filter="all">Toutes</button>
+                <button class="btn btn-outline btn-sm" data-filter="alimentation">🍽️ Alimentation</button>
+                <button class="btn btn-outline btn-sm" data-filter="transport">🚗 Transport</button>
+                <button class="btn btn-outline btn-sm" data-filter="bureau">🏢 Bureau</button>
+                <button class="btn btn-outline btn-sm" data-filter="marketing">📢 Marketing</button>
+                <button class="btn btn-outline btn-sm" data-filter="salaires">👥 Salaires</button>
+                <button class="btn btn-outline btn-sm" data-filter="loyer">🏠 Loyer</button>
+                <button class="btn btn-outline btn-sm" data-filter="equipement">💻 Équipement</button>
+                <button class="btn btn-outline btn-sm" data-filter="autres">📦 Autres</button>
+            </div>
+
+            <div id="expensesList"></div>
+        </section>
+
         <section class="tool-help">
-            <h3><i class="fas fa-question-circle"></i> Comment utiliser cet outil ?</h3>
-            <ol>
-                <li>Remplissez les informations requises</li>
-                <li>Cliquez sur <strong>Générer</strong></li>
-                <li>Téléchargez ou imprimez le document</li>
-            </ol>
-            <h3><i class="fas fa-lightbulb"></i> Conseil</h3>
-            <p>Conservez une copie de tous vos documents pour votre comptabilité.</p>
+            <h3><i class="fas fa-question-circle"></i> Guide</h3>
+            <ul>
+                <li>Ajoutez vos dépenses au fur et à mesure</li>
+                <li>Utilisez les catégories pour organiser vos dépenses</li>
+                <li>Consultez les statistiques et graphiques pour analyser vos dépenses</li>
+                <li>Filtrez par catégorie pour voir les dépenses spécifiques</li>
+                <li>Exportez en CSV pour votre comptabilité</li>
+            </ul>
         </section>
     </main>
     <footer class="tool-footer">
         <a href="../../index.html"><i class="fas fa-arrow-left"></i> Retour aux outils</a>
     </footer>
+
     <script src="../../assets/js/utils.js"></script>
     <script src="../../assets/js/main.js"></script>
     <script>
-        document.getElementById('mainForm').addEventListener('submit', function(e) {
+        let expenses = JSON.parse(localStorage.getItem('expenses')) || [];
+        let currentFilter = 'all';
+        let chart = null;
+
+        // Set today's date
+        document.getElementById('expenseDate').valueAsDate = new Date();
+
+        // Category labels
+        const categoryLabels = {
+            alimentation: '🍽️ Alimentation',
+            transport: '🚗 Transport',
+            bureau: '🏢 Fournitures bureau',
+            marketing: '📢 Marketing',
+            salaires: '👥 Salaires',
+            loyer: '🏠 Loyer',
+            equipement: '💻 Équipement',
+            autres: '📦 Autres'
+        };
+
+        // Add expense
+        document.getElementById('expenseForm').addEventListener('submit', function(e) {
             e.preventDefault();
-            
-            // Simulation de génération
-            document.getElementById('results').style.display = 'block';
-            scrollToElement('#results', 100);
-            showNotification('Document généré avec succès !', 'success');
+
+            const expense = {
+                id: Date.now(),
+                date: document.getElementById('expenseDate').value,
+                category: document.getElementById('expenseCategory').value,
+                amount: parseFloat(document.getElementById('expenseAmount').value),
+                description: document.getElementById('expenseDescription').value
+            };
+
+            expenses.push(expense);
+            saveExpenses();
+            renderExpenses();
+            updateStats();
+            updateChart();
+
+            this.reset();
+            document.getElementById('expenseDate').valueAsDate = new Date();
+            showNotification('Dépense ajoutée !', 'success');
         });
 
-        document.getElementById('resetBtn').addEventListener('click', function() {
-            document.getElementById('mainForm').reset();
-            document.getElementById('results').style.display = 'none';
+        // Save to localStorage
+        function saveExpenses() {
+            localStorage.setItem('expenses', JSON.stringify(expenses));
+        }
+
+        // Render expenses
+        function renderExpenses() {
+            const list = document.getElementById('expensesList');
+            const filtered = currentFilter === 'all'
+                ? expenses
+                : expenses.filter(e => e.category === currentFilter);
+
+            if (filtered.length === 0) {
+                list.innerHTML = '<p style="text-align: center; color: var(--text-secondary); padding: 2rem;">Aucune dépense pour le moment.</p>';
+                return;
+            }
+
+            // Sort by date (newest first)
+            filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            list.innerHTML = filtered.map(expense => `
+                <div class="expense-item">
+                    <div class="expense-info">
+                        <span class="expense-category category-${expense.category}">
+                            ${categoryLabels[expense.category]}
+                        </span>
+                        <div style="font-weight: 600; margin: 0.5rem 0;">${expense.description}</div>
+                        <div style="font-size: 0.9rem; color: var(--text-secondary);">
+                            <i class="fas fa-calendar"></i> ${new Date(expense.date).toLocaleDateString('fr-FR')}
+                        </div>
+                    </div>
+                    <div class="expense-actions" style="display: flex; align-items: center; gap: 1rem;">
+                        <div class="expense-amount">${formatCurrency(expense.amount)}</div>
+                        <button class="btn btn-danger btn-sm" onclick="deleteExpense(${expense.id})">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Delete expense
+        window.deleteExpense = function(id) {
+            if (confirm('Supprimer cette dépense ?')) {
+                expenses = expenses.filter(e => e.id !== id);
+                saveExpenses();
+                renderExpenses();
+                updateStats();
+                updateChart();
+                showNotification('Dépense supprimée', 'success');
+            }
+        };
+
+        // Update statistics
+        function updateStats() {
+            const now = new Date();
+            const currentMonth = now.getMonth();
+            const currentYear = now.getFullYear();
+
+            const monthExpenses = expenses.filter(e => {
+                const date = new Date(e.date);
+                return date.getMonth() === currentMonth && date.getFullYear() === currentYear;
+            });
+
+            const yearExpenses = expenses.filter(e => {
+                const date = new Date(e.date);
+                return date.getFullYear() === currentYear;
+            });
+
+            const monthTotal = monthExpenses.reduce((sum, e) => sum + e.amount, 0);
+            const yearTotal = yearExpenses.reduce((sum, e) => sum + e.amount, 0);
+
+            document.getElementById('monthTotal').textContent = formatCurrency(monthTotal);
+            document.getElementById('yearTotal').textContent = formatCurrency(yearTotal);
+            document.getElementById('expenseCount').textContent = expenses.length;
+        }
+
+        // Update chart
+        function updateChart() {
+            const ctx = document.getElementById('expenseChart').getContext('2d');
+
+            // Calculate totals by category
+            const categoryTotals = {};
+            expenses.forEach(expense => {
+                categoryTotals[expense.category] = (categoryTotals[expense.category] || 0) + expense.amount;
+            });
+
+            const data = {
+                labels: Object.keys(categoryTotals).map(cat => categoryLabels[cat]),
+                datasets: [{
+                    data: Object.values(categoryTotals),
+                    backgroundColor: [
+                        '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0',
+                        '#9966FF', '#FF9F40', '#FF6384', '#C9CBCF'
+                    ]
+                }]
+            };
+
+            if (chart) {
+                chart.destroy();
+            }
+
+            chart = new Chart(ctx, {
+                type: 'doughnut',
+                data: data,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.label + ': ' + formatCurrency(context.parsed);
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Filter buttons
+        document.querySelectorAll('[data-filter]').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('[data-filter]').forEach(b => {
+                    b.classList.remove('btn-primary');
+                    b.classList.add('btn-outline');
+                });
+                this.classList.remove('btn-outline');
+                this.classList.add('btn-primary');
+                currentFilter = this.dataset.filter;
+                renderExpenses();
+            });
         });
 
-        document.getElementById('downloadBtn')?.addEventListener('click', function() {
-            showNotification('Fonctionnalité de téléchargement à implémenter', 'info');
+        // Export CSV
+        document.getElementById('exportBtn').addEventListener('click', function() {
+            if (expenses.length === 0) {
+                showNotification('Aucune dépense à exporter', 'warning');
+                return;
+            }
+
+            const csv = [
+                ['Date', 'Catégorie', 'Description', 'Montant'],
+                ...expenses.map(e => [
+                    e.date,
+                    categoryLabels[e.category],
+                    e.description,
+                    e.amount.toFixed(2)
+                ])
+            ].map(row => row.join(';')).join('\n');
+
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `depenses-${new Date().toISOString().split('T')[0]}.csv`;
+            link.click();
+            showNotification('Export CSV téléchargé !', 'success');
         });
 
-        document.getElementById('printBtn')?.addEventListener('click', function() {
-            window.print();
+        // Clear all
+        document.getElementById('clearBtn').addEventListener('click', function() {
+            if (confirm('Voulez-vous vraiment supprimer toutes les dépenses ? Cette action est irréversible.')) {
+                expenses = [];
+                saveExpenses();
+                renderExpenses();
+                updateStats();
+                updateChart();
+                showNotification('Toutes les dépenses ont été supprimées', 'success');
+            }
         });
+
+        // Initialize
+        renderExpenses();
+        updateStats();
+        updateChart();
     </script>
 </body>
 </html>

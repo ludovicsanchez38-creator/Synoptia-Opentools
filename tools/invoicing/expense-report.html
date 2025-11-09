@@ -8,88 +8,360 @@
     <link rel="stylesheet" href="../../assets/css/tools.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .report-preview {
+            background: white;
+            padding: 2rem;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            margin-top: 2rem;
+        }
+        .report-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--primary);
+        }
+        .report-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 2rem 0;
+        }
+        .report-table th,
+        .report-table td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+        .report-table th {
+            background: var(--light);
+            font-weight: 600;
+        }
+        .report-total {
+            text-align: right;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-top: 1rem;
+        }
+        .signature-box {
+            margin-top: 3rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--border);
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+        .signature-field {
+            text-align: center;
+        }
+        .signature-line {
+            border-top: 1px solid var(--text);
+            margin-top: 60px;
+            padding-top: 0.5rem;
+        }
+        @media print {
+            .tool-input, .btn, .breadcrumb, .tool-footer, .tool-help { display: none; }
+        }
+    </style>
 </head>
 <body>
     <nav class="breadcrumb">
-        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> > 
-        <a href="../../index.html#tools">Facturation</a> > 
+        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> >
+        <a href="../../index.html#tools">Facturation</a> >
         <span>Générateur de Notes de Frais</span>
     </nav>
     <main class="tool-container">
         <header class="tool-header">
             <h1><i class="fas fa-receipt"></i> Générateur de Notes de Frais</h1>
-            <p class="tool-description">Saisie et justification des notes de frais</p>
+            <p class="tool-description">Créez des notes de frais professionnelles</p>
         </header>
+
         <section class="tool-input">
-            <h2>Informations</h2>
-            <form id="mainForm">
-                <div class="form-group">
-                    <label for="input1" class="form-label">
-                        <i class="fas fa-edit"></i> Champ principal
-                    </label>
-                    <input type="text" id="input1" class="form-input" placeholder="Entrez les informations" required>
+            <form id="expenseForm">
+                <h3><i class="fas fa-user"></i> Informations employé</h3>
+                <div class="input-grid">
+                    <div class="form-group">
+                        <label class="form-label">Nom complet</label>
+                        <input type="text" id="employeeName" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Département</label>
+                        <input type="text" id="employeeDept" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Période du</label>
+                        <input type="date" id="periodStart" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Au</label>
+                        <input type="date" id="periodEnd" class="form-input" required>
+                    </div>
                 </div>
-                <div class="action-buttons">
-                    <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-save"></i> Générer
-                    </button>
-                    <button type="button" class="btn btn-outline" id="resetBtn">
-                        <i class="fas fa-redo"></i> Réinitialiser
-                    </button>
-                </div>
+
+                <h3 style="margin-top: 2rem;"><i class="fas fa-list"></i> Dépenses</h3>
+                <div id="expensesContainer"></div>
+                <button type="button" class="btn btn-secondary" id="addExpenseBtn">
+                    <i class="fas fa-plus"></i> Ajouter une dépense
+                </button>
+
+                <button type="submit" class="btn btn-primary btn-lg" style="margin-top: 2rem;">
+                    <i class="fas fa-file-alt"></i> Générer la note de frais
+                </button>
             </form>
         </section>
+
         <section class="tool-output" id="results" style="display: none;">
-            <h2><i class="fas fa-check-circle"></i> Résultat</h2>
-            <div class="alert alert-success">
-                <strong>✓ Succès !</strong> Votre document a été généré.
+            <div style="display: flex; justify-content: space-between; margin-bottom: 1rem;">
+                <h2><i class="fas fa-eye"></i> Aperçu de la note de frais</h2>
+                <div>
+                    <button class="btn btn-success" onclick="window.print()">
+                        <i class="fas fa-print"></i> Imprimer
+                    </button>
+                    <button class="btn btn-primary" id="newReportBtn">
+                        <i class="fas fa-plus"></i> Nouvelle note
+                    </button>
+                </div>
             </div>
-            <div class="action-buttons">
-                <button class="btn btn-accent" id="downloadBtn">
-                    <i class="fas fa-download"></i> Télécharger
-                </button>
-                <button class="btn btn-secondary" id="printBtn">
-                    <i class="fas fa-print"></i> Imprimer
-                </button>
-            </div>
+            <div class="report-preview" id="reportPreview"></div>
         </section>
+
         <section class="tool-help">
-            <h3><i class="fas fa-question-circle"></i> Comment utiliser cet outil ?</h3>
-            <ol>
-                <li>Remplissez les informations requises</li>
-                <li>Cliquez sur <strong>Générer</strong></li>
-                <li>Téléchargez ou imprimez le document</li>
-            </ol>
-            <h3><i class="fas fa-lightbulb"></i> Conseil</h3>
-            <p>Conservez une copie de tous vos documents pour votre comptabilité.</p>
+            <h3><i class="fas fa-question-circle"></i> Guide</h3>
+            <ul>
+                <li>Remplissez vos informations et la période concernée</li>
+                <li>Ajoutez chaque dépense avec date, catégorie, montant et justification</li>
+                <li>Le total est calculé automatiquement</li>
+                <li>Imprimez ou sauvegardez en PDF pour validation</li>
+            </ul>
+            <p><strong>Catégories:</strong> Transport, Repas, Hébergement, Fournitures, Télécommunications, Formation, Autres</p>
         </section>
     </main>
     <footer class="tool-footer">
         <a href="../../index.html"><i class="fas fa-arrow-left"></i> Retour aux outils</a>
     </footer>
+
     <script src="../../assets/js/utils.js"></script>
     <script src="../../assets/js/main.js"></script>
     <script>
-        document.getElementById('mainForm').addEventListener('submit', function(e) {
+        let expenseCount = 0;
+
+        // Set default period (last month)
+        const today = new Date();
+        const firstDay = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+        const lastDay = new Date(today.getFullYear(), today.getMonth(), 0);
+        document.getElementById('periodStart').valueAsDate = firstDay;
+        document.getElementById('periodEnd').valueAsDate = lastDay;
+
+        // Category options
+        const categories = [
+            { value: 'transport', label: '🚗 Transport' },
+            { value: 'repas', label: '🍽️ Repas' },
+            { value: 'hebergement', label: '🏨 Hébergement' },
+            { value: 'fournitures', label: '📦 Fournitures' },
+            { value: 'telecom', label: '📱 Télécommunications' },
+            { value: 'formation', label: '📚 Formation' },
+            { value: 'autres', label: '📋 Autres' }
+        ];
+
+        // Add expense line
+        document.getElementById('addExpenseBtn').addEventListener('click', addExpense);
+
+        function addExpense() {
+            expenseCount++;
+            const expenseDiv = document.createElement('div');
+            expenseDiv.id = `expense-${expenseCount}`;
+            expenseDiv.className = 'input-grid';
+            expenseDiv.style.marginBottom = '1rem';
+            expenseDiv.style.padding = '1rem';
+            expenseDiv.style.background = 'var(--light)';
+            expenseDiv.style.borderRadius = 'var(--radius)';
+
+            const categoryOptions = categories.map(cat =>
+                `<option value="${cat.value}">${cat.label}</option>`
+            ).join('');
+
+            expenseDiv.innerHTML = `
+                <div class="form-group">
+                    <label class="form-label">Date</label>
+                    <input type="date" class="form-input expense-date" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Catégorie</label>
+                    <select class="form-input expense-category" required>
+                        <option value="">Sélectionner...</option>
+                        ${categoryOptions}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Description</label>
+                    <input type="text" class="form-input expense-desc" placeholder="Ex: Taxi aéroport" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Montant (€)</label>
+                    <input type="number" class="form-input expense-amount" value="0" min="0" step="0.01" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Justificatif</label>
+                    <select class="form-input expense-receipt" required>
+                        <option value="oui">✓ Oui</option>
+                        <option value="non">✗ Non</option>
+                    </select>
+                </div>
+                <div class="form-group" style="display: flex; align-items: flex-end;">
+                    <button type="button" class="btn btn-danger btn-sm" onclick="removeExpense(${expenseCount})" style="width: 100%;">
+                        <i class="fas fa-trash"></i> Supprimer
+                    </button>
+                </div>
+            `;
+            document.getElementById('expensesContainer').appendChild(expenseDiv);
+
+            // Set today's date for new expense
+            expenseDiv.querySelector('.expense-date').valueAsDate = new Date();
+        }
+
+        window.removeExpense = function(expenseId) {
+            document.getElementById(`expense-${expenseId}`).remove();
+        };
+
+        // Add initial expense
+        addExpense();
+
+        // Generate report
+        document.getElementById('expenseForm').addEventListener('submit', function(e) {
             e.preventDefault();
-            
-            // Simulation de génération
+
+            const reportData = {
+                employee: {
+                    name: document.getElementById('employeeName').value,
+                    dept: document.getElementById('employeeDept').value
+                },
+                period: {
+                    start: document.getElementById('periodStart').value,
+                    end: document.getElementById('periodEnd').value
+                },
+                expenses: []
+            };
+
+            // Get all expenses
+            document.querySelectorAll('#expensesContainer > div').forEach(expenseDiv => {
+                const date = expenseDiv.querySelector('.expense-date').value;
+                const category = expenseDiv.querySelector('.expense-category').value;
+                const categoryLabel = categories.find(c => c.value === category)?.label || category;
+                const desc = expenseDiv.querySelector('.expense-desc').value;
+                const amount = parseFloat(expenseDiv.querySelector('.expense-amount').value);
+                const receipt = expenseDiv.querySelector('.expense-receipt').value;
+
+                reportData.expenses.push({
+                    date,
+                    category: categoryLabel,
+                    description: desc,
+                    amount,
+                    receipt: receipt === 'oui' ? '✓' : '✗'
+                });
+            });
+
+            // Sort by date
+            reportData.expenses.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+            // Calculate total
+            const total = reportData.expenses.reduce((sum, exp) => sum + exp.amount, 0);
+
+            // Generate preview
+            const reportNumber = `NF-${new Date().getFullYear()}-${String(Date.now()).slice(-6)}`;
+            const preview = `
+                <div class="report-header">
+                    <div>
+                        <h2>Synoptia</h2>
+                        <p>ludo@synoptia.fr</p>
+                        <p>www.synoptia.fr</p>
+                    </div>
+                    <div style="text-align: right;">
+                        <div style="font-size: 1.5rem; font-weight: 700; color: var(--primary);">NOTE DE FRAIS</div>
+                        <div style="font-weight: 600; margin-top: 0.5rem;">${reportNumber}</div>
+                        <p>Date : ${new Date().toLocaleDateString('fr-FR')}</p>
+                    </div>
+                </div>
+
+                <div style="background: var(--light); padding: 1.5rem; border-radius: var(--radius); margin: 2rem 0;">
+                    <h3>Informations employé</h3>
+                    <p><strong>Nom :</strong> ${reportData.employee.name}</p>
+                    <p><strong>Département :</strong> ${reportData.employee.dept}</p>
+                    <p><strong>Période :</strong> Du ${new Date(reportData.period.start).toLocaleDateString('fr-FR')} au ${new Date(reportData.period.end).toLocaleDateString('fr-FR')}</p>
+                </div>
+
+                <h3>Détail des dépenses</h3>
+                <table class="report-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Catégorie</th>
+                            <th>Description</th>
+                            <th style="text-align: center;">Justif.</th>
+                            <th style="text-align: right;">Montant</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${reportData.expenses.map(exp => `
+                            <tr>
+                                <td>${new Date(exp.date).toLocaleDateString('fr-FR')}</td>
+                                <td>${exp.category}</td>
+                                <td>${exp.description}</td>
+                                <td style="text-align: center;">${exp.receipt}</td>
+                                <td style="text-align: right;">${formatCurrency(exp.amount)}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+
+                <div class="report-total">
+                    Total à rembourser : ${formatCurrency(total)}
+                </div>
+
+                <div class="signature-box">
+                    <div class="signature-field">
+                        <strong>Signature de l'employé</strong>
+                        <div style="font-size: 0.9rem; color: var(--text-secondary); margin-top: 0.5rem;">
+                            Je certifie l'exactitude des informations ci-dessus
+                        </div>
+                        <div class="signature-line"></div>
+                        <div style="font-size: 0.9rem; color: var(--text-secondary); margin-top: 0.5rem;">
+                            Date et signature
+                        </div>
+                    </div>
+                    <div class="signature-field">
+                        <strong>Validation du responsable</strong>
+                        <div style="font-size: 0.9rem; color: var(--text-secondary); margin-top: 0.5rem;">
+                            Approuvé pour remboursement
+                        </div>
+                        <div class="signature-line"></div>
+                        <div style="font-size: 0.9rem; color: var(--text-secondary); margin-top: 0.5rem;">
+                            Date et signature
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('reportPreview').innerHTML = preview;
             document.getElementById('results').style.display = 'block';
-            scrollToElement('#results', 100);
-            showNotification('Document généré avec succès !', 'success');
+            document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
+            showNotification('Note de frais générée !', 'success');
         });
 
-        document.getElementById('resetBtn').addEventListener('click', function() {
-            document.getElementById('mainForm').reset();
+        // New report
+        document.getElementById('newReportBtn').addEventListener('click', function() {
+            document.getElementById('expenseForm').reset();
+            const today = new Date();
+            const firstDay = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+            const lastDay = new Date(today.getFullYear(), today.getMonth(), 0);
+            document.getElementById('periodStart').valueAsDate = firstDay;
+            document.getElementById('periodEnd').valueAsDate = lastDay;
             document.getElementById('results').style.display = 'none';
-        });
-
-        document.getElementById('downloadBtn')?.addEventListener('click', function() {
-            showNotification('Fonctionnalité de téléchargement à implémenter', 'info');
-        });
-
-        document.getElementById('printBtn')?.addEventListener('click', function() {
-            window.print();
+            document.getElementById('expensesContainer').innerHTML = '';
+            expenseCount = 0;
+            addExpense();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         });
     </script>
 </body>
