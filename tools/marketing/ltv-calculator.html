@@ -11,57 +11,100 @@
 </head>
 <body>
     <nav class="breadcrumb">
-        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> > 
-        <a href="../../index.html#tools">Marketing</a> > 
-        <span>Calculateur LTV</span>
+        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> > <a href="../../index.html#tools">Marketing</a> > <span>LTV</span>
     </nav>
     <main class="tool-container">
         <header class="tool-header">
-            <h1><i class="fas fa-gem"></i> Calculateur LTV</h1>
-            <p class="tool-description">Outil marketing pour optimiser vos campagnes.</p>
+            <h1><i class="fas fa-gem"></i> Calculateur de LTV (Lifetime Value)</h1>
+            <p class="tool-description">Calculez la valeur totale qu'un client génère sur toute sa durée de vie.</p>
         </header>
         <section class="tool-input">
-            <form id="mainForm">
+            <h2>Données client</h2>
+            <form id="ltvForm">
                 <div class="input-grid">
                     <div class="form-group">
-                        <label for="input1" class="form-label">Valeur 1</label>
-                        <input type="number" id="input1" class="form-input" value="100" min="0" required>
+                        <label for="avgPurchase" class="form-label"><i class="fas fa-shopping-cart"></i> Panier moyen (€)</label>
+                        <input type="number" id="avgPurchase" class="form-input" placeholder="Ex: 50" min="0" step="0.01" value="50" required>
+                        <span class="form-help">Montant moyen par achat</span>
                     </div>
                     <div class="form-group">
-                        <label for="input2" class="form-label">Valeur 2</label>
-                        <input type="number" id="input2" class="form-input" value="50" min="0" required>
+                        <label for="frequency" class="form-label"><i class="fas fa-redo"></i> Fréquence d'achat/an</label>
+                        <input type="number" id="frequency" class="form-input" placeholder="Ex: 4" min="0" step="0.1" value="4" required>
+                        <span class="form-help">Nombre d'achats par an</span>
+                    </div>
+                    <div class="form-group">
+                        <label for="lifetime" class="form-label"><i class="fas fa-calendar"></i> Durée de vie (années)</label>
+                        <input type="number" id="lifetime" class="form-input" placeholder="Ex: 3" min="0" step="0.1" value="3" required>
+                        <span class="form-help">Combien de temps reste client</span>
+                    </div>
+                    <div class="form-group">
+                        <label for="margin" class="form-label"><i class="fas fa-percent"></i> Marge brute (%)</label>
+                        <input type="number" id="margin" class="form-input" placeholder="Ex: 40" min="0" max="100" step="1" value="40">
+                        <span class="form-help">Profit par vente (optionnel)</span>
                     </div>
                 </div>
-                <button type="submit" class="btn btn-primary"><i class="fas fa-calculator"></i> Calculer</button>
+                <button type="submit" class="btn btn-primary"><i class="fas fa-calculator"></i> Calculer la LTV</button>
             </form>
         </section>
         <section class="tool-output" id="results" style="display: none;">
+            <h2><i class="fas fa-chart-line"></i> Valeur client</h2>
             <div class="results-grid">
-                <div class="result-item">
-                    <div class="result-label">Résultat</div>
-                    <div class="result-value highlight" id="result">-</div>
-                </div>
+                <div class="result-item"><div class="result-label">LTV brute</div><div class="result-value highlight" id="ltv">-</div></div>
+                <div class="result-item success"><div class="result-label">LTV nette (avec marge)</div><div class="result-value success" id="netLtv">-</div></div>
+                <div class="result-item"><div class="result-label">Revenu annuel/client</div><div class="result-value" id="yearlyRev">-</div></div>
+                <div class="result-item"><div class="result-label">Total achats</div><div class="result-value" id="totalPurchases">-</div></div>
+            </div>
+            <div class="alert alert-info">
+                <strong>💡 Conseil :</strong> Pour un business rentable, visez un ratio LTV/CAC supérieur à 3:1. Calculez votre CAC pour vérifier !
             </div>
         </section>
         <section class="tool-help">
-            <h3><i class="fas fa-info-circle"></i> Information</h3>
-            <p>Optimisez vos campagnes marketing avec cet outil.</p>
+            <h3><i class="fas fa-calculator"></i> Formules</h3>
+            <code>LTV brute = Panier moyen × Fréquence × Durée de vie
+LTV nette = LTV brute × (Marge brute / 100)
+Revenu annuel = Panier moyen × Fréquence
+Total achats = Fréquence × Durée de vie</code>
+            <h3><i class="fas fa-lightbulb"></i> Comment augmenter la LTV ?</h3>
+            <ul>
+                <li><strong>Augmenter le panier moyen</strong> : Upsells, cross-sells, bundles</li>
+                <li><strong>Augmenter la fréquence</strong> : Programmes de fidélité, abonnements</li>
+                <li><strong>Augmenter la durée de vie</strong> : Service client excellent, engagement régulier</li>
+                <li><strong>Améliorer les marges</strong> : Optimiser les coûts, pricing premium</li>
+            </ul>
+            <h3><i class="fas fa-chart-bar"></i> Benchmarks LTV</h3>
+            <ul>
+                <li><strong>E-commerce mode</strong> : 100€ - 500€</li>
+                <li><strong>SaaS B2B</strong> : 1000€ - 10000€+</li>
+                <li><strong>Abonnements</strong> : 300€ - 2000€</li>
+                <li><strong>Services pro</strong> : 500€ - 5000€</li>
+            </ul>
         </section>
     </main>
     <footer class="tool-footer"><a href="../../index.html"><i class="fas fa-arrow-left"></i> Retour</a></footer>
     <script src="../../assets/js/utils.js"></script>
     <script src="../../assets/js/main.js"></script>
     <script>
-        document.getElementById('mainForm').addEventListener('submit', function(e) {
+        document.getElementById('ltvForm').addEventListener('submit', function(e) {
             e.preventDefault();
-            const val1 = parseFloat(document.getElementById('input1').value);
-            const val2 = parseFloat(document.getElementById('input2').value);
-            const result = val2 > 0 ? (val1 / val2) : 0;
-            document.getElementById('result').textContent = result.toFixed(2);
+            const avgPurchase = parseFloat(document.getElementById('avgPurchase').value);
+            const frequency = parseFloat(document.getElementById('frequency').value);
+            const lifetime = parseFloat(document.getElementById('lifetime').value);
+            const margin = parseFloat(document.getElementById('margin').value) || 100;
+            
+            const ltv = avgPurchase * frequency * lifetime;
+            const netLtv = ltv * (margin / 100);
+            const yearlyRev = avgPurchase * frequency;
+            const totalPurchases = Math.round(frequency * lifetime);
+            
+            document.getElementById('ltv').textContent = formatCurrency(ltv);
+            document.getElementById('netLtv').textContent = formatCurrency(netLtv);
+            document.getElementById('yearlyRev').textContent = formatCurrency(yearlyRev);
+            document.getElementById('totalPurchases').textContent = totalPurchases + ' achats';
+            
             document.getElementById('results').style.display = 'block';
-            showNotification('Calcul effectué !', 'success');
+            showNotification('LTV calculée !', 'success');
         });
-        window.addEventListener('load', () => document.getElementById('mainForm').dispatchEvent(new Event('submit')));
+        window.addEventListener('load', () => document.getElementById('ltvForm').dispatchEvent(new Event('submit')));
     </script>
 </body>
 </html>

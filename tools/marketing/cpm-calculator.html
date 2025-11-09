@@ -11,57 +11,164 @@
 </head>
 <body>
     <nav class="breadcrumb">
-        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> > 
-        <a href="../../index.html#tools">Marketing</a> > 
+        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> >
+        <a href="../../index.html#tools">Marketing</a> >
         <span>Calculateur de CPM</span>
     </nav>
     <main class="tool-container">
         <header class="tool-header">
-            <h1><i class="fas fa-eye"></i> Calculateur de CPM</h1>
-            <p class="tool-description">Outil marketing pour optimiser vos campagnes.</p>
+            <h1><i class="fas fa-eye"></i> Calculateur de CPM (Coût Pour Mille)</h1>
+            <p class="tool-description">Calculez le coût pour 1000 impressions de vos campagnes Display, YouTube, réseaux sociaux.</p>
         </header>
         <section class="tool-input">
-            <form id="mainForm">
+            <h2>Données de campagne</h2>
+            <form id="cpmForm">
                 <div class="input-grid">
                     <div class="form-group">
-                        <label for="input1" class="form-label">Valeur 1</label>
-                        <input type="number" id="input1" class="form-input" value="100" min="0" required>
+                        <label for="totalCost" class="form-label"><i class="fas fa-euro-sign"></i> Coût total (€)</label>
+                        <input type="number" id="totalCost" class="form-input" placeholder="Ex: 1000" min="0" step="0.01" value="1000" required>
+                        <span class="form-help">Budget dépensé</span>
                     </div>
                     <div class="form-group">
-                        <label for="input2" class="form-label">Valeur 2</label>
-                        <input type="number" id="input2" class="form-input" value="50" min="0" required>
+                        <label for="impressions" class="form-label"><i class="fas fa-eye"></i> Impressions</label>
+                        <input type="number" id="impressions" class="form-input" placeholder="Ex: 200000" min="1" value="200000" required>
+                        <span class="form-help">Nombre d'affichages obtenus</span>
+                    </div>
+                    <div class="form-group">
+                        <label for="clicks" class="form-label"><i class="fas fa-mouse-pointer"></i> Clics</label>
+                        <input type="number" id="clicks" class="form-input" placeholder="Ex: 1000" min="0" value="1000">
+                        <span class="form-help">Nombre de clics (optionnel)</span>
+                    </div>
+                    <div class="form-group">
+                        <label for="conversions" class="form-label"><i class="fas fa-shopping-cart"></i> Conversions</label>
+                        <input type="number" id="conversions" class="form-input" placeholder="Ex: 50" min="0" value="50">
+                        <span class="form-help">Actions réalisées (optionnel)</span>
                     </div>
                 </div>
-                <button type="submit" class="btn btn-primary"><i class="fas fa-calculator"></i> Calculer</button>
+                <div class="action-buttons">
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-calculator"></i> Calculer le CPM</button>
+                </div>
             </form>
         </section>
+
         <section class="tool-output" id="results" style="display: none;">
+            <h2><i class="fas fa-chart-bar"></i> Résultats de la campagne</h2>
             <div class="results-grid">
                 <div class="result-item">
-                    <div class="result-label">Résultat</div>
-                    <div class="result-value highlight" id="result">-</div>
+                    <div class="result-label">CPM (Coût Pour Mille)</div>
+                    <div class="result-value highlight" id="cpm">-</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">CPC (Coût Par Clic)</div>
+                    <div class="result-value" id="cpc">-</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">CTR (Taux de clic)</div>
+                    <div class="result-value" id="ctr">-</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Reach estimé</div>
+                    <div class="result-value" id="reach">-</div>
                 </div>
             </div>
+            <div class="alert" id="interpretation"></div>
         </section>
+
         <section class="tool-help">
-            <h3><i class="fas fa-info-circle"></i> Information</h3>
-            <p>Optimisez vos campagnes marketing avec cet outil.</p>
+            <h3><i class="fas fa-question-circle"></i> Comment utiliser cet outil ?</h3>
+            <ol>
+                <li>Entrez le <strong>coût total</strong> de votre campagne Display/Social</li>
+                <li>Indiquez le <strong>nombre d'impressions</strong> obtenues</li>
+                <li>Ajoutez clics et conversions pour une analyse complète (optionnel)</li>
+                <li>Obtenez votre <strong>CPM</strong> et comparez avec les benchmarks</li>
+            </ol>
+            <h3><i class="fas fa-calculator"></i> Formules</h3>
+            <code>CPM = (Coût total / Impressions) × 1000
+CPC = Coût total / Clics
+CTR = (Clics / Impressions) × 100
+Reach estimé = Impressions / Fréquence moyenne (≈ 3)</code>
+            <h3><i class="fas fa-lightbulb"></i> Benchmarks CPM par plateforme</h3>
+            <ul>
+                <li><strong>Facebook Ads</strong> : 5€ - 15€ en moyenne</li>
+                <li><strong>Instagram Ads</strong> : 5€ - 12€ en moyenne</li>
+                <li><strong>YouTube Ads</strong> : 3€ - 10€ en moyenne</li>
+                <li><strong>LinkedIn Ads</strong> : 15€ - 35€ en moyenne (B2B)</li>
+                <li><strong>Google Display</strong> : 2€ - 8€ en moyenne</li>
+                <li><strong>TikTok Ads</strong> : 4€ - 12€ en moyenne</li>
+            </ul>
+            <h3><i class="fas fa-chart-line"></i> Quand utiliser le CPM ?</h3>
+            <ul>
+                <li><strong>Campagnes de notoriété</strong> : Faire connaître votre marque</li>
+                <li><strong>Lancement de produit</strong> : Maximiser la visibilité</li>
+                <li><strong>Retargeting</strong> : Toucher des audiences larges</li>
+                <li><strong>Display &amp; Vidéo</strong> : Modèle d'achat standard</li>
+            </ul>
+            <h3><i class="fas fa-info-circle"></i> CPM vs CPC</h3>
+            <p><strong>CPM</strong> : Payez pour la visibilité (impressions) - Objectif notoriété</p>
+            <p><strong>CPC</strong> : Payez pour l'engagement (clics) - Objectif conversion</p>
         </section>
     </main>
     <footer class="tool-footer"><a href="../../index.html"><i class="fas fa-arrow-left"></i> Retour</a></footer>
     <script src="../../assets/js/utils.js"></script>
     <script src="../../assets/js/main.js"></script>
     <script>
-        document.getElementById('mainForm').addEventListener('submit', function(e) {
+        document.getElementById('cpmForm').addEventListener('submit', function(e) {
             e.preventDefault();
-            const val1 = parseFloat(document.getElementById('input1').value);
-            const val2 = parseFloat(document.getElementById('input2').value);
-            const result = val2 > 0 ? (val1 / val2) : 0;
-            document.getElementById('result').textContent = result.toFixed(2);
+
+            const totalCost = parseFloat(document.getElementById('totalCost').value);
+            const impressions = parseInt(document.getElementById('impressions').value);
+            const clicks = parseInt(document.getElementById('clicks').value) || 0;
+            const conversions = parseInt(document.getElementById('conversions').value) || 0;
+
+            // Calculs
+            const cpm = (totalCost / impressions) * 1000;
+            const cpc = clicks > 0 ? totalCost / clicks : 0;
+            const ctr = clicks > 0 ? (clicks / impressions) * 100 : 0;
+            const reach = Math.round(impressions / 3); // Fréquence moyenne de 3
+
+            // Affichage
+            document.getElementById('cpm').textContent = formatCurrency(cpm);
+            document.getElementById('cpc').textContent = clicks > 0 ? formatCurrency(cpc) : 'N/A';
+            document.getElementById('ctr').textContent = clicks > 0 ? formatPercentage(ctr) : 'N/A';
+            document.getElementById('reach').textContent = reach.toLocaleString('fr-FR') + ' personnes';
+
+            // Interprétation
+            let interpretation = '';
+            let alertClass = 'alert-info';
+
+            if (cpm < 5) {
+                interpretation = '<strong>✅ Excellent CPM !</strong> Votre coût pour 1000 impressions est très compétitif. Vous optimisez bien votre budget.';
+                alertClass = 'alert-success';
+            } else if (cpm < 15) {
+                interpretation = '<strong>👍 Bon CPM</strong> Votre coût est dans la moyenne du marché. ';
+                alertClass = 'alert-success';
+                if (ctr > 0.5) {
+                    interpretation += 'Votre CTR est bon pour du Display, vos visuels fonctionnent !';
+                }
+            } else if (cpm < 25) {
+                interpretation = '<strong>⚠️ CPM élevé</strong> Votre coût par mille est au-dessus de la moyenne. Testez d\'autres audiences ou formats.';
+                alertClass = 'alert-warning';
+            } else {
+                interpretation = '<strong>🔴 CPM très élevé</strong> Coût trop important. Revoyez votre ciblage, formats publicitaires ou plateforme.';
+                alertClass = 'alert-danger';
+            }
+
+            if (ctr > 0 && ctr < 0.1) {
+                interpretation += ' <br><strong>Attention :</strong> Votre CTR est très faible (&lt;0.1%). Améliorez vos créatifs et votre message.';
+            } else if (ctr > 1) {
+                interpretation += ' <br><strong>🎯 Excellent CTR !</strong> Vos annonces Display ont un taux de clic exceptionnel (&gt;1%).';
+            }
+
+            const interpDiv = document.getElementById('interpretation');
+            interpDiv.className = `alert ${alertClass}`;
+            interpDiv.innerHTML = interpretation;
+
             document.getElementById('results').style.display = 'block';
-            showNotification('Calcul effectué !', 'success');
+            scrollToElement('#results', 100);
+            showNotification('CPM calculé !', 'success');
         });
-        window.addEventListener('load', () => document.getElementById('mainForm').dispatchEvent(new Event('submit')));
+
+        window.addEventListener('load', () => document.getElementById('cpmForm').dispatchEvent(new Event('submit')));
     </script>
 </body>
 </html>
