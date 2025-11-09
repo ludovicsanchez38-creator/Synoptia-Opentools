@@ -3,65 +3,455 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TOOL_TITLE - Business Tools</title>
+    <title>Calculateur Tests A/B - Business Tools</title>
     <link rel="stylesheet" href="../../assets/css/main.css">
     <link rel="stylesheet" href="../../assets/css/tools.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .ab-comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+        @media (max-width: 768px) {
+            .ab-comparison { grid-template-columns: 1fr; }
+        }
+        .version-card {
+            background: white;
+            border: 3px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+        }
+        .version-card.winner {
+            border-color: #4CAF50;
+            background: linear-gradient(135deg, rgba(76, 175, 80, 0.05), rgba(139, 195, 74, 0.05));
+        }
+        .version-card.loser {
+            border-color: #9E9E9E;
+            opacity: 0.7;
+        }
+        .version-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        .version-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+        .winner-badge {
+            background: #4CAF50;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 0.9rem;
+        }
+        .version-rate {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--accent);
+            text-align: center;
+            margin: 1rem 0;
+        }
+        .version-stats {
+            display: grid;
+            gap: 0.75rem;
+            margin-top: 1rem;
+        }
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem;
+            background: #f8f9fa;
+            border-radius: var(--radius);
+        }
+        .significance-meter {
+            background: white;
+            border: 2px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            margin: 2rem 0;
+        }
+        .meter-bar {
+            height: 60px;
+            background: linear-gradient(90deg, #F44336 0%, #FF9800 25%, #FFC107 50%, #8BC34A 75%, #4CAF50 100%);
+            border-radius: var(--radius);
+            position: relative;
+            margin: 1.5rem 0;
+        }
+        .meter-indicator {
+            position: absolute;
+            top: -10px;
+            width: 4px;
+            height: 80px;
+            background: #000;
+            transition: left 0.5s ease;
+        }
+        .meter-indicator::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -6px;
+            width: 0;
+            height: 0;
+            border-left: 8px solid transparent;
+            border-right: 8px solid transparent;
+            border-top: 12px solid #000;
+        }
+        .meter-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+    </style>
 </head>
 <body>
     <nav class="breadcrumb">
-        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> > 
-        <a href="../../index.html#tools">Marketing</a> > 
-        <span>TOOL_TITLE</span>
+        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> >
+        <a href="../../index.html#tools">Marketing</a> >
+        <span>Tests A/B</span>
     </nav>
     <main class="tool-container">
         <header class="tool-header">
-            <h1><i class="fas fa-flask"></i> TOOL_TITLE</h1>
-            <p class="tool-description">Outil marketing pour optimiser vos campagnes.</p>
+            <h1><i class="fas fa-vial"></i> Calculateur de Tests A/B</h1>
+            <p class="tool-description">Comparez deux versions et déterminez le gagnant avec signification statistique.</p>
         </header>
+
         <section class="tool-input">
-            <form id="mainForm">
+            <form id="abTestForm">
+                <div class="ab-comparison">
+                    <div>
+                        <h3><i class="fas fa-flask"></i> Version A (Contrôle)</h3>
+                        <div class="input-grid">
+                            <div class="form-group">
+                                <label for="visitorsA" class="form-label"><i class="fas fa-users"></i> Visiteurs A</label>
+                                <input type="number" id="visitorsA" class="form-input" placeholder="Ex: 1000" min="1" value="1000" required>
+                                <span class="form-help">Nombre de visiteurs version A</span>
+                            </div>
+                            <div class="form-group">
+                                <label for="conversionsA" class="form-label"><i class="fas fa-check"></i> Conversions A</label>
+                                <input type="number" id="conversionsA" class="form-input" placeholder="Ex: 50" min="0" value="50" required>
+                                <span class="form-help">Conversions version A</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h3><i class="fas fa-vial"></i> Version B (Variante)</h3>
+                        <div class="input-grid">
+                            <div class="form-group">
+                                <label for="visitorsB" class="form-label"><i class="fas fa-users"></i> Visiteurs B</label>
+                                <input type="number" id="visitorsB" class="form-input" placeholder="Ex: 1000" min="1" value="1000" required>
+                                <span class="form-help">Nombre de visiteurs version B</span>
+                            </div>
+                            <div class="form-group">
+                                <label for="conversionsB" class="form-label"><i class="fas fa-check"></i> Conversions B</label>
+                                <input type="number" id="conversionsB" class="form-input" placeholder="Ex: 65" min="0" value="65" required>
+                                <span class="form-help">Conversions version B</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="input-grid">
                     <div class="form-group">
-                        <label for="input1" class="form-label">Valeur 1</label>
-                        <input type="number" id="input1" class="form-input" value="100" min="0" required>
+                        <label for="confidence" class="form-label"><i class="fas fa-percentage"></i> Niveau de confiance</label>
+                        <select id="confidence" class="form-input">
+                            <option value="90">90% (p < 0.10)</option>
+                            <option value="95" selected>95% (p < 0.05) - Standard</option>
+                            <option value="99">99% (p < 0.01) - Rigoureux</option>
+                        </select>
+                        <span class="form-help">Seuil de significativité</span>
                     </div>
                     <div class="form-group">
-                        <label for="input2" class="form-label">Valeur 2</label>
-                        <input type="number" id="input2" class="form-input" value="50" min="0" required>
+                        <label for="revenue" class="form-label"><i class="fas fa-euro-sign"></i> Revenu moyen par conversion (€)</label>
+                        <input type="number" id="revenue" class="form-input" placeholder="Ex: 100" step="0.01" min="0" value="100">
+                        <span class="form-help">Optionnel - pour calcul d'impact business</span>
                     </div>
                 </div>
-                <button type="submit" class="btn btn-primary"><i class="fas fa-calculator"></i> Calculer</button>
+
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-chart-line"></i> Analyser le Test A/B
+                </button>
             </form>
         </section>
+
         <section class="tool-output" id="results" style="display: none;">
-            <div class="results-grid">
-                <div class="result-item">
-                    <div class="result-label">Résultat</div>
-                    <div class="result-value highlight" id="result">-</div>
+            <h2><i class="fas fa-trophy"></i> Résultats du test</h2>
+
+            <div class="ab-comparison">
+                <div class="version-card" id="cardA">
+                    <div class="version-header">
+                        <div class="version-title">Version A</div>
+                        <div id="badgeA"></div>
+                    </div>
+                    <div class="version-rate" id="rateA">-</div>
+                    <div class="version-stats">
+                        <div class="stat-row">
+                            <span>Visiteurs</span>
+                            <strong id="visA">-</strong>
+                        </div>
+                        <div class="stat-row">
+                            <span>Conversions</span>
+                            <strong id="convA">-</strong>
+                        </div>
+                        <div class="stat-row">
+                            <span>Taux de conversion</span>
+                            <strong id="crA">-</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="version-card" id="cardB">
+                    <div class="version-header">
+                        <div class="version-title">Version B</div>
+                        <div id="badgeB"></div>
+                    </div>
+                    <div class="version-rate" id="rateB">-</div>
+                    <div class="version-stats">
+                        <div class="stat-row">
+                            <span>Visiteurs</span>
+                            <strong id="visB">-</strong>
+                        </div>
+                        <div class="stat-row">
+                            <span>Conversions</span>
+                            <strong id="convB">-</strong>
+                        </div>
+                        <div class="stat-row">
+                            <span>Taux de conversion</span>
+                            <strong id="crB">-</strong>
+                        </div>
+                    </div>
                 </div>
             </div>
+
+            <div class="significance-meter">
+                <h3><i class="fas fa-tachometer-alt"></i> Signification statistique</h3>
+                <div class="meter-bar">
+                    <div class="meter-indicator" id="meterIndicator"></div>
+                </div>
+                <div class="meter-labels">
+                    <span>Non significatif (&lt;90%)</span>
+                    <span>Acceptable (90-95%)</span>
+                    <span>Significatif (95-99%)</span>
+                    <span>Très significatif (≥99%)</span>
+                </div>
+                <div style="text-align: center; margin-top: 1rem; font-size: 1.2rem;">
+                    <strong>Niveau de confiance : <span id="confidenceLevel">-</span></strong>
+                </div>
+            </div>
+
+            <div class="results-grid">
+                <div class="result-item">
+                    <div class="result-label">Amélioration relative</div>
+                    <div class="result-value highlight" id="uplift">-</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">P-value</div>
+                    <div class="result-value" id="pValue">-</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Impact business annuel</div>
+                    <div class="result-value success" id="impact">-</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Taille d'échantillon</div>
+                    <div class="result-value" id="sampleSize">-</div>
+                </div>
+            </div>
+
+            <div class="alert" id="recommendation"></div>
         </section>
+
         <section class="tool-help">
-            <h3><i class="fas fa-info-circle"></i> Information</h3>
-            <p>Optimisez vos campagnes marketing avec cet outil.</p>
+            <h3><i class="fas fa-question-circle"></i> C'est quoi un test A/B ?</h3>
+            <p>Un test A/B compare deux versions d'une page web, email ou publicité pour déterminer laquelle performe le mieux.</p>
+
+            <h3><i class="fas fa-chart-line"></i> Signification statistique</h3>
+            <ul>
+                <li><strong>95% de confiance</strong> : Standard industrie - 5% de risque de faux positif</li>
+                <li><strong>99% de confiance</strong> : Plus rigoureux - 1% de risque de faux positif</li>
+                <li><strong>P-value</strong> : Plus elle est faible, plus le résultat est fiable</li>
+            </ul>
+
+            <h3><i class="fas fa-users"></i> Taille d'échantillon recommandée</h3>
+            <ul>
+                <li><strong>Minimum absolu</strong> : 100 conversions par variante</li>
+                <li><strong>Recommandé</strong> : 350-400 conversions par variante pour 95% de confiance</li>
+                <li><strong>Petites différences</strong> : 1000+ conversions si l'écart est &lt;10%</li>
+            </ul>
+
+            <h3><i class="fas fa-lightbulb"></i> Bonnes pratiques tests A/B</h3>
+            <ul>
+                <li><strong>Une variable à la fois</strong> : Changez un seul élément (titre, CTA, couleur...)</li>
+                <li><strong>Durée suffisante</strong> : Minimum 1-2 semaines pour capturer différents jours</li>
+                <li><strong>Split 50/50</strong> : Répartissez le trafic équitablement</li>
+                <li><strong>Ne pas arrêter tôt</strong> : Attendez la significativité statistique</li>
+                <li><strong>Testez en continu</strong> : Toujours avoir un test A/B actif</li>
+            </ul>
+
+            <h3><i class="fas fa-flask"></i> Idées de tests A/B</h3>
+            <ul>
+                <li>Titre de la page (H1)</li>
+                <li>Couleur et texte du bouton CTA</li>
+                <li>Images (produit vs lifestyle)</li>
+                <li>Longueur du formulaire (3 champs vs 7 champs)</li>
+                <li>Emplacement du CTA (en haut vs en bas)</li>
+                <li>Témoignages clients (avec vs sans)</li>
+                <li>Prix (affichage mensuel vs annuel)</li>
+            </ul>
         </section>
     </main>
     <footer class="tool-footer"><a href="../../index.html"><i class="fas fa-arrow-left"></i> Retour</a></footer>
     <script src="../../assets/js/utils.js"></script>
     <script src="../../assets/js/main.js"></script>
     <script>
-        document.getElementById('mainForm').addEventListener('submit', function(e) {
+        // Fonction pour calculer la Z-score (approximation normale)
+        function calculateZScore(p1, p2, n1, n2) {
+            const pPool = (p1 * n1 + p2 * n2) / (n1 + n2);
+            const se = Math.sqrt(pPool * (1 - pPool) * (1/n1 + 1/n2));
+            return Math.abs(p1 - p2) / se;
+        }
+
+        // Fonction pour calculer la p-value à partir du Z-score
+        function zScoreToPValue(z) {
+            // Approximation de la fonction de répartition normale
+            const t = 1 / (1 + 0.2316419 * z);
+            const d = 0.3989423 * Math.exp(-z * z / 2);
+            const p = d * t * (0.3193815 + t * (-0.3565638 + t * (1.781478 + t * (-1.821256 + t * 1.330274))));
+            return 2 * p; // Test bilatéral
+        }
+
+        document.getElementById('abTestForm').addEventListener('submit', function(e) {
             e.preventDefault();
-            const val1 = parseFloat(document.getElementById('input1').value);
-            const val2 = parseFloat(document.getElementById('input2').value);
-            const result = val2 > 0 ? (val1 / val2) : 0;
-            document.getElementById('result').textContent = result.toFixed(2);
+
+            const visitorsA = parseInt(document.getElementById('visitorsA').value);
+            const conversionsA = parseInt(document.getElementById('conversionsA').value);
+            const visitorsB = parseInt(document.getElementById('visitorsB').value);
+            const conversionsB = parseInt(document.getElementById('conversionsB').value);
+            const confidenceLevel = parseInt(document.getElementById('confidence').value);
+            const avgRevenue = parseFloat(document.getElementById('revenue').value) || 0;
+
+            // Calcul des taux de conversion
+            const rateA = conversionsA / visitorsA;
+            const rateB = conversionsB / visitorsB;
+
+            // Calcul de l'amélioration (uplift)
+            const uplift = ((rateB - rateA) / rateA) * 100;
+
+            // Calcul de la significativité statistique
+            const zScore = calculateZScore(rateA, rateB, visitorsA, visitorsB);
+            const pValue = zScoreToPValue(zScore);
+            const confidence = (1 - pValue) * 100;
+
+            // Déterminer le gagnant
+            const isSignificant = confidence >= confidenceLevel;
+            const winner = rateB > rateA ? 'B' : 'A';
+
+            // Affichage des cartes
+            document.getElementById('visA').textContent = visitorsA.toLocaleString('fr-FR');
+            document.getElementById('convA').textContent = conversionsA.toLocaleString('fr-FR');
+            document.getElementById('crA').textContent = formatPercentage(rateA * 100);
+            document.getElementById('rateA').textContent = formatPercentage(rateA * 100);
+
+            document.getElementById('visB').textContent = visitorsB.toLocaleString('fr-FR');
+            document.getElementById('convB').textContent = conversionsB.toLocaleString('fr-FR');
+            document.getElementById('crB').textContent = formatPercentage(rateB * 100);
+            document.getElementById('rateB').textContent = formatPercentage(rateB * 100);
+
+            // Badges gagnant/perdant
+            const cardA = document.getElementById('cardA');
+            const cardB = document.getElementById('cardB');
+            const badgeA = document.getElementById('badgeA');
+            const badgeB = document.getElementById('badgeB');
+
+            cardA.classList.remove('winner', 'loser');
+            cardB.classList.remove('winner', 'loser');
+            badgeA.innerHTML = '';
+            badgeB.innerHTML = '';
+
+            if (isSignificant) {
+                if (winner === 'B') {
+                    cardB.classList.add('winner');
+                    cardA.classList.add('loser');
+                    badgeB.innerHTML = '<div class="winner-badge">🏆 GAGNANT</div>';
+                } else {
+                    cardA.classList.add('winner');
+                    cardB.classList.add('loser');
+                    badgeA.innerHTML = '<div class="winner-badge">🏆 GAGNANT</div>';
+                }
+            }
+
+            // Indicateur de significativité
+            const meterPosition = Math.min(confidence, 100);
+            document.getElementById('meterIndicator').style.left = meterPosition + '%';
+            document.getElementById('confidenceLevel').textContent = confidence.toFixed(1) + '%';
+
+            // Résultats
+            document.getElementById('uplift').textContent = (uplift > 0 ? '+' : '') + uplift.toFixed(2) + '%';
+            document.getElementById('pValue').textContent = pValue.toFixed(4);
+
+            // Impact business
+            if (avgRevenue > 0 && isSignificant) {
+                const extraConversionsPerMonth = Math.abs(rateB - rateA) * visitorsB * 4; // 4 semaines
+                const annualImpact = extraConversionsPerMonth * 12 * avgRevenue;
+                document.getElementById('impact').textContent = (uplift > 0 ? '+' : '') + formatCurrency(annualImpact);
+            } else {
+                document.getElementById('impact').textContent = 'N/A';
+            }
+
+            // Taille d'échantillon
+            const totalSample = visitorsA + visitorsB;
+            const totalConversions = conversionsA + conversionsB;
+            document.getElementById('sampleSize').textContent = totalSample.toLocaleString('fr-FR') + ' visiteurs (' + totalConversions + ' conv.)';
+
+            // Recommandations
+            let recommendation = '';
+            let alertClass = 'alert-info';
+
+            if (confidence >= 99) {
+                recommendation = `<strong>✅ Résultat très significatif (${confidence.toFixed(1)}%) !</strong> Vous pouvez implémenter la version ${winner} en toute confiance. Risque de faux positif &lt;1%.`;
+                alertClass = 'alert-success';
+            } else if (confidence >= 95) {
+                recommendation = `<strong>👍 Résultat significatif (${confidence.toFixed(1)}%)</strong> : La version ${winner} est meilleure. Standard industrie atteint, vous pouvez déployer.`;
+                alertClass = 'alert-success';
+            } else if (confidence >= 90) {
+                recommendation = `<strong>⚠️ Résultat marginal (${confidence.toFixed(1)}%)</strong> : Tendance vers la version ${winner}, mais pas assez de données. Continuez le test ou acceptez un risque plus élevé.`;
+                alertClass = 'alert-warning';
+            } else {
+                recommendation = `<strong>❌ Résultat non significatif (${confidence.toFixed(1)}%)</strong> : Pas assez de données pour conclure. Continuez le test jusqu'à atteindre 95% de confiance.`;
+                alertClass = 'alert-danger';
+            }
+
+            // Conseils additionnels
+            if (totalConversions < 200) {
+                recommendation += '<br><br><strong>💡 Échantillon trop petit</strong> : Vous avez seulement ' + totalConversions + ' conversions. Visez au moins 350-400 conversions pour un résultat fiable.';
+            }
+
+            if (Math.abs(uplift) < 5 && totalConversions < 1000) {
+                recommendation += '<br><br><strong>📊 Différence faible</strong> : L\'écart est de seulement ' + Math.abs(uplift).toFixed(1) + '%. Pour détecter de petites différences, collectez plus de données (1000+ conversions).';
+            }
+
+            if (avgRevenue > 0 && isSignificant) {
+                const extraConversionsPerMonth = Math.abs(rateB - rateA) * visitorsB * 4;
+                const monthlyImpact = extraConversionsPerMonth * avgRevenue;
+                recommendation += `<br><br><strong>💰 Impact estimé</strong> : ${formatCurrency(monthlyImpact)}/mois si vous déployez la version gagnante.`;
+            }
+
+            document.getElementById('recommendation').className = `alert ${alertClass}`;
+            document.getElementById('recommendation').innerHTML = recommendation;
+
             document.getElementById('results').style.display = 'block';
-            showNotification('Calcul effectué !', 'success');
+            showNotification('Test A/B analysé !', 'success');
         });
-        window.addEventListener('load', () => document.getElementById('mainForm').dispatchEvent(new Event('submit')));
+
+        window.addEventListener('load', () => document.getElementById('abTestForm').dispatchEvent(new Event('submit')));
     </script>
 </body>
 </html>

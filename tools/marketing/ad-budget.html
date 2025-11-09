@@ -3,65 +3,509 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simulateur de Budget Pub - Business Tools</title>
+    <title>Planificateur Budget Publicitaire - Business Tools</title>
     <link rel="stylesheet" href="../../assets/css/main.css">
     <link rel="stylesheet" href="../../assets/css/tools.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .channel-allocations {
+            display: grid;
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+        .channel-item {
+            background: white;
+            border: 2px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+        }
+        .channel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        .channel-name {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        .channel-icon {
+            font-size: 1.5rem;
+        }
+        .channel-toggle {
+            width: 60px;
+            height: 30px;
+            background: #ccc;
+            border-radius: 50px;
+            position: relative;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .channel-toggle.active {
+            background: var(--accent);
+        }
+        .channel-toggle::after {
+            content: '';
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 24px;
+            height: 24px;
+            background: white;
+            border-radius: 50%;
+            transition: left 0.3s;
+        }
+        .channel-toggle.active::after {
+            left: 33px;
+        }
+        .budget-slider {
+            width: 100%;
+            margin: 1rem 0;
+        }
+        .channel-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        .channel-stat {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: var(--radius);
+            text-align: center;
+        }
+        .stat-value-big {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--accent);
+        }
+        .stat-label-small {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-top: 0.25rem;
+        }
+        .total-summary {
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: white;
+            border-radius: var(--radius-lg);
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+        .summary-item {
+            text-align: center;
+        }
+        .summary-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+        }
+        .summary-label {
+            font-size: 1rem;
+            opacity: 0.9;
+            margin-top: 0.5rem;
+        }
+    </style>
 </head>
 <body>
     <nav class="breadcrumb">
-        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> > 
-        <a href="../../index.html#tools">Marketing</a> > 
-        <span>Simulateur de Budget Pub</span>
+        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> >
+        <a href="../../index.html#tools">Marketing</a> >
+        <span>Budget Publicitaire</span>
     </nav>
     <main class="tool-container">
         <header class="tool-header">
-            <h1><i class="fas fa-money-bill-wave"></i> Simulateur de Budget Pub</h1>
-            <p class="tool-description">Outil marketing pour optimiser vos campagnes.</p>
+            <h1><i class="fas fa-wallet"></i> Planificateur de Budget Publicitaire</h1>
+            <p class="tool-description">Optimisez la répartition de votre budget pub sur différents canaux et estimez les résultats.</p>
         </header>
+
         <section class="tool-input">
-            <form id="mainForm">
+            <form id="budgetForm">
+                <h2><i class="fas fa-euro-sign"></i> Budget total</h2>
                 <div class="input-grid">
                     <div class="form-group">
-                        <label for="input1" class="form-label">Valeur 1</label>
-                        <input type="number" id="input1" class="form-input" value="100" min="0" required>
+                        <label for="totalBudget" class="form-label"><i class="fas fa-money-bill-wave"></i> Budget mensuel (€)</label>
+                        <input type="number" id="totalBudget" class="form-input" placeholder="Ex: 5000" min="100" step="100" value="5000" required>
+                        <span class="form-help">Budget pub total par mois</span>
                     </div>
                     <div class="form-group">
-                        <label for="input2" class="form-label">Valeur 2</label>
-                        <input type="number" id="input2" class="form-input" value="50" min="0" required>
+                        <label for="avgOrderValue" class="form-label"><i class="fas fa-shopping-cart"></i> Panier moyen (€)</label>
+                        <input type="number" id="avgOrderValue" class="form-input" placeholder="Ex: 100" step="0.01" min="0" value="100">
+                        <span class="form-help">Revenu moyen par conversion</span>
                     </div>
                 </div>
-                <button type="submit" class="btn btn-primary"><i class="fas fa-calculator"></i> Calculer</button>
+
+                <h2 style="margin-top: 2rem;"><i class="fas fa-sliders-h"></i> Répartition par canal</h2>
+                <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">Activez les canaux et ajustez le pourcentage alloué à chacun</p>
+
+                <div class="channel-allocations">
+                    <!-- Google Ads -->
+                    <div class="channel-item" data-channel="google">
+                        <div class="channel-header">
+                            <div class="channel-name">
+                                <span class="channel-icon">🔍</span>
+                                <span>Google Ads</span>
+                            </div>
+                            <div class="channel-toggle active" data-channel="google"></div>
+                        </div>
+                        <input type="range" class="budget-slider" min="0" max="100" value="35" data-channel="google">
+                        <div style="text-align: center; font-weight: 600; margin: 0.5rem 0;">
+                            <span class="budget-percentage" data-channel="google">35</span>% =
+                            <span class="budget-amount" data-channel="google">1750</span> €
+                        </div>
+                        <div class="channel-stats" id="stats-google"></div>
+                    </div>
+
+                    <!-- Facebook Ads -->
+                    <div class="channel-item" data-channel="facebook">
+                        <div class="channel-header">
+                            <div class="channel-name">
+                                <span class="channel-icon">👥</span>
+                                <span>Facebook / Instagram Ads</span>
+                            </div>
+                            <div class="channel-toggle active" data-channel="facebook"></div>
+                        </div>
+                        <input type="range" class="budget-slider" min="0" max="100" value="30" data-channel="facebook">
+                        <div style="text-align: center; font-weight: 600; margin: 0.5rem 0;">
+                            <span class="budget-percentage" data-channel="facebook">30</span>% =
+                            <span class="budget-amount" data-channel="facebook">1500</span> €
+                        </div>
+                        <div class="channel-stats" id="stats-facebook"></div>
+                    </div>
+
+                    <!-- LinkedIn Ads -->
+                    <div class="channel-item" data-channel="linkedin">
+                        <div class="channel-header">
+                            <div class="channel-name">
+                                <span class="channel-icon">💼</span>
+                                <span>LinkedIn Ads</span>
+                            </div>
+                            <div class="channel-toggle active" data-channel="linkedin"></div>
+                        </div>
+                        <input type="range" class="budget-slider" min="0" max="100" value="20" data-channel="linkedin">
+                        <div style="text-align: center; font-weight: 600; margin: 0.5rem 0;">
+                            <span class="budget-percentage" data-channel="linkedin">20</span>% =
+                            <span class="budget-amount" data-channel="linkedin">1000</span> €
+                        </div>
+                        <div class="channel-stats" id="stats-linkedin"></div>
+                    </div>
+
+                    <!-- TikTok Ads -->
+                    <div class="channel-item" data-channel="tiktok">
+                        <div class="channel-header">
+                            <div class="channel-name">
+                                <span class="channel-icon">🎵</span>
+                                <span>TikTok Ads</span>
+                            </div>
+                            <div class="channel-toggle" data-channel="tiktok"></div>
+                        </div>
+                        <input type="range" class="budget-slider" min="0" max="100" value="15" data-channel="tiktok" disabled>
+                        <div style="text-align: center; font-weight: 600; margin: 0.5rem 0;">
+                            <span class="budget-percentage" data-channel="tiktok">15</span>% =
+                            <span class="budget-amount" data-channel="tiktok">750</span> €
+                        </div>
+                        <div class="channel-stats" id="stats-tiktok"></div>
+                    </div>
+
+                    <!-- Display / Programmatic -->
+                    <div class="channel-item" data-channel="display">
+                        <div class="channel-header">
+                            <div class="channel-name">
+                                <span class="channel-icon">🖼️</span>
+                                <span>Display / Programmatic</span>
+                            </div>
+                            <div class="channel-toggle" data-channel="display"></div>
+                        </div>
+                        <input type="range" class="budget-slider" min="0" max="100" value="0" data-channel="display" disabled>
+                        <div style="text-align: center; font-weight: 600; margin: 0.5rem 0;">
+                            <span class="budget-percentage" data-channel="display">0</span>% =
+                            <span class="budget-amount" data-channel="display">0</span> €
+                        </div>
+                        <div class="channel-stats" id="stats-display"></div>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-chart-line"></i> Calculer les Prévisions
+                </button>
             </form>
         </section>
+
         <section class="tool-output" id="results" style="display: none;">
-            <div class="results-grid">
-                <div class="result-item">
-                    <div class="result-label">Résultat</div>
-                    <div class="result-value highlight" id="result">-</div>
+            <div class="total-summary">
+                <h2 style="margin: 0 0 1rem 0;"><i class="fas fa-trophy"></i> Prévisions totales</h2>
+                <div class="summary-grid">
+                    <div class="summary-item">
+                        <div class="summary-value" id="totalImpressions">-</div>
+                        <div class="summary-label">Impressions</div>
+                    </div>
+                    <div class="summary-item">
+                        <div class="summary-value" id="totalClicks">-</div>
+                        <div class="summary-label">Clics estimés</div>
+                    </div>
+                    <div class="summary-item">
+                        <div class="summary-value" id="totalConversions">-</div>
+                        <div class="summary-label">Conversions</div>
+                    </div>
+                    <div class="summary-item">
+                        <div class="summary-value" id="totalRevenue">-</div>
+                        <div class="summary-label">CA estimé</div>
+                    </div>
+                    <div class="summary-item">
+                        <div class="summary-value" id="totalROI">-</div>
+                        <div class="summary-label">ROI</div>
+                    </div>
                 </div>
             </div>
+
+            <div class="alert" id="recommendation"></div>
         </section>
+
         <section class="tool-help">
-            <h3><i class="fas fa-info-circle"></i> Information</h3>
-            <p>Optimisez vos campagnes marketing avec cet outil.</p>
+            <h3><i class="fas fa-chart-bar"></i> Moyennes par plateforme</h3>
+            <ul>
+                <li><strong>Google Ads</strong> : CPC 1-3€, CTR 3-5%, Taux conversion 3-5%</li>
+                <li><strong>Facebook/Instagram</strong> : CPC 0.50-2€, CTR 1-2%, Taux conversion 1-3%</li>
+                <li><strong>LinkedIn Ads</strong> : CPC 5-8€, CTR 0.5-1%, Taux conversion 2-5% (B2B)</li>
+                <li><strong>TikTok Ads</strong> : CPC 0.30-1€, CTR 1-3%, Taux conversion 1-2%</li>
+                <li><strong>Display</strong> : CPM 2-10€, CTR 0.1-0.5%, Taux conversion 0.5-1%</li>
+            </ul>
+
+            <h3><i class="fas fa-bullseye"></i> Stratégies d'allocation budget</h3>
+            <ul>
+                <li><strong>Stratégie Bottom-Funnel</strong> : 60% Google Search, 20% Facebook Retargeting, 20% LinkedIn (B2B)</li>
+                <li><strong>Stratégie Awareness</strong> : 40% Facebook/Instagram, 30% TikTok, 30% Display</li>
+                <li><strong>Stratégie Équilibrée</strong> : 35% Google, 30% Facebook, 20% LinkedIn, 15% autres</li>
+                <li><strong>Test & Learn</strong> : Commencez avec 70% sur un canal maîtrisé, 30% tests nouveaux canaux</li>
+            </ul>
+
+            <h3><i class="fas fa-lightbulb"></i> Optimisation budget</h3>
+            <ul>
+                <li><strong>Commencez petit</strong> : 500-1000€/mois minimum par canal pour tester</li>
+                <li><strong>Analysez le CAC</strong> : Ratio LTV/CAC doit être &gt; 3:1</li>
+                <li><strong>Période de test</strong> : 30 jours minimum avant d'évaluer performance</li>
+                <li><strong>Réallouez dynamiquement</strong> : +20% sur canaux performants, -20% sur sous-performants</li>
+                <li><strong>Diversifiez</strong> : Ne mettez pas tout sur un seul canal (risque)</li>
+            </ul>
         </section>
     </main>
     <footer class="tool-footer"><a href="../../index.html"><i class="fas fa-arrow-left"></i> Retour</a></footer>
     <script src="../../assets/js/utils.js"></script>
     <script src="../../assets/js/main.js"></script>
     <script>
-        document.getElementById('mainForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const val1 = parseFloat(document.getElementById('input1').value);
-            const val2 = parseFloat(document.getElementById('input2').value);
-            const result = val2 > 0 ? (val1 / val2) : 0;
-            document.getElementById('result').textContent = result.toFixed(2);
-            document.getElementById('results').style.display = 'block';
-            showNotification('Calcul effectué !', 'success');
+        // Métriques moyennes par plateforme
+        const platformMetrics = {
+            google: { cpc: 2, ctr: 0.04, convRate: 0.04, cpm: 10 },
+            facebook: { cpc: 1, ctr: 0.015, convRate: 0.02, cpm: 7 },
+            linkedin: { cpc: 6.5, ctr: 0.007, convRate: 0.035, cpm: 15 },
+            tiktok: { cpc: 0.6, ctr: 0.02, convRate: 0.015, cpm: 5 },
+            display: { cpc: 0.5, ctr: 0.003, convRate: 0.007, cpm: 5 }
+        };
+
+        let channelStates = {
+            google: true,
+            facebook: true,
+            linkedin: true,
+            tiktok: false,
+            display: false
+        };
+
+        // Toggle des canaux
+        document.querySelectorAll('.channel-toggle').forEach(toggle => {
+            toggle.addEventListener('click', function() {
+                const channel = this.dataset.channel;
+                const isActive = this.classList.toggle('active');
+                channelStates[channel] = isActive;
+
+                const slider = document.querySelector(`.budget-slider[data-channel="${channel}"]`);
+                slider.disabled = !isActive;
+
+                if (!isActive) {
+                    slider.value = 0;
+                    updateBudgetDisplay(channel, 0);
+                }
+
+                redistributeBudget();
+            });
         });
-        window.addEventListener('load', () => document.getElementById('mainForm').dispatchEvent(new Event('submit')));
+
+        // Sliders
+        document.querySelectorAll('.budget-slider').forEach(slider => {
+            slider.addEventListener('input', function() {
+                const channel = this.dataset.channel;
+                updateBudgetDisplay(channel, parseInt(this.value));
+            });
+        });
+
+        function updateBudgetDisplay(channel, percentage) {
+            const totalBudget = parseFloat(document.getElementById('totalBudget').value) || 0;
+            const amount = (totalBudget * percentage) / 100;
+
+            document.querySelector(`.budget-percentage[data-channel="${channel}"]`).textContent = percentage;
+            document.querySelector(`.budget-amount[data-channel="${channel}"]`).textContent = amount.toFixed(0);
+        }
+
+        function redistributeBudget() {
+            const activeChannels = Object.keys(channelStates).filter(c => channelStates[c]);
+            if (activeChannels.length === 0) return;
+
+            const totalBudget = parseFloat(document.getElementById('totalBudget').value) || 0;
+            const currentAllocations = {};
+            let totalAllocation = 0;
+
+            activeChannels.forEach(channel => {
+                const slider = document.querySelector(`.budget-slider[data-channel="${channel}"]`);
+                const value = parseInt(slider.value);
+                currentAllocations[channel] = value;
+                totalAllocation += value;
+            });
+
+            // Normaliser à 100%
+            if (totalAllocation > 0 && totalAllocation !== 100) {
+                activeChannels.forEach(channel => {
+                    const normalized = Math.round((currentAllocations[channel] / totalAllocation) * 100);
+                    const slider = document.querySelector(`.budget-slider[data-channel="${channel}"]`);
+                    slider.value = normalized;
+                    updateBudgetDisplay(channel, normalized);
+                });
+            }
+        }
+
+        document.getElementById('budgetForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const totalBudget = parseFloat(document.getElementById('totalBudget').value);
+            const avgOrderValue = parseFloat(document.getElementById('avgOrderValue').value) || 0;
+
+            let totalImpressions = 0;
+            let totalClicks = 0;
+            let totalConversions = 0;
+
+            // Calculer pour chaque canal actif
+            Object.keys(channelStates).forEach(channel => {
+                if (!channelStates[channel]) return;
+
+                const slider = document.querySelector(`.budget-slider[data-channel="${channel}"]`);
+                const percentage = parseInt(slider.value);
+                const budget = (totalBudget * percentage) / 100;
+
+                if (budget === 0) return;
+
+                const metrics = platformMetrics[channel];
+
+                // Calculs
+                const impressions = Math.round((budget / metrics.cpm) * 1000);
+                const clicks = Math.round(impressions * metrics.ctr);
+                const conversions = Math.round(clicks * metrics.convRate);
+                const cpc = budget / clicks;
+
+                totalImpressions += impressions;
+                totalClicks += clicks;
+                totalConversions += conversions;
+
+                // Affichage stats du canal
+                const statsContainer = document.getElementById(`stats-${channel}`);
+                statsContainer.innerHTML = `
+                    <div class="channel-stat">
+                        <div class="stat-value-big">${impressions.toLocaleString('fr-FR')}</div>
+                        <div class="stat-label-small">Impressions</div>
+                    </div>
+                    <div class="channel-stat">
+                        <div class="stat-value-big">${clicks.toLocaleString('fr-FR')}</div>
+                        <div class="stat-label-small">Clics</div>
+                    </div>
+                    <div class="channel-stat">
+                        <div class="stat-value-big">${conversions}</div>
+                        <div class="stat-label-small">Conversions</div>
+                    </div>
+                    <div class="channel-stat">
+                        <div class="stat-value-big">${formatCurrency(cpc)}</div>
+                        <div class="stat-label-small">CPC moyen</div>
+                    </div>
+                `;
+            });
+
+            // Totaux
+            const totalRevenue = totalConversions * avgOrderValue;
+            const roi = totalBudget > 0 ? ((totalRevenue - totalBudget) / totalBudget) * 100 : 0;
+
+            document.getElementById('totalImpressions').textContent = totalImpressions.toLocaleString('fr-FR');
+            document.getElementById('totalClicks').textContent = totalClicks.toLocaleString('fr-FR');
+            document.getElementById('totalConversions').textContent = totalConversions;
+            document.getElementById('totalRevenue').textContent = avgOrderValue > 0 ? formatCurrency(totalRevenue) : 'N/A';
+            document.getElementById('totalROI').textContent = avgOrderValue > 0 ? (roi > 0 ? '+' : '') + roi.toFixed(0) + '%' : 'N/A';
+
+            // Recommandations
+            let recommendation = '';
+            let alertClass = 'alert-info';
+
+            if (avgOrderValue > 0) {
+                const cac = totalBudget / totalConversions;
+                const ltvCacRatio = avgOrderValue / cac;
+
+                if (roi > 100) {
+                    recommendation = `<strong>🚀 ROI excellent (+${roi.toFixed(0)}%) !</strong> Votre budget pub est très rentable. CAC: ${formatCurrency(cac)}, Panier: ${formatCurrency(avgOrderValue)}. Augmentez le budget pour scaler !`;
+                    alertClass = 'alert-success';
+                } else if (roi > 0) {
+                    recommendation = `<strong>👍 ROI positif (+${roi.toFixed(0)}%)</strong> : Rentable mais optimisable. CAC: ${formatCurrency(cac)}. Ratio LTV/CAC: ${ltvCacRatio.toFixed(2)}:1 ${ltvCacRatio >= 3 ? '(excellent)' : '(à améliorer, visez 3:1)'}.`;
+                    alertClass = 'alert-success';
+                } else if (roi > -50) {
+                    recommendation = `<strong>⚠️ ROI faible (${roi.toFixed(0)}%)</strong> : CAC (${formatCurrency(cac)}) trop élevé par rapport au panier (${formatCurrency(avgOrderValue)}). Optimisez les campagnes ou augmentez le panier moyen.`;
+                    alertClass = 'alert-warning';
+                } else {
+                    recommendation = `<strong>🔴 ROI négatif (${roi.toFixed(0)}%)</strong> : Vous perdez de l'argent. CAC: ${formatCurrency(cac)} vs Panier: ${formatCurrency(avgOrderValue)}. Pause recommandée pour optimiser les conversions.`;
+                    alertClass = 'alert-danger';
+                }
+            } else {
+                const avgCPC = totalBudget / totalClicks;
+                recommendation = `<strong>📊 Prévisions calculées</strong> : ${totalConversions} conversions attendues avec un CPC moyen de ${formatCurrency(avgCPC)}. Ajoutez un panier moyen pour calculer le ROI.`;
+            }
+
+            // Conseils additionnels
+            const activeChannelsCount = Object.values(channelStates).filter(v => v).length;
+            if (activeChannelsCount === 1) {
+                recommendation += '<br><br><strong>💡 Diversification</strong> : Vous n\'utilisez qu\'un canal. Diversifiez pour réduire les risques et toucher plus d\'audiences.';
+            }
+
+            if (totalBudget < 1000) {
+                recommendation += '<br><br><strong>⚠️ Budget limité</strong> : Avec moins de 1000€/mois, concentrez-vous sur 1-2 canaux maximum pour avoir assez de volume.';
+            }
+
+            document.getElementById('recommendation').className = `alert ${alertClass}`;
+            document.getElementById('recommendation').innerHTML = recommendation;
+
+            document.getElementById('results').style.display = 'block';
+            showNotification('Prévisions calculées !', 'success');
+        });
+
+        // Initialisation
+        document.getElementById('totalBudget').addEventListener('input', function() {
+            Object.keys(channelStates).forEach(channel => {
+                if (channelStates[channel]) {
+                    const slider = document.querySelector(`.budget-slider[data-channel="${channel}"]`);
+                    updateBudgetDisplay(channel, parseInt(slider.value));
+                }
+            });
+        });
+
+        // Trigger initial
+        Object.keys(channelStates).forEach(channel => {
+            if (channelStates[channel]) {
+                const slider = document.querySelector(`.budget-slider[data-channel="${channel}"]`);
+                updateBudgetDisplay(channel, parseInt(slider.value));
+            }
+        });
+
+        window.addEventListener('load', () => document.getElementById('budgetForm').dispatchEvent(new Event('submit')));
     </script>
 </body>
 </html>

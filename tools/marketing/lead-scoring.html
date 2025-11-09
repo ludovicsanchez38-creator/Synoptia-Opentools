@@ -3,65 +3,375 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculateur Lead Scoring - Business Tools</title>
+    <title>Système de Lead Scoring - Business Tools</title>
     <link rel="stylesheet" href="../../assets/css/main.css">
     <link rel="stylesheet" href="../../assets/css/tools.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .score-gauge {
+            position: relative;
+            width: 250px;
+            height: 250px;
+            margin: 2rem auto;
+        }
+        .gauge-circle {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: conic-gradient(
+                var(--accent) 0deg,
+                var(--accent) var(--score-deg),
+                #e0e0e0 var(--score-deg),
+                #e0e0e0 360deg
+            );
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        .gauge-inner {
+            width: 85%;
+            height: 85%;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .gauge-score {
+            font-size: 3.5rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+        .gauge-label {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            margin-top: 0.5rem;
+        }
+        .scoring-section {
+            background: white;
+            border: 2px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+        }
+        .scoring-section h3 {
+            margin: 0 0 1rem 0;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .score-breakdown {
+            display: grid;
+            gap: 0.75rem;
+            margin-top: 1rem;
+        }
+        .score-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem;
+            background: #f8f9fa;
+            border-radius: var(--radius);
+            border-left: 3px solid var(--primary);
+        }
+        .score-item-label {
+            font-weight: 500;
+        }
+        .score-item-value {
+            font-weight: 700;
+            color: var(--accent);
+        }
+        .qualification-badge {
+            display: inline-block;
+            padding: 0.5rem 1.5rem;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            margin: 1rem 0;
+        }
+        .badge-hot { background: #F44336; color: white; }
+        .badge-warm { background: #FF9800; color: white; }
+        .badge-cold { background: #2196F3; color: white; }
+        .badge-unqualified { background: #9E9E9E; color: white; }
+    </style>
 </head>
 <body>
     <nav class="breadcrumb">
-        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> > 
-        <a href="../../index.html#tools">Marketing</a> > 
-        <span>Calculateur Lead Scoring</span>
+        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> >
+        <a href="../../index.html#tools">Marketing</a> >
+        <span>Lead Scoring</span>
     </nav>
     <main class="tool-container">
         <header class="tool-header">
-            <h1><i class="fas fa-sort-amount-down"></i> Calculateur Lead Scoring</h1>
-            <p class="tool-description">Outil marketing pour optimiser vos campagnes.</p>
+            <h1><i class="fas fa-user-check"></i> Système de Lead Scoring</h1>
+            <p class="tool-description">Qualifiez et priorisez vos leads en fonction de critères démographiques et comportementaux.</p>
         </header>
+
         <section class="tool-input">
-            <form id="mainForm">
-                <div class="input-grid">
-                    <div class="form-group">
-                        <label for="input1" class="form-label">Valeur 1</label>
-                        <input type="number" id="input1" class="form-input" value="100" min="0" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="input2" class="form-label">Valeur 2</label>
-                        <input type="number" id="input2" class="form-input" value="50" min="0" required>
+            <form id="scoringForm">
+                <div class="scoring-section">
+                    <h3><i class="fas fa-building"></i> Données démographiques (Fit)</h3>
+                    <div class="input-grid">
+                        <div class="form-group">
+                            <label for="companySize" class="form-label"><i class="fas fa-users"></i> Taille entreprise</label>
+                            <select id="companySize" class="form-input">
+                                <option value="0">Inconnu</option>
+                                <option value="5">1-10 employés</option>
+                                <option value="10">11-50 employés</option>
+                                <option value="20" selected>51-200 employés</option>
+                                <option value="25">201-1000 employés</option>
+                                <option value="30">1000+ employés</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="industry" class="form-label"><i class="fas fa-industry"></i> Secteur d'activité</label>
+                            <select id="industry" class="form-input">
+                                <option value="0">Inconnu</option>
+                                <option value="15" selected>Tech / SaaS</option>
+                                <option value="10">E-commerce</option>
+                                <option value="10">Services</option>
+                                <option value="5">Autre</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="jobTitle" class="form-label"><i class="fas fa-user-tie"></i> Fonction</label>
+                            <select id="jobTitle" class="form-input">
+                                <option value="0">Inconnu</option>
+                                <option value="25" selected>C-Level (CEO, CTO, CMO...)</option>
+                                <option value="20">VP / Directeur</option>
+                                <option value="15">Manager</option>
+                                <option value="5">Employé</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="budget" class="form-label"><i class="fas fa-euro-sign"></i> Budget estimé</label>
+                            <select id="budget" class="form-input">
+                                <option value="0">Inconnu</option>
+                                <option value="5">&lt; 1000€</option>
+                                <option value="10">1000€ - 5000€</option>
+                                <option value="15" selected">5000€ - 20 000€</option>
+                                <option value="20">&gt; 20 000€</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
-                <button type="submit" class="btn btn-primary"><i class="fas fa-calculator"></i> Calculer</button>
+
+                <div class="scoring-section">
+                    <h3><i class="fas fa-chart-line"></i> Comportement & Engagement</h3>
+                    <div class="input-grid">
+                        <div class="form-group">
+                            <label for="emailOpens" class="form-label"><i class="fas fa-envelope-open"></i> Emails ouverts</label>
+                            <input type="number" id="emailOpens" class="form-input" min="0" value="5" placeholder="Ex: 5">
+                            <span class="form-help">+2 points par email ouvert</span>
+                        </div>
+                        <div class="form-group">
+                            <label for="websiteVisits" class="form-label"><i class="fas fa-mouse-pointer"></i> Visites site web</label>
+                            <input type="number" id="websiteVisits" class="form-input" min="0" value="8" placeholder="Ex: 8">
+                            <span class="form-help">+1 point par visite</span>
+                        </div>
+                        <div class="form-group">
+                            <label for="contentDownloads" class="form-label"><i class="fas fa-download"></i> Contenus téléchargés</label>
+                            <input type="number" id="contentDownloads" class="form-input" min="0" value="2" placeholder="Ex: 2">
+                            <span class="form-help">+5 points par téléchargement</span>
+                        </div>
+                        <div class="form-group">
+                            <label for="videoViews" class="form-label"><i class="fas fa-video"></i> Vidéos visionnées</label>
+                            <input type="number" id="videoViews" class="form-input" min="0" value="1" placeholder="Ex: 1">
+                            <span class="form-help">+3 points par vidéo</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="scoring-section">
+                    <h3><i class="fas fa-fire"></i> Actions à forte valeur</h3>
+                    <div class="input-grid">
+                        <div class="form-group">
+                            <label for="pricingPage" class="form-label"><i class="fas fa-tag"></i> Page tarifs visitée</label>
+                            <select id="pricingPage" class="form-input">
+                                <option value="0">Non</option>
+                                <option value="15" selected>Oui</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="demoRequest" class="form-label"><i class="fas fa-calendar-check"></i> Demande de démo</label>
+                            <select id="demoRequest" class="form-input">
+                                <option value="0">Non</option>
+                                <option value="30" selected>Oui</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="trialStarted" class="form-label"><i class="fas fa-flask"></i> Essai gratuit démarré</label>
+                            <select id="trialStarted" class="form-input">
+                                <option value="0" selected>Non</option>
+                                <option value="25">Oui</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="formSubmits" class="form-label"><i class="fas fa-paper-plane"></i> Formulaires soumis</label>
+                            <input type="number" id="formSubmits" class="form-input" min="0" value="1" placeholder="Ex: 1">
+                            <span class="form-help">+10 points par formulaire</span>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary"><i class="fas fa-calculator"></i> Calculer le Score</button>
             </form>
         </section>
+
         <section class="tool-output" id="results" style="display: none;">
-            <div class="results-grid">
-                <div class="result-item">
-                    <div class="result-label">Résultat</div>
-                    <div class="result-value highlight" id="result">-</div>
+            <div class="score-gauge" id="scoreGauge">
+                <div class="gauge-circle">
+                    <div class="gauge-inner">
+                        <div class="gauge-score" id="totalScore">-</div>
+                        <div class="gauge-label">/ 100</div>
+                    </div>
                 </div>
             </div>
+
+            <div style="text-align: center;">
+                <div class="qualification-badge" id="qualificationBadge">-</div>
+                <p id="qualificationText" style="color: var(--text-secondary); margin-top: 1rem;"></p>
+            </div>
+
+            <h2><i class="fas fa-list"></i> Détail du scoring</h2>
+            <div class="results-grid">
+                <div class="result-item">
+                    <div class="result-label">Score Fit (démographie)</div>
+                    <div class="result-value highlight" id="fitScore">-</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Score Engagement</div>
+                    <div class="result-value" id="engagementScore">-</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Score Intention</div>
+                    <div class="result-value success" id="intentScore">-</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Total</div>
+                    <div class="result-value highlight" id="totalScoreText">-</div>
+                </div>
+            </div>
+
+            <div class="alert" id="recommendation"></div>
         </section>
+
         <section class="tool-help">
-            <h3><i class="fas fa-info-circle"></i> Information</h3>
-            <p>Optimisez vos campagnes marketing avec cet outil.</p>
+            <h3><i class="fas fa-chart-bar"></i> Niveaux de qualification</h3>
+            <ul>
+                <li><strong>🔥 Hot Lead (80-100 points)</strong> : Priorité maximale - Contacter immédiatement</li>
+                <li><strong>🔶 Warm Lead (50-79 points)</strong> : Qualifié - Nurturing actif recommandé</li>
+                <li><strong>❄️ Cold Lead (25-49 points)</strong> : Potentiel faible - Nurturing long terme</li>
+                <li><strong>⚫ Non qualifié (&lt; 25 points)</strong> : Ne correspond pas au profil cible</li>
+            </ul>
+
+            <h3><i class="fas fa-calculator"></i> Méthodologie de scoring</h3>
+            <p><strong>Fit démographique (max 70 points)</strong> : Taille entreprise, secteur, fonction, budget</p>
+            <p><strong>Engagement comportemental (max ~50 points)</strong> : Emails, visites, téléchargements, vidéos</p>
+            <p><strong>Intention d'achat (max 80 points)</strong> : Page tarifs, démo, essai, formulaires</p>
+
+            <h3><i class="fas fa-lightbulb"></i> Bonnes pratiques</h3>
+            <ul>
+                <li><strong>Ajustez les pondérations</strong> : Adaptez les points selon votre business</li>
+                <li><strong>Testez et itérez</strong> : Analysez les conversions réelles pour affiner</li>
+                <li><strong>Automatisez</strong> : Intégrez dans votre CRM (HubSpot, Salesforce...)</li>
+                <li><strong>Score de décroissance</strong> : Réduisez le score si inactivité &gt; 30 jours</li>
+                <li><strong>Segmentez vos actions</strong> : Email pour Warm, appel pour Hot</li>
+            </ul>
         </section>
     </main>
     <footer class="tool-footer"><a href="../../index.html"><i class="fas fa-arrow-left"></i> Retour</a></footer>
     <script src="../../assets/js/utils.js"></script>
     <script src="../../assets/js/main.js"></script>
     <script>
-        document.getElementById('mainForm').addEventListener('submit', function(e) {
+        document.getElementById('scoringForm').addEventListener('submit', function(e) {
             e.preventDefault();
-            const val1 = parseFloat(document.getElementById('input1').value);
-            const val2 = parseFloat(document.getElementById('input2').value);
-            const result = val2 > 0 ? (val1 / val2) : 0;
-            document.getElementById('result').textContent = result.toFixed(2);
+
+            // Fit démographique
+            const companySize = parseInt(document.getElementById('companySize').value);
+            const industry = parseInt(document.getElementById('industry').value);
+            const jobTitle = parseInt(document.getElementById('jobTitle').value);
+            const budget = parseInt(document.getElementById('budget').value);
+
+            // Engagement
+            const emailOpens = parseInt(document.getElementById('emailOpens').value) || 0;
+            const websiteVisits = parseInt(document.getElementById('websiteVisits').value) || 0;
+            const contentDownloads = parseInt(document.getElementById('contentDownloads').value) || 0;
+            const videoViews = parseInt(document.getElementById('videoViews').value) || 0;
+
+            // Intention
+            const pricingPage = parseInt(document.getElementById('pricingPage').value);
+            const demoRequest = parseInt(document.getElementById('demoRequest').value);
+            const trialStarted = parseInt(document.getElementById('trialStarted').value);
+            const formSubmits = parseInt(document.getElementById('formSubmits').value) || 0;
+
+            // Calculs
+            const fitScore = companySize + industry + jobTitle + budget;
+            const engagementScore = (emailOpens * 2) + websiteVisits + (contentDownloads * 5) + (videoViews * 3);
+            const intentScore = pricingPage + demoRequest + trialStarted + (formSubmits * 10);
+            const totalScore = Math.min(fitScore + engagementScore + intentScore, 100);
+
+            // Affichage
+            document.getElementById('fitScore').textContent = fitScore + ' pts';
+            document.getElementById('engagementScore').textContent = engagementScore + ' pts';
+            document.getElementById('intentScore').textContent = intentScore + ' pts';
+            document.getElementById('totalScore').textContent = totalScore;
+            document.getElementById('totalScoreText').textContent = totalScore + ' / 100';
+
+            // Mise à jour du gauge
+            const scoreDeg = (totalScore / 100) * 360;
+            document.getElementById('scoreGauge').style.setProperty('--score-deg', scoreDeg + 'deg');
+
+            // Qualification
+            let qualification = '';
+            let qualificationClass = '';
+            let recommendation = '';
+            let alertClass = 'alert-info';
+
+            if (totalScore >= 80) {
+                qualification = '🔥 Hot Lead';
+                qualificationClass = 'badge-hot';
+                recommendation = '<strong>🔥 Lead prioritaire !</strong> Contactez immédiatement ce prospect par téléphone. Très forte probabilité de conversion.';
+                alertClass = 'alert-danger';
+            } else if (totalScore >= 50) {
+                qualification = '🔶 Warm Lead';
+                qualificationClass = 'badge-warm';
+                recommendation = '<strong>👍 Lead qualifié</strong> : Engagez une séquence de nurturing active (emails personnalisés, invitations webinaire). Suivi commercial à prévoir sous 7 jours.';
+                alertClass = 'alert-warning';
+            } else if (totalScore >= 25) {
+                qualification = '❄️ Cold Lead';
+                qualificationClass = 'badge-cold';
+                recommendation = '<strong>📧 Lead froid</strong> : Ajoutez à une séquence de nurturing long terme (newsletters, contenus éducatifs). Pas de contact commercial direct pour l\'instant.';
+                alertClass = 'alert-info';
+            } else {
+                qualification = '⚫ Non qualifié';
+                qualificationClass = 'badge-unqualified';
+                recommendation = '<strong>⚠️ Lead non qualifié</strong> : Ne correspond pas à votre profil cible. Évitez d\'investir du temps commercial. Gardez en base pour nurturing passif uniquement.';
+                alertClass = 'alert-secondary';
+            }
+
+            document.getElementById('qualificationBadge').textContent = qualification;
+            document.getElementById('qualificationBadge').className = `qualification-badge ${qualificationClass}`;
+
+            let qualText = '';
+            if (totalScore >= 80) qualText = 'Priorité maximale - Action immédiate requise';
+            else if (totalScore >= 50) qualText = 'Bon potentiel - Nurturing actif recommandé';
+            else if (totalScore >= 25) qualText = 'Potentiel moyen - Nurturing passif';
+            else qualText = 'Hors cible - Pas d\'action commerciale';
+
+            document.getElementById('qualificationText').textContent = qualText;
+            document.getElementById('recommendation').className = `alert ${alertClass}`;
+            document.getElementById('recommendation').innerHTML = recommendation;
+
             document.getElementById('results').style.display = 'block';
-            showNotification('Calcul effectué !', 'success');
+            showNotification('Lead scoré !', 'success');
         });
-        window.addEventListener('load', () => document.getElementById('mainForm').dispatchEvent(new Event('submit')));
+
+        window.addEventListener('load', () => document.getElementById('scoringForm').dispatchEvent(new Event('submit')));
     </script>
 </body>
 </html>

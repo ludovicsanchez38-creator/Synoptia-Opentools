@@ -3,65 +3,382 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Comparateur de Prix Concurrentiels - Business Tools</title>
+    <title>Comparateur de Prix - Business Tools</title>
     <link rel="stylesheet" href="../../assets/css/main.css">
     <link rel="stylesheet" href="../../assets/css/tools.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .competitor-list {
+            display: grid;
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+        .competitor-item {
+            background: white;
+            border: 2px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.2s;
+        }
+        .competitor-item:hover {
+            border-color: var(--primary);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .competitor-item.your-product {
+            border-color: var(--accent);
+            border-width: 3px;
+            background: linear-gradient(135deg, rgba(255,107,107,0.05), rgba(255,193,7,0.05));
+        }
+        .competitor-name {
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: var(--primary);
+        }
+        .competitor-price {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--accent);
+        }
+        .competitor-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-left: 0.5rem;
+        }
+        .badge-cheapest { background: #4CAF50; color: white; }
+        .badge-expensive { background: #F44336; color: white; }
+        .badge-yours { background: var(--accent); color: white; }
+        .price-chart {
+            background: white;
+            border: 2px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+        }
+        .chart-bars {
+            display: grid;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        .chart-bar {
+            position: relative;
+        }
+        .bar-label {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .bar-fill {
+            height: 40px;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            border-radius: var(--radius);
+            display: flex;
+            align-items: center;
+            padding: 0 1rem;
+            color: white;
+            font-weight: 700;
+            transition: width 0.5s ease;
+        }
+        .bar-fill.yours {
+            background: linear-gradient(90deg, var(--accent), #FFD54F);
+        }
+    </style>
 </head>
 <body>
     <nav class="breadcrumb">
-        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> > 
-        <a href="../../index.html#tools">Marketing</a> > 
-        <span>Comparateur de Prix Concurrentiels</span>
+        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> >
+        <a href="../../index.html#tools">Marketing</a> >
+        <span>Comparateur de Prix</span>
     </nav>
     <main class="tool-container">
         <header class="tool-header">
-            <h1><i class="fas fa-chart-line"></i> Comparateur de Prix Concurrentiels</h1>
-            <p class="tool-description">Outil marketing pour optimiser vos campagnes.</p>
+            <h1><i class="fas fa-balance-scale"></i> Comparateur de Prix Concurrentiels</h1>
+            <p class="tool-description">Comparez votre prix avec la concurrence et optimisez votre positionnement tarifaire.</p>
         </header>
+
         <section class="tool-input">
-            <form id="mainForm">
+            <h2>Votre produit</h2>
+            <form id="priceForm">
                 <div class="input-grid">
                     <div class="form-group">
-                        <label for="input1" class="form-label">Valeur 1</label>
-                        <input type="number" id="input1" class="form-input" value="100" min="0" required>
+                        <label for="yourName" class="form-label"><i class="fas fa-tag"></i> Nom de votre produit</label>
+                        <input type="text" id="yourName" class="form-input" placeholder="Ex: Mon SaaS Pro" value="Mon Produit" required>
                     </div>
                     <div class="form-group">
-                        <label for="input2" class="form-label">Valeur 2</label>
-                        <input type="number" id="input2" class="form-input" value="50" min="0" required>
+                        <label for="yourPrice" class="form-label"><i class="fas fa-euro-sign"></i> Votre prix (€)</label>
+                        <input type="number" id="yourPrice" class="form-input" step="0.01" placeholder="Ex: 49" value="49" required>
+                        <span class="form-help">Prix mensuel ou unitaire</span>
                     </div>
                 </div>
-                <button type="submit" class="btn btn-primary"><i class="fas fa-calculator"></i> Calculer</button>
+
+                <h3 style="margin-top: 2rem;">Concurrents</h3>
+                <div id="competitorsList">
+                    <div class="input-grid competitor-entry">
+                        <div class="form-group">
+                            <label class="form-label"><i class="fas fa-building"></i> Concurrent 1</label>
+                            <input type="text" class="form-input comp-name" placeholder="Nom concurrent" value="Concurrent A">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label"><i class="fas fa-euro-sign"></i> Prix (€)</label>
+                            <input type="number" class="form-input comp-price" step="0.01" placeholder="Prix" value="39">
+                        </div>
+                    </div>
+                    <div class="input-grid competitor-entry">
+                        <div class="form-group">
+                            <label class="form-label"><i class="fas fa-building"></i> Concurrent 2</label>
+                            <input type="text" class="form-input comp-name" placeholder="Nom concurrent" value="Concurrent B">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label"><i class="fas fa-euro-sign"></i> Prix (€)</label>
+                            <input type="number" class="form-input comp-price" step="0.01" placeholder="Prix" value="59">
+                        </div>
+                    </div>
+                    <div class="input-grid competitor-entry">
+                        <div class="form-group">
+                            <label class="form-label"><i class="fas fa-building"></i> Concurrent 3</label>
+                            <input type="text" class="form-input comp-name" placeholder="Nom concurrent" value="Concurrent C">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label"><i class="fas fa-euro-sign"></i> Prix (€)</label>
+                            <input type="number" class="form-input comp-price" step="0.01" placeholder="Prix" value="69">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="action-buttons">
+                    <button type="button" class="btn btn-outline" id="addCompetitorBtn">
+                        <i class="fas fa-plus"></i> Ajouter un concurrent
+                    </button>
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="margin-top: 1rem;">
+                    <i class="fas fa-chart-bar"></i> Comparer les prix
+                </button>
             </form>
         </section>
+
         <section class="tool-output" id="results" style="display: none;">
+            <h2><i class="fas fa-trophy"></i> Positionnement tarifaire</h2>
+
             <div class="results-grid">
                 <div class="result-item">
-                    <div class="result-label">Résultat</div>
-                    <div class="result-value highlight" id="result">-</div>
+                    <div class="result-label">Prix moyen marché</div>
+                    <div class="result-value highlight" id="avgPrice">-</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Écart à la moyenne</div>
+                    <div class="result-value" id="diffAvg">-</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Positionnement</div>
+                    <div class="result-value success" id="positioning">-</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Classement</div>
+                    <div class="result-value" id="ranking">-</div>
                 </div>
             </div>
+
+            <div class="price-chart">
+                <h3><i class="fas fa-chart-bar"></i> Comparaison visuelle</h3>
+                <div class="chart-bars" id="chartBars"></div>
+            </div>
+
+            <div class="competitor-list" id="competitorRanking"></div>
+
+            <div class="alert" id="recommendation"></div>
         </section>
+
         <section class="tool-help">
-            <h3><i class="fas fa-info-circle"></i> Information</h3>
-            <p>Optimisez vos campagnes marketing avec cet outil.</p>
+            <h3><i class="fas fa-bullseye"></i> Stratégies de pricing</h3>
+            <ul>
+                <li><strong>Pricing de pénétration</strong> : Prix bas pour gagner rapidement des parts de marché</li>
+                <li><strong>Pricing premium</strong> : Prix élevé pour positionner comme haut de gamme</li>
+                <li><strong>Prix psychologique</strong> : 49€ au lieu de 50€ (effet de perception)</li>
+                <li><strong>Price matching</strong> : S'aligner sur le prix concurrent principal</li>
+                <li><strong>Value-based pricing</strong> : Prix basé sur la valeur perçue, pas le coût</li>
+            </ul>
+
+            <h3><i class="fas fa-chart-line"></i> Analyse concurrentielle</h3>
+            <ul>
+                <li>Analysez non seulement le prix, mais aussi les fonctionnalités incluses</li>
+                <li>Comparez les modèles de pricing (mensuel, annuel, par utilisateur...)</li>
+                <li>Évaluez la valeur perçue de chaque offre</li>
+                <li>Identifiez les opportunités de différenciation</li>
+            </ul>
+
+            <h3><i class="fas fa-lightbulb"></i> Conseils pricing</h3>
+            <ul>
+                <li><strong>Testez plusieurs prix</strong> : A/B testez pour trouver l'optimal</li>
+                <li><strong>Ancrage de prix</strong> : Proposez 3 offres pour ancrer la valeur</li>
+                <li><strong>Bundling</strong> : Regroupez plusieurs services pour augmenter le panier</li>
+                <li><strong>Freemium</strong> : Version gratuite pour attirer, premium pour monétiser</li>
+                <li><strong>Augmentez progressivement</strong> : 5-10% par an acceptable</li>
+            </ul>
         </section>
     </main>
     <footer class="tool-footer"><a href="../../index.html"><i class="fas fa-arrow-left"></i> Retour</a></footer>
     <script src="../../assets/js/utils.js"></script>
     <script src="../../assets/js/main.js"></script>
     <script>
-        document.getElementById('mainForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const val1 = parseFloat(document.getElementById('input1').value);
-            const val2 = parseFloat(document.getElementById('input2').value);
-            const result = val2 > 0 ? (val1 / val2) : 0;
-            document.getElementById('result').textContent = result.toFixed(2);
-            document.getElementById('results').style.display = 'block';
-            showNotification('Calcul effectué !', 'success');
+        let competitorCount = 3;
+
+        document.getElementById('addCompetitorBtn').addEventListener('click', function() {
+            competitorCount++;
+            const div = document.createElement('div');
+            div.className = 'input-grid competitor-entry';
+            div.innerHTML = `
+                <div class="form-group">
+                    <label class="form-label"><i class="fas fa-building"></i> Concurrent ${competitorCount}</label>
+                    <input type="text" class="form-input comp-name" placeholder="Nom concurrent">
+                </div>
+                <div class="form-group">
+                    <label class="form-label"><i class="fas fa-euro-sign"></i> Prix (€)</label>
+                    <input type="number" class="form-input comp-price" step="0.01" placeholder="Prix">
+                </div>
+            `;
+            document.getElementById('competitorsList').appendChild(div);
+            showNotification('Concurrent ajouté', 'info');
         });
-        window.addEventListener('load', () => document.getElementById('mainForm').dispatchEvent(new Event('submit')));
+
+        document.getElementById('priceForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const yourName = document.getElementById('yourName').value;
+            const yourPrice = parseFloat(document.getElementById('yourPrice').value);
+
+            // Récupérer tous les concurrents
+            const competitors = [];
+            const compEntries = document.querySelectorAll('.competitor-entry');
+
+            compEntries.forEach(entry => {
+                const name = entry.querySelector('.comp-name').value;
+                const price = parseFloat(entry.querySelector('.comp-price').value);
+                if (name && price > 0) {
+                    competitors.push({ name, price });
+                }
+            });
+
+            if (competitors.length === 0) {
+                showNotification('Ajoutez au moins un concurrent', 'warning');
+                return;
+            }
+
+            // Créer la liste complète avec votre produit
+            const allProducts = [
+                { name: yourName, price: yourPrice, isYours: true },
+                ...competitors.map(c => ({ ...c, isYours: false }))
+            ];
+
+            // Trier par prix
+            allProducts.sort((a, b) => a.price - b.price);
+
+            // Calculs
+            const allPrices = allProducts.map(p => p.price);
+            const avgPrice = allPrices.reduce((a, b) => a + b, 0) / allPrices.length;
+            const minPrice = Math.min(...allPrices);
+            const maxPrice = Math.max(...allPrices);
+            const diffAvg = ((yourPrice - avgPrice) / avgPrice) * 100;
+            const ranking = allProducts.findIndex(p => p.isYours) + 1;
+
+            // Positionnement
+            let positioning = '';
+            if (yourPrice === minPrice) positioning = 'Leader Prix';
+            else if (yourPrice === maxPrice) positioning = 'Premium';
+            else if (yourPrice < avgPrice) positioning = 'Économique';
+            else if (yourPrice > avgPrice) positioning = 'Haut de gamme';
+            else positioning = 'Moyen de gamme';
+
+            // Affichage résultats
+            document.getElementById('avgPrice').textContent = formatCurrency(avgPrice);
+            document.getElementById('diffAvg').textContent = (diffAvg > 0 ? '+' : '') + diffAvg.toFixed(1) + '%';
+            document.getElementById('positioning').textContent = positioning;
+            document.getElementById('ranking').textContent = ranking + ' / ' + allProducts.length;
+
+            // Graphique
+            const chartBars = document.getElementById('chartBars');
+            chartBars.innerHTML = '';
+            allProducts.forEach(product => {
+                const percentage = (product.price / maxPrice) * 100;
+                const div = document.createElement('div');
+                div.className = 'chart-bar';
+                div.innerHTML = `
+                    <div class="bar-label">
+                        <span>${product.name}${product.isYours ? ' (VOUS)' : ''}</span>
+                        <span>${formatCurrency(product.price)}</span>
+                    </div>
+                    <div class="bar-fill ${product.isYours ? 'yours' : ''}" style="width: ${percentage}%;">
+                        ${percentage.toFixed(0)}%
+                    </div>
+                `;
+                chartBars.appendChild(div);
+            });
+
+            // Liste classée
+            const competitorRanking = document.getElementById('competitorRanking');
+            competitorRanking.innerHTML = '';
+            allProducts.forEach((product, index) => {
+                const div = document.createElement('div');
+                div.className = `competitor-item ${product.isYours ? 'your-product' : ''}`;
+
+                let badge = '';
+                if (product.price === minPrice) badge = '<span class="competitor-badge badge-cheapest">Moins cher</span>';
+                else if (product.price === maxPrice) badge = '<span class="competitor-badge badge-expensive">Plus cher</span>';
+                if (product.isYours) badge += '<span class="competitor-badge badge-yours">VOUS</span>';
+
+                div.innerHTML = `
+                    <div>
+                        <div class="competitor-name">#${index + 1} ${product.name} ${badge}</div>
+                        <div style="font-size: 0.9rem; color: var(--text-secondary); margin-top: 0.25rem;">
+                            ${product.price < avgPrice ? '↓ ' + Math.abs(((product.price - avgPrice) / avgPrice) * 100).toFixed(1) + '% sous la moyenne' :
+                              product.price > avgPrice ? '↑ ' + (((product.price - avgPrice) / avgPrice) * 100).toFixed(1) + '% au-dessus de la moyenne' :
+                              'Dans la moyenne'}
+                        </div>
+                    </div>
+                    <div class="competitor-price">${formatCurrency(product.price)}</div>
+                `;
+                competitorRanking.appendChild(div);
+            });
+
+            // Recommandations
+            let recommendation = '';
+            let alertClass = 'alert-info';
+
+            if (yourPrice === minPrice) {
+                recommendation = '<strong>💰 Stratégie Leader Prix</strong> : Vous êtes le moins cher. Assurez-vous que votre marge est suffisante. Risque de guerre des prix.';
+                alertClass = 'alert-warning';
+            } else if (yourPrice === maxPrice) {
+                recommendation = '<strong>👑 Stratégie Premium</strong> : Vous êtes le plus cher. Justifiez ce prix par des fonctionnalités uniques et un service exceptionnel.';
+                alertClass = 'alert-info';
+            } else if (yourPrice < avgPrice) {
+                const savingsVsAvg = avgPrice - yourPrice;
+                recommendation = `<strong>📉 Prix compétitif</strong> : Vous êtes ${diffAvg.toFixed(1)}% sous la moyenne (${formatCurrency(savingsVsAvg)} d'économie). Bon positionnement pour l'acquisition.`;
+                alertClass = 'alert-success';
+            } else if (yourPrice > avgPrice) {
+                const premiumVsAvg = yourPrice - avgPrice;
+                recommendation = `<strong>📈 Positionnement premium</strong> : Vous êtes ${diffAvg.toFixed(1)}% au-dessus de la moyenne (+${formatCurrency(premiumVsAvg)}). Mettez en avant la valeur ajoutée.`;
+                alertClass = 'alert-info';
+            } else {
+                recommendation = '<strong>⚖️ Prix moyen</strong> : Vous êtes aligné sur la moyenne du marché. Position safe mais peu différenciante.';
+                alertClass = 'alert-info';
+            }
+
+            document.getElementById('recommendation').className = `alert ${alertClass}`;
+            document.getElementById('recommendation').innerHTML = recommendation;
+
+            document.getElementById('results').style.display = 'block';
+            showNotification('Analyse terminée !', 'success');
+        });
+
+        window.addEventListener('load', () => document.getElementById('priceForm').dispatchEvent(new Event('submit')));
     </script>
 </body>
 </html>

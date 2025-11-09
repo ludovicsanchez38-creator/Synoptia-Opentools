@@ -3,65 +3,390 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Estimateur Reach Réseaux Sociaux - Business Tools</title>
+    <title>Estimateur de Portée - Business Tools</title>
     <link rel="stylesheet" href="../../assets/css/main.css">
     <link rel="stylesheet" href="../../assets/css/tools.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .platform-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+        .platform-card {
+            background: white;
+            border: 3px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem 1rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .platform-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+        .platform-card.active {
+            border-color: var(--accent);
+            background: linear-gradient(135deg, rgba(255,107,107,0.1), rgba(255,193,7,0.1));
+        }
+        .platform-icon {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+        .platform-name {
+            font-weight: 600;
+            color: var(--primary);
+        }
+        .reach-breakdown {
+            display: grid;
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+        .reach-section {
+            background: white;
+            border: 2px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+        }
+        .reach-section h3 {
+            margin: 0 0 1rem 0;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .reach-bar {
+            background: #e0e0e0;
+            height: 50px;
+            border-radius: var(--radius);
+            position: relative;
+            overflow: hidden;
+            margin: 1rem 0;
+        }
+        .reach-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4CAF50, #8BC34A);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            transition: width 0.5s ease;
+        }
+        .reach-bar-organic {
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+        }
+        .reach-bar-paid {
+            background: linear-gradient(90deg, #FF9800, #FFC107);
+        }
+    </style>
 </head>
 <body>
     <nav class="breadcrumb">
-        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> > 
-        <a href="../../index.html#tools">Marketing</a> > 
-        <span>Estimateur Reach Réseaux Sociaux</span>
+        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> >
+        <a href="../../index.html#tools">Marketing</a> >
+        <span>Estimateur de Portée</span>
     </nav>
     <main class="tool-container">
         <header class="tool-header">
-            <h1><i class="fas fa-share-alt"></i> Estimateur Reach Réseaux Sociaux</h1>
-            <p class="tool-description">Outil marketing pour optimiser vos campagnes.</p>
+            <h1><i class="fas fa-broadcast-tower"></i> Estimateur de Portée (Reach)</h1>
+            <p class="tool-description">Estimez la portée de vos publications organiques et campagnes payantes sur les réseaux sociaux.</p>
         </header>
+
         <section class="tool-input">
-            <form id="mainForm">
-                <div class="input-grid">
-                    <div class="form-group">
-                        <label for="input1" class="form-label">Valeur 1</label>
-                        <input type="number" id="input1" class="form-input" value="100" min="0" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="input2" class="form-label">Valeur 2</label>
-                        <input type="number" id="input2" class="form-input" value="50" min="0" required>
-                    </div>
+            <h2><i class="fas fa-share-alt"></i> Sélectionnez votre plateforme</h2>
+            <div class="platform-selector">
+                <div class="platform-card active" data-platform="instagram">
+                    <div class="platform-icon">📷</div>
+                    <div class="platform-name">Instagram</div>
                 </div>
-                <button type="submit" class="btn btn-primary"><i class="fas fa-calculator"></i> Calculer</button>
-            </form>
-        </section>
-        <section class="tool-output" id="results" style="display: none;">
-            <div class="results-grid">
-                <div class="result-item">
-                    <div class="result-label">Résultat</div>
-                    <div class="result-value highlight" id="result">-</div>
+                <div class="platform-card" data-platform="facebook">
+                    <div class="platform-icon">👥</div>
+                    <div class="platform-name">Facebook</div>
+                </div>
+                <div class="platform-card" data-platform="tiktok">
+                    <div class="platform-icon">🎵</div>
+                    <div class="platform-name">TikTok</div>
+                </div>
+                <div class="platform-card" data-platform="linkedin">
+                    <div class="platform-icon">💼</div>
+                    <div class="platform-name">LinkedIn</div>
+                </div>
+                <div class="platform-card" data-platform="twitter">
+                    <div class="platform-icon">🐦</div>
+                    <div class="platform-name">Twitter / X</div>
                 </div>
             </div>
+
+            <form id="reachForm">
+                <h3 style="margin-top: 2rem;">Portée organique</h3>
+                <div class="input-grid">
+                    <div class="form-group">
+                        <label for="followers" class="form-label"><i class="fas fa-users"></i> Abonnés / Followers</label>
+                        <input type="number" id="followers" class="form-input" placeholder="Ex: 10000" min="0" value="10000" required>
+                        <span class="form-help">Nombre total d'abonnés</span>
+                    </div>
+                    <div class="form-group">
+                        <label for="engagementRate" class="form-label"><i class="fas fa-heart"></i> Taux d'engagement (%)</label>
+                        <input type="number" id="engagementRate" class="form-input" placeholder="Ex: 3.5" step="0.1" min="0" max="100" value="3.5">
+                        <span class="form-help">Likes + commentaires / followers</span>
+                    </div>
+                    <div class="form-group">
+                        <label for="postFrequency" class="form-label"><i class="fas fa-calendar"></i> Fréquence (posts/semaine)</label>
+                        <input type="number" id="postFrequency" class="form-input" placeholder="Ex: 5" min="1" value="5">
+                        <span class="form-help">Nombre de publications par semaine</span>
+                    </div>
+                    <div class="form-group">
+                        <label for="shareRate" class="form-label"><i class="fas fa-share"></i> Taux de partage (%)</label>
+                        <input type="number" id="shareRate" class="form-input" placeholder="Ex: 0.5" step="0.1" min="0" value="0.5">
+                        <span class="form-help">% de personnes qui partagent vos posts</span>
+                    </div>
+                </div>
+
+                <h3 style="margin-top: 2rem;">Portée payante (optionnel)</h3>
+                <div class="input-grid">
+                    <div class="form-group">
+                        <label for="adBudget" class="form-label"><i class="fas fa-euro-sign"></i> Budget pub (€)</label>
+                        <input type="number" id="adBudget" class="form-input" placeholder="Ex: 500" min="0" step="0.01" value="500">
+                        <span class="form-help">Budget mensuel publicité</span>
+                    </div>
+                    <div class="form-group">
+                        <label for="cpm" class="form-label"><i class="fas fa-money-bill-wave"></i> CPM moyen (€)</label>
+                        <input type="number" id="cpm" class="form-input" placeholder="Ex: 8" step="0.01" min="0" value="8">
+                        <span class="form-help">Coût pour 1000 impressions</span>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-chart-line"></i> Estimer la Portée
+                </button>
+            </form>
         </section>
+
+        <section class="tool-output" id="results" style="display: none;">
+            <h2><i class="fas fa-chart-pie"></i> Estimation de portée</h2>
+
+            <div class="results-grid">
+                <div class="result-item">
+                    <div class="result-label">Portée organique mensuelle</div>
+                    <div class="result-value highlight" id="organicReach">-</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Portée payante mensuelle</div>
+                    <div class="result-value" id="paidReach">-</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Portée totale</div>
+                    <div class="result-value success" id="totalReach">-</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Coût par 1000 portées</div>
+                    <div class="result-value" id="costPer1000">-</div>
+                </div>
+            </div>
+
+            <div class="reach-section">
+                <h3><i class="fas fa-chart-bar"></i> Répartition de la portée</h3>
+                <div>
+                    <p style="font-weight: 600; margin-bottom: 0.5rem;">Organique</p>
+                    <div class="reach-bar">
+                        <div class="reach-bar-fill reach-bar-organic" id="organicBar">-</div>
+                    </div>
+                </div>
+                <div style="margin-top: 1.5rem;">
+                    <p style="font-weight: 600; margin-bottom: 0.5rem;">Payante</p>
+                    <div class="reach-bar">
+                        <div class="reach-bar-fill reach-bar-paid" id="paidBar">-</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="reach-breakdown" id="breakdown"></div>
+
+            <div class="alert" id="recommendation"></div>
+        </section>
+
         <section class="tool-help">
-            <h3><i class="fas fa-info-circle"></i> Information</h3>
-            <p>Optimisez vos campagnes marketing avec cet outil.</p>
+            <h3><i class="fas fa-chart-bar"></i> Taux de portée organique moyens</h3>
+            <ul>
+                <li><strong>Instagram</strong> : 10-30% des followers (dépend de l'engagement)</li>
+                <li><strong>Facebook</strong> : 5-10% des fans (algorithme restrictif)</li>
+                <li><strong>TikTok</strong> : Très variable, peut dépasser 100% si viral</li>
+                <li><strong>LinkedIn</strong> : 20-30% des connexions (bon reach organique)</li>
+                <li><strong>Twitter/X</strong> : 10-15% des followers</li>
+            </ul>
+
+            <h3><i class="fas fa-fire"></i> Facteurs qui augmentent la portée</h3>
+            <ul>
+                <li><strong>Engagement rapide</strong> : Plus de likes/comments dans les premières heures = meilleur reach</li>
+                <li><strong>Vidéo native</strong> : Les algorithmes favorisent le contenu vidéo</li>
+                <li><strong>Hashtags pertinents</strong> : 3-5 hashtags ciblés (pas +30)</li>
+                <li><strong>Horaires optimaux</strong> : Publier quand votre audience est active</li>
+                <li><strong>Contenu partageable</strong> : Éducatif, inspirant ou divertissant</li>
+                <li><strong>Fréquence régulière</strong> : Algorithmes favorisent la constance</li>
+            </ul>
+
+            <h3><i class="fas fa-lightbulb"></i> Conseils reach</h3>
+            <ul>
+                <li><strong>Mix organique + paid</strong> : Boostez vos meilleurs posts organiques</li>
+                <li><strong>Testez les Reels/Shorts</strong> : Portée 3-10x supérieure aux posts statiques</li>
+                <li><strong>Collaborations</strong> : Partenariats avec d'autres comptes pour reach croisé</li>
+                <li><strong>User Generated Content</strong> : Encouragez les partages clients</li>
+            </ul>
         </section>
     </main>
     <footer class="tool-footer"><a href="../../index.html"><i class="fas fa-arrow-left"></i> Retour</a></footer>
     <script src="../../assets/js/utils.js"></script>
     <script src="../../assets/js/main.js"></script>
     <script>
-        document.getElementById('mainForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const val1 = parseFloat(document.getElementById('input1').value);
-            const val2 = parseFloat(document.getElementById('input2').value);
-            const result = val2 > 0 ? (val1 / val2) : 0;
-            document.getElementById('result').textContent = result.toFixed(2);
-            document.getElementById('results').style.display = 'block';
-            showNotification('Calcul effectué !', 'success');
+        let selectedPlatform = 'instagram';
+
+        // Taux de portée moyens par plateforme (% des followers)
+        const platformReachRates = {
+            instagram: 0.20,  // 20% en moyenne
+            facebook: 0.08,   // 8% (algorithme très restrictif)
+            tiktok: 0.50,     // 50% (très variable, algorithme favorise découverte)
+            linkedin: 0.25,   // 25% (bon reach organique)
+            twitter: 0.12     // 12%
+        };
+
+        // CPM moyens par plateforme
+        const platformCPM = {
+            instagram: 8,
+            facebook: 7,
+            tiktok: 6,
+            linkedin: 15,
+            twitter: 10
+        };
+
+        // Sélection de plateforme
+        document.querySelectorAll('.platform-card').forEach(card => {
+            card.addEventListener('click', function() {
+                document.querySelectorAll('.platform-card').forEach(c => c.classList.remove('active'));
+                this.classList.add('active');
+                selectedPlatform = this.dataset.platform;
+
+                // Mettre à jour le CPM suggéré
+                document.getElementById('cpm').value = platformCPM[selectedPlatform];
+            });
         });
-        window.addEventListener('load', () => document.getElementById('mainForm').dispatchEvent(new Event('submit')));
+
+        document.getElementById('reachForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const followers = parseInt(document.getElementById('followers').value);
+            const engagementRate = parseFloat(document.getElementById('engagementRate').value) / 100;
+            const postFrequency = parseInt(document.getElementById('postFrequency').value);
+            const shareRate = parseFloat(document.getElementById('shareRate').value) / 100;
+            const adBudget = parseFloat(document.getElementById('adBudget').value) || 0;
+            const cpm = parseFloat(document.getElementById('cpm').value);
+
+            // Taux de reach de base pour la plateforme
+            const baseReachRate = platformReachRates[selectedPlatform];
+
+            // Ajustement en fonction de l'engagement (plus d'engagement = meilleur reach)
+            const engagementBoost = 1 + (engagementRate * 2); // Double le reach si 50% d'engagement
+            const adjustedReachRate = Math.min(baseReachRate * engagementBoost, 1); // Max 100%
+
+            // Portée organique par post
+            const reachPerPost = Math.round(followers * adjustedReachRate);
+
+            // Amplification virale (partages)
+            const viralAmplification = Math.round(reachPerPost * shareRate * 10); // Chaque partage atteint ~10 personnes
+
+            // Portée organique mensuelle
+            const postsPerMonth = postFrequency * 4.33; // ~4.33 semaines par mois
+            const organicReach = Math.round((reachPerPost + viralAmplification) * postsPerMonth);
+
+            // Portée payante
+            const paidReach = adBudget > 0 ? Math.round((adBudget / cpm) * 1000) : 0;
+
+            // Totaux
+            const totalReach = organicReach + paidReach;
+            const costPer1000 = totalReach > 0 ? (adBudget / (totalReach / 1000)) : 0;
+
+            // Affichage
+            document.getElementById('organicReach').textContent = organicReach.toLocaleString('fr-FR');
+            document.getElementById('paidReach').textContent = paidReach > 0 ? paidReach.toLocaleString('fr-FR') : 'N/A';
+            document.getElementById('totalReach').textContent = totalReach.toLocaleString('fr-FR');
+            document.getElementById('costPer1000').textContent = adBudget > 0 ? formatCurrency(costPer1000) : 'N/A';
+
+            // Barres de progression
+            const organicPercent = (organicReach / totalReach) * 100;
+            const paidPercent = (paidReach / totalReach) * 100;
+
+            document.getElementById('organicBar').style.width = organicPercent + '%';
+            document.getElementById('organicBar').textContent = organicReach.toLocaleString('fr-FR') + ' (' + organicPercent.toFixed(0) + '%)';
+
+            document.getElementById('paidBar').style.width = paidPercent + '%';
+            document.getElementById('paidBar').textContent = paidReach > 0 ? paidReach.toLocaleString('fr-FR') + ' (' + paidPercent.toFixed(0) + '%)' : '0';
+
+            // Détails
+            const breakdown = document.getElementById('breakdown');
+            breakdown.innerHTML = `
+                <div class="reach-section">
+                    <h3><i class="fas fa-info-circle"></i> Détails du calcul</h3>
+                    <div class="results-grid">
+                        <div class="result-item">
+                            <div class="result-label">Portée par post</div>
+                            <div class="result-value">${reachPerPost.toLocaleString('fr-FR')}</div>
+                        </div>
+                        <div class="result-item">
+                            <div class="result-label">Amplification virale</div>
+                            <div class="result-value">${viralAmplification.toLocaleString('fr-FR')}</div>
+                        </div>
+                        <div class="result-item">
+                            <div class="result-label">Posts par mois</div>
+                            <div class="result-value">${postsPerMonth.toFixed(0)}</div>
+                        </div>
+                        <div class="result-item">
+                            <div class="result-label">Taux de reach organique</div>
+                            <div class="result-value">${(adjustedReachRate * 100).toFixed(1)}%</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // Recommandations
+            let recommendation = '';
+            let alertClass = 'alert-info';
+
+            const organicRatio = (organicReach / followers);
+
+            if (organicRatio > 5) {
+                recommendation = '<strong>🚀 Excellente portée !</strong> Votre contenu atteint beaucoup plus que vos abonnés. Continuez ainsi ! Effet viral en action.';
+                alertClass = 'alert-success';
+            } else if (organicRatio > 2) {
+                recommendation = '<strong>👍 Bonne portée</strong> : Votre contenu dépasse largement votre base d\'abonnés. Bon engagement.';
+                alertClass = 'alert-success';
+            } else if (organicRatio > 0.5) {
+                recommendation = '<strong>📊 Portée correcte</strong> : Vous atteignez environ la moitié de vos abonnés par mois. Optimisez l\'engagement pour augmenter.';
+                alertClass = 'alert-info';
+            } else {
+                recommendation = '<strong>⚠️ Portée faible</strong> : Votre reach est limité. Améliorez la qualité du contenu, testez de nouveaux formats (Reels, vidéos), et postez aux meilleurs horaires.';
+                alertClass = 'alert-warning';
+            }
+
+            if (adBudget > 0) {
+                const organicVsPaidRatio = organicReach / paidReach;
+                if (organicVsPaidRatio > 2) {
+                    recommendation += '<br><br><strong>💡 Conseil budget</strong> : Votre reach organique est excellent ! Vous pourriez réduire le budget pub ou le réinvestir dans la création de contenu.';
+                } else if (organicVsPaidRatio < 0.5) {
+                    recommendation += '<br><br><strong>💡 Conseil budget</strong> : Vous dépendez beaucoup de la publicité. Travaillez sur l\'organique pour réduire les coûts à long terme.';
+                }
+            }
+
+            document.getElementById('recommendation').className = `alert ${alertClass}`;
+            document.getElementById('recommendation').innerHTML = recommendation;
+
+            document.getElementById('results').style.display = 'block';
+            showNotification('Portée estimée !', 'success');
+        });
+
+        window.addEventListener('load', () => document.getElementById('reachForm').dispatchEvent(new Event('submit')));
     </script>
 </body>
 </html>

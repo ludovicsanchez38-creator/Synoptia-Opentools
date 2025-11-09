@@ -108,24 +108,24 @@ Autres outils utiles pour entreprises
 
 ## 📊 Statut du Projet
 
-**Progression globale : 38/100 outils complets (38%)**
+**Progression globale : 44/100 outils complets (44%)**
 
 | Catégorie | Progression | Outils Complets |
 |-----------|-------------|-----------------|
 | 💰 Finance | ✅ 13/13 (100%) | Loan Calculator, Break-even, ROI, Profit Margin, VAT, Currency Converter, Markup, Gross Margin, Amortization, APR Calculator, Contribution Margin, Debt Ratio, Discount Calculator |
 | 🧾 Facturation | ✅ 10/10 (100%) | Invoice, Quote, Payment Tracker, Expense Tracker, Expense Report, Accounting Dashboard, Late Fee Calculator, Receipt Generator, Purchase Order, Bank Reconciliation |
+| 📢 Marketing | ✅ 17/17 (100%) | QR Code, ROAS, Breakeven ROAS, CPC, CPM, Conversion Rate, CAC, LTV, CTR, Churn Rate, Engagement Rate, Landing Page Analyzer, Lead Scoring, Price Comparison, Reach Estimator, A/B Test, Ad Budget Planner |
 | ⏰ Temps | 🔄 3/15 (20%) | Time Tracker, Pomodoro, Kanban |
-| 📢 Marketing | 🔄 11/17 (65%) | QR Code, ROAS, Breakeven ROAS, CPC, CPM, Conversion Rate, CAC, LTV, CTR, Churn Rate, Engagement Rate |
 | 👥 RH | 🔄 1/10 (10%) | Salary Calculator |
 | 📦 Inventaire | ⏳ 0/10 (0%) | À développer |
 | 📊 Analytics | ⏳ 0/10 (0%) | À développer |
 | 🔧 Divers | ⏳ 0/15 (0%) | À développer |
 
-**Prochaines étapes** : Compléter les 62 outils restants (voir Roadmap ci-dessous)
+**Prochaines étapes** : Compléter les 56 outils restants (voir Roadmap ci-dessous)
 
 ## ⭐ Outils Complets et Avancés
 
-**Catégories 100% complètes** : Finance (13/13) et Facturation (10/10)
+**Catégories 100% complètes** : Finance (13/13), Facturation (10/10) et Marketing (17/17)
 
 **10 outils phares** ont été développés avec des fonctionnalités avancées et complètes :
 

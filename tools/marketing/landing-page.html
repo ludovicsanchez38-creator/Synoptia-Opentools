@@ -3,65 +3,382 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Générateur de Landing Pages - Business Tools</title>
+    <title>Analyseur de Landing Page - Business Tools</title>
     <link rel="stylesheet" href="../../assets/css/main.css">
     <link rel="stylesheet" href="../../assets/css/tools.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .score-display {
+            text-align: center;
+            padding: 2rem;
+            margin: 2rem 0;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            border-radius: var(--radius-lg);
+            color: white;
+        }
+        .score-number {
+            font-size: 4rem;
+            font-weight: 700;
+            margin: 0.5rem 0;
+        }
+        .score-label {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        .criteria-list {
+            display: grid;
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+        .criteria-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            background: white;
+            border-radius: var(--radius);
+            border-left: 4px solid var(--border);
+        }
+        .criteria-item.good { border-left-color: #4CAF50; background: #E8F5E9; }
+        .criteria-item.warning { border-left-color: #FF9800; background: #FFF3E0; }
+        .criteria-item.bad { border-left-color: #F44336; background: #FFEBEE; }
+        .criteria-label {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-weight: 500;
+        }
+        .criteria-value {
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+        .recommendations {
+            background: #FFF9C4;
+            border-left: 4px solid #FFC107;
+            padding: 1.5rem;
+            border-radius: var(--radius);
+            margin-top: 1.5rem;
+        }
+        .recommendations ul {
+            margin: 1rem 0 0 0;
+        }
+    </style>
 </head>
 <body>
     <nav class="breadcrumb">
-        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> > 
-        <a href="../../index.html#tools">Marketing</a> > 
-        <span>Générateur de Landing Pages</span>
+        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> >
+        <a href="../../index.html#tools">Marketing</a> >
+        <span>Analyseur de Landing Page</span>
     </nav>
     <main class="tool-container">
         <header class="tool-header">
-            <h1><i class="fas fa-pager"></i> Générateur de Landing Pages</h1>
-            <p class="tool-description">Outil marketing pour optimiser vos campagnes.</p>
+            <h1><i class="fas fa-file-invoice"></i> Analyseur de Landing Page</h1>
+            <p class="tool-description">Évaluez la performance de votre landing page et obtenez des recommandations d'optimisation.</p>
         </header>
         <section class="tool-input">
-            <form id="mainForm">
+            <h2>Métriques de performance</h2>
+            <form id="landingForm">
                 <div class="input-grid">
                     <div class="form-group">
-                        <label for="input1" class="form-label">Valeur 1</label>
-                        <input type="number" id="input1" class="form-input" value="100" min="0" required>
+                        <label for="visitors" class="form-label"><i class="fas fa-users"></i> Visiteurs</label>
+                        <input type="number" id="visitors" class="form-input" placeholder="Ex: 1000" min="1" value="1000" required>
+                        <span class="form-help">Nombre total de visiteurs</span>
                     </div>
                     <div class="form-group">
-                        <label for="input2" class="form-label">Valeur 2</label>
-                        <input type="number" id="input2" class="form-input" value="50" min="0" required>
+                        <label for="conversions" class="form-label"><i class="fas fa-check-circle"></i> Conversions</label>
+                        <input type="number" id="conversions" class="form-input" placeholder="Ex: 80" min="0" value="80" required>
+                        <span class="form-help">Actions complétées (formulaires, achats...)</span>
+                    </div>
+                    <div class="form-group">
+                        <label for="bounceRate" class="form-label"><i class="fas fa-sign-out-alt"></i> Taux de rebond (%)</label>
+                        <input type="number" id="bounceRate" class="form-input" placeholder="Ex: 45" min="0" max="100" value="45" required>
+                        <span class="form-help">Visiteurs partis sans interaction</span>
+                    </div>
+                    <div class="form-group">
+                        <label for="loadTime" class="form-label"><i class="fas fa-clock"></i> Temps de chargement (s)</label>
+                        <input type="number" id="loadTime" class="form-input" placeholder="Ex: 2.5" min="0" step="0.1" value="2.5" required>
+                        <span class="form-help">Vitesse de chargement de la page</span>
+                    </div>
+                    <div class="form-group">
+                        <label for="avgTime" class="form-label"><i class="fas fa-hourglass-half"></i> Temps moyen (s)</label>
+                        <input type="number" id="avgTime" class="form-input" placeholder="Ex: 45" min="0" value="45" required>
+                        <span class="form-help">Temps moyen passé sur la page</span>
+                    </div>
+                    <div class="form-group">
+                        <label for="mobileVisitors" class="form-label"><i class="fas fa-mobile-alt"></i> Visiteurs mobile (%)</label>
+                        <input type="number" id="mobileVisitors" class="form-input" placeholder="Ex: 60" min="0" max="100" value="60">
+                        <span class="form-help">Part du trafic mobile</span>
                     </div>
                 </div>
-                <button type="submit" class="btn btn-primary"><i class="fas fa-calculator"></i> Calculer</button>
+
+                <h3 style="margin-top: 2rem;">Éléments de la page</h3>
+                <div class="input-grid">
+                    <div class="form-group">
+                        <label for="hasCta" class="form-label"><i class="fas fa-hand-pointer"></i> CTA visible</label>
+                        <select id="hasCta" class="form-input">
+                            <option value="yes">Oui</option>
+                            <option value="no">Non</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="hasVideo" class="form-label"><i class="fas fa-video"></i> Vidéo présente</label>
+                        <select id="hasVideo" class="form-input">
+                            <option value="yes">Oui</option>
+                            <option value="no">Non</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="hasTestimonials" class="form-label"><i class="fas fa-quote-right"></i> Témoignages</label>
+                        <select id="hasTestimonials" class="form-input">
+                            <option value="yes">Oui</option>
+                            <option value="no">Non</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="hasTrust" class="form-label"><i class="fas fa-shield-alt"></i> Éléments de confiance</label>
+                        <select id="hasTrust" class="form-input">
+                            <option value="yes">Oui (badges, garanties...)</option>
+                            <option value="no">Non</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary"><i class="fas fa-chart-line"></i> Analyser la Landing Page</button>
             </form>
         </section>
+
         <section class="tool-output" id="results" style="display: none;">
-            <div class="results-grid">
+            <div class="score-display">
+                <div class="score-label">Score de Performance</div>
+                <div class="score-number" id="globalScore">-</div>
+                <div class="score-label" id="scoreLabel">-</div>
+            </div>
+
+            <h2><i class="fas fa-list-check"></i> Critères d'évaluation</h2>
+            <div class="criteria-list" id="criteriaList"></div>
+
+            <div class="results-grid" style="margin-top: 2rem;">
                 <div class="result-item">
-                    <div class="result-label">Résultat</div>
-                    <div class="result-value highlight" id="result">-</div>
+                    <div class="result-label">Taux de conversion</div>
+                    <div class="result-value highlight" id="convRate">-</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Score vitesse</div>
+                    <div class="result-value" id="speedScore">-</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Score engagement</div>
+                    <div class="result-value" id="engagementScore">-</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Score mobile</div>
+                    <div class="result-value success" id="mobileScore">-</div>
                 </div>
             </div>
+
+            <div class="recommendations" id="recommendations"></div>
         </section>
+
         <section class="tool-help">
-            <h3><i class="fas fa-info-circle"></i> Information</h3>
-            <p>Optimisez vos campagnes marketing avec cet outil.</p>
+            <h3><i class="fas fa-chart-bar"></i> Benchmarks de conversion</h3>
+            <ul>
+                <li><strong>E-commerce</strong> : 2-3% (excellent &gt; 5%)</li>
+                <li><strong>SaaS B2B</strong> : 3-5% (excellent &gt; 7%)</li>
+                <li><strong>Lead gen</strong> : 5-10% (excellent &gt; 15%)</li>
+                <li><strong>Webinaire</strong> : 20-30% (excellent &gt; 40%)</li>
+            </ul>
+
+            <h3><i class="fas fa-tachometer-alt"></i> Performance technique</h3>
+            <ul>
+                <li><strong>Temps de chargement</strong> : &lt; 2s (excellent), 2-4s (acceptable), &gt; 4s (problème)</li>
+                <li><strong>Taux de rebond</strong> : &lt; 30% (excellent), 30-50% (bon), &gt; 50% (à améliorer)</li>
+                <li><strong>Temps sur page</strong> : &gt; 60s (engageant), 30-60s (correct), &lt; 30s (faible)</li>
+            </ul>
+
+            <h3><i class="fas fa-lightbulb"></i> Éléments clés d'une landing page efficace</h3>
+            <ul>
+                <li><strong>Proposition de valeur claire</strong> : Bénéfice évident en 5 secondes</li>
+                <li><strong>CTA visible et contrasté</strong> : Bouton d'action au-dessus de la ligne de flottaison</li>
+                <li><strong>Preuve sociale</strong> : Témoignages, logos clients, statistiques</li>
+                <li><strong>Design épuré</strong> : Pas de distractions, focus sur la conversion</li>
+                <li><strong>Mobile-first</strong> : 60-70% du trafic vient du mobile</li>
+                <li><strong>Formulaire court</strong> : 3-5 champs maximum</li>
+                <li><strong>Éléments de réassurance</strong> : Garantie, sécurité, sans engagement</li>
+            </ul>
         </section>
     </main>
     <footer class="tool-footer"><a href="../../index.html"><i class="fas fa-arrow-left"></i> Retour</a></footer>
     <script src="../../assets/js/utils.js"></script>
     <script src="../../assets/js/main.js"></script>
     <script>
-        document.getElementById('mainForm').addEventListener('submit', function(e) {
+        document.getElementById('landingForm').addEventListener('submit', function(e) {
             e.preventDefault();
-            const val1 = parseFloat(document.getElementById('input1').value);
-            const val2 = parseFloat(document.getElementById('input2').value);
-            const result = val2 > 0 ? (val1 / val2) : 0;
-            document.getElementById('result').textContent = result.toFixed(2);
+
+            // Récupération des données
+            const visitors = parseInt(document.getElementById('visitors').value);
+            const conversions = parseInt(document.getElementById('conversions').value);
+            const bounceRate = parseFloat(document.getElementById('bounceRate').value);
+            const loadTime = parseFloat(document.getElementById('loadTime').value);
+            const avgTime = parseFloat(document.getElementById('avgTime').value);
+            const mobileVisitors = parseFloat(document.getElementById('mobileVisitors').value) || 0;
+
+            const hasCta = document.getElementById('hasCta').value === 'yes';
+            const hasVideo = document.getElementById('hasVideo').value === 'yes';
+            const hasTestimonials = document.getElementById('hasTestimonials').value === 'yes';
+            const hasTrust = document.getElementById('hasTrust').value === 'yes';
+
+            // Calculs
+            const convRate = (conversions / visitors) * 100;
+
+            // Scoring
+            const criteria = [];
+            let totalScore = 0;
+
+            // 1. Taux de conversion (30 points max)
+            let convScore = 0;
+            if (convRate >= 10) convScore = 30;
+            else if (convRate >= 5) convScore = 25;
+            else if (convRate >= 3) convScore = 20;
+            else if (convRate >= 1) convScore = 10;
+            totalScore += convScore;
+            criteria.push({
+                label: 'Taux de conversion',
+                value: formatPercentage(convRate),
+                status: convRate >= 5 ? 'good' : convRate >= 2 ? 'warning' : 'bad',
+                icon: 'fa-chart-line'
+            });
+
+            // 2. Vitesse de chargement (20 points max)
+            let speedScore = 0;
+            if (loadTime < 2) speedScore = 20;
+            else if (loadTime < 3) speedScore = 15;
+            else if (loadTime < 4) speedScore = 10;
+            else speedScore = 5;
+            totalScore += speedScore;
+            criteria.push({
+                label: 'Vitesse de chargement',
+                value: loadTime.toFixed(1) + 's',
+                status: loadTime < 2 ? 'good' : loadTime < 4 ? 'warning' : 'bad',
+                icon: 'fa-tachometer-alt'
+            });
+
+            // 3. Taux de rebond (15 points max)
+            let bounceScore = 0;
+            if (bounceRate < 30) bounceScore = 15;
+            else if (bounceRate < 50) bounceScore = 10;
+            else if (bounceRate < 70) bounceScore = 5;
+            totalScore += bounceScore;
+            criteria.push({
+                label: 'Taux de rebond',
+                value: formatPercentage(bounceRate),
+                status: bounceRate < 40 ? 'good' : bounceRate < 60 ? 'warning' : 'bad',
+                icon: 'fa-sign-out-alt'
+            });
+
+            // 4. Engagement (temps sur page) (10 points max)
+            let engagementScore = 0;
+            if (avgTime >= 60) engagementScore = 10;
+            else if (avgTime >= 30) engagementScore = 7;
+            else if (avgTime >= 15) engagementScore = 4;
+            totalScore += engagementScore;
+            criteria.push({
+                label: 'Temps moyen sur page',
+                value: avgTime + 's',
+                status: avgTime >= 45 ? 'good' : avgTime >= 20 ? 'warning' : 'bad',
+                icon: 'fa-hourglass-half'
+            });
+
+            // 5. CTA visible (10 points)
+            if (hasCta) totalScore += 10;
+            criteria.push({
+                label: 'Call-to-Action visible',
+                value: hasCta ? 'Oui' : 'Non',
+                status: hasCta ? 'good' : 'bad',
+                icon: 'fa-hand-pointer'
+            });
+
+            // 6. Preuve sociale (5 points)
+            if (hasTestimonials) totalScore += 5;
+            criteria.push({
+                label: 'Témoignages clients',
+                value: hasTestimonials ? 'Présents' : 'Absents',
+                status: hasTestimonials ? 'good' : 'warning',
+                icon: 'fa-quote-right'
+            });
+
+            // 7. Éléments de confiance (5 points)
+            if (hasTrust) totalScore += 5;
+            criteria.push({
+                label: 'Éléments de réassurance',
+                value: hasTrust ? 'Présents' : 'Absents',
+                status: hasTrust ? 'good' : 'warning',
+                icon: 'fa-shield-alt'
+            });
+
+            // 8. Vidéo (5 points bonus)
+            if (hasVideo) totalScore += 5;
+            criteria.push({
+                label: 'Contenu vidéo',
+                value: hasVideo ? 'Présent' : 'Absent',
+                status: hasVideo ? 'good' : 'warning',
+                icon: 'fa-video'
+            });
+
+            // Affichage des résultats
+            document.getElementById('globalScore').textContent = totalScore + '/100';
+            document.getElementById('convRate').textContent = formatPercentage(convRate);
+            document.getElementById('speedScore').textContent = speedScore + '/20';
+            document.getElementById('engagementScore').textContent = engagementScore + '/10';
+            document.getElementById('mobileScore').textContent = mobileVisitors.toFixed(0) + '%';
+
+            // Label du score
+            let scoreLabel = '';
+            if (totalScore >= 80) scoreLabel = 'Excellente landing page ! 🎉';
+            else if (totalScore >= 60) scoreLabel = 'Bonne performance 👍';
+            else if (totalScore >= 40) scoreLabel = 'À optimiser ⚠️';
+            else scoreLabel = 'Amélioration urgente nécessaire 🔴';
+            document.getElementById('scoreLabel').textContent = scoreLabel;
+
+            // Affichage des critères
+            const criteriaList = document.getElementById('criteriaList');
+            criteriaList.innerHTML = '';
+            criteria.forEach(c => {
+                const div = document.createElement('div');
+                div.className = `criteria-item ${c.status}`;
+                div.innerHTML = `
+                    <div class="criteria-label">
+                        <i class="fas ${c.icon}"></i>
+                        <span>${c.label}</span>
+                    </div>
+                    <div class="criteria-value">${c.value}</div>
+                `;
+                criteriaList.appendChild(div);
+            });
+
+            // Recommandations
+            const recommendations = [];
+            if (convRate < 3) recommendations.push('<strong>Conversion faible</strong> : Simplifiez le formulaire, renforcez la proposition de valeur');
+            if (loadTime > 3) recommendations.push('<strong>Page trop lente</strong> : Optimisez les images, activez la compression, utilisez un CDN');
+            if (bounceRate > 50) recommendations.push('<strong>Rebond élevé</strong> : Améliorez le ciblage publicitaire ou la cohérence message pub/landing');
+            if (!hasCta) recommendations.push('<strong>Pas de CTA visible</strong> : Ajoutez un bouton d\'action clair au-dessus de la ligne de flottaison');
+            if (!hasTestimonials) recommendations.push('<strong>Manque de preuve sociale</strong> : Ajoutez témoignages clients, logos, ou statistiques de réussite');
+            if (!hasTrust) recommendations.push('<strong>Manque de réassurance</strong> : Ajoutez badges de sécurité, garantie satisfait ou remboursé');
+            if (avgTime < 30) recommendations.push('<strong>Engagement faible</strong> : Ajoutez du contenu engageant (vidéo, bénéfices clairs)');
+            if (mobileVisitors > 50 && loadTime > 2) recommendations.push('<strong>Optimisation mobile</strong> : Majorité mobile, priorisez la vitesse sur mobile');
+
+            const recDiv = document.getElementById('recommendations');
+            if (recommendations.length > 0) {
+                recDiv.innerHTML = `<h3><i class="fas fa-lightbulb"></i> Recommandations prioritaires</h3><ul>${recommendations.map(r => `<li>${r}</li>`).join('')}</ul>`;
+            } else {
+                recDiv.innerHTML = '<h3><i class="fas fa-check-circle"></i> Excellent !</h3><p>Votre landing page respecte toutes les bonnes pratiques. Continuez à tester et optimiser.</p>';
+            }
+
             document.getElementById('results').style.display = 'block';
-            showNotification('Calcul effectué !', 'success');
+            showNotification('Analyse terminée !', 'success');
         });
-        window.addEventListener('load', () => document.getElementById('mainForm').dispatchEvent(new Event('submit')));
+
+        window.addEventListener('load', () => document.getElementById('landingForm').dispatchEvent(new Event('submit')));
     </script>
 </body>
 </html>
