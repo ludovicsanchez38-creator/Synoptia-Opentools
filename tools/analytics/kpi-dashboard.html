@@ -3,57 +3,302 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Outil Business - Business Tools</title>
+    <title>Tableau de bord KPI - Business Tools by Synoptia</title>
     <link rel="stylesheet" href="../../assets/css/main.css">
     <link rel="stylesheet" href="../../assets/css/tools.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <nav class="breadcrumb">
-        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> > 
-        <a href="../../index.html#tools">Analyse</a> > 
-        <span>Outil</span>
+        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> >
+        <a href="../../index.html#tools">Analytics</a> >
+        <span>Tableau de bord KPI</span>
     </nav>
     <main class="tool-container">
         <header class="tool-header">
-            <h1><i class="fas fa-tools"></i> Outil Business</h1>
-            <p class="tool-description">Outil professionnel pour optimiser votre activité.</p>
+            <h1><i class="fas fa-chart-line"></i> Tableau de bord KPI</h1>
+            <p class="tool-description">Suivez vos indicateurs clés de performance (KPI) avec des visualisations interactives et des alertes de progression.</p>
         </header>
+
         <section class="tool-input">
-            <form id="mainForm">
-                <div class="form-group">
-                    <label for="input1" class="form-label">Donnée d'entrée</label>
-                    <input type="number" id="input1" class="form-input" value="100" min="0" required>
+            <h2>Ajouter un KPI</h2>
+            <form id="kpiForm">
+                <div class="input-grid">
+                    <div class="form-group">
+                        <label for="kpiName" class="form-label">Nom du KPI</label>
+                        <input type="text" id="kpiName" class="form-input" placeholder="Ex: Chiffre d'affaires mensuel" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="kpiCurrent" class="form-label">Valeur actuelle</label>
+                        <input type="number" id="kpiCurrent" class="form-input" placeholder="1000" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="kpiTarget" class="form-label">Objectif</label>
+                        <input type="number" id="kpiTarget" class="form-input" placeholder="1500" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="kpiUnit" class="form-label">Unité</label>
+                        <select id="kpiUnit" class="form-select">
+                            <option value="€">€ (Euro)</option>
+                            <option value="%">% (Pourcentage)</option>
+                            <option value="unités">Unités</option>
+                            <option value="clients">Clients</option>
+                            <option value="heures">Heures</option>
+                        </select>
+                    </div>
                 </div>
-                <button type="submit" class="btn btn-primary"><i class="fas fa-calculator"></i> Calculer</button>
+                <div class="action-buttons">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Ajouter le KPI
+                    </button>
+                    <button type="button" class="btn btn-secondary" id="exportBtn">
+                        <i class="fas fa-download"></i> Export CSV
+                    </button>
+                    <button type="button" class="btn btn-danger" id="clearBtn">
+                        <i class="fas fa-trash"></i> Tout effacer
+                    </button>
+                </div>
             </form>
         </section>
+
         <section class="tool-output" id="results" style="display: none;">
-            <div class="results-grid">
-                <div class="result-item">
-                    <div class="result-label">Résultat</div>
-                    <div class="result-value highlight" id="result">-</div>
-                </div>
+            <h2><i class="fas fa-chart-pie"></i> Mes KPIs</h2>
+
+            <div id="kpiCards" class="input-grid" style="margin-bottom: 2rem;">
+                <!-- Les cartes KPI seront ajoutées ici -->
+            </div>
+
+            <div class="card">
+                <h3>Graphique de performance globale</h3>
+                <canvas id="kpiChart"></canvas>
             </div>
         </section>
+
         <section class="tool-help">
-            <h3><i class="fas fa-info-circle"></i> Aide</h3>
-            <p>Utilisez cet outil pour optimiser votre gestion d'entreprise.</p>
+            <h3><i class="fas fa-question-circle"></i> Comment utiliser ce tableau de bord ?</h3>
+            <ol>
+                <li>Définissez vos <strong>KPIs</strong> (indicateurs clés de performance)</li>
+                <li>Ajoutez la <strong>valeur actuelle</strong> et l'<strong>objectif</strong></li>
+                <li>Visualisez votre <strong>progression</strong> en temps réel</li>
+                <li>Identifiez les KPIs nécessitant attention (rouge/orange)</li>
+                <li>Exportez vos données en <strong>CSV</strong></li>
+            </ol>
+
+            <h3><i class="fas fa-lightbulb"></i> Indicateurs de performance</h3>
+            <ul>
+                <li><strong style="color: #22c55e;">Vert</strong> : Objectif atteint (≥100%)</li>
+                <li><strong style="color: #f59e0b;">Orange</strong> : En progression (50-99%)</li>
+                <li><strong style="color: #ef4444;">Rouge</strong> : À améliorer (&lt;50%)</li>
+            </ul>
         </section>
     </main>
-    <footer class="tool-footer"><a href="../../index.html"><i class="fas fa-arrow-left"></i> Retour</a></footer>
+
+    <footer class="tool-footer">
+        <p>Synoptia - Business Tools | Contact: <a href="mailto:ludo@synoptia.fr">ludo@synoptia.fr</a></p>
+        <a href="../../index.html"><i class="fas fa-arrow-left"></i> Retour aux outils</a>
+    </footer>
+
     <script src="../../assets/js/utils.js"></script>
     <script src="../../assets/js/main.js"></script>
     <script>
-        document.getElementById('mainForm').addEventListener('submit', function(e) {
+        const STORAGE_KEY = 'synoptia_kpis';
+        let kpis = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+        let chart = null;
+
+        // Charger les KPIs au démarrage
+        if (kpis.length > 0) {
+            displayKPIs();
+        }
+
+        // Ajouter un KPI
+        document.getElementById('kpiForm').addEventListener('submit', function(e) {
             e.preventDefault();
-            const val = parseFloat(document.getElementById('input1').value);
-            document.getElementById('result').textContent = val.toFixed(2);
-            document.getElementById('results').style.display = 'block';
-            showNotification('Opération réussie !', 'success');
+
+            const kpi = {
+                id: Date.now(),
+                name: document.getElementById('kpiName').value,
+                current: parseFloat(document.getElementById('kpiCurrent').value),
+                target: parseFloat(document.getElementById('kpiTarget').value),
+                unit: document.getElementById('kpiUnit').value
+            };
+
+            kpis.push(kpi);
+            saveKPIs();
+            displayKPIs();
+
+            this.reset();
+            showNotification('KPI ajouté avec succès !', 'success');
         });
-        window.addEventListener('load', () => document.getElementById('mainForm').dispatchEvent(new Event('submit')));
+
+        // Sauvegarder dans localStorage
+        function saveKPIs() {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(kpis));
+        }
+
+        // Afficher les KPIs
+        function displayKPIs() {
+            const container = document.getElementById('kpiCards');
+            container.innerHTML = '';
+
+            kpis.forEach(kpi => {
+                const progress = (kpi.current / kpi.target * 100).toFixed(1);
+                let color, icon, status;
+
+                if (progress >= 100) {
+                    color = '#22c55e';
+                    icon = 'fa-check-circle';
+                    status = 'Objectif atteint';
+                } else if (progress >= 50) {
+                    color = '#f59e0b';
+                    icon = 'fa-exclamation-triangle';
+                    status = 'En progression';
+                } else {
+                    color = '#ef4444';
+                    icon = 'fa-times-circle';
+                    status = 'À améliorer';
+                }
+
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.style.borderLeft = `4px solid ${color}`;
+                card.innerHTML = `
+                    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 1rem;">
+                        <h4 style="margin: 0; color: var(--text);">${kpi.name}</h4>
+                        <button class="btn btn-danger btn-sm" onclick="deleteKPI(${kpi.id})">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                        <span style="font-size: 2rem; font-weight: 700; color: ${color};">${kpi.current} ${kpi.unit}</span>
+                        <span style="font-size: 1.25rem; color: var(--gray);">/ ${kpi.target} ${kpi.unit}</span>
+                    </div>
+                    <div style="background: var(--light); border-radius: 999px; height: 12px; overflow: hidden; margin-bottom: 0.5rem;">
+                        <div style="background: ${color}; height: 100%; width: ${Math.min(progress, 100)}%; transition: width 0.3s;"></div>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span style="color: ${color}; font-weight: 600;">
+                            <i class="fas ${icon}"></i> ${status}
+                        </span>
+                        <span style="font-weight: 700; color: ${color};">${progress}%</span>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+
+            updateChart();
+            document.getElementById('results').style.display = 'block';
+        }
+
+        // Mettre à jour le graphique
+        function updateChart() {
+            const ctx = document.getElementById('kpiChart');
+
+            if (chart) {
+                chart.destroy();
+            }
+
+            const labels = kpis.map(kpi => kpi.name);
+            const currentData = kpis.map(kpi => kpi.current);
+            const targetData = kpis.map(kpi => kpi.target);
+
+            chart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Valeur actuelle',
+                            data: currentData,
+                            backgroundColor: '#3b82f6',
+                            borderColor: '#2563eb',
+                            borderWidth: 2
+                        },
+                        {
+                            label: 'Objectif',
+                            data: targetData,
+                            backgroundColor: '#22c55e',
+                            borderColor: '#16a34a',
+                            borderWidth: 2
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const kpi = kpis[context.dataIndex];
+                                    return context.dataset.label + ': ' + context.parsed.y + ' ' + kpi.unit;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        // Supprimer un KPI
+        window.deleteKPI = function(id) {
+            if (confirm('Êtes-vous sûr de vouloir supprimer ce KPI ?')) {
+                kpis = kpis.filter(kpi => kpi.id !== id);
+                saveKPIs();
+
+                if (kpis.length === 0) {
+                    document.getElementById('results').style.display = 'none';
+                } else {
+                    displayKPIs();
+                }
+
+                showNotification('KPI supprimé', 'success');
+            }
+        };
+
+        // Export CSV
+        document.getElementById('exportBtn').addEventListener('click', function() {
+            if (kpis.length === 0) {
+                showNotification('Aucun KPI à exporter', 'warning');
+                return;
+            }
+
+            let csv = 'Nom,Valeur actuelle,Objectif,Unité,Progression (%),Statut\n';
+
+            kpis.forEach(kpi => {
+                const progress = (kpi.current / kpi.target * 100).toFixed(1);
+                let status = progress >= 100 ? 'Atteint' : progress >= 50 ? 'En cours' : 'À améliorer';
+                csv += `"${kpi.name}",${kpi.current},${kpi.target},"${kpi.unit}",${progress},"${status}"\n`;
+            });
+
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `kpis-${new Date().toISOString().split('T')[0]}.csv`;
+            link.click();
+
+            showNotification('Export CSV réussi !', 'success');
+        });
+
+        // Effacer tous les KPIs
+        document.getElementById('clearBtn').addEventListener('click', function() {
+            if (confirm('Êtes-vous sûr de vouloir effacer tous les KPIs ?')) {
+                kpis = [];
+                saveKPIs();
+                document.getElementById('results').style.display = 'none';
+                showNotification('Tous les KPIs ont été effacés', 'success');
+            }
+        });
     </script>
 </body>
 </html>

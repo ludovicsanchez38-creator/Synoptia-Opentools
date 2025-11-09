@@ -3,57 +3,342 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Outil Business - Business Tools</title>
+    <title>Calculateur BFR - Business Tools</title>
     <link rel="stylesheet" href="../../assets/css/main.css">
     <link rel="stylesheet" href="../../assets/css/tools.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .metric-card { background: white; padding: 20px; margin: 15px 0; border-radius: 8px; border-left: 4px solid #4CAF50; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .optimization-tips { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 15px; margin-top: 20px; }
+        .tip-box { background: #e3f2fd; padding: 15px; border-radius: 8px; border-left: 4px solid #2196F3; }
+        .warning-box { background: #fff3e0; padding: 15px; border-radius: 8px; border-left: 4px solid #ff9800; margin: 20px 0; }
+        .chart-container { max-width: 500px; margin: 30px auto; }
+    </style>
 </head>
 <body>
     <nav class="breadcrumb">
-        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> > 
-        <a href="../../index.html#tools">Divers</a> > 
-        <span>Outil</span>
+        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> >
+        <a href="../../index.html#tools">Divers</a> >
+        <span>BFR</span>
     </nav>
     <main class="tool-container">
         <header class="tool-header">
-            <h1><i class="fas fa-tools"></i> Outil Business</h1>
-            <p class="tool-description">Outil professionnel pour optimiser votre activité.</p>
+            <h1><i class="fas fa-chart-area"></i> Calculateur BFR (Besoin en Fonds de Roulement)</h1>
+            <p class="tool-description">Calculez et optimisez votre Besoin en Fonds de Roulement.</p>
         </header>
+
         <section class="tool-input">
-            <form id="mainForm">
+            <div class="metric-card">
+                <h3><i class="fas fa-boxes"></i> Stocks Moyens</h3>
                 <div class="form-group">
-                    <label for="input1" class="form-label">Donnée d'entrée</label>
-                    <input type="number" id="input1" class="form-input" value="100" min="0" required>
+                    <label class="form-label">Valeur moyenne des stocks (€)</label>
+                    <input type="number" id="stock" class="form-input" value="0" min="0" step="1000">
                 </div>
-                <button type="submit" class="btn btn-primary"><i class="fas fa-calculator"></i> Calculer</button>
-            </form>
+                <div class="form-group">
+                    <label class="form-label">Chiffre d'affaires annuel (€)</label>
+                    <input type="number" id="ca_stock" class="form-input" value="0" min="0" step="1000">
+                    <small>Pour calculer la rotation des stocks</small>
+                </div>
+            </div>
+
+            <div class="metric-card">
+                <h3><i class="fas fa-hand-holding-usd"></i> Créances Clients</h3>
+                <div class="form-group">
+                    <label class="form-label">Total des créances clients (€)</label>
+                    <input type="number" id="receivables" class="form-input" value="0" min="0" step="1000">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Chiffre d'affaires annuel (€)</label>
+                    <input type="number" id="ca_receivables" class="form-input" value="0" min="0" step="1000">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Délai de paiement moyen (jours)</label>
+                    <input type="number" id="payment_delay" class="form-input" value="0" min="0" max="365">
+                    <small>Temps moyen avant que les clients ne paient</small>
+                </div>
+            </div>
+
+            <div class="metric-card">
+                <h3><i class="fas fa-file-invoice-dollar"></i> Dettes Fournisseurs</h3>
+                <div class="form-group">
+                    <label class="form-label">Total des dettes fournisseurs (€)</label>
+                    <input type="number" id="payables" class="form-input" value="0" min="0" step="1000">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Achats annuels (€)</label>
+                    <input type="number" id="purchases" class="form-input" value="0" min="0" step="1000">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Délai de paiement fournisseurs (jours)</label>
+                    <input type="number" id="supplier_delay" class="form-input" value="0" min="0" max="365">
+                    <small>Temps avant que vous ne payiez vos fournisseurs</small>
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 10px; margin-top: 20px;">
+                <button class="btn btn-secondary" onclick="saveData()"><i class="fas fa-save"></i> Sauvegarder</button>
+                <button class="btn btn-secondary" onclick="loadData()"><i class="fas fa-folder-open"></i> Charger</button>
+                <button class="btn btn-secondary" onclick="exportCSV()"><i class="fas fa-file-csv"></i> CSV</button>
+                <button class="btn btn-primary" onclick="calculate()"><i class="fas fa-calculator"></i> Calculer BFR</button>
+            </div>
         </section>
+
         <section class="tool-output" id="results" style="display: none;">
+            <h3><i class="fas fa-chart-bar"></i> Résultats</h3>
             <div class="results-grid">
                 <div class="result-item">
-                    <div class="result-label">Résultat</div>
-                    <div class="result-value highlight" id="result">-</div>
+                    <div class="result-label">BFR (Besoin en Fonds de Roulement)</div>
+                    <div class="result-value highlight" id="bfr">0 €</div>
+                    <small>Stocks + Créances - Dettes</small>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Ratio BFR / CA</div>
+                    <div class="result-value" id="ratio-ca">0%</div>
+                    <small>% du chiffre d'affaires</small>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Rotation des Stocks</div>
+                    <div class="result-value" id="stock-rotation">0</div>
+                    <small>jours de stocks</small>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">DSO (Délai Clients)</div>
+                    <div class="result-value" id="dso">0</div>
+                    <small>jours de créances</small>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">DPO (Délai Fournisseurs)</div>
+                    <div class="result-value" id="dpo">0</div>
+                    <small>jours de dettes</small>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Cycle d'Exploitation</div>
+                    <div class="result-value" id="cycle">0</div>
+                    <small>jours</small>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <canvas id="bfrChart"></canvas>
+            </div>
+
+            <div id="warning-message" class="warning-box" style="display: none;">
+                <h4><i class="fas fa-exclamation-triangle"></i> Attention !</h4>
+                <p id="warning-text"></p>
+            </div>
+
+            <h3><i class="fas fa-lightbulb"></i> Pistes d'Optimisation du BFR</h3>
+            <div class="optimization-tips">
+                <div class="tip-box">
+                    <h4><i class="fas fa-boxes"></i> Stocks</h4>
+                    <ul>
+                        <li>Améliorez la gestion des stocks (flux tendu)</li>
+                        <li>Réduisez les stocks morts</li>
+                        <li>Négociez des délais de livraison plus courts</li>
+                        <li>Objectif: rotation &lt; 30 jours</li>
+                    </ul>
+                </div>
+                <div class="tip-box">
+                    <h4><i class="fas fa-hand-holding-usd"></i> Créances Clients</h4>
+                    <ul>
+                        <li>Facturez rapidement après la livraison</li>
+                        <li>Mettez en place des relances systématiques</li>
+                        <li>Proposez des escomptes pour paiement rapide</li>
+                        <li>Objectif: DSO &lt; 30-45 jours</li>
+                    </ul>
+                </div>
+                <div class="tip-box">
+                    <h4><i class="fas fa-file-invoice-dollar"></i> Dettes Fournisseurs</h4>
+                    <ul>
+                        <li>Négociez des délais de paiement plus longs</li>
+                        <li>Payez à l'échéance (ni avant, ni après)</li>
+                        <li>Consolidez vos achats pour plus de pouvoir</li>
+                        <li>Objectif: DPO 45-60 jours</li>
+                    </ul>
                 </div>
             </div>
         </section>
+
         <section class="tool-help">
-            <h3><i class="fas fa-info-circle"></i> Aide</h3>
-            <p>Utilisez cet outil pour optimiser votre gestion d'entreprise.</p>
+            <h3><i class="fas fa-info-circle"></i> Comprendre le BFR</h3>
+            <ul>
+                <li><strong>BFR = Stocks + Créances Clients - Dettes Fournisseurs</strong></li>
+                <li><strong>BFR positif :</strong> Vous devez financer votre cycle d'exploitation (normal pour la plupart des entreprises)</li>
+                <li><strong>BFR négatif :</strong> Vos fournisseurs financent votre activité (idéal mais rare)</li>
+                <li><strong>BFR élevé :</strong> Signe d'un besoin important en trésorerie</li>
+                <li><strong>Optimisation :</strong> Réduire le BFR libère de la trésorerie sans emprunt</li>
+                <li><strong>Ratio BFR/CA :</strong> Généralement entre 10% et 25% selon le secteur</li>
+            </ul>
         </section>
     </main>
-    <footer class="tool-footer"><a href="../../index.html"><i class="fas fa-arrow-left"></i> Retour</a></footer>
+    <footer class="tool-footer">
+        <div><a href="../../index.html"><i class="fas fa-arrow-left"></i> Retour</a></div>
+        <div style="text-align: center; color: #666;">Synoptia - <a href="mailto:ludo@synoptia.fr">ludo@synoptia.fr</a></div>
+    </footer>
     <script src="../../assets/js/utils.js"></script>
     <script src="../../assets/js/main.js"></script>
     <script>
-        document.getElementById('mainForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const val = parseFloat(document.getElementById('input1').value);
-            document.getElementById('result').textContent = val.toFixed(2);
+        let myChart = null;
+
+        function calculate() {
+            const stock = parseFloat(document.getElementById('stock').value) || 0;
+            const receivables = parseFloat(document.getElementById('receivables').value) || 0;
+            const payables = parseFloat(document.getElementById('payables').value) || 0;
+
+            const caStock = parseFloat(document.getElementById('ca_stock').value) || 0;
+            const caReceivables = parseFloat(document.getElementById('ca_receivables').value) || 0;
+            const purchases = parseFloat(document.getElementById('purchases').value) || 0;
+
+            // BFR = Stocks + Créances - Dettes
+            const bfr = stock + receivables - payables;
+
+            // Ratios
+            const totalCA = Math.max(caStock, caReceivables);
+            const ratioBFR = totalCA > 0 ? (bfr / totalCA * 100) : 0;
+
+            // Rotation des stocks (en jours)
+            const stockRotation = caStock > 0 ? (stock / caStock * 365) : 0;
+
+            // DSO (Days Sales Outstanding) - Délai moyen de paiement clients
+            const dso = caReceivables > 0 ? (receivables / caReceivables * 365) : 0;
+
+            // DPO (Days Payables Outstanding) - Délai moyen de paiement fournisseurs
+            const dpo = purchases > 0 ? (payables / purchases * 365) : 0;
+
+            // Cycle d'exploitation
+            const cycle = stockRotation + dso - dpo;
+
+            // Affichage
+            document.getElementById('bfr').textContent = bfr.toLocaleString('fr-FR') + ' €';
+            document.getElementById('ratio-ca').textContent = ratioBFR.toFixed(1) + '%';
+            document.getElementById('stock-rotation').textContent = Math.round(stockRotation) + ' jours';
+            document.getElementById('dso').textContent = Math.round(dso) + ' jours';
+            document.getElementById('dpo').textContent = Math.round(dpo) + ' jours';
+            document.getElementById('cycle').textContent = Math.round(cycle) + ' jours';
+
+            // Warnings
+            if (bfr > totalCA * 0.3) {
+                document.getElementById('warning-message').style.display = 'block';
+                document.getElementById('warning-text').textContent =
+                    `Votre BFR représente ${ratioBFR.toFixed(0)}% de votre CA, ce qui est élevé. Cela peut créer des tensions de trésorerie. Travaillez à l'optimiser.`;
+            } else if (bfr < 0) {
+                document.getElementById('warning-message').style.display = 'block';
+                document.getElementById('warning-message').style.background = '#e8f5e9';
+                document.getElementById('warning-message').style.borderLeftColor = '#4CAF50';
+                document.getElementById('warning-text').textContent =
+                    `Excellent ! Votre BFR est négatif, ce qui signifie que vos fournisseurs financent votre activité.`;
+            } else {
+                document.getElementById('warning-message').style.display = 'none';
+            }
+
+            createChart(stock, receivables, payables);
             document.getElementById('results').style.display = 'block';
-            showNotification('Opération réussie !', 'success');
+            showNotification('BFR calculé !', 'success');
+        }
+
+        function createChart(stock, receivables, payables) {
+            const ctx = document.getElementById('bfrChart').getContext('2d');
+            if (myChart) myChart.destroy();
+
+            myChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Stocks', 'Créances Clients', 'Dettes Fournisseurs', 'BFR Net'],
+                    datasets: [{
+                        label: 'Montants (€)',
+                        data: [stock, receivables, -payables, stock + receivables - payables],
+                        backgroundColor: ['#FF9800', '#2196F3', '#f44336', '#4CAF50']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        title: { display: true, text: 'Composition du BFR' },
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: {
+                            ticks: {
+                                callback: function(value) {
+                                    return value.toLocaleString('fr-FR') + ' €';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function saveData() {
+            const data = {
+                stock: document.getElementById('stock').value,
+                ca_stock: document.getElementById('ca_stock').value,
+                receivables: document.getElementById('receivables').value,
+                ca_receivables: document.getElementById('ca_receivables').value,
+                payment_delay: document.getElementById('payment_delay').value,
+                payables: document.getElementById('payables').value,
+                purchases: document.getElementById('purchases').value,
+                supplier_delay: document.getElementById('supplier_delay').value
+            };
+            localStorage.setItem('bfrData', JSON.stringify(data));
+            showNotification('Données sauvegardées !', 'success');
+        }
+
+        function loadData() {
+            const saved = localStorage.getItem('bfrData');
+            if (saved) {
+                const data = JSON.parse(saved);
+                Object.keys(data).forEach(key => {
+                    const el = document.getElementById(key);
+                    if (el) el.value = data[key];
+                });
+                showNotification('Données chargées !', 'success');
+            } else {
+                showNotification('Aucune donnée sauvegardée', 'info');
+            }
+        }
+
+        function exportCSV() {
+            const stock = parseFloat(document.getElementById('stock').value) || 0;
+            const receivables = parseFloat(document.getElementById('receivables').value) || 0;
+            const payables = parseFloat(document.getElementById('payables').value) || 0;
+            const bfr = stock + receivables - payables;
+
+            const data = [
+                ['Indicateur', 'Valeur', 'Unité'],
+                ['Stocks', stock.toLocaleString('fr-FR'), '€'],
+                ['Créances Clients', receivables.toLocaleString('fr-FR'), '€'],
+                ['Dettes Fournisseurs', payables.toLocaleString('fr-FR'), '€'],
+                ['BFR', bfr.toLocaleString('fr-FR'), '€'],
+                ['Rotation Stocks', document.getElementById('stock-rotation').textContent, ''],
+                ['DSO', document.getElementById('dso').textContent, ''],
+                ['DPO', document.getElementById('dpo').textContent, ''],
+                ['Cycle Exploitation', document.getElementById('cycle').textContent, ''],
+                ['Ratio BFR/CA', document.getElementById('ratio-ca').textContent, '']
+            ];
+
+            const csv = data.map(row => row.map(cell => `"${cell}"`).join(',')).join('\n');
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'bfr.csv';
+            link.click();
+            showNotification('Export CSV réussi !', 'success');
+        }
+
+        document.querySelectorAll('input').forEach(el => {
+            el.addEventListener('input', () => {
+                if (document.getElementById('results').style.display === 'block') {
+                    calculate();
+                }
+            });
         });
-        window.addEventListener('load', () => document.getElementById('mainForm').dispatchEvent(new Event('submit')));
+
+        window.addEventListener('load', () => {
+            loadData();
+        });
     </script>
 </body>
 </html>

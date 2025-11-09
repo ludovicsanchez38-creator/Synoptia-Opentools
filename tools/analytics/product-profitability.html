@@ -3,57 +3,352 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Outil Business - Business Tools</title>
+    <title>Rentabilité par Produit - Business Tools by Synoptia</title>
     <link rel="stylesheet" href="../../assets/css/main.css">
     <link rel="stylesheet" href="../../assets/css/tools.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <nav class="breadcrumb">
-        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> > 
-        <a href="../../index.html#tools">Analyse</a> > 
-        <span>Outil</span>
+        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> >
+        <a href="../../index.html#tools">Analytics</a> >
+        <span>Rentabilité par Produit</span>
     </nav>
     <main class="tool-container">
         <header class="tool-header">
-            <h1><i class="fas fa-tools"></i> Outil Business</h1>
-            <p class="tool-description">Outil professionnel pour optimiser votre activité.</p>
+            <h1><i class="fas fa-box"></i> Analyse de Rentabilité par Produit</h1>
+            <p class="tool-description">Analysez la rentabilité de vos produits, identifiez les top performers et optimisez votre catalogue.</p>
         </header>
+
         <section class="tool-input">
-            <form id="mainForm">
-                <div class="form-group">
-                    <label for="input1" class="form-label">Donnée d'entrée</label>
-                    <input type="number" id="input1" class="form-input" value="100" min="0" required>
+            <h2>Ajouter un produit</h2>
+            <form id="productForm">
+                <div class="input-grid">
+                    <div class="form-group">
+                        <label for="productName" class="form-label">Nom du produit</label>
+                        <input type="text" id="productName" class="form-input" placeholder="Produit A" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="price" class="form-label">Prix de vente (€)</label>
+                        <input type="number" id="price" class="form-input" placeholder="100" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="cost" class="form-label">Coût de production (€)</label>
+                        <input type="number" id="cost" class="form-input" placeholder="60" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="volume" class="form-label">Volume vendu</label>
+                        <input type="number" id="volume" class="form-input" placeholder="100" min="0" required>
+                    </div>
                 </div>
-                <button type="submit" class="btn btn-primary"><i class="fas fa-calculator"></i> Calculer</button>
+                <div class="action-buttons">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Ajouter le produit
+                    </button>
+                    <button type="button" class="btn btn-secondary" id="exportBtn">
+                        <i class="fas fa-download"></i> Export CSV
+                    </button>
+                    <button type="button" class="btn btn-danger" id="clearBtn">
+                        <i class="fas fa-trash"></i> Tout effacer
+                    </button>
+                </div>
             </form>
         </section>
+
         <section class="tool-output" id="results" style="display: none;">
-            <div class="results-grid">
-                <div class="result-item">
-                    <div class="result-label">Résultat</div>
-                    <div class="result-value highlight" id="result">-</div>
+            <h2><i class="fas fa-chart-pie"></i> Analyse de Rentabilité</h2>
+
+            <div class="results-grid" id="summaryCards">
+                <!-- Cartes de résumé -->
+            </div>
+
+            <div class="card" style="margin-top: 2rem;">
+                <h3>Tableau de rentabilité</h3>
+                <div style="overflow-x: auto;">
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <thead style="background: var(--primary); color: white;">
+                            <tr>
+                                <th style="padding: 1rem; text-align: left;">Produit</th>
+                                <th style="padding: 1rem; text-align: right;">Prix</th>
+                                <th style="padding: 1rem; text-align: right;">Coût</th>
+                                <th style="padding: 1rem; text-align: right;">Marge (€)</th>
+                                <th style="padding: 1rem; text-align: right;">Marge (%)</th>
+                                <th style="padding: 1rem; text-align: right;">Volume</th>
+                                <th style="padding: 1rem; text-align: right;">Profit total</th>
+                                <th style="padding: 1rem; text-align: center;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="input-grid" style="margin-top: 2rem;">
+                <div class="card">
+                    <h3>Marge par produit</h3>
+                    <canvas id="marginChart"></canvas>
+                </div>
+                <div class="card">
+                    <h3>Contribution au profit total</h3>
+                    <canvas id="profitChart"></canvas>
+                </div>
+            </div>
+
+            <div class="card" style="margin-top: 2rem;">
+                <h3>Top/Flop Produits</h3>
+                <div class="input-grid">
+                    <div id="topProducts" style="padding: 1rem; background: var(--light); border-radius: var(--radius-md);">
+                        <h4 style="color: #22c55e; margin-bottom: 1rem;"><i class="fas fa-trophy"></i> Top 3 Produits</h4>
+                        <div id="topList"></div>
+                    </div>
+                    <div id="flopProducts" style="padding: 1rem; background: var(--light); border-radius: var(--radius-md);">
+                        <h4 style="color: #ef4444; margin-bottom: 1rem;"><i class="fas fa-exclamation-triangle"></i> Bottom 3 Produits</h4>
+                        <div id="flopList"></div>
+                    </div>
                 </div>
             </div>
         </section>
+
         <section class="tool-help">
-            <h3><i class="fas fa-info-circle"></i> Aide</h3>
-            <p>Utilisez cet outil pour optimiser votre gestion d'entreprise.</p>
+            <h3><i class="fas fa-question-circle"></i> Comment utiliser cet outil ?</h3>
+            <ol>
+                <li>Ajoutez vos <strong>produits</strong> avec leur prix et coût</li>
+                <li>Indiquez le <strong>volume vendu</strong> pour chaque produit</li>
+                <li>Analysez la <strong>marge brute</strong> et le <strong>profit total</strong></li>
+                <li>Identifiez vos <strong>produits les plus rentables</strong></li>
+                <li>Optimisez votre <strong>catalogue produit</strong></li>
+            </ol>
+
+            <h3><i class="fas fa-lightbulb"></i> Indicateurs</h3>
+            <ul>
+                <li><strong>Marge brute (€)</strong> = Prix de vente - Coût de production</li>
+                <li><strong>Marge (%)</strong> = (Marge brute / Prix de vente) × 100</li>
+                <li><strong>Profit total</strong> = Marge brute × Volume vendu</li>
+                <li>Visez une marge &gt; 30% pour une bonne rentabilité</li>
+            </ul>
         </section>
     </main>
-    <footer class="tool-footer"><a href="../../index.html"><i class="fas fa-arrow-left"></i> Retour</a></footer>
+
+    <footer class="tool-footer">
+        <p>Synoptia - Business Tools | Contact: <a href="mailto:ludo@synoptia.fr">ludo@synoptia.fr</a></p>
+        <a href="../../index.html"><i class="fas fa-arrow-left"></i> Retour aux outils</a>
+    </footer>
+
     <script src="../../assets/js/utils.js"></script>
     <script src="../../assets/js/main.js"></script>
     <script>
-        document.getElementById('mainForm').addEventListener('submit', function(e) {
+        const STORAGE_KEY = 'synoptia_products';
+        let products = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+        let charts = {};
+
+        if (products.length > 0) {
+            displayResults();
+        }
+
+        document.getElementById('productForm').addEventListener('submit', function(e) {
             e.preventDefault();
-            const val = parseFloat(document.getElementById('input1').value);
-            document.getElementById('result').textContent = val.toFixed(2);
-            document.getElementById('results').style.display = 'block';
-            showNotification('Opération réussie !', 'success');
+
+            const product = {
+                id: Date.now(),
+                name: document.getElementById('productName').value,
+                price: parseFloat(document.getElementById('price').value),
+                cost: parseFloat(document.getElementById('cost').value),
+                volume: parseInt(document.getElementById('volume').value)
+            };
+
+            product.margin = product.price - product.cost;
+            product.marginPercent = (product.margin / product.price * 100).toFixed(2);
+            product.totalProfit = product.margin * product.volume;
+
+            products.push(product);
+            saveProducts();
+            displayResults();
+
+            this.reset();
+            showNotification('Produit ajouté avec succès !', 'success');
         });
-        window.addEventListener('load', () => document.getElementById('mainForm').dispatchEvent(new Event('submit')));
+
+        function saveProducts() {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(products));
+        }
+
+        function displayResults() {
+            displaySummary();
+            displayTable();
+            displayTopFlop();
+            displayCharts();
+            document.getElementById('results').style.display = 'block';
+        }
+
+        function displaySummary() {
+            const totalRevenue = products.reduce((sum, p) => sum + (p.price * p.volume), 0);
+            const totalCost = products.reduce((sum, p) => sum + (p.cost * p.volume), 0);
+            const totalProfit = totalRevenue - totalCost;
+            const avgMargin = products.reduce((sum, p) => sum + parseFloat(p.marginPercent), 0) / products.length;
+
+            document.getElementById('summaryCards').innerHTML = `
+                <div class="result-item">
+                    <div class="result-label">Revenu total</div>
+                    <div class="result-value highlight">${formatCurrency(totalRevenue)}</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Coût total</div>
+                    <div class="result-value" style="color: #ef4444;">${formatCurrency(totalCost)}</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Profit total</div>
+                    <div class="result-value" style="color: #22c55e;">${formatCurrency(totalProfit)}</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Marge moyenne</div>
+                    <div class="result-value">${avgMargin.toFixed(2)}%</div>
+                </div>
+            `;
+        }
+
+        function displayTable() {
+            const tbody = document.getElementById('tableBody');
+            tbody.innerHTML = '';
+
+            products.forEach(product => {
+                const row = document.createElement('tr');
+                row.style.borderBottom = '1px solid var(--border)';
+                const marginColor = parseFloat(product.marginPercent) >= 30 ? '#22c55e' : parseFloat(product.marginPercent) >= 15 ? '#f59e0b' : '#ef4444';
+
+                row.innerHTML = `
+                    <td style="padding: 0.75rem; font-weight: 600;">${product.name}</td>
+                    <td style="padding: 0.75rem; text-align: right;">${formatCurrency(product.price)}</td>
+                    <td style="padding: 0.75rem; text-align: right; color: #ef4444;">${formatCurrency(product.cost)}</td>
+                    <td style="padding: 0.75rem; text-align: right; font-weight: 600;">${formatCurrency(product.margin)}</td>
+                    <td style="padding: 0.75rem; text-align: right; font-weight: 700; color: ${marginColor};">${product.marginPercent}%</td>
+                    <td style="padding: 0.75rem; text-align: right;">${product.volume}</td>
+                    <td style="padding: 0.75rem; text-align: right; font-weight: 700; color: #22c55e;">${formatCurrency(product.totalProfit)}</td>
+                    <td style="padding: 0.75rem; text-align: center;">
+                        <button class="btn btn-danger btn-sm" onclick="deleteProduct(${product.id})">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function displayTopFlop() {
+            const sorted = [...products].sort((a, b) => b.totalProfit - a.totalProfit);
+            const top3 = sorted.slice(0, 3);
+            const bottom3 = sorted.slice(-3).reverse();
+
+            const topList = document.getElementById('topList');
+            topList.innerHTML = '';
+            top3.forEach((p, i) => {
+                const div = document.createElement('div');
+                div.style.padding = '0.5rem 0';
+                div.innerHTML = `<strong>${i + 1}. ${p.name}</strong> - ${formatCurrency(p.totalProfit)} (${p.marginPercent}%)`;
+                topList.appendChild(div);
+            });
+
+            const flopList = document.getElementById('flopList');
+            flopList.innerHTML = '';
+            bottom3.forEach((p, i) => {
+                const div = document.createElement('div');
+                div.style.padding = '0.5rem 0';
+                div.innerHTML = `<strong>${i + 1}. ${p.name}</strong> - ${formatCurrency(p.totalProfit)} (${p.marginPercent}%)`;
+                flopList.appendChild(div);
+            });
+        }
+
+        function displayCharts() {
+            Object.values(charts).forEach(chart => chart.destroy());
+
+            const labels = products.map(p => p.name);
+            const margins = products.map(p => parseFloat(p.marginPercent));
+            const profits = products.map(p => p.totalProfit);
+
+            // Graphique des marges
+            charts.margin = new Chart(document.getElementById('marginChart'), {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Marge (%)',
+                        data: margins,
+                        backgroundColor: margins.map(m => m >= 30 ? '#22c55e' : m >= 15 ? '#f59e0b' : '#ef4444'),
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: { legend: { display: false } },
+                    scales: { y: { beginAtZero: true } }
+                }
+            });
+
+            // Graphique des profits
+            charts.profit = new Chart(document.getElementById('profitChart'), {
+                type: 'pie',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: profits,
+                        backgroundColor: ['#3b82f6', '#22c55e', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'],
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: { position: 'right' }
+                    }
+                }
+            });
+        }
+
+        window.deleteProduct = function(id) {
+            if (confirm('Supprimer ce produit ?')) {
+                products = products.filter(p => p.id !== id);
+                saveProducts();
+                if (products.length === 0) {
+                    document.getElementById('results').style.display = 'none';
+                } else {
+                    displayResults();
+                }
+                showNotification('Produit supprimé', 'success');
+            }
+        };
+
+        document.getElementById('exportBtn').addEventListener('click', function() {
+            if (products.length === 0) {
+                showNotification('Aucun produit à exporter', 'warning');
+                return;
+            }
+
+            let csv = 'Produit,Prix,Coût,Marge (€),Marge (%),Volume,Profit total\n';
+            products.forEach(p => {
+                csv += `"${p.name}",${p.price},${p.cost},${p.margin},${p.marginPercent},${p.volume},${p.totalProfit}\n`;
+            });
+
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `rentabilite-produits-${new Date().toISOString().split('T')[0]}.csv`;
+            link.click();
+
+            showNotification('Export CSV réussi !', 'success');
+        });
+
+        document.getElementById('clearBtn').addEventListener('click', function() {
+            if (confirm('Effacer tous les produits ?')) {
+                products = [];
+                saveProducts();
+                document.getElementById('results').style.display = 'none';
+                showNotification('Produits effacés', 'success');
+            }
+        });
     </script>
 </body>
 </html>

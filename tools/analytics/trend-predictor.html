@@ -3,57 +3,376 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Outil Business - Business Tools</title>
+    <title>Prédicteur de Tendances - Business Tools by Synoptia</title>
     <link rel="stylesheet" href="../../assets/css/main.css">
     <link rel="stylesheet" href="../../assets/css/tools.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <nav class="breadcrumb">
-        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> > 
-        <a href="../../index.html#tools">Analyse</a> > 
-        <span>Outil</span>
+        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> >
+        <a href="../../index.html#tools">Analytics</a> >
+        <span>Prédicteur de Tendances</span>
     </nav>
     <main class="tool-container">
         <header class="tool-header">
-            <h1><i class="fas fa-tools"></i> Outil Business</h1>
-            <p class="tool-description">Outil professionnel pour optimiser votre activité.</p>
+            <h1><i class="fas fa-chart-area"></i> Prédicteur de Tendances</h1>
+            <p class="tool-description">Analysez vos données historiques et prédisez les tendances futures avec régression linéaire.</p>
         </header>
+
         <section class="tool-input">
-            <form id="mainForm">
-                <div class="form-group">
-                    <label for="input1" class="form-label">Donnée d'entrée</label>
-                    <input type="number" id="input1" class="form-input" value="100" min="0" required>
+            <h2>Données historiques</h2>
+            <form id="dataForm">
+                <div class="input-grid">
+                    <div class="form-group">
+                        <label for="periodLabel" class="form-label">Période</label>
+                        <input type="text" id="periodLabel" class="form-input" placeholder="Janvier 2025" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="value" class="form-label">Valeur</label>
+                        <input type="number" id="value" class="form-input" placeholder="10000" step="0.01" required>
+                    </div>
                 </div>
-                <button type="submit" class="btn btn-primary"><i class="fas fa-calculator"></i> Calculer</button>
+                <div class="action-buttons">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Ajouter une donnée
+                    </button>
+                    <button type="button" class="btn btn-accent" id="predictBtn">
+                        <i class="fas fa-magic"></i> Générer prévisions
+                    </button>
+                    <button type="button" class="btn btn-secondary" id="exportBtn">
+                        <i class="fas fa-download"></i> Export CSV
+                    </button>
+                    <button type="button" class="btn btn-danger" id="clearBtn">
+                        <i class="fas fa-trash"></i> Tout effacer
+                    </button>
+                </div>
             </form>
-        </section>
-        <section class="tool-output" id="results" style="display: none;">
-            <div class="results-grid">
-                <div class="result-item">
-                    <div class="result-label">Résultat</div>
-                    <div class="result-value highlight" id="result">-</div>
+
+            <div id="currentDataSection" style="display: none; margin-top: 2rem;">
+                <h3>Données ajoutées (<span id="dataCount">0</span>)</h3>
+                <div id="dataList" class="card" style="max-height: 300px; overflow-y: auto;">
+                    <!-- Liste des données -->
                 </div>
             </div>
         </section>
+
+        <section class="tool-output" id="results" style="display: none;">
+            <h2><i class="fas fa-crystal-ball"></i> Prévisions</h2>
+
+            <div class="results-grid" id="summaryCards">
+                <!-- Cartes de résumé -->
+            </div>
+
+            <div class="card" style="margin-top: 2rem;">
+                <h3>Graphique de tendance et prévisions</h3>
+                <canvas id="trendChart"></canvas>
+            </div>
+
+            <div class="card" style="margin-top: 2rem;">
+                <h3>Prévisions détaillées</h3>
+                <div style="overflow-x: auto;">
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <thead style="background: var(--primary); color: white;">
+                            <tr>
+                                <th style="padding: 1rem; text-align: left;">Période future</th>
+                                <th style="padding: 1rem; text-align: right;">Valeur prédite</th>
+                                <th style="padding: 1rem; text-align: right;">Intervalle (±)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="forecastTable">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
         <section class="tool-help">
-            <h3><i class="fas fa-info-circle"></i> Aide</h3>
-            <p>Utilisez cet outil pour optimiser votre gestion d'entreprise.</p>
+            <h3><i class="fas fa-question-circle"></i> Comment utiliser ce prédicteur ?</h3>
+            <ol>
+                <li>Ajoutez vos <strong>données historiques</strong> (minimum 3 points)</li>
+                <li>Cliquez sur <strong>"Générer prévisions"</strong></li>
+                <li>L'outil calcule la <strong>régression linéaire</strong> de vos données</li>
+                <li>Consultez les <strong>prévisions</strong> pour 3, 6 et 12 périodes</li>
+                <li>Analysez l'<strong>intervalle de confiance</strong> pour chaque prévision</li>
+            </ol>
+
+            <h3><i class="fas fa-lightbulb"></i> À propos</h3>
+            <ul>
+                <li><strong>Régression linéaire</strong> : Trouve la tendance linéaire dans vos données</li>
+                <li><strong>Intervalle de confiance</strong> : Marge d'erreur estimée (±10% de la prévision)</li>
+                <li>Plus vous avez de données historiques, plus les prévisions sont fiables</li>
+            </ul>
         </section>
     </main>
-    <footer class="tool-footer"><a href="../../index.html"><i class="fas fa-arrow-left"></i> Retour</a></footer>
+
+    <footer class="tool-footer">
+        <p>Synoptia - Business Tools | Contact: <a href="mailto:ludo@synoptia.fr">ludo@synoptia.fr</a></p>
+        <a href="../../index.html"><i class="fas fa-arrow-left"></i> Retour aux outils</a>
+    </footer>
+
     <script src="../../assets/js/utils.js"></script>
     <script src="../../assets/js/main.js"></script>
     <script>
-        document.getElementById('mainForm').addEventListener('submit', function(e) {
+        const STORAGE_KEY = 'synoptia_trend_data';
+        let data = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+        let chart = null;
+
+        if (data.length > 0) {
+            displayDataList();
+        }
+
+        document.getElementById('dataForm').addEventListener('submit', function(e) {
             e.preventDefault();
-            const val = parseFloat(document.getElementById('input1').value);
-            document.getElementById('result').textContent = val.toFixed(2);
-            document.getElementById('results').style.display = 'block';
-            showNotification('Opération réussie !', 'success');
+
+            const point = {
+                id: Date.now(),
+                period: document.getElementById('periodLabel').value,
+                value: parseFloat(document.getElementById('value').value)
+            };
+
+            data.push(point);
+            saveData();
+            displayDataList();
+
+            this.reset();
+            showNotification('Donnée ajoutée !', 'success');
         });
-        window.addEventListener('load', () => document.getElementById('mainForm').dispatchEvent(new Event('submit')));
+
+        function saveData() {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+        }
+
+        function displayDataList() {
+            const container = document.getElementById('dataList');
+            container.innerHTML = '';
+
+            data.forEach((point, index) => {
+                const div = document.createElement('div');
+                div.style.display = 'flex';
+                div.style.justifyContent = 'space-between';
+                div.style.padding = '0.75rem';
+                div.style.borderBottom = '1px solid var(--border)';
+                div.innerHTML = `
+                    <div><strong>${index + 1}.</strong> ${point.period}</div>
+                    <div style="display: flex; gap: 1rem; align-items: center;">
+                        <span style="font-weight: 600;">${formatCurrency(point.value)}</span>
+                        <button class="btn btn-danger btn-sm" onclick="deleteData(${point.id})">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+
+            document.getElementById('dataCount').textContent = data.length;
+            document.getElementById('currentDataSection').style.display = data.length > 0 ? 'block' : 'none';
+        }
+
+        window.deleteData = function(id) {
+            data = data.filter(d => d.id !== id);
+            saveData();
+            displayDataList();
+            document.getElementById('results').style.display = 'none';
+            showNotification('Donnée supprimée', 'success');
+        };
+
+        // Prédiction
+        document.getElementById('predictBtn').addEventListener('click', function() {
+            if (data.length < 3) {
+                showNotification('Ajoutez au moins 3 points de données', 'warning');
+                return;
+            }
+
+            const predictions = calculatePredictions();
+            displayPredictions(predictions);
+            showNotification('Prévisions générées !', 'success');
+        });
+
+        function calculatePredictions() {
+            // Régression linéaire simple: y = ax + b
+            const n = data.length;
+            const x = data.map((d, i) => i + 1);
+            const y = data.map(d => d.value);
+
+            const sumX = x.reduce((a, b) => a + b, 0);
+            const sumY = y.reduce((a, b) => a + b, 0);
+            const sumXY = x.reduce((sum, xi, i) => sum + xi * y[i], 0);
+            const sumX2 = x.reduce((sum, xi) => sum + xi * xi, 0);
+
+            const a = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
+            const b = (sumY - a * sumX) / n;
+
+            // Calculer l'erreur moyenne pour l'intervalle de confiance
+            const predictions_historical = x.map(xi => a * xi + b);
+            const errors = y.map((yi, i) => Math.abs(yi - predictions_historical[i]));
+            const avgError = errors.reduce((a, b) => a + b, 0) / n;
+
+            // Générer prévisions futures
+            const futurePeriods = [3, 6, 12];
+            const forecasts = [];
+
+            futurePeriods.forEach(months => {
+                const futureX = n + months;
+                const prediction = a * futureX + b;
+                const interval = prediction * 0.1; // ±10% intervalle de confiance
+
+                forecasts.push({
+                    period: months,
+                    value: prediction,
+                    interval: interval
+                });
+            });
+
+            return {
+                slope: a,
+                intercept: b,
+                forecasts: forecasts,
+                avgError: avgError
+            };
+        }
+
+        function displayPredictions(pred) {
+            const trend = pred.slope >= 0 ? 'hausse' : 'baisse';
+            const trendColor = pred.slope >= 0 ? '#22c55e' : '#ef4444';
+            const lastValue = data[data.length - 1].value;
+
+            document.getElementById('summaryCards').innerHTML = `
+                <div class="result-item">
+                    <div class="result-label">Tendance</div>
+                    <div class="result-value" style="color: ${trendColor};">${trend.toUpperCase()}</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Pente (croissance)</div>
+                    <div class="result-value">${pred.slope.toFixed(2)} / période</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Prévision 3 mois</div>
+                    <div class="result-value highlight">${formatCurrency(pred.forecasts[0].value)}</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Prévision 12 mois</div>
+                    <div class="result-value">${formatCurrency(pred.forecasts[2].value)}</div>
+                </div>
+            `;
+
+            // Tableau
+            const tbody = document.getElementById('forecastTable');
+            tbody.innerHTML = '';
+
+            pred.forecasts.forEach(forecast => {
+                const row = document.createElement('tr');
+                row.style.borderBottom = '1px solid var(--border)';
+                row.innerHTML = `
+                    <td style="padding: 0.75rem; font-weight: 600;">+${forecast.period} mois</td>
+                    <td style="padding: 0.75rem; text-align: right; font-weight: 700; color: #3b82f6;">${formatCurrency(forecast.value)}</td>
+                    <td style="padding: 0.75rem; text-align: right; color: var(--gray);">±${formatCurrency(forecast.interval)}</td>
+                `;
+                tbody.appendChild(row);
+            });
+
+            // Graphique
+            displayChart(pred);
+
+            document.getElementById('results').style.display = 'block';
+        }
+
+        function displayChart(pred) {
+            const ctx = document.getElementById('trendChart');
+
+            if (chart) {
+                chart.destroy();
+            }
+
+            const historicalLabels = data.map(d => d.period);
+            const historicalValues = data.map(d => d.value);
+
+            const forecastLabels = pred.forecasts.map(f => `+${f.period} mois`);
+            const forecastValues = pred.forecasts.map(f => f.value);
+
+            const allLabels = [...historicalLabels, ...forecastLabels];
+            const allHistorical = [...historicalValues, ...Array(forecastLabels.length).fill(null)];
+            const allForecasts = [...Array(historicalLabels.length).fill(null), historicalValues[historicalValues.length - 1], ...forecastValues];
+
+            chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: allLabels,
+                    datasets: [
+                        {
+                            label: 'Données historiques',
+                            data: allHistorical,
+                            borderColor: '#3b82f6',
+                            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                            tension: 0.4,
+                            fill: true,
+                            borderWidth: 3,
+                            pointRadius: 5
+                        },
+                        {
+                            label: 'Prévisions',
+                            data: allForecasts,
+                            borderColor: '#22c55e',
+                            backgroundColor: 'rgba(34, 197, 94, 0.1)',
+                            borderDash: [5, 5],
+                            tension: 0.4,
+                            fill: true,
+                            borderWidth: 2,
+                            pointRadius: 5
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: { display: true, position: 'top' }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            ticks: {
+                                callback: function(value) {
+                                    return formatCurrency(value);
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        document.getElementById('exportBtn').addEventListener('click', function() {
+            if (data.length === 0) {
+                showNotification('Aucune donnée à exporter', 'warning');
+                return;
+            }
+
+            let csv = 'Période,Valeur\n';
+            data.forEach(d => {
+                csv += `"${d.period}",${d.value}\n`;
+            });
+
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `tendances-${new Date().toISOString().split('T')[0]}.csv`;
+            link.click();
+
+            showNotification('Export CSV réussi !', 'success');
+        });
+
+        document.getElementById('clearBtn').addEventListener('click', function() {
+            if (confirm('Effacer toutes les données ?')) {
+                data = [];
+                saveData();
+                displayDataList();
+                document.getElementById('results').style.display = 'none';
+                showNotification('Données effacées', 'success');
+            }
+        });
     </script>
 </body>
 </html>

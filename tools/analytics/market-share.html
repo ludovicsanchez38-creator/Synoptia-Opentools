@@ -3,57 +3,365 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Outil Business - Business Tools</title>
+    <title>Parts de Marché - Business Tools by Synoptia</title>
     <link rel="stylesheet" href="../../assets/css/main.css">
     <link rel="stylesheet" href="../../assets/css/tools.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <nav class="breadcrumb">
-        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> > 
-        <a href="../../index.html#tools">Analyse</a> > 
-        <span>Outil</span>
+        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> >
+        <a href="../../index.html#tools">Analytics</a> >
+        <span>Parts de Marché</span>
     </nav>
     <main class="tool-container">
         <header class="tool-header">
-            <h1><i class="fas fa-tools"></i> Outil Business</h1>
-            <p class="tool-description">Outil professionnel pour optimiser votre activité.</p>
+            <h1><i class="fas fa-chart-pie"></i> Calculateur de Parts de Marché</h1>
+            <p class="tool-description">Analysez la répartition des parts de marché entre vous et vos concurrents avec évolution temporelle.</p>
         </header>
+
         <section class="tool-input">
-            <form id="mainForm">
-                <div class="form-group">
-                    <label for="input1" class="form-label">Donnée d'entrée</label>
-                    <input type="number" id="input1" class="form-input" value="100" min="0" required>
+            <h2>Configurer le marché</h2>
+            <form id="marketForm">
+                <div class="input-grid">
+                    <div class="form-group">
+                        <label for="companyName" class="form-label">Nom de l'acteur</label>
+                        <input type="text" id="companyName" class="form-input" placeholder="Votre entreprise" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="revenue" class="form-label">Revenus (€)</label>
+                        <input type="number" id="revenue" class="form-input" placeholder="1000000" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="period" class="form-label">Période</label>
+                        <input type="text" id="period" class="form-input" placeholder="2025" value="2025">
+                    </div>
                 </div>
-                <button type="submit" class="btn btn-primary"><i class="fas fa-calculator"></i> Calculer</button>
+
+                <div class="action-buttons">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Ajouter l'acteur
+                    </button>
+                    <button type="button" class="btn btn-secondary" id="exportBtn">
+                        <i class="fas fa-download"></i> Export CSV
+                    </button>
+                    <button type="button" class="btn btn-danger" id="clearBtn">
+                        <i class="fas fa-trash"></i> Tout effacer
+                    </button>
+                </div>
             </form>
         </section>
+
         <section class="tool-output" id="results" style="display: none;">
-            <div class="results-grid">
-                <div class="result-item">
-                    <div class="result-label">Résultat</div>
-                    <div class="result-value highlight" id="result">-</div>
+            <h2><i class="fas fa-chart-area"></i> Analyse des Parts de Marché</h2>
+
+            <div class="results-grid" id="summaryCards">
+                <!-- Cartes de résumé -->
+            </div>
+
+            <div class="card" style="margin-top: 2rem;">
+                <h3>Tableau des parts de marché</h3>
+                <div style="overflow-x: auto;">
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <thead style="background: var(--primary); color: white;">
+                            <tr>
+                                <th style="padding: 1rem; text-align: left;">Acteur</th>
+                                <th style="padding: 1rem; text-align: right;">Revenus</th>
+                                <th style="padding: 1rem; text-align: right;">Part de marché (%)</th>
+                                <th style="padding: 1rem; text-align: center;">Position</th>
+                                <th style="padding: 1rem; text-align: center;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody">
+                        </tbody>
+                    </table>
                 </div>
             </div>
+
+            <div class="input-grid" style="margin-top: 2rem;">
+                <div class="card">
+                    <h3>Graphique en camembert</h3>
+                    <canvas id="pieChart"></canvas>
+                </div>
+                <div class="card">
+                    <h3>Graphique en barres</h3>
+                    <canvas id="barChart"></canvas>
+                </div>
+            </div>
+
+            <div class="card" style="margin-top: 2rem;">
+                <h3>Top 3 des leaders du marché</h3>
+                <div id="topPlayers"></div>
+            </div>
         </section>
+
         <section class="tool-help">
-            <h3><i class="fas fa-info-circle"></i> Aide</h3>
-            <p>Utilisez cet outil pour optimiser votre gestion d'entreprise.</p>
+            <h3><i class="fas fa-question-circle"></i> Comment utiliser cet outil ?</h3>
+            <ol>
+                <li>Ajoutez <strong>votre entreprise</strong> avec ses revenus</li>
+                <li>Ajoutez les <strong>principaux concurrents</strong> avec leurs revenus</li>
+                <li>Le <strong>marché total</strong> est calculé automatiquement</li>
+                <li>Consultez votre <strong>part de marché</strong> en pourcentage</li>
+                <li>Analysez votre <strong>position</strong> sur le marché</li>
+            </ol>
+
+            <h3><i class="fas fa-lightbulb"></i> Formules</h3>
+            <ul>
+                <li><strong>Marché total</strong> = Somme des revenus de tous les acteurs</li>
+                <li><strong>Part de marché</strong> = (Revenus acteur / Marché total) × 100</li>
+                <li><strong>Position</strong> = Classement par revenus décroissants</li>
+            </ul>
         </section>
     </main>
-    <footer class="tool-footer"><a href="../../index.html"><i class="fas fa-arrow-left"></i> Retour</a></footer>
+
+    <footer class="tool-footer">
+        <p>Synoptia - Business Tools | Contact: <a href="mailto:ludo@synoptia.fr">ludo@synoptia.fr</a></p>
+        <a href="../../index.html"><i class="fas fa-arrow-left"></i> Retour aux outils</a>
+    </footer>
+
     <script src="../../assets/js/utils.js"></script>
     <script src="../../assets/js/main.js"></script>
     <script>
-        document.getElementById('mainForm').addEventListener('submit', function(e) {
+        const STORAGE_KEY = 'synoptia_market_share';
+        let companies = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+        let charts = {};
+
+        if (companies.length > 0) {
+            displayResults();
+        }
+
+        document.getElementById('marketForm').addEventListener('submit', function(e) {
             e.preventDefault();
-            const val = parseFloat(document.getElementById('input1').value);
-            document.getElementById('result').textContent = val.toFixed(2);
-            document.getElementById('results').style.display = 'block';
-            showNotification('Opération réussie !', 'success');
+
+            const company = {
+                id: Date.now(),
+                name: document.getElementById('companyName').value,
+                revenue: parseFloat(document.getElementById('revenue').value),
+                period: document.getElementById('period').value
+            };
+
+            companies.push(company);
+            saveCompanies();
+            displayResults();
+
+            this.reset();
+            document.getElementById('period').value = '2025';
+            showNotification('Acteur ajouté avec succès !', 'success');
         });
-        window.addEventListener('load', () => document.getElementById('mainForm').dispatchEvent(new Event('submit')));
+
+        function saveCompanies() {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(companies));
+        }
+
+        function displayResults() {
+            displaySummary();
+            displayTable();
+            displayTopPlayers();
+            displayCharts();
+            document.getElementById('results').style.display = 'block';
+        }
+
+        function displaySummary() {
+            const totalMarket = companies.reduce((sum, c) => sum + c.revenue, 0);
+            const leader = [...companies].sort((a, b) => b.revenue - a.revenue)[0];
+            const leaderShare = (leader.revenue / totalMarket * 100).toFixed(2);
+
+            const firstCompany = companies[0];
+            const myShare = (firstCompany.revenue / totalMarket * 100).toFixed(2);
+
+            document.getElementById('summaryCards').innerHTML = `
+                <div class="result-item">
+                    <div class="result-label">Marché total</div>
+                    <div class="result-value highlight">${formatCurrency(totalMarket)}</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Leader du marché</div>
+                    <div class="result-value">${leader.name}</div>
+                    <div style="font-size: 0.875rem; color: var(--gray);">${leaderShare}% du marché</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Votre part (${firstCompany.name})</div>
+                    <div class="result-value" style="color: var(--primary);">${myShare}%</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Nombre d'acteurs</div>
+                    <div class="result-value">${companies.length}</div>
+                </div>
+            `;
+        }
+
+        function displayTable() {
+            const totalMarket = companies.reduce((sum, c) => sum + c.revenue, 0);
+            const sorted = [...companies].sort((a, b) => b.revenue - a.revenue);
+
+            const tbody = document.getElementById('tableBody');
+            tbody.innerHTML = '';
+
+            sorted.forEach((company, index) => {
+                const marketShare = (company.revenue / totalMarket * 100).toFixed(2);
+                const row = document.createElement('tr');
+                row.style.borderBottom = '1px solid var(--border)';
+
+                const medals = ['🥇', '🥈', '🥉'];
+                const position = index < 3 ? medals[index] : `#${index + 1}`;
+
+                row.innerHTML = `
+                    <td style="padding: 0.75rem; font-weight: 600;">${company.name}</td>
+                    <td style="padding: 0.75rem; text-align: right;">${formatCurrency(company.revenue)}</td>
+                    <td style="padding: 0.75rem; text-align: right; font-weight: 700; color: var(--primary);">${marketShare}%</td>
+                    <td style="padding: 0.75rem; text-align: center; font-size: 1.25rem;">${position}</td>
+                    <td style="padding: 0.75rem; text-align: center;">
+                        <button class="btn btn-danger btn-sm" onclick="deleteCompany(${company.id})">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function displayTopPlayers() {
+            const totalMarket = companies.reduce((sum, c) => sum + c.revenue, 0);
+            const top3 = [...companies].sort((a, b) => b.revenue - a.revenue).slice(0, 3);
+
+            const container = document.getElementById('topPlayers');
+            container.innerHTML = '';
+
+            top3.forEach((company, index) => {
+                const share = (company.revenue / totalMarket * 100).toFixed(2);
+                const div = document.createElement('div');
+                div.style.padding = '1rem';
+                div.style.borderBottom = '1px solid var(--border)';
+                div.innerHTML = `
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <span style="font-size: 1.5rem;">${index === 0 ? '🥇' : index === 1 ? '🥈' : '🥉'}</span>
+                            <strong style="font-size: 1.25rem; margin-left: 0.5rem;">${company.name}</strong>
+                        </div>
+                        <div style="text-align: right;">
+                            <div style="font-size: 1.5rem; font-weight: 700; color: var(--primary);">${share}%</div>
+                            <div style="color: var(--gray);">${formatCurrency(company.revenue)}</div>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function displayCharts() {
+            Object.values(charts).forEach(chart => chart.destroy());
+
+            const totalMarket = companies.reduce((sum, c) => sum + c.revenue, 0);
+            const labels = companies.map(c => c.name);
+            const data = companies.map(c => c.revenue);
+            const percentages = companies.map(c => (c.revenue / totalMarket * 100).toFixed(2));
+
+            const colors = ['#3b82f6', '#22c55e', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#14b8a6', '#f43f5e'];
+
+            // Pie chart
+            charts.pie = new Chart(document.getElementById('pieChart'), {
+                type: 'pie',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: data,
+                        backgroundColor: colors,
+                        borderWidth: 2,
+                        borderColor: '#fff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: { position: 'right' },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.label + ': ' + percentages[context.dataIndex] + '%';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Bar chart
+            charts.bar = new Chart(document.getElementById('barChart'), {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Part de marché (%)',
+                        data: percentages,
+                        backgroundColor: colors,
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100,
+                            ticks: {
+                                callback: function(value) {
+                                    return value + '%';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        window.deleteCompany = function(id) {
+            if (confirm('Supprimer cet acteur ?')) {
+                companies = companies.filter(c => c.id !== id);
+                saveCompanies();
+                if (companies.length === 0) {
+                    document.getElementById('results').style.display = 'none';
+                } else {
+                    displayResults();
+                }
+                showNotification('Acteur supprimé', 'success');
+            }
+        };
+
+        document.getElementById('exportBtn').addEventListener('click', function() {
+            if (companies.length === 0) {
+                showNotification('Aucune donnée à exporter', 'warning');
+                return;
+            }
+
+            const totalMarket = companies.reduce((sum, c) => sum + c.revenue, 0);
+            let csv = 'Acteur,Revenus,Part de marché (%)\n';
+            companies.forEach(c => {
+                const share = (c.revenue / totalMarket * 100).toFixed(2);
+                csv += `"${c.name}",${c.revenue},${share}\n`;
+            });
+
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `parts-marche-${new Date().toISOString().split('T')[0]}.csv`;
+            link.click();
+
+            showNotification('Export CSV réussi !', 'success');
+        });
+
+        document.getElementById('clearBtn').addEventListener('click', function() {
+            if (confirm('Effacer toutes les données ?')) {
+                companies = [];
+                saveCompanies();
+                document.getElementById('results').style.display = 'none';
+                showNotification('Données effacées', 'success');
+            }
+        });
     </script>
 </body>
 </html>

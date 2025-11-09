@@ -3,57 +3,350 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Outil Business - Business Tools</title>
+    <title>Rapports Financiers - Business Tools by Synoptia</title>
     <link rel="stylesheet" href="../../assets/css/main.css">
     <link rel="stylesheet" href="../../assets/css/tools.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <nav class="breadcrumb">
-        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> > 
-        <a href="../../index.html#tools">Analyse</a> > 
-        <span>Outil</span>
+        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> >
+        <a href="../../index.html#tools">Analytics</a> >
+        <span>Rapports Financiers</span>
     </nav>
     <main class="tool-container">
         <header class="tool-header">
-            <h1><i class="fas fa-tools"></i> Outil Business</h1>
-            <p class="tool-description">Outil professionnel pour optimiser votre activité.</p>
+            <h1><i class="fas fa-file-invoice-dollar"></i> Générateur de Rapports Financiers</h1>
+            <p class="tool-description">Créez des rapports financiers détaillés avec comparaisons période par période et visualisations graphiques.</p>
         </header>
+
         <section class="tool-input">
-            <form id="mainForm">
-                <div class="form-group">
-                    <label for="input1" class="form-label">Donnée d'entrée</label>
-                    <input type="number" id="input1" class="form-input" value="100" min="0" required>
+            <h2>Ajouter une période financière</h2>
+            <form id="reportForm">
+                <div class="input-grid">
+                    <div class="form-group">
+                        <label for="periodName" class="form-label">Nom de la période</label>
+                        <input type="text" id="periodName" class="form-input" placeholder="Q1 2025" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="revenues" class="form-label">Revenus (€)</label>
+                        <input type="number" id="revenues" class="form-input" placeholder="100000" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="costs" class="form-label">Coûts (€)</label>
+                        <input type="number" id="costs" class="form-input" placeholder="60000" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="periodType" class="form-label">Type de période</label>
+                        <select id="periodType" class="form-select">
+                            <option value="Mensuel">Mensuel</option>
+                            <option value="Trimestriel" selected>Trimestriel</option>
+                            <option value="Annuel">Annuel</option>
+                        </select>
+                    </div>
                 </div>
-                <button type="submit" class="btn btn-primary"><i class="fas fa-calculator"></i> Calculer</button>
+                <div class="action-buttons">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Ajouter la période
+                    </button>
+                    <button type="button" class="btn btn-secondary" id="exportBtn">
+                        <i class="fas fa-download"></i> Export CSV
+                    </button>
+                    <button type="button" class="btn btn-danger" id="clearBtn">
+                        <i class="fas fa-trash"></i> Tout effacer
+                    </button>
+                </div>
             </form>
         </section>
+
         <section class="tool-output" id="results" style="display: none;">
-            <div class="results-grid">
-                <div class="result-item">
-                    <div class="result-label">Résultat</div>
-                    <div class="result-value highlight" id="result">-</div>
+            <h2><i class="fas fa-chart-bar"></i> Rapport Financier</h2>
+
+            <div class="results-grid" id="summaryCards">
+                <!-- Cartes de résumé -->
+            </div>
+
+            <div class="card" style="margin-top: 2rem;">
+                <h3>Tableau financier détaillé</h3>
+                <div style="overflow-x: auto;">
+                    <table id="financialTable" style="width: 100%; border-collapse: collapse;">
+                        <thead style="background: var(--primary); color: white;">
+                            <tr>
+                                <th style="padding: 1rem; text-align: left;">Période</th>
+                                <th style="padding: 1rem; text-align: right;">Revenus</th>
+                                <th style="padding: 1rem; text-align: right;">Coûts</th>
+                                <th style="padding: 1rem; text-align: right;">Bénéfice</th>
+                                <th style="padding: 1rem; text-align: right;">Marge (%)</th>
+                                <th style="padding: 1rem; text-align: center;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody">
+                        </tbody>
+                    </table>
                 </div>
             </div>
+
+            <div class="input-grid" style="margin-top: 2rem;">
+                <div class="card">
+                    <h3>Évolution des revenus</h3>
+                    <canvas id="revenueChart"></canvas>
+                </div>
+                <div class="card">
+                    <h3>Évolution des bénéfices</h3>
+                    <canvas id="profitChart"></canvas>
+                </div>
+            </div>
+
+            <div class="card" style="margin-top: 2rem;">
+                <h3>Comparaison Revenus vs Coûts</h3>
+                <canvas id="comparisonChart"></canvas>
+            </div>
         </section>
+
         <section class="tool-help">
-            <h3><i class="fas fa-info-circle"></i> Aide</h3>
-            <p>Utilisez cet outil pour optimiser votre gestion d'entreprise.</p>
+            <h3><i class="fas fa-question-circle"></i> Comment utiliser ce générateur ?</h3>
+            <ol>
+                <li>Ajoutez vos <strong>périodes financières</strong> (mois, trimestres, années)</li>
+                <li>Renseignez les <strong>revenus</strong> et <strong>coûts</strong> pour chaque période</li>
+                <li>Consultez les <strong>KPIs clés</strong> (bénéfices, marges, ratios)</li>
+                <li>Analysez les <strong>graphiques d'évolution</strong></li>
+                <li>Exportez votre rapport en <strong>CSV</strong></li>
+            </ol>
+
+            <h3><i class="fas fa-lightbulb"></i> Ratios financiers</h3>
+            <ul>
+                <li><strong>Marge bénéficiaire</strong> = (Bénéfice / Revenus) × 100</li>
+                <li><strong>Ratio coûts/revenus</strong> = (Coûts / Revenus) × 100</li>
+                <li>Visez une marge &gt; 20% pour une bonne rentabilité</li>
+            </ul>
         </section>
     </main>
-    <footer class="tool-footer"><a href="../../index.html"><i class="fas fa-arrow-left"></i> Retour</a></footer>
+
+    <footer class="tool-footer">
+        <p>Synoptia - Business Tools | Contact: <a href="mailto:ludo@synoptia.fr">ludo@synoptia.fr</a></p>
+        <a href="../../index.html"><i class="fas fa-arrow-left"></i> Retour aux outils</a>
+    </footer>
+
     <script src="../../assets/js/utils.js"></script>
     <script src="../../assets/js/main.js"></script>
     <script>
-        document.getElementById('mainForm').addEventListener('submit', function(e) {
+        const STORAGE_KEY = 'synoptia_financial_reports';
+        let periods = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+        let charts = {};
+
+        if (periods.length > 0) {
+            displayReport();
+        }
+
+        document.getElementById('reportForm').addEventListener('submit', function(e) {
             e.preventDefault();
-            const val = parseFloat(document.getElementById('input1').value);
-            document.getElementById('result').textContent = val.toFixed(2);
-            document.getElementById('results').style.display = 'block';
-            showNotification('Opération réussie !', 'success');
+
+            const period = {
+                id: Date.now(),
+                name: document.getElementById('periodName').value,
+                revenues: parseFloat(document.getElementById('revenues').value),
+                costs: parseFloat(document.getElementById('costs').value),
+                type: document.getElementById('periodType').value
+            };
+
+            period.profit = period.revenues - period.costs;
+            period.margin = period.revenues > 0 ? (period.profit / period.revenues * 100).toFixed(2) : 0;
+
+            periods.push(period);
+            savePeriods();
+            displayReport();
+
+            this.reset();
+            showNotification('Période ajoutée avec succès !', 'success');
         });
-        window.addEventListener('load', () => document.getElementById('mainForm').dispatchEvent(new Event('submit')));
+
+        function savePeriods() {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(periods));
+        }
+
+        function displayReport() {
+            displaySummary();
+            displayTable();
+            displayCharts();
+            document.getElementById('results').style.display = 'block';
+        }
+
+        function displaySummary() {
+            const totalRevenues = periods.reduce((sum, p) => sum + p.revenues, 0);
+            const totalCosts = periods.reduce((sum, p) => sum + p.costs, 0);
+            const totalProfit = totalRevenues - totalCosts;
+            const avgMargin = totalRevenues > 0 ? (totalProfit / totalRevenues * 100).toFixed(2) : 0;
+
+            document.getElementById('summaryCards').innerHTML = `
+                <div class="result-item">
+                    <div class="result-label">Revenus totaux</div>
+                    <div class="result-value highlight">${formatCurrency(totalRevenues)}</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Coûts totaux</div>
+                    <div class="result-value" style="color: #ef4444;">${formatCurrency(totalCosts)}</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Bénéfice total</div>
+                    <div class="result-value" style="color: ${totalProfit >= 0 ? '#22c55e' : '#ef4444'};">${formatCurrency(totalProfit)}</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Marge moyenne</div>
+                    <div class="result-value">${avgMargin}%</div>
+                </div>
+            `;
+        }
+
+        function displayTable() {
+            const tbody = document.getElementById('tableBody');
+            tbody.innerHTML = '';
+
+            periods.forEach(period => {
+                const row = document.createElement('tr');
+                row.style.borderBottom = '1px solid var(--border)';
+                row.innerHTML = `
+                    <td style="padding: 0.75rem;">${period.name} <span style="color: var(--gray); font-size: 0.875rem;">(${period.type})</span></td>
+                    <td style="padding: 0.75rem; text-align: right; font-weight: 600;">${formatCurrency(period.revenues)}</td>
+                    <td style="padding: 0.75rem; text-align: right; color: #ef4444;">${formatCurrency(period.costs)}</td>
+                    <td style="padding: 0.75rem; text-align: right; font-weight: 700; color: ${period.profit >= 0 ? '#22c55e' : '#ef4444'};">${formatCurrency(period.profit)}</td>
+                    <td style="padding: 0.75rem; text-align: right;">${period.margin}%</td>
+                    <td style="padding: 0.75rem; text-align: center;">
+                        <button class="btn btn-danger btn-sm" onclick="deletePeriod(${period.id})">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function displayCharts() {
+            const labels = periods.map(p => p.name);
+            const revenues = periods.map(p => p.revenues);
+            const costs = periods.map(p => p.costs);
+            const profits = periods.map(p => p.profit);
+
+            // Détruire les anciens graphiques
+            Object.values(charts).forEach(chart => chart.destroy());
+
+            // Graphique revenus
+            charts.revenue = new Chart(document.getElementById('revenueChart'), {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Revenus',
+                        data: revenues,
+                        borderColor: '#3b82f6',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: { legend: { display: false } },
+                    scales: { y: { beginAtZero: true } }
+                }
+            });
+
+            // Graphique bénéfices
+            charts.profit = new Chart(document.getElementById('profitChart'), {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Bénéfice',
+                        data: profits,
+                        borderColor: '#22c55e',
+                        backgroundColor: 'rgba(34, 197, 94, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: { legend: { display: false } },
+                    scales: { y: { beginAtZero: true } }
+                }
+            });
+
+            // Graphique comparaison
+            charts.comparison = new Chart(document.getElementById('comparisonChart'), {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Revenus',
+                            data: revenues,
+                            backgroundColor: '#3b82f6',
+                            borderColor: '#2563eb',
+                            borderWidth: 2
+                        },
+                        {
+                            label: 'Coûts',
+                            data: costs,
+                            backgroundColor: '#ef4444',
+                            borderColor: '#dc2626',
+                            borderWidth: 2
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: { legend: { display: true, position: 'top' } },
+                    scales: { y: { beginAtZero: true } }
+                }
+            });
+        }
+
+        window.deletePeriod = function(id) {
+            if (confirm('Supprimer cette période ?')) {
+                periods = periods.filter(p => p.id !== id);
+                savePeriods();
+                if (periods.length === 0) {
+                    document.getElementById('results').style.display = 'none';
+                } else {
+                    displayReport();
+                }
+                showNotification('Période supprimée', 'success');
+            }
+        };
+
+        document.getElementById('exportBtn').addEventListener('click', function() {
+            if (periods.length === 0) {
+                showNotification('Aucune donnée à exporter', 'warning');
+                return;
+            }
+
+            let csv = 'Période,Type,Revenus,Coûts,Bénéfice,Marge (%)\n';
+            periods.forEach(p => {
+                csv += `"${p.name}","${p.type}",${p.revenues},${p.costs},${p.profit},${p.margin}\n`;
+            });
+
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `rapport-financier-${new Date().toISOString().split('T')[0]}.csv`;
+            link.click();
+
+            showNotification('Export CSV réussi !', 'success');
+        });
+
+        document.getElementById('clearBtn').addEventListener('click', function() {
+            if (confirm('Effacer toutes les périodes ?')) {
+                periods = [];
+                savePeriods();
+                document.getElementById('results').style.display = 'none';
+                showNotification('Données effacées', 'success');
+            }
+        });
     </script>
 </body>
 </html>

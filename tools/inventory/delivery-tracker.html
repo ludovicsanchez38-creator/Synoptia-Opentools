@@ -3,57 +3,331 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Outil Business - Business Tools</title>
+    <title>Suivi des Livraisons - Synoptia</title>
     <link rel="stylesheet" href="../../assets/css/main.css">
     <link rel="stylesheet" href="../../assets/css/tools.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .delivery-table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+        .delivery-table th, .delivery-table td { padding: 0.75rem; text-align: left; border-bottom: 1px solid #e0e0e0; }
+        .delivery-table th { background: #f5f5f5; font-weight: 600; }
+        .status-badge { padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.875rem; font-weight: 500; }
+        .status-ordered { background: #e3f2fd; color: #1976d2; }
+        .status-transit { background: #fff3e0; color: #f57c00; }
+        .status-delivered { background: #e8f5e9; color: #388e3c; }
+        .status-delayed { background: #ffebee; color: #d32f2f; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+        .stat-card { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 1.5rem; border-radius: 8px; }
+        .stat-value { font-size: 2rem; font-weight: 700; }
+        .stat-label { font-size: 0.875rem; opacity: 0.9; }
+        .action-btn { padding: 0.25rem 0.5rem; margin: 0 0.25rem; border: none; border-radius: 4px; cursor: pointer; }
+        .action-btn.edit { background: #2196f3; color: white; }
+        .action-btn.delete { background: #f44336; color: white; }
+        @media (max-width: 768px) {
+            .delivery-table { font-size: 0.875rem; }
+            .delivery-table td, .delivery-table th { padding: 0.5rem; }
+        }
+    </style>
 </head>
 <body>
     <nav class="breadcrumb">
-        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> > 
-        <a href="../../index.html#tools">Inventaire</a> > 
-        <span>Outil</span>
+        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> >
+        <a href="../../index.html#tools">Inventory</a> >
+        <span>Suivi des Livraisons</span>
     </nav>
     <main class="tool-container">
         <header class="tool-header">
-            <h1><i class="fas fa-tools"></i> Outil Business</h1>
-            <p class="tool-description">Outil professionnel pour optimiser votre activité.</p>
+            <h1><i class="fas fa-truck"></i> Suivi des Livraisons</h1>
+            <p class="tool-description">Gérez et suivez vos livraisons avec les statuts et les dates.</p>
         </header>
+
+        <div class="stats-grid">
+            <div class="stat-card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                <div class="stat-label">Total Commandes</div>
+                <div class="stat-value" id="totalOrders">0</div>
+            </div>
+            <div class="stat-card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                <div class="stat-label">En Transit</div>
+                <div class="stat-value" id="transitOrders">0</div>
+            </div>
+            <div class="stat-card" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                <div class="stat-label">Livrées</div>
+                <div class="stat-value" id="deliveredOrders">0</div>
+            </div>
+            <div class="stat-card" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">
+                <div class="stat-label">En Retard</div>
+                <div class="stat-value" id="delayedOrders">0</div>
+            </div>
+        </div>
+
         <section class="tool-input">
-            <form id="mainForm">
+            <h3><i class="fas fa-plus-circle"></i> <span id="formTitle">Ajouter une Commande</span></h3>
+            <form id="deliveryForm">
+                <input type="hidden" id="editId">
                 <div class="form-group">
-                    <label for="input1" class="form-label">Donnée d'entrée</label>
-                    <input type="number" id="input1" class="form-input" value="100" min="0" required>
+                    <label class="form-label">Numéro de Commande</label>
+                    <input type="text" id="orderNumber" class="form-input" required>
                 </div>
-                <button type="submit" class="btn btn-primary"><i class="fas fa-calculator"></i> Calculer</button>
+                <div class="form-group">
+                    <label class="form-label">Transporteur</label>
+                    <select id="carrier" class="form-input" required>
+                        <option value="La Poste">La Poste</option>
+                        <option value="Chronopost">Chronopost</option>
+                        <option value="UPS">UPS</option>
+                        <option value="DHL">DHL</option>
+                        <option value="FedEx">FedEx</option>
+                        <option value="Colissimo">Colissimo</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Numéro de Suivi</label>
+                    <input type="text" id="trackingNumber" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Statut</label>
+                    <select id="status" class="form-input" required>
+                        <option value="ordered">Commandé</option>
+                        <option value="transit">En Transit</option>
+                        <option value="delivered">Livré</option>
+                        <option value="delayed">Retardé</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Date Prévue</label>
+                    <input type="date" id="expectedDate" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Date Réelle (optionnel)</label>
+                    <input type="date" id="actualDate" class="form-input">
+                </div>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> <span id="submitBtn">Ajouter</span>
+                </button>
+                <button type="button" class="btn" id="cancelBtn" style="display:none;" onclick="cancelEdit()">
+                    <i class="fas fa-times"></i> Annuler
+                </button>
+                <button type="button" class="btn btn-secondary" onclick="exportCSV()">
+                    <i class="fas fa-download"></i> Export CSV
+                </button>
             </form>
         </section>
-        <section class="tool-output" id="results" style="display: none;">
-            <div class="results-grid">
-                <div class="result-item">
-                    <div class="result-label">Résultat</div>
-                    <div class="result-value highlight" id="result">-</div>
-                </div>
+
+        <section class="tool-output">
+            <h3><i class="fas fa-list"></i> Liste des Commandes</h3>
+            <div style="overflow-x: auto;">
+                <table class="delivery-table">
+                    <thead>
+                        <tr>
+                            <th>Commande</th>
+                            <th>Transporteur</th>
+                            <th>Tracking</th>
+                            <th>Statut</th>
+                            <th>Date Prévue</th>
+                            <th>Date Réelle</th>
+                            <th>Retard (j)</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="deliveryTableBody">
+                        <tr>
+                            <td colspan="8" style="text-align: center; padding: 2rem; color: #999;">
+                                Aucune commande enregistrée.
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </section>
+
         <section class="tool-help">
-            <h3><i class="fas fa-info-circle"></i> Aide</h3>
-            <p>Utilisez cet outil pour optimiser votre gestion d'entreprise.</p>
+            <h3><i class="fas fa-info-circle"></i> Comment utiliser</h3>
+            <ul>
+                <li><strong>Ajouter une commande :</strong> Remplissez les informations de livraison</li>
+                <li><strong>Statuts :</strong> Mettez à jour le statut au fil de la livraison</li>
+                <li><strong>Retard :</strong> Calculé automatiquement si la date réelle dépasse la date prévue</li>
+                <li><strong>Performance :</strong> Suivez les statistiques de livraison en temps réel</li>
+            </ul>
         </section>
     </main>
-    <footer class="tool-footer"><a href="../../index.html"><i class="fas fa-arrow-left"></i> Retour</a></footer>
+    <footer class="tool-footer">
+        <a href="../../index.html"><i class="fas fa-arrow-left"></i> Retour</a>
+        <span>© 2024 Synoptia - <a href="mailto:ludo@synoptia.fr">ludo@synoptia.fr</a></span>
+    </footer>
     <script src="../../assets/js/utils.js"></script>
-    <script src="../../assets/js/main.js"></script>
     <script>
-        document.getElementById('mainForm').addEventListener('submit', function(e) {
+        let deliveries = JSON.parse(localStorage.getItem('deliveries')) || [];
+
+        document.getElementById('deliveryForm').addEventListener('submit', function(e) {
             e.preventDefault();
-            const val = parseFloat(document.getElementById('input1').value);
-            document.getElementById('result').textContent = val.toFixed(2);
-            document.getElementById('results').style.display = 'block';
-            showNotification('Opération réussie !', 'success');
+            const editId = document.getElementById('editId').value;
+
+            const delivery = {
+                id: editId || Date.now().toString(),
+                orderNumber: document.getElementById('orderNumber').value,
+                carrier: document.getElementById('carrier').value,
+                trackingNumber: document.getElementById('trackingNumber').value,
+                status: document.getElementById('status').value,
+                expectedDate: document.getElementById('expectedDate').value,
+                actualDate: document.getElementById('actualDate').value || null,
+                createdAt: editId ? deliveries.find(d => d.id === editId).createdAt : new Date().toISOString()
+            };
+
+            if (editId) {
+                const index = deliveries.findIndex(d => d.id === editId);
+                deliveries[index] = delivery;
+                showNotification('Commande modifiée avec succès', 'success');
+            } else {
+                deliveries.push(delivery);
+                showNotification('Commande ajoutée avec succès', 'success');
+            }
+
+            saveDeliveries();
+            this.reset();
+            document.getElementById('editId').value = '';
+            document.getElementById('formTitle').textContent = 'Ajouter une Commande';
+            document.getElementById('submitBtn').textContent = 'Ajouter';
+            document.getElementById('cancelBtn').style.display = 'none';
+            renderDeliveries();
         });
-        window.addEventListener('load', () => document.getElementById('mainForm').dispatchEvent(new Event('submit')));
+
+        function editDelivery(id) {
+            const delivery = deliveries.find(d => d.id === id);
+            document.getElementById('editId').value = delivery.id;
+            document.getElementById('orderNumber').value = delivery.orderNumber;
+            document.getElementById('carrier').value = delivery.carrier;
+            document.getElementById('trackingNumber').value = delivery.trackingNumber;
+            document.getElementById('status').value = delivery.status;
+            document.getElementById('expectedDate').value = delivery.expectedDate;
+            document.getElementById('actualDate').value = delivery.actualDate || '';
+            document.getElementById('formTitle').textContent = 'Modifier la Commande';
+            document.getElementById('submitBtn').textContent = 'Modifier';
+            document.getElementById('cancelBtn').style.display = 'inline-block';
+            window.scrollTo(0, 0);
+        }
+
+        function cancelEdit() {
+            document.getElementById('deliveryForm').reset();
+            document.getElementById('editId').value = '';
+            document.getElementById('formTitle').textContent = 'Ajouter une Commande';
+            document.getElementById('submitBtn').textContent = 'Ajouter';
+            document.getElementById('cancelBtn').style.display = 'none';
+        }
+
+        function deleteDelivery(id) {
+            if (confirm('Êtes-vous sûr de vouloir supprimer cette commande ?')) {
+                deliveries = deliveries.filter(d => d.id !== id);
+                saveDeliveries();
+                renderDeliveries();
+                showNotification('Commande supprimée', 'success');
+            }
+        }
+
+        function renderDeliveries() {
+            const tbody = document.getElementById('deliveryTableBody');
+
+            if (deliveries.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; padding: 2rem; color: #999;">Aucune commande enregistrée.</td></tr>';
+                updateStats();
+                return;
+            }
+
+            tbody.innerHTML = deliveries.map(d => {
+                const statusClass = `status-${d.status}`;
+                const statusLabels = {
+                    ordered: 'Commandé',
+                    transit: 'En Transit',
+                    delivered: 'Livré',
+                    delayed: 'Retardé'
+                };
+
+                let delay = 0;
+                if (d.actualDate) {
+                    const expected = new Date(d.expectedDate);
+                    const actual = new Date(d.actualDate);
+                    delay = Math.floor((actual - expected) / (1000 * 60 * 60 * 24));
+                }
+
+                return `
+                    <tr>
+                        <td><strong>${d.orderNumber}</strong></td>
+                        <td>${d.carrier}</td>
+                        <td><code>${d.trackingNumber}</code></td>
+                        <td><span class="status-badge ${statusClass}">${statusLabels[d.status]}</span></td>
+                        <td>${new Date(d.expectedDate).toLocaleDateString('fr-FR')}</td>
+                        <td>${d.actualDate ? new Date(d.actualDate).toLocaleDateString('fr-FR') : '-'}</td>
+                        <td>${delay > 0 ? '<span style="color: #d32f2f;">+' + delay + '</span>' : (delay === 0 && d.actualDate ? '0' : '-')}</td>
+                        <td>
+                            <button class="action-btn edit" onclick="editDelivery('${d.id}')" title="Modifier">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="action-btn delete" onclick="deleteDelivery('${d.id}')" title="Supprimer">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+
+            updateStats();
+        }
+
+        function updateStats() {
+            const totalOrders = deliveries.length;
+            const transitOrders = deliveries.filter(d => d.status === 'transit').length;
+            const deliveredOrders = deliveries.filter(d => d.status === 'delivered').length;
+            const delayedOrders = deliveries.filter(d => d.status === 'delayed').length;
+
+            document.getElementById('totalOrders').textContent = totalOrders;
+            document.getElementById('transitOrders').textContent = transitOrders;
+            document.getElementById('deliveredOrders').textContent = deliveredOrders;
+            document.getElementById('delayedOrders').textContent = delayedOrders;
+        }
+
+        function saveDeliveries() {
+            localStorage.setItem('deliveries', JSON.stringify(deliveries));
+        }
+
+        function exportCSV() {
+            if (deliveries.length === 0) {
+                showNotification('Aucune commande à exporter', 'error');
+                return;
+            }
+
+            const headers = ['Commande', 'Transporteur', 'Tracking', 'Statut', 'Date Prévue', 'Date Réelle', 'Retard (jours)'];
+            const rows = deliveries.map(d => {
+                let delay = 0;
+                if (d.actualDate) {
+                    const expected = new Date(d.expectedDate);
+                    const actual = new Date(d.actualDate);
+                    delay = Math.floor((actual - expected) / (1000 * 60 * 60 * 24));
+                }
+
+                return [
+                    d.orderNumber,
+                    d.carrier,
+                    d.trackingNumber,
+                    d.status,
+                    d.expectedDate,
+                    d.actualDate || '-',
+                    d.actualDate ? delay : '-'
+                ];
+            });
+
+            let csv = headers.join(',') + '\n';
+            csv += rows.map(row => row.map(cell => `"${cell}"`).join(',')).join('\n');
+
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `deliveries_${new Date().toISOString().split('T')[0]}.csv`;
+            link.click();
+
+            showNotification('Export CSV réussi', 'success');
+        }
+
+        // Initialize
+        renderDeliveries();
     </script>
 </body>
 </html>

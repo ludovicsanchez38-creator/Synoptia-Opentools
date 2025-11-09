@@ -3,57 +3,396 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Outil Business - Business Tools</title>
+    <title>Générateur NDA - Business Tools</title>
     <link rel="stylesheet" href="../../assets/css/main.css">
     <link rel="stylesheet" href="../../assets/css/tools.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .document-preview {
+            background: white;
+            padding: 40px;
+            margin: 20px 0;
+            border: 1px solid #ddd;
+            font-family: 'Times New Roman', serif;
+            line-height: 1.8;
+        }
+        .document-preview h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            text-transform: uppercase;
+        }
+        .document-preview h2 {
+            margin-top: 25px;
+            margin-bottom: 15px;
+        }
+        .document-preview p {
+            text-align: justify;
+            margin-bottom: 15px;
+        }
+        .signature-block {
+            margin-top: 50px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+        }
+        .signature-field {
+            border-top: 1px solid #333;
+            padding-top: 10px;
+            margin-top: 80px;
+        }
+        .template-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .template-card {
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+        }
+        .template-card:hover {
+            border-color: #4CAF50;
+            background: #f8f9fa;
+        }
+        .template-card.selected {
+            border-color: #4CAF50;
+            background: #e8f5e9;
+        }
+        @media print {
+            .tool-header, .tool-input, .tool-footer, nav, button { display: none !important; }
+            .document-preview { border: none; padding: 20px; }
+        }
+    </style>
 </head>
 <body>
     <nav class="breadcrumb">
-        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> > 
-        <a href="../../index.html#tools">Divers</a> > 
-        <span>Outil</span>
+        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> >
+        <a href="../../index.html#tools">Divers</a> >
+        <span>NDA Generator</span>
     </nav>
     <main class="tool-container">
         <header class="tool-header">
-            <h1><i class="fas fa-tools"></i> Outil Business</h1>
-            <p class="tool-description">Outil professionnel pour optimiser votre activité.</p>
+            <h1><i class="fas fa-file-signature"></i> Générateur d'Accord de Confidentialité (NDA)</h1>
+            <p class="tool-description">Créez un accord de confidentialité professionnel et juridiquement valable.</p>
         </header>
+
         <section class="tool-input">
-            <form id="mainForm">
-                <div class="form-group">
-                    <label for="input1" class="form-label">Donnée d'entrée</label>
-                    <input type="number" id="input1" class="form-input" value="100" min="0" required>
+            <h3><i class="fas fa-layer-group"></i> Templates prédéfinis</h3>
+            <div class="template-selector">
+                <div class="template-card selected" onclick="loadTemplate('standard')">
+                    <i class="fas fa-file-alt" style="font-size: 2em; color: #4CAF50;"></i>
+                    <h4>Standard</h4>
+                    <p>NDA classique bilatéral</p>
                 </div>
-                <button type="submit" class="btn btn-primary"><i class="fas fa-calculator"></i> Calculer</button>
-            </form>
+                <div class="template-card" onclick="loadTemplate('unilateral')">
+                    <i class="fas fa-file" style="font-size: 2em; color: #2196F3;"></i>
+                    <h4>Unilatéral</h4>
+                    <p>Une partie divulgue</p>
+                </div>
+                <div class="template-card" onclick="loadTemplate('tech')">
+                    <i class="fas fa-laptop-code" style="font-size: 2em; color: #FF9800;"></i>
+                    <h4>Tech/Startup</h4>
+                    <p>Pour projets tech</p>
+                </div>
+            </div>
+
+            <h3 style="margin-top: 30px;"><i class="fas fa-users"></i> Informations des Parties</h3>
+
+            <h4>Partie Divulgatrice</h4>
+            <div class="form-group">
+                <label class="form-label">Nom/Raison sociale</label>
+                <input type="text" id="discloser_name" class="form-input" placeholder="Ex: TechCorp SAS">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Adresse</label>
+                <input type="text" id="discloser_address" class="form-input" placeholder="Ex: 123 Rue de l'Innovation, 75001 Paris">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Représentant légal</label>
+                <input type="text" id="discloser_rep" class="form-input" placeholder="Ex: M. Jean Dupont, Directeur Général">
+            </div>
+
+            <h4 style="margin-top: 25px;">Partie Réceptrice</h4>
+            <div class="form-group">
+                <label class="form-label">Nom/Raison sociale</label>
+                <input type="text" id="recipient_name" class="form-input" placeholder="Ex: InnovSolutions SARL">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Adresse</label>
+                <input type="text" id="recipient_address" class="form-input" placeholder="Ex: 456 Avenue des Affaires, 69002 Lyon">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Représentant légal</label>
+                <input type="text" id="recipient_rep" class="form-input" placeholder="Ex: Mme Marie Martin, Présidente">
+            </div>
+
+            <h3 style="margin-top: 30px;"><i class="fas fa-cog"></i> Paramètres de l'Accord</h3>
+            <div class="form-group">
+                <label class="form-label">Objet de la confidentialité</label>
+                <textarea id="purpose" class="form-input" rows="3" placeholder="Ex: Discussions relatives à un partenariat commercial dans le domaine de l'intelligence artificielle..."></textarea>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Durée de confidentialité (années)</label>
+                <input type="number" id="duration" class="form-input" value="3" min="1" max="10">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Date de signature</label>
+                <input type="date" id="sign_date" class="form-input">
+            </div>
+
+            <div style="display: flex; gap: 10px; margin-top: 20px;">
+                <button class="btn btn-secondary" onclick="saveNDA()"><i class="fas fa-save"></i> Sauvegarder</button>
+                <button class="btn btn-secondary" onclick="loadNDA()"><i class="fas fa-folder-open"></i> Charger</button>
+                <button class="btn btn-secondary" onclick="exportCSV()"><i class="fas fa-file-csv"></i> CSV</button>
+                <button class="btn btn-primary" onclick="generateDocument()"><i class="fas fa-sync"></i> Générer</button>
+                <button class="btn btn-primary" onclick="window.print()"><i class="fas fa-print"></i> Imprimer/PDF</button>
+            </div>
         </section>
-        <section class="tool-output" id="results" style="display: none;">
-            <div class="results-grid">
-                <div class="result-item">
-                    <div class="result-label">Résultat</div>
-                    <div class="result-value highlight" id="result">-</div>
+
+        <section class="tool-output">
+            <h3><i class="fas fa-file-contract"></i> Aperçu du Document</h3>
+            <div class="document-preview" id="preview">
+                <h1>ACCORD DE CONFIDENTIALITÉ</h1>
+
+                <p><strong>ENTRE LES SOUSSIGNÉS :</strong></p>
+
+                <p><strong id="prev_discloser_name">La Partie Divulgatrice</strong>, société [forme juridique], dont le siège social est situé <span id="prev_discloser_address">Adresse</span>, représentée par <span id="prev_discloser_rep">Représentant</span>, dûment habilité(e) aux fins des présentes.</p>
+
+                <p>Ci-après dénommée « <strong>la Partie Divulgatrice</strong> »</p>
+
+                <p><strong>ET :</strong></p>
+
+                <p><strong id="prev_recipient_name">La Partie Réceptrice</strong>, société [forme juridique], dont le siège social est situé <span id="prev_recipient_address">Adresse</span>, représentée par <span id="prev_recipient_rep">Représentant</span>, dûment habilité(e) aux fins des présentes.</p>
+
+                <p>Ci-après dénommée « <strong>la Partie Réceptrice</strong> »</p>
+
+                <p>La Partie Divulgatrice et la Partie Réceptrice sont ci-après désignées ensemble les « <strong>Parties</strong> » et individuellement une « <strong>Partie</strong> ».</p>
+
+                <h2>PRÉAMBULE</h2>
+
+                <p>Dans le cadre de <span id="prev_purpose">l'objet de la confidentialité</span>, les Parties sont amenées à échanger des informations confidentielles.</p>
+
+                <p>Les Parties souhaitent encadrer la divulgation et l'utilisation de ces informations confidentielles dans les conditions définies ci-après.</p>
+
+                <h2>ARTICLE 1 - DÉFINITION DES INFORMATIONS CONFIDENTIELLES</h2>
+
+                <p>Sont considérées comme « Informations Confidentielles » toutes les informations, de quelque nature qu'elles soient, écrites ou orales, communiquées par la Partie Divulgatrice à la Partie Réceptrice, notamment :</p>
+
+                <ul>
+                    <li>Les informations techniques, commerciales, financières ou stratégiques ;</li>
+                    <li>Les savoir-faire, procédés, méthodes, études, dessins, modèles ;</li>
+                    <li>Les bases de données, fichiers clients, listes de contacts ;</li>
+                    <li>Les projets de développement, plans d'affaires ;</li>
+                    <li>Toute autre information marquée comme « Confidentiel » ou raisonnablement identifiable comme telle.</li>
+                </ul>
+
+                <h2>ARTICLE 2 - OBLIGATIONS DE LA PARTIE RÉCEPTRICE</h2>
+
+                <p>La Partie Réceptrice s'engage à :</p>
+
+                <ul>
+                    <li>Conserver strictement confidentielles les Informations Confidentielles ;</li>
+                    <li>Ne pas divulguer les Informations Confidentielles à des tiers sans l'accord préalable écrit de la Partie Divulgatrice ;</li>
+                    <li>Utiliser les Informations Confidentielles uniquement dans le cadre de l'objet défini au Préambule ;</li>
+                    <li>Protéger les Informations Confidentielles avec le même degré de protection qu'elle applique à ses propres informations confidentielles ;</li>
+                    <li>Limiter l'accès aux Informations Confidentielles aux seuls membres de son personnel ayant un besoin légitime d'en connaître.</li>
+                </ul>
+
+                <h2>ARTICLE 3 - EXCLUSIONS</h2>
+
+                <p>Ne sont pas considérées comme Informations Confidentielles, les informations qui :</p>
+
+                <ul>
+                    <li>Sont ou deviennent publiques sans violation du présent accord ;</li>
+                    <li>Étaient déjà connues de la Partie Réceptrice avant leur divulgation ;</li>
+                    <li>Sont légalement reçues d'un tiers sans obligation de confidentialité ;</li>
+                    <li>Sont développées indépendamment par la Partie Réceptrice ;</li>
+                    <li>Doivent être divulguées en vertu d'une obligation légale ou réglementaire.</li>
+                </ul>
+
+                <h2>ARTICLE 4 - DURÉE</h2>
+
+                <p>Le présent accord entre en vigueur à compter de sa signature et s'applique pour une durée de <strong id="prev_duration">3 ans</strong>.</p>
+
+                <p>À l'expiration de l'accord, la Partie Réceptrice s'engage, sur demande de la Partie Divulgatrice, à restituer ou détruire toutes les Informations Confidentielles en sa possession.</p>
+
+                <h2>ARTICLE 5 - PROPRIÉTÉ INTELLECTUELLE</h2>
+
+                <p>Aucun transfert de droits de propriété intellectuelle n'est consenti par le présent accord. La Partie Divulgatrice conserve l'intégralité de ses droits sur les Informations Confidentielles.</p>
+
+                <h2>ARTICLE 6 - SANCTIONS</h2>
+
+                <p>Toute violation du présent accord pourra donner lieu à des poursuites judiciaires et à l'obtention de dommages et intérêts pour la Partie lésée.</p>
+
+                <h2>ARTICLE 7 - LOI APPLICABLE ET JURIDICTION</h2>
+
+                <p>Le présent accord est régi par le droit français. Tout litige relatif à son interprétation ou à son exécution relève de la compétence exclusive des tribunaux de Paris.</p>
+
+                <p style="margin-top: 40px;"><strong>Fait en deux exemplaires originaux,</strong></p>
+                <p><strong>À <span id="prev_location">Paris</span>, le <span id="prev_date">__________</span></strong></p>
+
+                <div class="signature-block">
+                    <div>
+                        <strong>Pour la Partie Divulgatrice</strong>
+                        <div class="signature-field">
+                            <span id="sig_discloser">Signature et cachet</span>
+                        </div>
+                    </div>
+                    <div>
+                        <strong>Pour la Partie Réceptrice</strong>
+                        <div class="signature-field">
+                            <span id="sig_recipient">Signature et cachet</span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>
+
         <section class="tool-help">
-            <h3><i class="fas fa-info-circle"></i> Aide</h3>
-            <p>Utilisez cet outil pour optimiser votre gestion d'entreprise.</p>
+            <h3><i class="fas fa-info-circle"></i> Conseils Juridiques</h3>
+            <ul>
+                <li><strong>Vérification légale :</strong> Ce générateur fournit un modèle standard. Consultez un avocat pour des besoins spécifiques.</li>
+                <li><strong>Clarté :</strong> Définissez précisément l'objet et la portée de la confidentialité.</li>
+                <li><strong>Durée :</strong> 3 à 5 ans est généralement approprié pour un NDA commercial.</li>
+                <li><strong>Bilatéral vs Unilatéral :</strong> Choisissez selon que les deux parties divulguent ou une seule.</li>
+                <li><strong>Signatures :</strong> Assurez-vous que les signataires ont le pouvoir d'engager leur société.</li>
+            </ul>
         </section>
     </main>
-    <footer class="tool-footer"><a href="../../index.html"><i class="fas fa-arrow-left"></i> Retour</a></footer>
+    <footer class="tool-footer">
+        <div><a href="../../index.html"><i class="fas fa-arrow-left"></i> Retour</a></div>
+        <div style="text-align: center; color: #666;">Synoptia - <a href="mailto:ludo@synoptia.fr">ludo@synoptia.fr</a></div>
+    </footer>
     <script src="../../assets/js/utils.js"></script>
     <script src="../../assets/js/main.js"></script>
     <script>
-        document.getElementById('mainForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const val = parseFloat(document.getElementById('input1').value);
-            document.getElementById('result').textContent = val.toFixed(2);
-            document.getElementById('results').style.display = 'block';
-            showNotification('Opération réussie !', 'success');
+        let currentTemplate = 'standard';
+
+        function loadTemplate(type) {
+            currentTemplate = type;
+            document.querySelectorAll('.template-card').forEach(card => card.classList.remove('selected'));
+            event.target.closest('.template-card').classList.add('selected');
+
+            if (type === 'unilateral') {
+                document.getElementById('purpose').value = 'Divulgation d\'informations confidentielles dans le cadre d\'un projet de collaboration';
+            } else if (type === 'tech') {
+                document.getElementById('purpose').value = 'Échange d\'informations techniques relatives au développement d\'une solution logicielle';
+            }
+            generateDocument();
+        }
+
+        function generateDocument() {
+            const discloserName = document.getElementById('discloser_name').value || 'La Partie Divulgatrice';
+            const discloserAddr = document.getElementById('discloser_address').value || 'Adresse';
+            const discloserRep = document.getElementById('discloser_rep').value || 'Représentant';
+
+            const recipientName = document.getElementById('recipient_name').value || 'La Partie Réceptrice';
+            const recipientAddr = document.getElementById('recipient_address').value || 'Adresse';
+            const recipientRep = document.getElementById('recipient_rep').value || 'Représentant';
+
+            const purpose = document.getElementById('purpose').value || 'l\'objet de la confidentialité';
+            const duration = document.getElementById('duration').value || '3';
+            const signDate = document.getElementById('sign_date').value;
+
+            document.getElementById('prev_discloser_name').textContent = discloserName;
+            document.getElementById('prev_discloser_address').textContent = discloserAddr;
+            document.getElementById('prev_discloser_rep').textContent = discloserRep;
+
+            document.getElementById('prev_recipient_name').textContent = recipientName;
+            document.getElementById('prev_recipient_address').textContent = recipientAddr;
+            document.getElementById('prev_recipient_rep').textContent = recipientRep;
+
+            document.getElementById('prev_purpose').textContent = purpose;
+            document.getElementById('prev_duration').textContent = duration + ' ans';
+
+            if (signDate) {
+                const date = new Date(signDate);
+                document.getElementById('prev_date').textContent = date.toLocaleDateString('fr-FR', {
+                    day: 'numeric',
+                    month: 'long',
+                    year: 'numeric'
+                });
+            }
+
+            showNotification('Document généré !', 'success');
+        }
+
+        function saveNDA() {
+            const data = {
+                template: currentTemplate,
+                discloser_name: document.getElementById('discloser_name').value,
+                discloser_address: document.getElementById('discloser_address').value,
+                discloser_rep: document.getElementById('discloser_rep').value,
+                recipient_name: document.getElementById('recipient_name').value,
+                recipient_address: document.getElementById('recipient_address').value,
+                recipient_rep: document.getElementById('recipient_rep').value,
+                purpose: document.getElementById('purpose').value,
+                duration: document.getElementById('duration').value,
+                sign_date: document.getElementById('sign_date').value
+            };
+            localStorage.setItem('ndaData', JSON.stringify(data));
+            showNotification('NDA sauvegardé !', 'success');
+        }
+
+        function loadNDA() {
+            const saved = localStorage.getItem('ndaData');
+            if (saved) {
+                const data = JSON.parse(saved);
+                Object.keys(data).forEach(key => {
+                    if (key === 'template') {
+                        currentTemplate = data[key];
+                    } else {
+                        const el = document.getElementById(key);
+                        if (el) el.value = data[key];
+                    }
+                });
+                generateDocument();
+                showNotification('NDA chargé !', 'success');
+            } else {
+                showNotification('Aucun NDA sauvegardé', 'info');
+            }
+        }
+
+        function exportCSV() {
+            const data = [
+                ['Champ', 'Valeur'],
+                ['Template', currentTemplate],
+                ['Partie Divulgatrice', document.getElementById('discloser_name').value],
+                ['Adresse Divulgatrice', document.getElementById('discloser_address').value],
+                ['Représentant Divulgateur', document.getElementById('discloser_rep').value],
+                ['Partie Réceptrice', document.getElementById('recipient_name').value],
+                ['Adresse Réceptrice', document.getElementById('recipient_address').value],
+                ['Représentant Récepteur', document.getElementById('recipient_rep').value],
+                ['Objet', document.getElementById('purpose').value],
+                ['Durée (années)', document.getElementById('duration').value],
+                ['Date signature', document.getElementById('sign_date').value]
+            ];
+
+            const csv = data.map(row => row.map(cell => `"${cell}"`).join(',')).join('\n');
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'nda.csv';
+            link.click();
+            showNotification('Export CSV réussi !', 'success');
+        }
+
+        // Auto-update
+        document.querySelectorAll('input, textarea').forEach(el => {
+            el.addEventListener('input', generateDocument);
         });
-        window.addEventListener('load', () => document.getElementById('mainForm').dispatchEvent(new Event('submit')));
+
+        // Init
+        window.addEventListener('load', () => {
+            document.getElementById('sign_date').value = new Date().toISOString().split('T')[0];
+            loadNDA();
+            generateDocument();
+        });
     </script>
 </body>
 </html>

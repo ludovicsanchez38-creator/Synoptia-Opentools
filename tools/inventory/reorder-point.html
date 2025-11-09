@@ -3,57 +3,263 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Outil Business - Business Tools</title>
+    <title>Point de Commande Optimal - Synoptia</title>
     <link rel="stylesheet" href="../../assets/css/main.css">
     <link rel="stylesheet" href="../../assets/css/tools.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .product-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; margin: 1.5rem 0; }
+        .product-card { background: white; padding: 1.5rem; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .product-card.alert { border-left: 4px solid #f44336; }
+        .product-name { font-size: 1.125rem; font-weight: 700; margin-bottom: 0.5rem; }
+        .reorder-value { font-size: 2rem; font-weight: 700; color: #2196f3; margin: 1rem 0; }
+        .alert-badge { background: #f44336; color: white; padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.875rem; font-weight: 500; }
+        .safe-badge { background: #4caf50; color: white; padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.875rem; font-weight: 500; }
+        .formula-box { background: #e3f2fd; padding: 1.5rem; border-radius: 8px; margin: 1rem 0; border-left: 4px solid #2196f3; }
+    </style>
 </head>
 <body>
     <nav class="breadcrumb">
-        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> > 
-        <a href="../../index.html#tools">Inventaire</a> > 
-        <span>Outil</span>
+        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> >
+        <a href="../../index.html#tools">Inventory</a> >
+        <span>Point de Commande</span>
     </nav>
     <main class="tool-container">
         <header class="tool-header">
-            <h1><i class="fas fa-tools"></i> Outil Business</h1>
-            <p class="tool-description">Outil professionnel pour optimiser votre activité.</p>
+            <h1><i class="fas fa-bell"></i> Point de Commande Optimal</h1>
+            <p class="tool-description">Calculez quand réapprovisionner pour éviter les ruptures de stock.</p>
         </header>
+
         <section class="tool-input">
-            <form id="mainForm">
+            <h3><i class="fas fa-plus-circle"></i> <span id="formTitle">Ajouter un Produit</span></h3>
+            <form id="productForm">
+                <input type="hidden" id="editId">
                 <div class="form-group">
-                    <label for="input1" class="form-label">Donnée d'entrée</label>
-                    <input type="number" id="input1" class="form-input" value="100" min="0" required>
+                    <label class="form-label">Nom du Produit</label>
+                    <input type="text" id="productName" class="form-input" required>
                 </div>
-                <button type="submit" class="btn btn-primary"><i class="fas fa-calculator"></i> Calculer</button>
+                <div class="form-group">
+                    <label class="form-label">Stock Actuel</label>
+                    <input type="number" id="currentStock" class="form-input" min="0" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Demande Quotidienne Moyenne</label>
+                    <input type="number" id="dailyDemand" class="form-input" min="0" step="0.1" required>
+                    <small style="color: #666;">Unités vendues par jour en moyenne</small>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Délai de Livraison (jours)</label>
+                    <input type="number" id="leadTime" class="form-input" min="0" required>
+                    <small style="color: #666;">Temps entre la commande et la réception</small>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Stock de Sécurité</label>
+                    <input type="number" id="safetyStock" class="form-input" min="0" required>
+                    <small style="color: #666;">Stock tampon pour gérer l'incertitude</small>
+                </div>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-calculator"></i> <span id="submitBtn">Calculer & Ajouter</span>
+                </button>
+                <button type="button" class="btn" id="cancelBtn" style="display:none;" onclick="cancelEdit()">
+                    <i class="fas fa-times"></i> Annuler
+                </button>
+                <button type="button" class="btn btn-secondary" onclick="exportCSV()">
+                    <i class="fas fa-download"></i> Export CSV
+                </button>
             </form>
+
+            <div class="formula-box">
+                <h4><i class="fas fa-calculator"></i> Formule du Point de Commande</h4>
+                <p><strong>Point de Commande = (Demande Quotidienne × Délai de Livraison) + Stock de Sécurité</strong></p>
+                <p style="margin-top: 0.5rem; font-size: 0.875rem;">
+                    Commandez lorsque votre stock atteint ce niveau pour éviter les ruptures.
+                </p>
+            </div>
         </section>
-        <section class="tool-output" id="results" style="display: none;">
-            <div class="results-grid">
-                <div class="result-item">
-                    <div class="result-label">Résultat</div>
-                    <div class="result-value highlight" id="result">-</div>
+
+        <section class="tool-output" id="productsSection">
+            <h3><i class="fas fa-boxes"></i> Produits Suivis</h3>
+            <div class="product-grid" id="productGrid">
+                <div style="grid-column: 1/-1; text-align: center; padding: 2rem; color: #999;">
+                    Aucun produit enregistré. Ajoutez votre premier produit ci-dessus.
                 </div>
             </div>
         </section>
+
         <section class="tool-help">
-            <h3><i class="fas fa-info-circle"></i> Aide</h3>
-            <p>Utilisez cet outil pour optimiser votre gestion d'entreprise.</p>
+            <h3><i class="fas fa-info-circle"></i> Comment utiliser</h3>
+            <h4>Comprendre le Point de Commande :</h4>
+            <ul>
+                <li><strong>Demande Quotidienne :</strong> Moyenne des unités vendues par jour sur les dernières semaines</li>
+                <li><strong>Délai de Livraison :</strong> Jours entre la commande et la réception de la marchandise</li>
+                <li><strong>Stock de Sécurité :</strong> Tampon pour gérer les variations de demande ou retards</li>
+                <li><strong>Alerte :</strong> Quand le stock actuel ≤ point de commande, réapprovisionnez!</li>
+            </ul>
+            <h4>Exemple :</h4>
+            <p>Demande: 10 unités/jour, Délai: 5 jours, Sécurité: 20 unités<br>
+            <strong>Point de commande = (10 × 5) + 20 = 70 unités</strong><br>
+            Commandez quand le stock atteint 70 unités.</p>
         </section>
     </main>
-    <footer class="tool-footer"><a href="../../index.html"><i class="fas fa-arrow-left"></i> Retour</a></footer>
+    <footer class="tool-footer">
+        <a href="../../index.html"><i class="fas fa-arrow-left"></i> Retour</a>
+        <span>© 2024 Synoptia - <a href="mailto:ludo@synoptia.fr">ludo@synoptia.fr</a></span>
+    </footer>
     <script src="../../assets/js/utils.js"></script>
-    <script src="../../assets/js/main.js"></script>
     <script>
-        document.getElementById('mainForm').addEventListener('submit', function(e) {
+        let products = JSON.parse(localStorage.getItem('reorder_products')) || [];
+
+        document.getElementById('productForm').addEventListener('submit', function(e) {
             e.preventDefault();
-            const val = parseFloat(document.getElementById('input1').value);
-            document.getElementById('result').textContent = val.toFixed(2);
-            document.getElementById('results').style.display = 'block';
-            showNotification('Opération réussie !', 'success');
+            const editId = document.getElementById('editId').value;
+
+            const dailyDemand = parseFloat(document.getElementById('dailyDemand').value);
+            const leadTime = parseInt(document.getElementById('leadTime').value);
+            const safetyStock = parseInt(document.getElementById('safetyStock').value);
+            const currentStock = parseInt(document.getElementById('currentStock').value);
+
+            const reorderPoint = Math.round((dailyDemand * leadTime) + safetyStock);
+
+            const product = {
+                id: editId || Date.now().toString(),
+                name: document.getElementById('productName').value,
+                currentStock: currentStock,
+                dailyDemand: dailyDemand,
+                leadTime: leadTime,
+                safetyStock: safetyStock,
+                reorderPoint: reorderPoint,
+                needsReorder: currentStock <= reorderPoint,
+                createdAt: editId ? products.find(p => p.id === editId).createdAt : new Date().toISOString()
+            };
+
+            if (editId) {
+                const index = products.findIndex(p => p.id === editId);
+                products[index] = product;
+                showNotification('Produit modifié avec succès', 'success');
+            } else {
+                products.push(product);
+                showNotification('Produit ajouté avec succès', 'success');
+            }
+
+            saveProducts();
+            this.reset();
+            document.getElementById('editId').value = '';
+            document.getElementById('formTitle').textContent = 'Ajouter un Produit';
+            document.getElementById('submitBtn').textContent = 'Calculer & Ajouter';
+            document.getElementById('cancelBtn').style.display = 'none';
+            renderProducts();
         });
-        window.addEventListener('load', () => document.getElementById('mainForm').dispatchEvent(new Event('submit')));
+
+        function editProduct(id) {
+            const product = products.find(p => p.id === id);
+            document.getElementById('editId').value = product.id;
+            document.getElementById('productName').value = product.name;
+            document.getElementById('currentStock').value = product.currentStock;
+            document.getElementById('dailyDemand').value = product.dailyDemand;
+            document.getElementById('leadTime').value = product.leadTime;
+            document.getElementById('safetyStock').value = product.safetyStock;
+            document.getElementById('formTitle').textContent = 'Modifier le Produit';
+            document.getElementById('submitBtn').textContent = 'Modifier';
+            document.getElementById('cancelBtn').style.display = 'inline-block';
+            window.scrollTo(0, 0);
+        }
+
+        function cancelEdit() {
+            document.getElementById('productForm').reset();
+            document.getElementById('editId').value = '';
+            document.getElementById('formTitle').textContent = 'Ajouter un Produit';
+            document.getElementById('submitBtn').textContent = 'Calculer & Ajouter';
+            document.getElementById('cancelBtn').style.display = 'none';
+        }
+
+        function deleteProduct(id) {
+            if (confirm('Êtes-vous sûr de vouloir supprimer ce produit ?')) {
+                products = products.filter(p => p.id !== id);
+                saveProducts();
+                renderProducts();
+                showNotification('Produit supprimé', 'success');
+            }
+        }
+
+        function renderProducts() {
+            const grid = document.getElementById('productGrid');
+
+            if (products.length === 0) {
+                grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 2rem; color: #999;">Aucun produit enregistré. Ajoutez votre premier produit ci-dessus.</div>';
+                return;
+            }
+
+            grid.innerHTML = products.map(p => `
+                <div class="product-card ${p.needsReorder ? 'alert' : ''}">
+                    <div class="product-name">${p.name}</div>
+                    <div style="margin: 0.5rem 0;">
+                        ${p.needsReorder ?
+                            '<span class="alert-badge"><i class="fas fa-exclamation-triangle"></i> À commander!</span>' :
+                            '<span class="safe-badge"><i class="fas fa-check"></i> Stock OK</span>'
+                        }
+                    </div>
+                    <div class="reorder-value">${p.reorderPoint}</div>
+                    <div style="font-size: 0.875rem; color: #666; margin-bottom: 1rem;">Point de commande</div>
+                    <div style="font-size: 0.875rem; margin-bottom: 0.25rem;">
+                        <strong>Stock actuel:</strong> ${p.currentStock} unités
+                    </div>
+                    <div style="font-size: 0.875rem; margin-bottom: 0.25rem;">
+                        <strong>Demande/jour:</strong> ${p.dailyDemand}
+                    </div>
+                    <div style="font-size: 0.875rem; margin-bottom: 0.25rem;">
+                        <strong>Délai:</strong> ${p.leadTime} jours
+                    </div>
+                    <div style="font-size: 0.875rem; margin-bottom: 1rem;">
+                        <strong>Sécurité:</strong> ${p.safetyStock} unités
+                    </div>
+                    <div style="display: flex; gap: 0.5rem;">
+                        <button class="btn btn-primary" onclick="editProduct('${p.id}')" style="flex: 1; padding: 0.5rem;">
+                            <i class="fas fa-edit"></i> Modifier
+                        </button>
+                        <button class="btn" onclick="deleteProduct('${p.id}')" style="flex: 1; padding: 0.5rem; background: #f44336; color: white;">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function saveProducts() {
+            localStorage.setItem('reorder_products', JSON.stringify(products));
+        }
+
+        function exportCSV() {
+            if (products.length === 0) {
+                showNotification('Aucun produit à exporter', 'error');
+                return;
+            }
+
+            const headers = ['Nom', 'Stock Actuel', 'Point de Commande', 'Demande/jour', 'Délai (j)', 'Stock Sécurité', 'À Commander'];
+            const rows = products.map(p => [
+                p.name,
+                p.currentStock,
+                p.reorderPoint,
+                p.dailyDemand,
+                p.leadTime,
+                p.safetyStock,
+                p.needsReorder ? 'Oui' : 'Non'
+            ]);
+
+            let csv = headers.join(',') + '\n';
+            csv += rows.map(row => row.map(cell => `"${cell}"`).join(',')).join('\n');
+
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `reorder_points_${new Date().toISOString().split('T')[0]}.csv`;
+            link.click();
+
+            showNotification('Export CSV réussi', 'success');
+        }
+
+        // Initialize
+        renderProducts();
     </script>
 </body>
 </html>

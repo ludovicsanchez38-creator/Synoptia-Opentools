@@ -3,57 +3,356 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Outil Business - Business Tools</title>
+    <title>Analyse Concurrentielle - Business Tools by Synoptia</title>
     <link rel="stylesheet" href="../../assets/css/main.css">
     <link rel="stylesheet" href="../../assets/css/tools.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <nav class="breadcrumb">
-        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> > 
-        <a href="../../index.html#tools">Analyse</a> > 
-        <span>Outil</span>
+        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> >
+        <a href="../../index.html#tools">Analytics</a> >
+        <span>Analyse Concurrentielle</span>
     </nav>
     <main class="tool-container">
         <header class="tool-header">
-            <h1><i class="fas fa-tools"></i> Outil Business</h1>
-            <p class="tool-description">Outil professionnel pour optimiser votre activité.</p>
+            <h1><i class="fas fa-chess"></i> Analyse Concurrentielle</h1>
+            <p class="tool-description">Comparez votre entreprise avec vos concurrents sur différents critères stratégiques avec un graphique radar.</p>
         </header>
+
         <section class="tool-input">
-            <form id="mainForm">
+            <h2>Ajouter un concurrent</h2>
+            <form id="competitorForm">
                 <div class="form-group">
-                    <label for="input1" class="form-label">Donnée d'entrée</label>
-                    <input type="number" id="input1" class="form-input" value="100" min="0" required>
+                    <label for="competitorName" class="form-label">Nom du concurrent (ou votre entreprise)</label>
+                    <input type="text" id="competitorName" class="form-input" placeholder="Entreprise XYZ" required>
                 </div>
-                <button type="submit" class="btn btn-primary"><i class="fas fa-calculator"></i> Calculer</button>
+
+                <h3 style="margin-top: 1.5rem;">Critères de comparaison (1-5 étoiles)</h3>
+                <div class="input-grid">
+                    <div class="form-group">
+                        <label for="price" class="form-label">Prix (compétitivité)</label>
+                        <select id="price" class="form-select">
+                            <option value="1">1 - Très cher</option>
+                            <option value="2">2 - Cher</option>
+                            <option value="3" selected>3 - Moyen</option>
+                            <option value="4">4 - Abordable</option>
+                            <option value="5">5 - Très abordable</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="quality" class="form-label">Qualité</label>
+                        <select id="quality" class="form-select">
+                            <option value="1">1 - Très faible</option>
+                            <option value="2">2 - Faible</option>
+                            <option value="3" selected>3 - Moyenne</option>
+                            <option value="4">4 - Bonne</option>
+                            <option value="5">5 - Excellente</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="service" class="form-label">Service client</label>
+                        <select id="service" class="form-select">
+                            <option value="1">1 - Très mauvais</option>
+                            <option value="2">2 - Mauvais</option>
+                            <option value="3" selected>3 - Moyen</option>
+                            <option value="4">4 - Bon</option>
+                            <option value="5">5 - Excellent</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="innovation" class="form-label">Innovation</label>
+                        <select id="innovation" class="form-select">
+                            <option value="1">1 - Très faible</option>
+                            <option value="2">2 - Faible</option>
+                            <option value="3" selected>3 - Moyenne</option>
+                            <option value="4">4 - Forte</option>
+                            <option value="5">5 - Très forte</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="marketing" class="form-label">Marketing / Visibilité</label>
+                        <select id="marketing" class="form-select">
+                            <option value="1">1 - Très faible</option>
+                            <option value="2">2 - Faible</option>
+                            <option value="3" selected>3 - Moyenne</option>
+                            <option value="4">4 - Forte</option>
+                            <option value="5">5 - Très forte</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="action-buttons">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Ajouter le concurrent
+                    </button>
+                    <button type="button" class="btn btn-secondary" id="exportBtn">
+                        <i class="fas fa-download"></i> Export CSV
+                    </button>
+                    <button type="button" class="btn btn-danger" id="clearBtn">
+                        <i class="fas fa-trash"></i> Tout effacer
+                    </button>
+                </div>
             </form>
         </section>
+
         <section class="tool-output" id="results" style="display: none;">
-            <div class="results-grid">
-                <div class="result-item">
-                    <div class="result-label">Résultat</div>
-                    <div class="result-value highlight" id="result">-</div>
+            <h2><i class="fas fa-chart-radar"></i> Analyse Comparative</h2>
+
+            <div class="card" style="margin-bottom: 2rem;">
+                <h3>Graphique radar comparatif</h3>
+                <canvas id="radarChart"></canvas>
+            </div>
+
+            <div class="card">
+                <h3>Tableau comparatif</h3>
+                <div style="overflow-x: auto;">
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <thead style="background: var(--primary); color: white;">
+                            <tr>
+                                <th style="padding: 1rem; text-align: left;">Concurrent</th>
+                                <th style="padding: 1rem; text-align: center;">Prix</th>
+                                <th style="padding: 1rem; text-align: center;">Qualité</th>
+                                <th style="padding: 1rem; text-align: center;">Service</th>
+                                <th style="padding: 1rem; text-align: center;">Innovation</th>
+                                <th style="padding: 1rem; text-align: center;">Marketing</th>
+                                <th style="padding: 1rem; text-align: center;">Score total</th>
+                                <th style="padding: 1rem; text-align: center;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody">
+                        </tbody>
+                    </table>
                 </div>
             </div>
+
+            <div class="card" style="margin-top: 2rem;">
+                <h3>Forces et Faiblesses</h3>
+                <div id="strengthsWeaknesses"></div>
+            </div>
         </section>
+
         <section class="tool-help">
-            <h3><i class="fas fa-info-circle"></i> Aide</h3>
-            <p>Utilisez cet outil pour optimiser votre gestion d'entreprise.</p>
+            <h3><i class="fas fa-question-circle"></i> Comment utiliser cet outil ?</h3>
+            <ol>
+                <li>Ajoutez <strong>votre entreprise</strong> en premier</li>
+                <li>Ajoutez vos <strong>principaux concurrents</strong></li>
+                <li>Notez chaque critère de <strong>1 à 5 étoiles</strong></li>
+                <li>Analysez le <strong>graphique radar</strong> pour identifier les forces/faiblesses</li>
+                <li>Identifiez vos <strong>avantages concurrentiels</strong></li>
+            </ol>
+
+            <h3><i class="fas fa-lightbulb"></i> Critères d'évaluation</h3>
+            <ul>
+                <li><strong>Prix</strong> : Compétitivité tarifaire (5 = très abordable)</li>
+                <li><strong>Qualité</strong> : Qualité des produits/services</li>
+                <li><strong>Service</strong> : Qualité du service client</li>
+                <li><strong>Innovation</strong> : Capacité d'innovation</li>
+                <li><strong>Marketing</strong> : Visibilité et présence marketing</li>
+            </ul>
         </section>
     </main>
-    <footer class="tool-footer"><a href="../../index.html"><i class="fas fa-arrow-left"></i> Retour</a></footer>
+
+    <footer class="tool-footer">
+        <p>Synoptia - Business Tools | Contact: <a href="mailto:ludo@synoptia.fr">ludo@synoptia.fr</a></p>
+        <a href="../../index.html"><i class="fas fa-arrow-left"></i> Retour aux outils</a>
+    </footer>
+
     <script src="../../assets/js/utils.js"></script>
     <script src="../../assets/js/main.js"></script>
     <script>
-        document.getElementById('mainForm').addEventListener('submit', function(e) {
+        const STORAGE_KEY = 'synoptia_competitors';
+        let competitors = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+        let chart = null;
+
+        if (competitors.length > 0) {
+            displayResults();
+        }
+
+        document.getElementById('competitorForm').addEventListener('submit', function(e) {
             e.preventDefault();
-            const val = parseFloat(document.getElementById('input1').value);
-            document.getElementById('result').textContent = val.toFixed(2);
-            document.getElementById('results').style.display = 'block';
-            showNotification('Opération réussie !', 'success');
+
+            const competitor = {
+                id: Date.now(),
+                name: document.getElementById('competitorName').value,
+                price: parseInt(document.getElementById('price').value),
+                quality: parseInt(document.getElementById('quality').value),
+                service: parseInt(document.getElementById('service').value),
+                innovation: parseInt(document.getElementById('innovation').value),
+                marketing: parseInt(document.getElementById('marketing').value)
+            };
+
+            competitor.totalScore = competitor.price + competitor.quality + competitor.service + competitor.innovation + competitor.marketing;
+
+            competitors.push(competitor);
+            saveCompetitors();
+            displayResults();
+
+            this.reset();
+            showNotification('Concurrent ajouté avec succès !', 'success');
         });
-        window.addEventListener('load', () => document.getElementById('mainForm').dispatchEvent(new Event('submit')));
+
+        function saveCompetitors() {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(competitors));
+        }
+
+        function displayResults() {
+            displayTable();
+            displayRadarChart();
+            displayStrengthsWeaknesses();
+            document.getElementById('results').style.display = 'block';
+        }
+
+        function displayTable() {
+            const tbody = document.getElementById('tableBody');
+            tbody.innerHTML = '';
+
+            competitors.forEach(comp => {
+                const row = document.createElement('tr');
+                row.style.borderBottom = '1px solid var(--border)';
+
+                const renderStars = (score) => {
+                    return '★'.repeat(score) + '☆'.repeat(5 - score);
+                };
+
+                row.innerHTML = `
+                    <td style="padding: 0.75rem; font-weight: 600;">${comp.name}</td>
+                    <td style="padding: 0.75rem; text-align: center; color: #f59e0b;">${renderStars(comp.price)}</td>
+                    <td style="padding: 0.75rem; text-align: center; color: #f59e0b;">${renderStars(comp.quality)}</td>
+                    <td style="padding: 0.75rem; text-align: center; color: #f59e0b;">${renderStars(comp.service)}</td>
+                    <td style="padding: 0.75rem; text-align: center; color: #f59e0b;">${renderStars(comp.innovation)}</td>
+                    <td style="padding: 0.75rem; text-align: center; color: #f59e0b;">${renderStars(comp.marketing)}</td>
+                    <td style="padding: 0.75rem; text-align: center; font-weight: 700; color: var(--primary);">${comp.totalScore}/25</td>
+                    <td style="padding: 0.75rem; text-align: center;">
+                        <button class="btn btn-danger btn-sm" onclick="deleteCompetitor(${comp.id})">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function displayRadarChart() {
+            const ctx = document.getElementById('radarChart');
+
+            if (chart) {
+                chart.destroy();
+            }
+
+            const datasets = competitors.map((comp, index) => {
+                const colors = ['#3b82f6', '#22c55e', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'];
+                const color = colors[index % colors.length];
+
+                return {
+                    label: comp.name,
+                    data: [comp.price, comp.quality, comp.service, comp.innovation, comp.marketing],
+                    borderColor: color,
+                    backgroundColor: color + '20',
+                    pointBackgroundColor: color,
+                    pointBorderColor: '#fff',
+                    pointHoverBackgroundColor: '#fff',
+                    pointHoverBorderColor: color
+                };
+            });
+
+            chart = new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: ['Prix', 'Qualité', 'Service', 'Innovation', 'Marketing'],
+                    datasets: datasets
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: { display: true, position: 'top' }
+                    },
+                    scales: {
+                        r: {
+                            beginAtZero: true,
+                            max: 5,
+                            ticks: { stepSize: 1 }
+                        }
+                    }
+                }
+            });
+        }
+
+        function displayStrengthsWeaknesses() {
+            if (competitors.length === 0) return;
+
+            const container = document.getElementById('strengthsWeaknesses');
+            const firstComp = competitors[0]; // Assume first is your company
+
+            const criteria = [
+                { name: 'Prix', value: firstComp.price },
+                { name: 'Qualité', value: firstComp.quality },
+                { name: 'Service', value: firstComp.service },
+                { name: 'Innovation', value: firstComp.innovation },
+                { name: 'Marketing', value: firstComp.marketing }
+            ];
+
+            const strengths = criteria.filter(c => c.value >= 4).sort((a, b) => b.value - a.value);
+            const weaknesses = criteria.filter(c => c.value <= 2).sort((a, b) => a.value - b.value);
+
+            container.innerHTML = `
+                <div class="input-grid">
+                    <div style="padding: 1rem; background: #dcfce7; border-radius: var(--radius-md);">
+                        <h4 style="color: #22c55e; margin-bottom: 1rem;"><i class="fas fa-check-circle"></i> Forces (${firstComp.name})</h4>
+                        ${strengths.length > 0 ? strengths.map(s => `<div style="padding: 0.5rem 0;">• ${s.name} : ${'★'.repeat(s.value)}${'☆'.repeat(5 - s.value)}</div>`).join('') : '<p style="color: var(--gray);">Aucune force majeure identifiée (score ≥4)</p>'}
+                    </div>
+                    <div style="padding: 1rem; background: #fee2e2; border-radius: var(--radius-md);">
+                        <h4 style="color: #ef4444; margin-bottom: 1rem;"><i class="fas fa-exclamation-triangle"></i> Faiblesses (${firstComp.name})</h4>
+                        ${weaknesses.length > 0 ? weaknesses.map(w => `<div style="padding: 0.5rem 0;">• ${w.name} : ${'★'.repeat(w.value)}${'☆'.repeat(5 - w.value)}</div>`).join('') : '<p style="color: var(--gray);">Aucune faiblesse majeure identifiée (score ≤2)</p>'}
+                    </div>
+                </div>
+            `;
+        }
+
+        window.deleteCompetitor = function(id) {
+            if (confirm('Supprimer ce concurrent ?')) {
+                competitors = competitors.filter(c => c.id !== id);
+                saveCompetitors();
+                if (competitors.length === 0) {
+                    document.getElementById('results').style.display = 'none';
+                } else {
+                    displayResults();
+                }
+                showNotification('Concurrent supprimé', 'success');
+            }
+        };
+
+        document.getElementById('exportBtn').addEventListener('click', function() {
+            if (competitors.length === 0) {
+                showNotification('Aucun concurrent à exporter', 'warning');
+                return;
+            }
+
+            let csv = 'Concurrent,Prix,Qualité,Service,Innovation,Marketing,Score Total\n';
+            competitors.forEach(c => {
+                csv += `"${c.name}",${c.price},${c.quality},${c.service},${c.innovation},${c.marketing},${c.totalScore}\n`;
+            });
+
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `analyse-concurrentielle-${new Date().toISOString().split('T')[0]}.csv`;
+            link.click();
+
+            showNotification('Export CSV réussi !', 'success');
+        });
+
+        document.getElementById('clearBtn').addEventListener('click', function() {
+            if (confirm('Effacer tous les concurrents ?')) {
+                competitors = [];
+                saveCompetitors();
+                document.getElementById('results').style.display = 'none';
+                showNotification('Concurrents effacés', 'success');
+            }
+        });
     </script>
 </body>
 </html>

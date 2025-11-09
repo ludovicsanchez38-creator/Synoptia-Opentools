@@ -3,57 +3,545 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Outil Business - Business Tools</title>
-    <link rel="stylesheet" href="../../assets/css/main.css">
-    <link rel="stylesheet" href="../../assets/css/tools.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <title>Seuil Rentabilité Multi-Produits - Synoptia</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 1.3em;
+            color: #667eea;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+            font-size: 0.95em;
+        }
+
+        input[type="text"],
+        input[type="number"] {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1em;
+            transition: all 0.3s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 10px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+
+        .product-list {
+            margin-bottom: 20px;
+        }
+
+        .product-item {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr auto;
+            gap: 10px;
+            margin-bottom: 10px;
+            align-items: center;
+        }
+
+        .product-item input {
+            margin: 0;
+        }
+
+        .product-item button {
+            background: #f5576c;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .product-header {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr auto;
+            gap: 10px;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: #667eea;
+            font-size: 0.9em;
+        }
+
+        .add-product-btn {
+            background: #4facfe;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            margin-top: 10px;
+        }
+
+        .results {
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            padding: 25px;
+            border-radius: 15px;
+            margin-top: 20px;
+        }
+
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+        }
+
+        .result-item:last-child {
+            border-bottom: none;
+        }
+
+        .result-label {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .result-value {
+            font-size: 1.2em;
+            font-weight: 700;
+            color: #764ba2;
+        }
+
+        .result-value.large {
+            font-size: 1.8em;
+            color: #f5576c;
+        }
+
+        .chart-container {
+            height: 300px;
+            margin-top: 20px;
+        }
+
+        .product-results-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        .product-results-table th,
+        .product-results-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .product-results-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+        }
+
+        .footer {
+            text-align: center;
+            color: white;
+            margin-top: 40px;
+            padding: 20px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            .product-item,
+            .product-header {
+                grid-template-columns: 1fr;
+                gap: 5px;
+            }
+
+            .product-header {
+                display: none;
+            }
+
+            .card {
+                padding: 20px;
+            }
+        }
+    </style>
 </head>
 <body>
-    <nav class="breadcrumb">
-        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> > 
-        <a href="../../index.html#tools">Divers</a> > 
-        <span>Outil</span>
-    </nav>
-    <main class="tool-container">
-        <header class="tool-header">
-            <h1><i class="fas fa-tools"></i> Outil Business</h1>
-            <p class="tool-description">Outil professionnel pour optimiser votre activité.</p>
-        </header>
-        <section class="tool-input">
-            <form id="mainForm">
-                <div class="form-group">
-                    <label for="input1" class="form-label">Donnée d'entrée</label>
-                    <input type="number" id="input1" class="form-input" value="100" min="0" required>
+    <div class="container">
+        <div class="header">
+            <h1>📈 Seuil Rentabilité Multi-Produits</h1>
+            <p>Calculez votre seuil de rentabilité global et par produit</p>
+        </div>
+
+        <div class="card">
+            <div class="section-title">Coûts Fixes Totaux</div>
+            <div class="input-group">
+                <label>Coûts fixes mensuels (€)</label>
+                <input type="number" id="fixedCosts" placeholder="10000" min="0" step="100">
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="section-title">Produits</div>
+            <div class="product-header">
+                <div>Produit</div>
+                <div>Prix unitaire (€)</div>
+                <div>Coût variable (€)</div>
+                <div>Mix ventes (%)</div>
+                <div></div>
+            </div>
+            <div id="productsList" class="product-list"></div>
+            <button class="add-product-btn" onclick="addProduct()">+ Ajouter un produit</button>
+        </div>
+
+        <div class="card">
+            <button class="btn" onclick="calculate()">📊 Calculer Seuil de Rentabilité</button>
+            <button class="btn btn-secondary" onclick="exportCSV()">📥 Export CSV</button>
+            <button class="btn btn-success" onclick="resetForm()">🔄 Réinitialiser</button>
+
+            <div id="results" style="display: none;">
+                <div class="results">
+                    <div class="result-item">
+                        <span class="result-label">Marge sur coût variable pondérée:</span>
+                        <span class="result-value" id="weightedMargin">0%</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">Seuil de rentabilité global (€):</span>
+                        <span class="result-value large" id="breakeven">0 €</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">Chiffre d'affaires par produit:</span>
+                    </div>
                 </div>
-                <button type="submit" class="btn btn-primary"><i class="fas fa-calculator"></i> Calculer</button>
-            </form>
-        </section>
-        <section class="tool-output" id="results" style="display: none;">
-            <div class="results-grid">
-                <div class="result-item">
-                    <div class="result-label">Résultat</div>
-                    <div class="result-value highlight" id="result">-</div>
+
+                <table class="product-results-table">
+                    <thead>
+                        <tr>
+                            <th>Produit</th>
+                            <th>CA au seuil (€)</th>
+                            <th>Quantité au seuil</th>
+                            <th>Contribution</th>
+                        </tr>
+                    </thead>
+                    <tbody id="resultsBody"></tbody>
+                </table>
+
+                <div class="chart-container">
+                    <canvas id="contributionChart"></canvas>
                 </div>
             </div>
-        </section>
-        <section class="tool-help">
-            <h3><i class="fas fa-info-circle"></i> Aide</h3>
-            <p>Utilisez cet outil pour optimiser votre gestion d'entreprise.</p>
-        </section>
-    </main>
-    <footer class="tool-footer"><a href="../../index.html"><i class="fas fa-arrow-left"></i> Retour</a></footer>
-    <script src="../../assets/js/utils.js"></script>
-    <script src="../../assets/js/main.js"></script>
+        </div>
+
+        <div class="footer">
+            <p><strong>Synoptia - Outils Business</strong></p>
+            <p>Contact: <a href="mailto:ludo@synoptia.fr" style="color: white; text-decoration: underline;">ludo@synoptia.fr</a></p>
+        </div>
+    </div>
+
     <script>
-        document.getElementById('mainForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const val = parseFloat(document.getElementById('input1').value);
-            document.getElementById('result').textContent = val.toFixed(2);
+        let products = [];
+        let contributionChart = null;
+
+        function loadData() {
+            const saved = localStorage.getItem('multiProductBreakevenData');
+            if (saved) {
+                const data = JSON.parse(saved);
+                products = data.products || [];
+                document.getElementById('fixedCosts').value = data.fixedCosts || '';
+                renderProducts();
+            } else {
+                products.push({ name: 'Produit A', price: 50, variableCost: 30, salesMix: 60 });
+                products.push({ name: 'Produit B', price: 100, variableCost: 60, salesMix: 40 });
+                renderProducts();
+            }
+        }
+
+        function saveData() {
+            const data = {
+                products: products,
+                fixedCosts: document.getElementById('fixedCosts').value
+            };
+            localStorage.setItem('multiProductBreakevenData', JSON.stringify(data));
+        }
+
+        function addProduct() {
+            products.push({ name: '', price: 0, variableCost: 0, salesMix: 0 });
+            renderProducts();
+            saveData();
+        }
+
+        function removeProduct(index) {
+            products.splice(index, 1);
+            renderProducts();
+            saveData();
+        }
+
+        function renderProducts() {
+            const list = document.getElementById('productsList');
+            list.innerHTML = products.map((product, index) => `
+                <div class="product-item">
+                    <input type="text" placeholder="Nom du produit" value="${product.name}"
+                           onchange="products[${index}].name = this.value; saveData();">
+                    <input type="number" placeholder="Prix" value="${product.price}" step="0.01" min="0"
+                           onchange="products[${index}].price = parseFloat(this.value) || 0; saveData();">
+                    <input type="number" placeholder="Coût variable" value="${product.variableCost}" step="0.01" min="0"
+                           onchange="products[${index}].variableCost = parseFloat(this.value) || 0; saveData();">
+                    <input type="number" placeholder="Mix %" value="${product.salesMix}" step="0.1" min="0" max="100"
+                           onchange="products[${index}].salesMix = parseFloat(this.value) || 0; saveData();">
+                    <button onclick="removeProduct(${index})">✕</button>
+                </div>
+            `).join('');
+        }
+
+        function calculate() {
+            saveData();
+
+            const fixedCosts = parseFloat(document.getElementById('fixedCosts').value) || 0;
+
+            if (fixedCosts === 0) {
+                alert('Veuillez entrer les coûts fixes');
+                return;
+            }
+
+            if (products.length === 0) {
+                alert('Ajoutez au moins un produit');
+                return;
+            }
+
+            const totalMix = products.reduce((sum, p) => sum + p.salesMix, 0);
+            if (Math.abs(totalMix - 100) > 0.1) {
+                alert('La somme des mix de ventes doit être égale à 100%');
+                return;
+            }
+
+            const results = products.map(p => {
+                const margin = p.price - p.variableCost;
+                const marginRate = p.price > 0 ? (margin / p.price) * 100 : 0;
+                return {
+                    name: p.name,
+                    price: p.price,
+                    variableCost: p.variableCost,
+                    margin: margin,
+                    marginRate: marginRate,
+                    salesMix: p.salesMix
+                };
+            });
+
+            const weightedMargin = results.reduce((sum, r) => sum + (r.marginRate * r.salesMix / 100), 0);
+
+            const breakevenRevenue = weightedMargin > 0 ? (fixedCosts / (weightedMargin / 100)) : 0;
+
+            document.getElementById('weightedMargin').textContent = weightedMargin.toFixed(2) + '%';
+            document.getElementById('breakeven').textContent = breakevenRevenue.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';
+
+            const tbody = document.getElementById('resultsBody');
+            tbody.innerHTML = results.map(r => {
+                const productRevenue = breakevenRevenue * (r.salesMix / 100);
+                const productQuantity = r.price > 0 ? productRevenue / r.price : 0;
+                const contribution = r.margin * productQuantity;
+
+                return `
+                    <tr>
+                        <td><strong>${r.name}</strong></td>
+                        <td>${productRevenue.toLocaleString('fr-FR', { minimumFractionDigits: 2 })} €</td>
+                        <td>${Math.ceil(productQuantity)} unités</td>
+                        <td>${contribution.toLocaleString('fr-FR', { minimumFractionDigits: 2 })} €</td>
+                    </tr>
+                `;
+            }).join('');
+
             document.getElementById('results').style.display = 'block';
-            showNotification('Opération réussie !', 'success');
-        });
-        window.addEventListener('load', () => document.getElementById('mainForm').dispatchEvent(new Event('submit')));
+
+            createChart(results, breakevenRevenue);
+        }
+
+        function createChart(results, breakevenRevenue) {
+            const ctx = document.getElementById('contributionChart').getContext('2d');
+
+            if (contributionChart) {
+                contributionChart.destroy();
+            }
+
+            const data = results.map(r => {
+                const productRevenue = breakevenRevenue * (r.salesMix / 100);
+                return productRevenue;
+            });
+
+            contributionChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: results.map(r => r.name),
+                    datasets: [{
+                        label: 'CA au seuil de rentabilité (€)',
+                        data: data,
+                        backgroundColor: '#667eea',
+                        borderColor: '#764ba2',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: true },
+                        title: {
+                            display: true,
+                            text: 'Contribution de chaque produit au seuil',
+                            font: { size: 16, weight: 'bold' }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return value.toLocaleString('fr-FR') + ' €';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function exportCSV() {
+            const fixedCosts = parseFloat(document.getElementById('fixedCosts').value) || 0;
+
+            if (fixedCosts === 0 || products.length === 0) {
+                alert('Calculez d\'abord le seuil de rentabilité');
+                return;
+            }
+
+            const results = products.map(p => {
+                const margin = p.price - p.variableCost;
+                const marginRate = p.price > 0 ? (margin / p.price) * 100 : 0;
+                return {
+                    name: p.name,
+                    price: p.price,
+                    variableCost: p.variableCost,
+                    margin: margin,
+                    marginRate: marginRate,
+                    salesMix: p.salesMix
+                };
+            });
+
+            const weightedMargin = results.reduce((sum, r) => sum + (r.marginRate * r.salesMix / 100), 0);
+            const breakevenRevenue = weightedMargin > 0 ? (fixedCosts / (weightedMargin / 100)) : 0;
+
+            let csv = 'Seuil de Rentabilité Multi-Produits\n\n';
+            csv += `Coûts fixes mensuels,${fixedCosts} €\n`;
+            csv += `Marge sur coût variable pondérée,${weightedMargin.toFixed(2)}%\n`;
+            csv += `Seuil de rentabilité global,${breakevenRevenue.toFixed(2)} €\n\n`;
+
+            csv += 'Produit,Prix unitaire (€),Coût variable (€),Marge (€),Marge (%),Mix ventes (%),CA au seuil (€),Quantité au seuil\n';
+
+            results.forEach(r => {
+                const productRevenue = breakevenRevenue * (r.salesMix / 100);
+                const productQuantity = r.price > 0 ? productRevenue / r.price : 0;
+
+                csv += `${r.name},${r.price.toFixed(2)},${r.variableCost.toFixed(2)},${r.margin.toFixed(2)},${r.marginRate.toFixed(2)},${r.salesMix.toFixed(2)},${productRevenue.toFixed(2)},${Math.ceil(productQuantity)}\n`;
+            });
+
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `seuil_rentabilite_multi_${new Date().toISOString().split('T')[0]}.csv`;
+            link.click();
+        }
+
+        function resetForm() {
+            if (confirm('Voulez-vous vraiment réinitialiser toutes les données ?')) {
+                localStorage.removeItem('multiProductBreakevenData');
+                products = [
+                    { name: 'Produit A', price: 50, variableCost: 30, salesMix: 60 },
+                    { name: 'Produit B', price: 100, variableCost: 60, salesMix: 40 }
+                ];
+                document.getElementById('fixedCosts').value = '';
+                renderProducts();
+                document.getElementById('results').style.display = 'none';
+                if (contributionChart) {
+                    contributionChart.destroy();
+                    contributionChart = null;
+                }
+            }
+        }
+
+        loadData();
     </script>
 </body>
 </html>

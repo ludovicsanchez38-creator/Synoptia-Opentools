@@ -3,57 +3,282 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Outil Business - Business Tools</title>
+    <title>Calculateur Frais de Port - Synoptia</title>
     <link rel="stylesheet" href="../../assets/css/main.css">
     <link rel="stylesheet" href="../../assets/css/tools.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .carrier-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; margin: 1.5rem 0; }
+        .carrier-card { background: white; padding: 1.5rem; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); border: 2px solid transparent; transition: all 0.3s; }
+        .carrier-card.best { border-color: #4caf50; }
+        .carrier-logo { font-size: 2rem; margin-bottom: 0.5rem; }
+        .carrier-name { font-size: 1.125rem; font-weight: 700; margin-bottom: 1rem; }
+        .carrier-price { font-size: 2rem; font-weight: 700; color: #2196f3; margin: 0.5rem 0; }
+        .best-badge { background: #4caf50; color: white; padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.875rem; font-weight: 500; }
+        .profit-box { background: #e8f5e9; padding: 1.5rem; border-radius: 8px; margin: 1.5rem 0; border-left: 4px solid #4caf50; }
+    </style>
 </head>
 <body>
     <nav class="breadcrumb">
-        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> > 
-        <a href="../../index.html#tools">Inventaire</a> > 
-        <span>Outil</span>
+        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> >
+        <a href="../../index.html#tools">Inventory</a> >
+        <span>Frais de Port</span>
     </nav>
     <main class="tool-container">
         <header class="tool-header">
-            <h1><i class="fas fa-tools"></i> Outil Business</h1>
-            <p class="tool-description">Outil professionnel pour optimiser votre activité.</p>
+            <h1><i class="fas fa-shipping-fast"></i> Calculateur Frais de Port</h1>
+            <p class="tool-description">Comparez les tarifs des transporteurs et calculez votre marge avec frais inclus.</p>
         </header>
+
         <section class="tool-input">
-            <form id="mainForm">
+            <form id="shippingForm">
                 <div class="form-group">
-                    <label for="input1" class="form-label">Donnée d'entrée</label>
-                    <input type="number" id="input1" class="form-input" value="100" min="0" required>
+                    <label class="form-label">Poids du Colis (kg)</label>
+                    <input type="number" id="weight" class="form-input" value="2" min="0.1" step="0.1" required>
                 </div>
-                <button type="submit" class="btn btn-primary"><i class="fas fa-calculator"></i> Calculer</button>
+                <div class="form-group">
+                    <label class="form-label">Longueur (cm)</label>
+                    <input type="number" id="length" class="form-input" value="30" min="1" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Largeur (cm)</label>
+                    <input type="number" id="width" class="form-input" value="20" min="1" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Hauteur (cm)</label>
+                    <input type="number" id="height" class="form-input" value="10" min="1" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Destination</label>
+                    <select id="destination" class="form-input" required>
+                        <option value="france">France Métropolitaine</option>
+                        <option value="europe">Europe</option>
+                        <option value="international">International</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Prix de Vente Produit (€) - optionnel</label>
+                    <input type="number" id="salePrice" class="form-input" min="0" step="0.01">
+                    <small style="color: #666;">Pour calculer la marge avec frais de port inclus</small>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Coût Produit (€) - optionnel</label>
+                    <input type="number" id="productCost" class="form-input" min="0" step="0.01">
+                </div>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-calculator"></i> Comparer les Transporteurs
+                </button>
+                <button type="button" class="btn btn-secondary" onclick="exportCSV()">
+                    <i class="fas fa-download"></i> Export CSV
+                </button>
             </form>
         </section>
+
         <section class="tool-output" id="results" style="display: none;">
-            <div class="results-grid">
-                <div class="result-item">
-                    <div class="result-label">Résultat</div>
-                    <div class="result-value highlight" id="result">-</div>
-                </div>
+            <h3><i class="fas fa-truck"></i> Comparaison des Transporteurs</h3>
+            <div class="carrier-grid" id="carrierGrid"></div>
+
+            <div id="profitBox" style="display: none;" class="profit-box">
+                <h4><i class="fas fa-chart-line"></i> Analyse de Marge avec Frais de Port</h4>
+                <div id="profitContent"></div>
+            </div>
+
+            <div style="margin-top: 2rem;">
+                <h4><i class="fas fa-info-circle"></i> Détails du Colis</h4>
+                <table style="width: 100%; border-collapse: collapse;">
+                    <tr style="border-bottom: 1px solid #e0e0e0;">
+                        <td style="padding: 0.75rem;"><strong>Poids</strong></td>
+                        <td style="padding: 0.75rem; text-align: right;" id="detailWeight">-</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #e0e0e0;">
+                        <td style="padding: 0.75rem;"><strong>Dimensions</strong></td>
+                        <td style="padding: 0.75rem; text-align: right;" id="detailDimensions">-</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #e0e0e0;">
+                        <td style="padding: 0.75rem;"><strong>Volume</strong></td>
+                        <td style="padding: 0.75rem; text-align: right;" id="detailVolume">-</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 0.75rem;"><strong>Destination</strong></td>
+                        <td style="padding: 0.75rem; text-align: right;" id="detailDestination">-</td>
+                    </tr>
+                </table>
             </div>
         </section>
+
         <section class="tool-help">
-            <h3><i class="fas fa-info-circle"></i> Aide</h3>
-            <p>Utilisez cet outil pour optimiser votre gestion d'entreprise.</p>
+            <h3><i class="fas fa-info-circle"></i> Comment utiliser</h3>
+            <ul>
+                <li><strong>Poids :</strong> Poids réel du colis en kilogrammes</li>
+                <li><strong>Dimensions :</strong> Longueur × Largeur × Hauteur en centimètres</li>
+                <li><strong>Volume :</strong> Calculé automatiquement pour le poids volumétrique</li>
+                <li><strong>Comparaison :</strong> Comparez instantanément les tarifs de 4 transporteurs majeurs</li>
+                <li><strong>Marge :</strong> Calculez l'impact des frais de port sur votre rentabilité</li>
+            </ul>
+            <h4>Poids volumétrique :</h4>
+            <p>Le poids volumétrique = (L × l × H) / 5000. Le transporteur facture sur le plus élevé entre poids réel et volumétrique.</p>
         </section>
     </main>
-    <footer class="tool-footer"><a href="../../index.html"><i class="fas fa-arrow-left"></i> Retour</a></footer>
+    <footer class="tool-footer">
+        <a href="../../index.html"><i class="fas fa-arrow-left"></i> Retour</a>
+        <span>© 2024 Synoptia - <a href="mailto:ludo@synoptia.fr">ludo@synoptia.fr</a></span>
+    </footer>
     <script src="../../assets/js/utils.js"></script>
-    <script src="../../assets/js/main.js"></script>
     <script>
-        document.getElementById('mainForm').addEventListener('submit', function(e) {
+        let calculations = JSON.parse(localStorage.getItem('shipping_calculations')) || [];
+
+        const carriers = {
+            'La Poste': { icon: '📮', baseRate: { france: 6.5, europe: 14, international: 25 }, perKg: { france: 1.2, europe: 3.5, international: 8 } },
+            'Chronopost': { icon: '⚡', baseRate: { france: 12, europe: 22, international: 40 }, perKg: { france: 2, europe: 5, international: 12 } },
+            'UPS': { icon: '📦', baseRate: { france: 10, europe: 18, international: 35 }, perKg: { france: 1.8, europe: 4.5, international: 10 } },
+            'DHL': { icon: '🚚', baseRate: { france: 11, europe: 20, international: 38 }, perKg: { france: 1.9, europe: 4.8, international: 11 } }
+        };
+
+        document.getElementById('shippingForm').addEventListener('submit', function(e) {
             e.preventDefault();
-            const val = parseFloat(document.getElementById('input1').value);
-            document.getElementById('result').textContent = val.toFixed(2);
+
+            const weight = parseFloat(document.getElementById('weight').value);
+            const length = parseFloat(document.getElementById('length').value);
+            const width = parseFloat(document.getElementById('width').value);
+            const height = parseFloat(document.getElementById('height').value);
+            const destination = document.getElementById('destination').value;
+            const salePrice = parseFloat(document.getElementById('salePrice').value) || 0;
+            const productCost = parseFloat(document.getElementById('productCost').value) || 0;
+
+            // Calculate volumetric weight
+            const volume = (length * width * height) / 1000; // cm³ to liters
+            const volumetricWeight = (length * width * height) / 5000;
+            const chargeableWeight = Math.max(weight, volumetricWeight);
+
+            // Calculate shipping costs for each carrier
+            const costs = {};
+            for (const [name, data] of Object.entries(carriers)) {
+                costs[name] = data.baseRate[destination] + (chargeableWeight * data.perKg[destination]);
+            }
+
+            // Find best carrier
+            const sortedCarriers = Object.entries(costs).sort((a, b) => a[1] - b[1]);
+            const bestCarrier = sortedCarriers[0][0];
+
+            // Display results
+            renderCarriers(costs, bestCarrier);
+
+            // Details
+            document.getElementById('detailWeight').textContent = `${weight} kg (volumétrique: ${volumetricWeight.toFixed(2)} kg)`;
+            document.getElementById('detailDimensions').textContent = `${length} × ${width} × ${height} cm`;
+            document.getElementById('detailVolume').textContent = `${volume.toFixed(2)} litres`;
+            const destLabels = { france: 'France Métropolitaine', europe: 'Europe', international: 'International' };
+            document.getElementById('detailDestination').textContent = destLabels[destination];
+
+            // Profit analysis
+            if (salePrice > 0 && productCost > 0) {
+                renderProfitAnalysis(salePrice, productCost, costs[bestCarrier]);
+            } else {
+                document.getElementById('profitBox').style.display = 'none';
+            }
+
+            // Save calculation
+            calculations.unshift({
+                date: new Date().toLocaleString('fr-FR'),
+                weight: weight,
+                dimensions: `${length}×${width}×${height}`,
+                destination: destLabels[destination],
+                bestCarrier: bestCarrier,
+                bestPrice: costs[bestCarrier].toFixed(2)
+            });
+            calculations = calculations.slice(0, 20);
+            localStorage.setItem('shipping_calculations', JSON.stringify(calculations));
+
             document.getElementById('results').style.display = 'block';
-            showNotification('Opération réussie !', 'success');
+            showNotification('Comparaison effectuée avec succès', 'success');
         });
-        window.addEventListener('load', () => document.getElementById('mainForm').dispatchEvent(new Event('submit')));
+
+        function renderCarriers(costs, bestCarrier) {
+            const grid = document.getElementById('carrierGrid');
+
+            grid.innerHTML = Object.entries(costs).map(([name, cost]) => {
+                const isBest = name === bestCarrier;
+                return `
+                    <div class="carrier-card ${isBest ? 'best' : ''}">
+                        <div class="carrier-logo">${carriers[name].icon}</div>
+                        <div class="carrier-name">${name}</div>
+                        ${isBest ? '<span class="best-badge"><i class="fas fa-star"></i> Meilleur Prix</span>' : ''}
+                        <div class="carrier-price">${cost.toFixed(2)} €</div>
+                        <small style="color: #666;">Frais de port</small>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderProfitAnalysis(salePrice, productCost, shippingCost) {
+            const totalCost = productCost + shippingCost;
+            const profit = salePrice - totalCost;
+            const margin = (profit / salePrice) * 100;
+
+            document.getElementById('profitBox').style.display = 'block';
+            document.getElementById('profitContent').innerHTML = `
+                <table style="width: 100%; border-collapse: collapse;">
+                    <tr style="border-bottom: 1px solid #c8e6c9;">
+                        <td style="padding: 0.5rem;"><strong>Prix de vente</strong></td>
+                        <td style="padding: 0.5rem; text-align: right;">${salePrice.toFixed(2)} €</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #c8e6c9;">
+                        <td style="padding: 0.5rem;">Coût produit</td>
+                        <td style="padding: 0.5rem; text-align: right;">${productCost.toFixed(2)} €</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #c8e6c9;">
+                        <td style="padding: 0.5rem;">Frais de port (meilleur tarif)</td>
+                        <td style="padding: 0.5rem; text-align: right;">${shippingCost.toFixed(2)} €</td>
+                    </tr>
+                    <tr style="border-bottom: 2px solid #4caf50;">
+                        <td style="padding: 0.5rem;"><strong>Coût total</strong></td>
+                        <td style="padding: 0.5rem; text-align: right;"><strong>${totalCost.toFixed(2)} €</strong></td>
+                    </tr>
+                    <tr style="${profit > 0 ? 'color: #2e7d32;' : 'color: #c62828;'}">
+                        <td style="padding: 0.75rem 0.5rem;"><strong>Bénéfice net</strong></td>
+                        <td style="padding: 0.75rem 0.5rem; text-align: right; font-size: 1.25rem;"><strong>${profit.toFixed(2)} €</strong></td>
+                    </tr>
+                    <tr style="${margin > 0 ? 'color: #2e7d32;' : 'color: #c62828;'}">
+                        <td style="padding: 0.5rem;"><strong>Marge nette</strong></td>
+                        <td style="padding: 0.5rem; text-align: right;"><strong>${margin.toFixed(1)}%</strong></td>
+                    </tr>
+                </table>
+                ${profit <= 0 ? '<p style="margin-top: 1rem; color: #c62828;"><i class="fas fa-exclamation-triangle"></i> Attention : Vous vendez à perte avec ces frais de port!</p>' : ''}
+                ${margin < 20 ? '<p style="margin-top: 1rem; color: #ef6c00;"><i class="fas fa-exclamation-triangle"></i> Marge faible : Envisagez d\'augmenter le prix ou de facturer les frais de port.</p>' : ''}
+            `;
+        }
+
+        function exportCSV() {
+            if (calculations.length === 0) {
+                showNotification('Aucun calcul à exporter', 'error');
+                return;
+            }
+
+            const headers = ['Date', 'Poids (kg)', 'Dimensions', 'Destination', 'Meilleur Transporteur', 'Prix'];
+            const rows = calculations.map(c => [
+                c.date,
+                c.weight,
+                c.dimensions,
+                c.destination,
+                c.bestCarrier,
+                c.bestPrice
+            ]);
+
+            let csv = headers.join(',') + '\n';
+            csv += rows.map(row => row.map(cell => `"${cell}"`).join(',')).join('\n');
+
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `shipping_costs_${new Date().toISOString().split('T')[0]}.csv`;
+            link.click();
+
+            showNotification('Export CSV réussi', 'success');
+        }
+
+        // Initialize
+        document.getElementById('shippingForm').dispatchEvent(new Event('submit'));
     </script>
 </body>
 </html>

@@ -3,57 +3,604 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Outil Business - Business Tools</title>
-    <link rel="stylesheet" href="../../assets/css/main.css">
-    <link rel="stylesheet" href="../../assets/css/tools.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <title>Dashboard CRM - Synoptia</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 1.3em;
+            color: #667eea;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 10px;
+            font-size: 0.95em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 0.85em;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            opacity: 0.9;
+            margin-bottom: 10px;
+        }
+
+        .stat-value {
+            font-size: 2em;
+            font-weight: 700;
+        }
+
+        .filters {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="date"],
+        select,
+        textarea {
+            padding: 10px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 0.95em;
+            transition: all 0.3s;
+        }
+
+        input[type="text"]:focus,
+        input[type="email"]:focus,
+        select:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .filters input {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .filters select {
+            min-width: 150px;
+        }
+
+        .contact-list {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #333;
+        }
+
+        tr:hover {
+            background: #f8f9fa;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+
+        .status-lead {
+            background: #ffeaa7;
+            color: #d63031;
+        }
+
+        .status-prospect {
+            background: #74b9ff;
+            color: #0984e3;
+        }
+
+        .status-client {
+            background: #55efc4;
+            color: #00b894;
+        }
+
+        .status-perdu {
+            background: #dfe6e9;
+            color: #636e72;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+        }
+
+        .form-group textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+
+        .chart-container {
+            height: 300px;
+            margin-top: 20px;
+        }
+
+        .footer {
+            text-align: center;
+            color: white;
+            margin-top: 40px;
+            padding: 20px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .filters {
+                flex-direction: column;
+            }
+
+            .filters input,
+            .filters select {
+                width: 100%;
+            }
+
+            table {
+                font-size: 0.85em;
+            }
+
+            th, td {
+                padding: 8px;
+            }
+        }
+    </style>
 </head>
 <body>
-    <nav class="breadcrumb">
-        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> > 
-        <a href="../../index.html#tools">Divers</a> > 
-        <span>Outil</span>
-    </nav>
-    <main class="tool-container">
-        <header class="tool-header">
-            <h1><i class="fas fa-tools"></i> Outil Business</h1>
-            <p class="tool-description">Outil professionnel pour optimiser votre activité.</p>
-        </header>
-        <section class="tool-input">
-            <form id="mainForm">
-                <div class="form-group">
-                    <label for="input1" class="form-label">Donnée d'entrée</label>
-                    <input type="number" id="input1" class="form-input" value="100" min="0" required>
+    <div class="container">
+        <div class="header">
+            <h1>📊 Dashboard CRM</h1>
+            <p>Gérez vos contacts et prospects efficacement</p>
+        </div>
+
+        <div class="card">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-label">Total Contacts</div>
+                    <div class="stat-value" id="totalContacts">0</div>
                 </div>
-                <button type="submit" class="btn btn-primary"><i class="fas fa-calculator"></i> Calculer</button>
-            </form>
-        </section>
-        <section class="tool-output" id="results" style="display: none;">
-            <div class="results-grid">
-                <div class="result-item">
-                    <div class="result-label">Résultat</div>
-                    <div class="result-value highlight" id="result">-</div>
+                <div class="stat-card" style="background: linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 100%);">
+                    <div class="stat-label">Leads</div>
+                    <div class="stat-value" id="totalLeads">0</div>
+                </div>
+                <div class="stat-card" style="background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%);">
+                    <div class="stat-label">Prospects</div>
+                    <div class="stat-value" id="totalProspects">0</div>
+                </div>
+                <div class="stat-card" style="background: linear-gradient(135deg, #55efc4 0%, #00b894 100%);">
+                    <div class="stat-label">Clients</div>
+                    <div class="stat-value" id="totalClients">0</div>
                 </div>
             </div>
-        </section>
-        <section class="tool-help">
-            <h3><i class="fas fa-info-circle"></i> Aide</h3>
-            <p>Utilisez cet outil pour optimiser votre gestion d'entreprise.</p>
-        </section>
-    </main>
-    <footer class="tool-footer"><a href="../../index.html"><i class="fas fa-arrow-left"></i> Retour</a></footer>
-    <script src="../../assets/js/utils.js"></script>
-    <script src="../../assets/js/main.js"></script>
+        </div>
+
+        <div class="card">
+            <div class="chart-container">
+                <canvas id="statusChart"></canvas>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="section-title">Contacts</div>
+
+            <div class="filters">
+                <input type="text" id="searchInput" placeholder="🔍 Rechercher...">
+                <select id="filterStatus">
+                    <option value="">Tous les statuts</option>
+                    <option value="Lead">Lead</option>
+                    <option value="Prospect">Prospect</option>
+                    <option value="Client">Client</option>
+                    <option value="Perdu">Perdu</option>
+                </select>
+                <button class="btn" onclick="openModal()">+ Ajouter Contact</button>
+                <button class="btn btn-secondary" onclick="exportCSV()">📥 Export CSV</button>
+            </div>
+
+            <div class="contact-list">
+                <table id="contactsTable">
+                    <thead>
+                        <tr>
+                            <th>Nom</th>
+                            <th>Email</th>
+                            <th>Statut</th>
+                            <th>Dernière interaction</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="contactsBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p><strong>Synoptia - Outils Business</strong></p>
+            <p>Contact: <a href="mailto:ludo@synoptia.fr" style="color: white; text-decoration: underline;">ludo@synoptia.fr</a></p>
+        </div>
+    </div>
+
+    <div id="contactModal" class="modal">
+        <div class="modal-content">
+            <h2 style="margin-bottom: 20px; color: #667eea;" id="modalTitle">Ajouter un contact</h2>
+            <form id="contactForm">
+                <div class="form-group">
+                    <label>Nom *</label>
+                    <input type="text" id="contactName" required>
+                </div>
+                <div class="form-group">
+                    <label>Email *</label>
+                    <input type="email" id="contactEmail" required>
+                </div>
+                <div class="form-group">
+                    <label>Téléphone</label>
+                    <input type="text" id="contactPhone">
+                </div>
+                <div class="form-group">
+                    <label>Statut *</label>
+                    <select id="contactStatus" required>
+                        <option value="Lead">Lead</option>
+                        <option value="Prospect">Prospect</option>
+                        <option value="Client">Client</option>
+                        <option value="Perdu">Perdu</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Dernière interaction</label>
+                    <input type="date" id="contactLastInteraction">
+                </div>
+                <div class="form-group">
+                    <label>Notes</label>
+                    <textarea id="contactNotes" placeholder="Notes sur le contact..."></textarea>
+                </div>
+                <div style="display: flex; gap: 10px; margin-top: 20px;">
+                    <button type="submit" class="btn">💾 Enregistrer</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal()">Annuler</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script>
-        document.getElementById('mainForm').addEventListener('submit', function(e) {
+        let contacts = [];
+        let editingIndex = -1;
+        let statusChart = null;
+
+        function loadData() {
+            const saved = localStorage.getItem('crmContacts');
+            if (saved) {
+                contacts = JSON.parse(saved);
+            } else {
+                contacts = [
+                    {
+                        name: 'Jean Dupont',
+                        email: 'jean.dupont@example.com',
+                        phone: '0123456789',
+                        status: 'Client',
+                        lastInteraction: '2025-11-05',
+                        notes: 'Client fidèle depuis 2 ans'
+                    },
+                    {
+                        name: 'Marie Martin',
+                        email: 'marie.martin@example.com',
+                        phone: '0987654321',
+                        status: 'Prospect',
+                        lastInteraction: '2025-11-08',
+                        notes: 'Intéressée par notre offre premium'
+                    }
+                ];
+            }
+            renderContacts();
+            updateStats();
+            updateChart();
+        }
+
+        function saveData() {
+            localStorage.setItem('crmContacts', JSON.stringify(contacts));
+        }
+
+        function openModal(index = -1) {
+            editingIndex = index;
+            const modal = document.getElementById('contactModal');
+            const form = document.getElementById('contactForm');
+
+            if (index >= 0) {
+                const contact = contacts[index];
+                document.getElementById('modalTitle').textContent = 'Modifier le contact';
+                document.getElementById('contactName').value = contact.name;
+                document.getElementById('contactEmail').value = contact.email;
+                document.getElementById('contactPhone').value = contact.phone || '';
+                document.getElementById('contactStatus').value = contact.status;
+                document.getElementById('contactLastInteraction').value = contact.lastInteraction || '';
+                document.getElementById('contactNotes').value = contact.notes || '';
+            } else {
+                document.getElementById('modalTitle').textContent = 'Ajouter un contact';
+                form.reset();
+                document.getElementById('contactLastInteraction').value = new Date().toISOString().split('T')[0];
+            }
+
+            modal.classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('contactModal').classList.remove('active');
+            document.getElementById('contactForm').reset();
+            editingIndex = -1;
+        }
+
+        document.getElementById('contactForm').addEventListener('submit', function(e) {
             e.preventDefault();
-            const val = parseFloat(document.getElementById('input1').value);
-            document.getElementById('result').textContent = val.toFixed(2);
-            document.getElementById('results').style.display = 'block';
-            showNotification('Opération réussie !', 'success');
+
+            const contact = {
+                name: document.getElementById('contactName').value,
+                email: document.getElementById('contactEmail').value,
+                phone: document.getElementById('contactPhone').value,
+                status: document.getElementById('contactStatus').value,
+                lastInteraction: document.getElementById('contactLastInteraction').value,
+                notes: document.getElementById('contactNotes').value
+            };
+
+            if (editingIndex >= 0) {
+                contacts[editingIndex] = contact;
+            } else {
+                contacts.push(contact);
+            }
+
+            saveData();
+            renderContacts();
+            updateStats();
+            updateChart();
+            closeModal();
         });
-        window.addEventListener('load', () => document.getElementById('mainForm').dispatchEvent(new Event('submit')));
+
+        function deleteContact(index) {
+            if (confirm('Voulez-vous vraiment supprimer ce contact ?')) {
+                contacts.splice(index, 1);
+                saveData();
+                renderContacts();
+                updateStats();
+                updateChart();
+            }
+        }
+
+        function renderContacts() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const statusFilter = document.getElementById('filterStatus').value;
+
+            const filtered = contacts.filter(contact => {
+                const matchesSearch = contact.name.toLowerCase().includes(searchTerm) ||
+                                    contact.email.toLowerCase().includes(searchTerm);
+                const matchesStatus = !statusFilter || contact.status === statusFilter;
+                return matchesSearch && matchesStatus;
+            });
+
+            const tbody = document.getElementById('contactsBody');
+            tbody.innerHTML = filtered.map((contact, index) => `
+                <tr>
+                    <td><strong>${contact.name}</strong></td>
+                    <td>${contact.email}</td>
+                    <td><span class="status-badge status-${contact.status.toLowerCase()}">${contact.status}</span></td>
+                    <td>${contact.lastInteraction ? new Date(contact.lastInteraction).toLocaleDateString('fr-FR') : '-'}</td>
+                    <td>
+                        <button class="btn btn-small" onclick="openModal(${contacts.indexOf(contact)})">✏️ Éditer</button>
+                        <button class="btn btn-secondary btn-small" onclick="deleteContact(${contacts.indexOf(contact)})">🗑️</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function updateStats() {
+            document.getElementById('totalContacts').textContent = contacts.length;
+            document.getElementById('totalLeads').textContent = contacts.filter(c => c.status === 'Lead').length;
+            document.getElementById('totalProspects').textContent = contacts.filter(c => c.status === 'Prospect').length;
+            document.getElementById('totalClients').textContent = contacts.filter(c => c.status === 'Client').length;
+        }
+
+        function updateChart() {
+            const ctx = document.getElementById('statusChart').getContext('2d');
+
+            if (statusChart) {
+                statusChart.destroy();
+            }
+
+            const statusCounts = {
+                Lead: contacts.filter(c => c.status === 'Lead').length,
+                Prospect: contacts.filter(c => c.status === 'Prospect').length,
+                Client: contacts.filter(c => c.status === 'Client').length,
+                Perdu: contacts.filter(c => c.status === 'Perdu').length
+            };
+
+            statusChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Leads', 'Prospects', 'Clients', 'Perdus'],
+                    datasets: [{
+                        data: [statusCounts.Lead, statusCounts.Prospect, statusCounts.Client, statusCounts.Perdu],
+                        backgroundColor: ['#fdcb6e', '#0984e3', '#00b894', '#636e72'],
+                        borderWidth: 2,
+                        borderColor: '#fff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        },
+                        title: {
+                            display: true,
+                            text: 'Répartition par Statut',
+                            font: { size: 16, weight: 'bold' }
+                        }
+                    }
+                }
+            });
+        }
+
+        function exportCSV() {
+            let csv = 'Nom,Email,Téléphone,Statut,Dernière interaction,Notes\n';
+            contacts.forEach(contact => {
+                csv += `"${contact.name}","${contact.email}","${contact.phone || ''}","${contact.status}","${contact.lastInteraction || ''}","${contact.notes || ''}"\n`;
+            });
+
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `crm_contacts_${new Date().toISOString().split('T')[0]}.csv`;
+            link.click();
+        }
+
+        document.getElementById('searchInput').addEventListener('input', renderContacts);
+        document.getElementById('filterStatus').addEventListener('change', renderContacts);
+
+        window.onclick = function(event) {
+            const modal = document.getElementById('contactModal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        };
+
+        loadData();
     </script>
 </body>
 </html>

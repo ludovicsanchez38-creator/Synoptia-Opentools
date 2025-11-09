@@ -3,57 +3,293 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Outil Business - Business Tools</title>
+    <title>Calculateur Empreinte Carbone - Business Tools</title>
     <link rel="stylesheet" href="../../assets/css/main.css">
     <link rel="stylesheet" href="../../assets/css/tools.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .category-card { background: white; padding: 20px; margin: 15px 0; border-radius: 8px; border: 1px solid #ddd; }
+        .chart-container { max-width: 600px; margin: 30px auto; }
+        .tips-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin-top: 20px; }
+        .tip-card { background: #e8f5e9; padding: 15px; border-radius: 8px; border-left: 4px solid #4CAF50; }
+    </style>
 </head>
 <body>
     <nav class="breadcrumb">
-        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> > 
-        <a href="../../index.html#tools">Divers</a> > 
-        <span>Outil</span>
+        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> >
+        <a href="../../index.html#tools">Divers</a> >
+        <span>Empreinte Carbone</span>
     </nav>
     <main class="tool-container">
         <header class="tool-header">
-            <h1><i class="fas fa-tools"></i> Outil Business</h1>
-            <p class="tool-description">Outil professionnel pour optimiser votre activité.</p>
+            <h1><i class="fas fa-leaf"></i> Calculateur d'Empreinte Carbone Entreprise</h1>
+            <p class="tool-description">Estimez l'empreinte carbone de votre entreprise et découvrez des pistes d'amélioration.</p>
         </header>
+
         <section class="tool-input">
-            <form id="mainForm">
+            <div class="category-card">
+                <h3><i class="fas fa-bolt"></i> Électricité</h3>
                 <div class="form-group">
-                    <label for="input1" class="form-label">Donnée d'entrée</label>
-                    <input type="number" id="input1" class="form-input" value="100" min="0" required>
-                </div>
-                <button type="submit" class="btn btn-primary"><i class="fas fa-calculator"></i> Calculer</button>
-            </form>
-        </section>
-        <section class="tool-output" id="results" style="display: none;">
-            <div class="results-grid">
-                <div class="result-item">
-                    <div class="result-label">Résultat</div>
-                    <div class="result-value highlight" id="result">-</div>
+                    <label class="form-label">Consommation annuelle (kWh)</label>
+                    <input type="number" id="electricity" class="form-input" value="0" min="0" step="100">
+                    <small>Facteur: 0.057 kg CO2/kWh (mix électrique français)</small>
                 </div>
             </div>
+
+            <div class="category-card">
+                <h3><i class="fas fa-fire"></i> Chauffage (Gaz)</h3>
+                <div class="form-group">
+                    <label class="form-label">Consommation annuelle (kWh)</label>
+                    <input type="number" id="gas" class="form-input" value="0" min="0" step="100">
+                    <small>Facteur: 0.227 kg CO2/kWh</small>
+                </div>
+            </div>
+
+            <div class="category-card">
+                <h3><i class="fas fa-car"></i> Déplacements Professionnels</h3>
+                <div class="form-group">
+                    <label class="form-label">Voiture (km/an)</label>
+                    <input type="number" id="car" class="form-input" value="0" min="0" step="100">
+                    <small>Facteur: 0.195 kg CO2/km</small>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Train (km/an)</label>
+                    <input type="number" id="train" class="form-input" value="0" min="0" step="100">
+                    <small>Facteur: 0.003 kg CO2/km</small>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Avion (km/an)</label>
+                    <input type="number" id="plane" class="form-input" value="0" min="0" step="100">
+                    <small>Facteur: 0.258 kg CO2/km</small>
+                </div>
+            </div>
+
+            <div class="category-card">
+                <h3><i class="fas fa-utensils"></i> Restauration</h3>
+                <div class="form-group">
+                    <label class="form-label">Nombre de repas/an</label>
+                    <input type="number" id="meals" class="form-input" value="0" min="0" step="10">
+                    <small>Facteur: 2.5 kg CO2/repas</small>
+                </div>
+            </div>
+
+            <div class="category-card">
+                <h3><i class="fas fa-recycle"></i> Déchets</h3>
+                <div class="form-group">
+                    <label class="form-label">Déchets non recyclés (kg/an)</label>
+                    <input type="number" id="waste" class="form-input" value="0" min="0" step="10">
+                    <small>Facteur: 0.5 kg CO2/kg</small>
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 10px; margin-top: 20px;">
+                <button class="btn btn-secondary" onclick="saveData()"><i class="fas fa-save"></i> Sauvegarder</button>
+                <button class="btn btn-secondary" onclick="loadData()"><i class="fas fa-folder-open"></i> Charger</button>
+                <button class="btn btn-secondary" onclick="exportCSV()"><i class="fas fa-file-csv"></i> CSV</button>
+                <button class="btn btn-primary" onclick="calculate()"><i class="fas fa-calculator"></i> Calculer</button>
+            </div>
         </section>
+
+        <section class="tool-output" id="results" style="display: none;">
+            <h3><i class="fas fa-chart-bar"></i> Résultats</h3>
+            <div class="results-grid">
+                <div class="result-item">
+                    <div class="result-label">Empreinte Carbone Totale</div>
+                    <div class="result-value highlight" id="total-co2">0</div>
+                    <small>tonnes CO2/an</small>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Par Employé (estimation 10 employés)</div>
+                    <div class="result-value" id="per-employee">0</div>
+                    <small>tonnes CO2/an</small>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Équivalent Arbres Nécessaires</div>
+                    <div class="result-value" id="trees">0</div>
+                    <small>arbres pour compenser</small>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <canvas id="carbonChart"></canvas>
+            </div>
+
+            <h3><i class="fas fa-lightbulb"></i> Conseils de Réduction</h3>
+            <div class="tips-grid" id="tips"></div>
+        </section>
+
         <section class="tool-help">
-            <h3><i class="fas fa-info-circle"></i> Aide</h3>
-            <p>Utilisez cet outil pour optimiser votre gestion d'entreprise.</p>
+            <h3><i class="fas fa-info-circle"></i> À propos de ce calculateur</h3>
+            <ul>
+                <li><strong>Facteurs d'émission :</strong> Basés sur les données de l'ADEME et du GIEC</li>
+                <li><strong>Périmètre :</strong> Scope 1, 2 et partie du Scope 3 (déplacements)</li>
+                <li><strong>Compensation :</strong> Un arbre absorbe environ 25 kg de CO2 par an</li>
+                <li><strong>Objectif :</strong> La neutralité carbone vise une réduction de 50% d'ici 2030</li>
+            </ul>
         </section>
     </main>
-    <footer class="tool-footer"><a href="../../index.html"><i class="fas fa-arrow-left"></i> Retour</a></footer>
+    <footer class="tool-footer">
+        <div><a href="../../index.html"><i class="fas fa-arrow-left"></i> Retour</a></div>
+        <div style="text-align: center; color: #666;">Synoptia - <a href="mailto:ludo@synoptia.fr">ludo@synoptia.fr</a></div>
+    </footer>
     <script src="../../assets/js/utils.js"></script>
     <script src="../../assets/js/main.js"></script>
     <script>
-        document.getElementById('mainForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const val = parseFloat(document.getElementById('input1').value);
-            document.getElementById('result').textContent = val.toFixed(2);
+        let myChart = null;
+
+        function calculate() {
+            const elec = parseFloat(document.getElementById('electricity').value) || 0;
+            const gas = parseFloat(document.getElementById('gas').value) || 0;
+            const car = parseFloat(document.getElementById('car').value) || 0;
+            const train = parseFloat(document.getElementById('train').value) || 0;
+            const plane = parseFloat(document.getElementById('plane').value) || 0;
+            const meals = parseFloat(document.getElementById('meals').value) || 0;
+            const waste = parseFloat(document.getElementById('waste').value) || 0;
+
+            const co2Elec = elec * 0.057 / 1000;
+            const co2Gas = gas * 0.227 / 1000;
+            const co2Car = car * 0.195 / 1000;
+            const co2Train = train * 0.003 / 1000;
+            const co2Plane = plane * 0.258 / 1000;
+            const co2Meals = meals * 2.5 / 1000;
+            const co2Waste = waste * 0.5 / 1000;
+
+            const total = co2Elec + co2Gas + co2Car + co2Train + co2Plane + co2Meals + co2Waste;
+
+            document.getElementById('total-co2').textContent = total.toFixed(2);
+            document.getElementById('per-employee').textContent = (total / 10).toFixed(2);
+            document.getElementById('trees').textContent = Math.ceil(total * 1000 / 25);
+
+            createChart([co2Elec, co2Gas, co2Car + co2Train + co2Plane, co2Meals, co2Waste]);
+            generateTips(total, {co2Car, co2Plane, co2Elec, co2Gas});
+
             document.getElementById('results').style.display = 'block';
-            showNotification('Opération réussie !', 'success');
+            showNotification('Empreinte carbone calculée !', 'success');
+        }
+
+        function createChart(data) {
+            const ctx = document.getElementById('carbonChart').getContext('2d');
+            if (myChart) myChart.destroy();
+
+            myChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Électricité', 'Chauffage', 'Déplacements', 'Restauration', 'Déchets'],
+                    datasets: [{
+                        data: data,
+                        backgroundColor: ['#4CAF50', '#FF9800', '#2196F3', '#9C27B0', '#F44336']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { position: 'bottom' },
+                        title: { display: true, text: 'Répartition des Émissions (tonnes CO2)' }
+                    }
+                }
+            });
+        }
+
+        function generateTips(total, breakdown) {
+            const tips = [];
+            if (breakdown.co2Car > 0.5) {
+                tips.push({ icon: 'car', title: 'Déplacements', text: 'Privilégiez le covoiturage et les transports en commun. Passez à l\'électrique.' });
+            }
+            if (breakdown.co2Plane > 0.5) {
+                tips.push({ icon: 'plane', title: 'Avion', text: 'Limitez les voyages aériens. Préférez le train pour les courtes distances.' });
+            }
+            if (breakdown.co2Elec > 0.5) {
+                tips.push({ icon: 'bolt', title: 'Électricité', text: 'Optez pour un fournisseur d\'énergie verte. Installez des panneaux solaires.' });
+            }
+            if (breakdown.co2Gas > 0.5) {
+                tips.push({ icon: 'fire', title: 'Chauffage', text: 'Améliorez l\'isolation. Réduisez la température de 1°C = -7% de consommation.' });
+            }
+
+            tips.push({ icon: 'recycle', title: 'Recyclage', text: 'Mettez en place le tri sélectif. Compostez les déchets organiques.' });
+            tips.push({ icon: 'leaf', title: 'Compensation', text: 'Investissez dans des projets de reforestation ou d\'énergies renouvelables.' });
+
+            const html = tips.map(tip => `
+                <div class="tip-card">
+                    <h4><i class="fas fa-${tip.icon}"></i> ${tip.title}</h4>
+                    <p>${tip.text}</p>
+                </div>
+            `).join('');
+
+            document.getElementById('tips').innerHTML = html;
+        }
+
+        function saveData() {
+            const data = {
+                electricity: document.getElementById('electricity').value,
+                gas: document.getElementById('gas').value,
+                car: document.getElementById('car').value,
+                train: document.getElementById('train').value,
+                plane: document.getElementById('plane').value,
+                meals: document.getElementById('meals').value,
+                waste: document.getElementById('waste').value
+            };
+            localStorage.setItem('carbonData', JSON.stringify(data));
+            showNotification('Données sauvegardées !', 'success');
+        }
+
+        function loadData() {
+            const saved = localStorage.getItem('carbonData');
+            if (saved) {
+                const data = JSON.parse(saved);
+                Object.keys(data).forEach(key => {
+                    const el = document.getElementById(key);
+                    if (el) el.value = data[key];
+                });
+                calculate();
+                showNotification('Données chargées !', 'success');
+            } else {
+                showNotification('Aucune donnée sauvegardée', 'info');
+            }
+        }
+
+        function exportCSV() {
+            const elec = parseFloat(document.getElementById('electricity').value) || 0;
+            const gas = parseFloat(document.getElementById('gas').value) || 0;
+            const car = parseFloat(document.getElementById('car').value) || 0;
+            const train = parseFloat(document.getElementById('train').value) || 0;
+            const plane = parseFloat(document.getElementById('plane').value) || 0;
+            const meals = parseFloat(document.getElementById('meals').value) || 0;
+            const waste = parseFloat(document.getElementById('waste').value) || 0;
+
+            const data = [
+                ['Catégorie', 'Quantité', 'Unité', 'CO2 (tonnes)'],
+                ['Électricité', elec, 'kWh', (elec * 0.057 / 1000).toFixed(3)],
+                ['Chauffage', gas, 'kWh', (gas * 0.227 / 1000).toFixed(3)],
+                ['Voiture', car, 'km', (car * 0.195 / 1000).toFixed(3)],
+                ['Train', train, 'km', (train * 0.003 / 1000).toFixed(3)],
+                ['Avion', plane, 'km', (plane * 0.258 / 1000).toFixed(3)],
+                ['Repas', meals, 'repas', (meals * 2.5 / 1000).toFixed(3)],
+                ['Déchets', waste, 'kg', (waste * 0.5 / 1000).toFixed(3)],
+                ['TOTAL', '', '', document.getElementById('total-co2').textContent]
+            ];
+
+            const csv = data.map(row => row.map(cell => `"${cell}"`).join(',')).join('\n');
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'empreinte-carbone.csv';
+            link.click();
+            showNotification('Export CSV réussi !', 'success');
+        }
+
+        document.querySelectorAll('input').forEach(el => {
+            el.addEventListener('input', () => {
+                if (document.getElementById('results').style.display === 'block') {
+                    calculate();
+                }
+            });
         });
-        window.addEventListener('load', () => document.getElementById('mainForm').dispatchEvent(new Event('submit')));
+
+        window.addEventListener('load', () => {
+            loadData();
+        });
     </script>
 </body>
 </html>

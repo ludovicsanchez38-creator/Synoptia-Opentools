@@ -3,57 +3,359 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Outil Business - Business Tools</title>
+    <title>Taux de Rotation du Stock - Synoptia</title>
     <link rel="stylesheet" href="../../assets/css/main.css">
     <link rel="stylesheet" href="../../assets/css/tools.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .calculator-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; margin-top: 2rem; }
+        .interpretation { padding: 1.5rem; border-radius: 8px; margin-top: 1rem; }
+        .interpretation.excellent { background: #e8f5e9; border-left: 4px solid #4caf50; }
+        .interpretation.good { background: #e3f2fd; border-left: 4px solid #2196f3; }
+        .interpretation.average { background: #fff3e0; border-left: 4px solid #ff9800; }
+        .interpretation.poor { background: #ffebee; border-left: 4px solid #f44336; }
+        .industry-selector { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.5rem; margin: 1rem 0; }
+        .industry-btn { padding: 0.75rem; border: 2px solid #e0e0e0; background: white; border-radius: 8px; cursor: pointer; transition: all 0.3s; }
+        .industry-btn:hover { border-color: #667eea; background: #f5f7ff; }
+        .industry-btn.active { border-color: #667eea; background: #667eea; color: white; }
+        .history-table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+        .history-table th, .history-table td { padding: 0.75rem; text-align: left; border-bottom: 1px solid #e0e0e0; }
+        .history-table th { background: #f5f5f5; font-weight: 600; }
+        @media (max-width: 768px) {
+            .industry-selector { grid-template-columns: 1fr 1fr; }
+        }
+    </style>
 </head>
 <body>
     <nav class="breadcrumb">
-        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> > 
-        <a href="../../index.html#tools">Inventaire</a> > 
-        <span>Outil</span>
+        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> >
+        <a href="../../index.html#tools">Inventory</a> >
+        <span>Taux de Rotation</span>
     </nav>
     <main class="tool-container">
         <header class="tool-header">
-            <h1><i class="fas fa-tools"></i> Outil Business</h1>
-            <p class="tool-description">Outil professionnel pour optimiser votre activité.</p>
+            <h1><i class="fas fa-sync-alt"></i> Taux de Rotation du Stock</h1>
+            <p class="tool-description">Calculez la vitesse à laquelle votre stock se renouvelle et optimisez votre gestion.</p>
         </header>
+
         <section class="tool-input">
-            <form id="mainForm">
+            <h3><i class="fas fa-calculator"></i> Sélectionner votre Industrie</h3>
+            <div class="industry-selector" id="industrySelector">
+                <button class="industry-btn active" data-industry="retail" data-benchmark="8-12">
+                    <i class="fas fa-shopping-bag"></i><br>Commerce de détail
+                </button>
+                <button class="industry-btn" data-industry="food" data-benchmark="12-20">
+                    <i class="fas fa-utensils"></i><br>Alimentaire
+                </button>
+                <button class="industry-btn" data-industry="fashion" data-benchmark="4-6">
+                    <i class="fas fa-tshirt"></i><br>Mode/Textile
+                </button>
+                <button class="industry-btn" data-industry="electronics" data-benchmark="6-8">
+                    <i class="fas fa-laptop"></i><br>Électronique
+                </button>
+                <button class="industry-btn" data-industry="pharma" data-benchmark="10-15">
+                    <i class="fas fa-pills"></i><br>Pharmacie
+                </button>
+                <button class="industry-btn" data-industry="auto" data-benchmark="4-8">
+                    <i class="fas fa-car"></i><br>Automobile
+                </button>
+            </div>
+
+            <form id="turnoverForm" style="margin-top: 2rem;">
                 <div class="form-group">
-                    <label for="input1" class="form-label">Donnée d'entrée</label>
-                    <input type="number" id="input1" class="form-input" value="100" min="0" required>
+                    <label class="form-label">Coût des Marchandises Vendues (COGS) - Annuel (€)</label>
+                    <input type="number" id="cogs" class="form-input" value="500000" min="0" step="0.01" required>
+                    <small style="color: #666;">Montant total des stocks vendus sur l'année</small>
                 </div>
-                <button type="submit" class="btn btn-primary"><i class="fas fa-calculator"></i> Calculer</button>
+                <div class="form-group">
+                    <label class="form-label">Stock Initial (€)</label>
+                    <input type="number" id="stockStart" class="form-input" value="50000" min="0" step="0.01" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Stock Final (€)</label>
+                    <input type="number" id="stockEnd" class="form-input" value="70000" min="0" step="0.01" required>
+                </div>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-calculator"></i> Calculer le Taux de Rotation
+                </button>
+                <button type="button" class="btn btn-secondary" onclick="exportCSV()">
+                    <i class="fas fa-download"></i> Export CSV
+                </button>
             </form>
         </section>
+
         <section class="tool-output" id="results" style="display: none;">
+            <h3><i class="fas fa-chart-line"></i> Résultats de l'Analyse</h3>
             <div class="results-grid">
                 <div class="result-item">
-                    <div class="result-label">Résultat</div>
-                    <div class="result-value highlight" id="result">-</div>
+                    <div class="result-label">Stock Moyen</div>
+                    <div class="result-value" id="avgStock">-</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Taux de Rotation</div>
+                    <div class="result-value highlight" id="turnoverRate">-</div>
+                    <small>fois par an</small>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Jours de Stock</div>
+                    <div class="result-value" id="daysInStock">-</div>
+                    <small>jours</small>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Benchmark Industrie</div>
+                    <div class="result-value" id="benchmark">-</div>
                 </div>
             </div>
+
+            <div id="interpretation" class="interpretation"></div>
+
+            <div style="margin-top: 2rem;">
+                <h4><i class="fas fa-lightbulb"></i> Recommandations</h4>
+                <ul id="recommendations"></ul>
+            </div>
         </section>
+
+        <section class="tool-output" id="historySection" style="display:none;">
+            <h3><i class="fas fa-history"></i> Historique des Calculs</h3>
+            <table class="history-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Industrie</th>
+                        <th>COGS</th>
+                        <th>Stock Moyen</th>
+                        <th>Rotation</th>
+                        <th>Jours</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="historyTableBody"></tbody>
+            </table>
+        </section>
+
         <section class="tool-help">
-            <h3><i class="fas fa-info-circle"></i> Aide</h3>
-            <p>Utilisez cet outil pour optimiser votre gestion d'entreprise.</p>
+            <h3><i class="fas fa-info-circle"></i> Comprendre le Taux de Rotation</h3>
+            <h4>Formules utilisées :</h4>
+            <ul>
+                <li><strong>Stock Moyen</strong> = (Stock Initial + Stock Final) / 2</li>
+                <li><strong>Taux de Rotation</strong> = COGS / Stock Moyen</li>
+                <li><strong>Jours de Stock</strong> = 365 / Taux de Rotation</li>
+            </ul>
+            <h4>Interprétation :</h4>
+            <ul>
+                <li><strong>Rotation élevée :</strong> Stock se renouvelle rapidement, moins de capital immobilisé</li>
+                <li><strong>Rotation faible :</strong> Stock stagnant, risque d'obsolescence, coûts de stockage élevés</li>
+                <li><strong>Optimal :</strong> Dépend de votre industrie (consultez les benchmarks)</li>
+            </ul>
         </section>
     </main>
-    <footer class="tool-footer"><a href="../../index.html"><i class="fas fa-arrow-left"></i> Retour</a></footer>
+    <footer class="tool-footer">
+        <a href="../../index.html"><i class="fas fa-arrow-left"></i> Retour</a>
+        <span>© 2024 Synoptia - <a href="mailto:ludo@synoptia.fr">ludo@synoptia.fr</a></span>
+    </footer>
     <script src="../../assets/js/utils.js"></script>
-    <script src="../../assets/js/main.js"></script>
     <script>
-        document.getElementById('mainForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const val = parseFloat(document.getElementById('input1').value);
-            document.getElementById('result').textContent = val.toFixed(2);
-            document.getElementById('results').style.display = 'block';
-            showNotification('Opération réussie !', 'success');
+        let history = JSON.parse(localStorage.getItem('turnover_history')) || [];
+        let selectedIndustry = 'retail';
+        let selectedBenchmark = '8-12';
+
+        // Industry selector
+        document.querySelectorAll('.industry-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.industry-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                selectedIndustry = this.dataset.industry;
+                selectedBenchmark = this.dataset.benchmark;
+            });
         });
-        window.addEventListener('load', () => document.getElementById('mainForm').dispatchEvent(new Event('submit')));
+
+        document.getElementById('turnoverForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const cogs = parseFloat(document.getElementById('cogs').value);
+            const stockStart = parseFloat(document.getElementById('stockStart').value);
+            const stockEnd = parseFloat(document.getElementById('stockEnd').value);
+
+            const avgStock = (stockStart + stockEnd) / 2;
+            const turnoverRate = cogs / avgStock;
+            const daysInStock = 365 / turnoverRate;
+
+            document.getElementById('avgStock').textContent = avgStock.toFixed(2) + ' €';
+            document.getElementById('turnoverRate').textContent = turnoverRate.toFixed(2);
+            document.getElementById('daysInStock').textContent = Math.round(daysInStock);
+            document.getElementById('benchmark').textContent = selectedBenchmark + ' fois/an';
+
+            // Interpretation
+            const interpretation = getInterpretation(turnoverRate, selectedBenchmark);
+            const interpDiv = document.getElementById('interpretation');
+            interpDiv.className = 'interpretation ' + interpretation.level;
+            interpDiv.innerHTML = `
+                <h4><i class="fas fa-${interpretation.icon}"></i> ${interpretation.title}</h4>
+                <p>${interpretation.message}</p>
+            `;
+
+            // Recommendations
+            const recs = getRecommendations(turnoverRate, selectedBenchmark);
+            document.getElementById('recommendations').innerHTML = recs.map(r =>
+                `<li><strong>${r.title}:</strong> ${r.text}</li>`
+            ).join('');
+
+            // Save to history
+            history.unshift({
+                date: new Date().toLocaleString('fr-FR'),
+                industry: selectedIndustry,
+                cogs: cogs,
+                avgStock: avgStock,
+                turnoverRate: turnoverRate,
+                daysInStock: daysInStock,
+                benchmark: selectedBenchmark
+            });
+            history = history.slice(0, 20);
+            localStorage.setItem('turnover_history', JSON.stringify(history));
+
+            document.getElementById('results').style.display = 'block';
+            renderHistory();
+            showNotification('Calcul effectué avec succès', 'success');
+        });
+
+        function getInterpretation(rate, benchmark) {
+            const [min, max] = benchmark.split('-').map(Number);
+
+            if (rate >= max * 1.2) {
+                return {
+                    level: 'excellent',
+                    icon: 'trophy',
+                    title: 'Excellent - Rotation très élevée',
+                    message: 'Votre stock se renouvelle très rapidement. C\'est excellent pour la trésorerie, mais assurez-vous de ne pas être en rupture de stock trop souvent.'
+                };
+            } else if (rate >= min && rate <= max * 1.1) {
+                return {
+                    level: 'good',
+                    icon: 'check-circle',
+                    title: 'Bon - Dans la norme de l\'industrie',
+                    message: 'Votre taux de rotation est conforme aux standards de votre industrie. Continuez ainsi et cherchez des opportunités d\'optimisation.'
+                };
+            } else if (rate >= min * 0.7 && rate < min) {
+                return {
+                    level: 'average',
+                    icon: 'exclamation-triangle',
+                    title: 'Moyen - Légèrement en dessous',
+                    message: 'Votre rotation est un peu faible. Analysez vos produits à rotation lente et envisagez des promotions ou une réduction des commandes.'
+                };
+            } else {
+                return {
+                    level: 'poor',
+                    icon: 'times-circle',
+                    title: 'Faible - Action requise',
+                    message: 'Votre stock se renouvelle trop lentement. Capital immobilisé important et risque d\'obsolescence. Action immédiate recommandée.'
+                };
+            }
+        }
+
+        function getRecommendations(rate, benchmark) {
+            const [min, max] = benchmark.split('-').map(Number);
+            const recs = [];
+
+            if (rate > max * 1.2) {
+                recs.push({
+                    title: 'Attention aux ruptures',
+                    text: 'Avec une rotation très élevée, surveillez les ruptures de stock qui peuvent frustrer les clients'
+                });
+                recs.push({
+                    title: 'Négocier avec fournisseurs',
+                    text: 'Volume élevé = pouvoir de négociation. Demandez de meilleurs prix ou délais'
+                });
+            } else if (rate < min) {
+                recs.push({
+                    title: 'Réduire les commandes',
+                    text: 'Commandez moins fréquemment ou en plus petites quantités pour libérer du capital'
+                });
+                recs.push({
+                    title: 'Promotions ciblées',
+                    text: 'Identifiez les produits à rotation lente et lancez des promotions pour écouler le stock'
+                });
+                recs.push({
+                    title: 'Analyse ABC',
+                    text: 'Classifiez vos produits (A: haute valeur, B: moyenne, C: faible) et concentrez-vous sur les A'
+                });
+            }
+
+            recs.push({
+                title: 'Prévisions de demande',
+                text: 'Utilisez l\'historique de ventes pour améliorer vos prévisions et ajuster les commandes'
+            });
+
+            return recs;
+        }
+
+        function renderHistory() {
+            if (history.length === 0) {
+                document.getElementById('historySection').style.display = 'none';
+                return;
+            }
+
+            document.getElementById('historySection').style.display = 'block';
+            const tbody = document.getElementById('historyTableBody');
+
+            tbody.innerHTML = history.map((h, index) => `
+                <tr>
+                    <td>${h.date}</td>
+                    <td>${h.industry}</td>
+                    <td>${h.cogs.toFixed(0)} €</td>
+                    <td>${h.avgStock.toFixed(0)} €</td>
+                    <td><strong>${h.turnoverRate.toFixed(2)}</strong></td>
+                    <td>${Math.round(h.daysInStock)}</td>
+                    <td>
+                        <button class="action-btn delete" onclick="deleteHistory(${index})" style="background: #f44336; color: white; border: none; padding: 0.25rem 0.5rem; border-radius: 4px; cursor: pointer;">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function deleteHistory(index) {
+            if (confirm('Supprimer cet historique ?')) {
+                history.splice(index, 1);
+                localStorage.setItem('turnover_history', JSON.stringify(history));
+                renderHistory();
+                showNotification('Historique supprimé', 'success');
+            }
+        }
+
+        function exportCSV() {
+            if (history.length === 0) {
+                showNotification('Aucun historique à exporter', 'error');
+                return;
+            }
+
+            const headers = ['Date', 'Industrie', 'COGS', 'Stock Moyen', 'Taux Rotation', 'Jours Stock', 'Benchmark'];
+            const rows = history.map(h => [
+                h.date,
+                h.industry,
+                h.cogs.toFixed(2),
+                h.avgStock.toFixed(2),
+                h.turnoverRate.toFixed(2),
+                Math.round(h.daysInStock),
+                h.benchmark
+            ]);
+
+            let csv = headers.join(',') + '\n';
+            csv += rows.map(row => row.map(cell => `"${cell}"`).join(',')).join('\n');
+
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `turnover_rate_${new Date().toISOString().split('T')[0]}.csv`;
+            link.click();
+
+            showNotification('Export CSV réussi', 'success');
+        }
+
+        // Initialize
+        renderHistory();
+        document.getElementById('turnoverForm').dispatchEvent(new Event('submit'));
     </script>
 </body>
 </html>

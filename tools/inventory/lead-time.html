@@ -3,57 +3,303 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Outil Business - Business Tools</title>
+    <title>Calculateur de Délai d'Approvisionnement - Synoptia</title>
     <link rel="stylesheet" href="../../assets/css/main.css">
     <link rel="stylesheet" href="../../assets/css/tools.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .timeline { position: relative; padding: 2rem 0; margin: 2rem 0; }
+        .timeline-item { display: flex; align-items: center; margin-bottom: 1.5rem; position: relative; }
+        .timeline-icon { width: 50px; height: 50px; border-radius: 50%; background: #2196f3; color: white; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; z-index: 2; }
+        .timeline-content { flex: 1; margin-left: 2rem; background: #f5f5f5; padding: 1rem; border-radius: 8px; }
+        .timeline-line { position: absolute; left: 25px; top: 50px; bottom: -20px; width: 2px; background: #e0e0e0; }
+        .history-table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+        .history-table th, .history-table td { padding: 0.75rem; text-align: left; border-bottom: 1px solid #e0e0e0; }
+        .history-table th { background: #f5f5f5; font-weight: 600; }
+        .impact-box { background: #fff3e0; padding: 1.5rem; border-radius: 8px; border-left: 4px solid #ff9800; margin: 1.5rem 0; }
+    </style>
 </head>
 <body>
     <nav class="breadcrumb">
-        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> > 
-        <a href="../../index.html#tools">Inventaire</a> > 
-        <span>Outil</span>
+        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> >
+        <a href="../../index.html#tools">Inventory</a> >
+        <span>Délai d'Approvisionnement</span>
     </nav>
     <main class="tool-container">
         <header class="tool-header">
-            <h1><i class="fas fa-tools"></i> Outil Business</h1>
-            <p class="tool-description">Outil professionnel pour optimiser votre activité.</p>
+            <h1><i class="fas fa-clock"></i> Calculateur de Délai d'Approvisionnement</h1>
+            <p class="tool-description">Calculez le lead time total et optimisez votre stock de sécurité.</p>
         </header>
+
         <section class="tool-input">
-            <form id="mainForm">
+            <form id="leadTimeForm">
                 <div class="form-group">
-                    <label for="input1" class="form-label">Donnée d'entrée</label>
-                    <input type="number" id="input1" class="form-input" value="100" min="0" required>
+                    <label class="form-label">Nom du Produit/Fournisseur</label>
+                    <input type="text" id="productName" class="form-input" placeholder="Ex: Pièces électroniques - Supplier XYZ">
                 </div>
-                <button type="submit" class="btn btn-primary"><i class="fas fa-calculator"></i> Calculer</button>
+                <div class="form-group">
+                    <label class="form-label">Délai Fournisseur (jours)</label>
+                    <input type="number" id="supplierLeadTime" class="form-input" value="5" min="0" step="0.5" required>
+                    <small style="color: #666;">Temps de traitement de la commande par le fournisseur</small>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Délai de Transit (jours)</label>
+                    <input type="number" id="transitTime" class="form-input" value="3" min="0" step="0.5" required>
+                    <small style="color: #666;">Temps de transport/livraison</small>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Délai de Réception/Contrôle (jours)</label>
+                    <input type="number" id="receivingTime" class="form-input" value="1" min="0" step="0.5" required>
+                    <small style="color: #666;">Temps de réception, contrôle qualité et mise en stock</small>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Demande Quotidienne (unités/jour)</label>
+                    <input type="number" id="dailyDemand" class="form-input" value="10" min="0" step="0.1">
+                    <small style="color: #666;">Pour calculer l'impact sur le stock</small>
+                </div>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-calculator"></i> Calculer le Lead Time
+                </button>
+                <button type="button" class="btn btn-secondary" onclick="exportCSV()">
+                    <i class="fas fa-download"></i> Export CSV
+                </button>
             </form>
         </section>
+
         <section class="tool-output" id="results" style="display: none;">
+            <h3><i class="fas fa-chart-line"></i> Résultats de l'Analyse</h3>
             <div class="results-grid">
                 <div class="result-item">
-                    <div class="result-label">Résultat</div>
-                    <div class="result-value highlight" id="result">-</div>
+                    <div class="result-label">Lead Time Total</div>
+                    <div class="result-value highlight" id="totalLeadTime">-</div>
+                    <small>jours</small>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Stock Nécessaire</div>
+                    <div class="result-value" id="stockNeeded">-</div>
+                    <small>unités pendant le lead time</small>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Stock de Sécurité Recommandé</div>
+                    <div class="result-value" id="safetyStock">-</div>
+                    <small>unités (50% du stock nécessaire)</small>
                 </div>
             </div>
+
+            <h4 style="margin-top: 2rem;"><i class="fas fa-stream"></i> Chronologie du Lead Time</h4>
+            <div class="timeline" id="timeline"></div>
+
+            <div class="impact-box">
+                <h4><i class="fas fa-exclamation-triangle"></i> Impact sur le Stock de Sécurité</h4>
+                <p id="impactText"></p>
+            </div>
+
+            <div style="margin-top: 2rem;">
+                <h4><i class="fas fa-lightbulb"></i> Recommandations</h4>
+                <ul id="recommendations"></ul>
+            </div>
         </section>
+
+        <section class="tool-output" id="historySection" style="display:none;">
+            <h3><i class="fas fa-history"></i> Historique des Calculs</h3>
+            <table class="history-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Produit</th>
+                        <th>Lead Time Total</th>
+                        <th>Fournisseur</th>
+                        <th>Transit</th>
+                        <th>Réception</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="historyTableBody"></tbody>
+            </table>
+        </section>
+
         <section class="tool-help">
-            <h3><i class="fas fa-info-circle"></i> Aide</h3>
-            <p>Utilisez cet outil pour optimiser votre gestion d'entreprise.</p>
+            <h3><i class="fas fa-info-circle"></i> Comprendre le Lead Time</h3>
+            <h4>Composantes du Lead Time :</h4>
+            <ul>
+                <li><strong>Délai Fournisseur :</strong> Temps entre la commande et l'expédition par le fournisseur</li>
+                <li><strong>Délai de Transit :</strong> Temps de transport (routier, maritime, aérien)</li>
+                <li><strong>Délai de Réception :</strong> Contrôle qualité, déballage, mise en stock</li>
+            </ul>
+            <h4>Pourquoi c'est important ?</h4>
+            <ul>
+                <li>Détermine votre stock de sécurité minimum</li>
+                <li>Influence votre point de commande</li>
+                <li>Impact direct sur votre trésorerie</li>
+                <li>Risque de rupture si sous-estimé</li>
+            </ul>
         </section>
     </main>
-    <footer class="tool-footer"><a href="../../index.html"><i class="fas fa-arrow-left"></i> Retour</a></footer>
+    <footer class="tool-footer">
+        <a href="../../index.html"><i class="fas fa-arrow-left"></i> Retour</a>
+        <span>© 2024 Synoptia - <a href="mailto:ludo@synoptia.fr">ludo@synoptia.fr</a></span>
+    </footer>
     <script src="../../assets/js/utils.js"></script>
-    <script src="../../assets/js/main.js"></script>
     <script>
-        document.getElementById('mainForm').addEventListener('submit', function(e) {
+        let history = JSON.parse(localStorage.getItem('leadtime_history')) || [];
+
+        document.getElementById('leadTimeForm').addEventListener('submit', function(e) {
             e.preventDefault();
-            const val = parseFloat(document.getElementById('input1').value);
-            document.getElementById('result').textContent = val.toFixed(2);
+
+            const productName = document.getElementById('productName').value || 'Produit sans nom';
+            const supplierLeadTime = parseFloat(document.getElementById('supplierLeadTime').value);
+            const transitTime = parseFloat(document.getElementById('transitTime').value);
+            const receivingTime = parseFloat(document.getElementById('receivingTime').value);
+            const dailyDemand = parseFloat(document.getElementById('dailyDemand').value) || 0;
+
+            const totalLeadTime = supplierLeadTime + transitTime + receivingTime;
+            const stockNeeded = dailyDemand * totalLeadTime;
+            const safetyStock = Math.round(stockNeeded * 0.5);
+
+            // Display results
+            document.getElementById('totalLeadTime').textContent = totalLeadTime.toFixed(1);
+            document.getElementById('stockNeeded').textContent = dailyDemand > 0 ? Math.round(stockNeeded) : '-';
+            document.getElementById('safetyStock').textContent = dailyDemand > 0 ? safetyStock : '-';
+
+            // Timeline
+            renderTimeline(supplierLeadTime, transitTime, receivingTime);
+
+            // Impact text
+            if (dailyDemand > 0) {
+                const impact = `Avec une demande de ${dailyDemand} unités/jour et un lead time de ${totalLeadTime.toFixed(1)} jours,
+                vous aurez besoin de <strong>${Math.round(stockNeeded)} unités</strong> en stock pendant l'approvisionnement.
+                Un stock de sécurité de <strong>${safetyStock} unités</strong> (50% du stock nécessaire) est recommandé pour
+                gérer les variations de demande et les retards potentiels.`;
+                document.getElementById('impactText').innerHTML = impact;
+            } else {
+                document.getElementById('impactText').innerHTML = 'Ajoutez une demande quotidienne pour calculer l\'impact sur le stock.';
+            }
+
+            // Recommendations
+            const recs = [];
+            if (totalLeadTime > 14) {
+                recs.push('Lead time long (>14j) : négociez avec le fournisseur ou trouvez une alternative locale');
+            }
+            if (transitTime > supplierLeadTime) {
+                recs.push('Le transit est plus long que le délai fournisseur : explorez des options de transport plus rapides');
+            }
+            if (receivingTime > 2) {
+                recs.push('Délai de réception élevé (>2j) : optimisez votre processus de contrôle qualité');
+            }
+            recs.push('Communiquez régulièrement avec le fournisseur pour anticiper les retards');
+            recs.push(`Avec ce lead time, commandez au moins ${totalLeadTime.toFixed(0)} jours avant la rupture prévue`);
+
+            document.getElementById('recommendations').innerHTML = recs.map(r => `<li>${r}</li>`).join('');
+
+            // Save to history
+            history.unshift({
+                date: new Date().toLocaleString('fr-FR'),
+                productName: productName,
+                totalLeadTime: totalLeadTime.toFixed(1),
+                supplierLeadTime: supplierLeadTime,
+                transitTime: transitTime,
+                receivingTime: receivingTime,
+                dailyDemand: dailyDemand
+            });
+            history = history.slice(0, 20);
+            localStorage.setItem('leadtime_history', JSON.stringify(history));
+
             document.getElementById('results').style.display = 'block';
-            showNotification('Opération réussie !', 'success');
+            renderHistory();
+            showNotification('Lead time calculé avec succès', 'success');
         });
-        window.addEventListener('load', () => document.getElementById('mainForm').dispatchEvent(new Event('submit')));
+
+        function renderTimeline(supplier, transit, receiving) {
+            const timeline = document.getElementById('timeline');
+            const steps = [
+                { icon: 'shopping-cart', label: 'Commande passée', time: 0, color: '#2196f3' },
+                { icon: 'industry', label: 'Traitement fournisseur', time: supplier, color: '#ff9800' },
+                { icon: 'truck', label: 'Transit/Livraison', time: transit, color: '#9c27b0' },
+                { icon: 'check-circle', label: 'Réception & Contrôle', time: receiving, color: '#4caf50' }
+            ];
+
+            timeline.innerHTML = steps.map((step, index) => `
+                <div class="timeline-item">
+                    ${index < steps.length - 1 ? '<div class="timeline-line"></div>' : ''}
+                    <div class="timeline-icon" style="background: ${step.color};">
+                        <i class="fas fa-${step.icon}"></i>
+                    </div>
+                    <div class="timeline-content">
+                        <strong>${step.label}</strong><br>
+                        <span style="color: #666;">${step.time.toFixed(1)} jours</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderHistory() {
+            if (history.length === 0) {
+                document.getElementById('historySection').style.display = 'none';
+                return;
+            }
+
+            document.getElementById('historySection').style.display = 'block';
+            const tbody = document.getElementById('historyTableBody');
+
+            tbody.innerHTML = history.map((h, index) => `
+                <tr>
+                    <td>${h.date}</td>
+                    <td>${h.productName}</td>
+                    <td><strong>${h.totalLeadTime} jours</strong></td>
+                    <td>${h.supplierLeadTime}j</td>
+                    <td>${h.transitTime}j</td>
+                    <td>${h.receivingTime}j</td>
+                    <td>
+                        <button class="action-btn delete" onclick="deleteHistory(${index})" style="background: #f44336; color: white; border: none; padding: 0.25rem 0.5rem; border-radius: 4px; cursor: pointer;">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function deleteHistory(index) {
+            if (confirm('Supprimer cet historique ?')) {
+                history.splice(index, 1);
+                localStorage.setItem('leadtime_history', JSON.stringify(history));
+                renderHistory();
+                showNotification('Historique supprimé', 'success');
+            }
+        }
+
+        function exportCSV() {
+            if (history.length === 0) {
+                showNotification('Aucun historique à exporter', 'error');
+                return;
+            }
+
+            const headers = ['Date', 'Produit', 'Lead Time Total', 'Délai Fournisseur', 'Transit', 'Réception', 'Demande Quotidienne'];
+            const rows = history.map(h => [
+                h.date,
+                h.productName,
+                h.totalLeadTime,
+                h.supplierLeadTime,
+                h.transitTime,
+                h.receivingTime,
+                h.dailyDemand
+            ]);
+
+            let csv = headers.join(',') + '\n';
+            csv += rows.map(row => row.map(cell => `"${cell}"`).join(',')).join('\n');
+
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `lead_time_${new Date().toISOString().split('T')[0]}.csv`;
+            link.click();
+
+            showNotification('Export CSV réussi', 'success');
+        }
+
+        // Initialize
+        renderHistory();
+        document.getElementById('leadTimeForm').dispatchEvent(new Event('submit'));
     </script>
 </body>
 </html>

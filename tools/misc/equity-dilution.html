@@ -3,57 +3,517 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Outil Business - Business Tools</title>
-    <link rel="stylesheet" href="../../assets/css/main.css">
-    <link rel="stylesheet" href="../../assets/css/tools.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <title>Calculateur Dilution Capital - Synoptia</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 1.3em;
+            color: #667eea;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .input-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+            font-size: 0.95em;
+        }
+
+        input[type="text"],
+        input[type="number"] {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1em;
+            transition: all 0.3s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 10px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+
+        .shareholder-list {
+            margin-bottom: 20px;
+        }
+
+        .shareholder-item {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+            align-items: center;
+        }
+
+        .shareholder-item input {
+            flex: 1;
+        }
+
+        .shareholder-item button {
+            background: #f5576c;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .add-shareholder-btn {
+            background: #4facfe;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            margin-top: 10px;
+        }
+
+        .results-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .results-table th,
+        .results-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .results-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+        }
+
+        .results-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .chart-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .chart-container {
+            height: 300px;
+        }
+
+        .highlight {
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            padding: 15px;
+            border-radius: 10px;
+            margin: 10px 0;
+        }
+
+        .footer {
+            text-align: center;
+            color: white;
+            margin-top: 40px;
+            padding: 20px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            .input-grid,
+            .chart-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .card {
+                padding: 20px;
+            }
+        }
+    </style>
 </head>
 <body>
-    <nav class="breadcrumb">
-        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> > 
-        <a href="../../index.html#tools">Divers</a> > 
-        <span>Outil</span>
-    </nav>
-    <main class="tool-container">
-        <header class="tool-header">
-            <h1><i class="fas fa-tools"></i> Outil Business</h1>
-            <p class="tool-description">Outil professionnel pour optimiser votre activité.</p>
-        </header>
-        <section class="tool-input">
-            <form id="mainForm">
-                <div class="form-group">
-                    <label for="input1" class="form-label">Donnée d'entrée</label>
-                    <input type="number" id="input1" class="form-input" value="100" min="0" required>
+    <div class="container">
+        <div class="header">
+            <h1>💼 Calculateur Dilution Capital</h1>
+            <p>Calculez l'impact d'une levée de fonds sur la répartition du capital</p>
+        </div>
+
+        <div class="card">
+            <div class="section-title">Actionnaires Actuels</div>
+            <div id="shareholdersList" class="shareholder-list"></div>
+            <button class="add-shareholder-btn" onclick="addShareholder()">+ Ajouter un actionnaire</button>
+        </div>
+
+        <div class="card">
+            <div class="section-title">Nouvelle Levée de Fonds</div>
+            <div class="input-grid">
+                <div class="input-group">
+                    <label>Montant levé (€)</label>
+                    <input type="number" id="fundingAmount" placeholder="500000" min="0" step="1000">
                 </div>
-                <button type="submit" class="btn btn-primary"><i class="fas fa-calculator"></i> Calculer</button>
-            </form>
-        </section>
-        <section class="tool-output" id="results" style="display: none;">
-            <div class="results-grid">
-                <div class="result-item">
-                    <div class="result-label">Résultat</div>
-                    <div class="result-value highlight" id="result">-</div>
+                <div class="input-group">
+                    <label>Valorisation post-money (€)</label>
+                    <input type="number" id="postMoneyValuation" placeholder="2000000" min="0" step="1000">
                 </div>
             </div>
-        </section>
-        <section class="tool-help">
-            <h3><i class="fas fa-info-circle"></i> Aide</h3>
-            <p>Utilisez cet outil pour optimiser votre gestion d'entreprise.</p>
-        </section>
-    </main>
-    <footer class="tool-footer"><a href="../../index.html"><i class="fas fa-arrow-left"></i> Retour</a></footer>
-    <script src="../../assets/js/utils.js"></script>
-    <script src="../../assets/js/main.js"></script>
+            <div class="input-group">
+                <label>Nom du nouvel investisseur</label>
+                <input type="text" id="newInvestorName" placeholder="Fonds Investissement XYZ">
+            </div>
+
+            <button class="btn" onclick="calculate()">📊 Calculer Dilution</button>
+            <button class="btn btn-secondary" onclick="exportCSV()">📥 Export CSV</button>
+            <button class="btn btn-success" onclick="resetForm()">🔄 Réinitialiser</button>
+        </div>
+
+        <div class="card" id="resultsCard" style="display: none;">
+            <div class="section-title">Résultats</div>
+
+            <div class="highlight">
+                <strong>Dilution totale:</strong> <span id="totalDilution" style="font-size: 1.3em; color: #f5576c;">0%</span><br>
+                <strong>Part du nouvel investisseur:</strong> <span id="newInvestorShare" style="font-size: 1.3em; color: #667eea;">0%</span>
+            </div>
+
+            <table class="results-table">
+                <thead>
+                    <tr>
+                        <th>Actionnaire</th>
+                        <th>Parts avant (%)</th>
+                        <th>Parts après (%)</th>
+                        <th>Dilution</th>
+                    </tr>
+                </thead>
+                <tbody id="resultsBody"></tbody>
+            </table>
+
+            <div class="chart-grid">
+                <div class="chart-container">
+                    <canvas id="beforeChart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <canvas id="afterChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p><strong>Synoptia - Outils Business</strong></p>
+            <p>Contact: <a href="mailto:ludo@synoptia.fr" style="color: white; text-decoration: underline;">ludo@synoptia.fr</a></p>
+        </div>
+    </div>
+
     <script>
-        document.getElementById('mainForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const val = parseFloat(document.getElementById('input1').value);
-            document.getElementById('result').textContent = val.toFixed(2);
-            document.getElementById('results').style.display = 'block';
-            showNotification('Opération réussie !', 'success');
-        });
-        window.addEventListener('load', () => document.getElementById('mainForm').dispatchEvent(new Event('submit')));
+        let shareholders = [];
+        let beforeChart = null;
+        let afterChart = null;
+
+        function loadData() {
+            const saved = localStorage.getItem('equityDilutionData');
+            if (saved) {
+                const data = JSON.parse(saved);
+                shareholders = data.shareholders || [];
+                document.getElementById('fundingAmount').value = data.fundingAmount || '';
+                document.getElementById('postMoneyValuation').value = data.postMoneyValuation || '';
+                document.getElementById('newInvestorName').value = data.newInvestorName || '';
+                renderShareholders();
+            } else {
+                shareholders.push({ name: 'Fondateur 1', shares: 60 });
+                shareholders.push({ name: 'Fondateur 2', shares: 40 });
+                renderShareholders();
+            }
+        }
+
+        function saveData() {
+            const data = {
+                shareholders: shareholders,
+                fundingAmount: document.getElementById('fundingAmount').value,
+                postMoneyValuation: document.getElementById('postMoneyValuation').value,
+                newInvestorName: document.getElementById('newInvestorName').value
+            };
+            localStorage.setItem('equityDilutionData', JSON.stringify(data));
+        }
+
+        function addShareholder() {
+            shareholders.push({ name: '', shares: 0 });
+            renderShareholders();
+            saveData();
+        }
+
+        function removeShareholder(index) {
+            shareholders.splice(index, 1);
+            renderShareholders();
+            saveData();
+        }
+
+        function renderShareholders() {
+            const list = document.getElementById('shareholdersList');
+            list.innerHTML = shareholders.map((sh, index) => `
+                <div class="shareholder-item">
+                    <input type="text" placeholder="Nom de l'actionnaire" value="${sh.name}"
+                           onchange="shareholders[${index}].name = this.value; saveData();">
+                    <input type="number" placeholder="Parts (%)" value="${sh.shares}" step="0.01" min="0" max="100"
+                           onchange="shareholders[${index}].shares = parseFloat(this.value) || 0; saveData();">
+                    <button onclick="removeShareholder(${index})">✕</button>
+                </div>
+            `).join('');
+        }
+
+        function calculate() {
+            saveData();
+
+            const fundingAmount = parseFloat(document.getElementById('fundingAmount').value) || 0;
+            const postMoneyValuation = parseFloat(document.getElementById('postMoneyValuation').value) || 0;
+            const newInvestorName = document.getElementById('newInvestorName').value || 'Nouvel Investisseur';
+
+            if (fundingAmount === 0 || postMoneyValuation === 0) {
+                alert('Veuillez renseigner le montant levé et la valorisation post-money');
+                return;
+            }
+
+            const totalSharesBefore = shareholders.reduce((sum, sh) => sum + sh.shares, 0);
+            if (Math.abs(totalSharesBefore - 100) > 0.1) {
+                alert('La somme des parts actuelles doit être égale à 100%');
+                return;
+            }
+
+            const newInvestorSharePercent = (fundingAmount / postMoneyValuation) * 100;
+
+            const results = shareholders.map(sh => {
+                const shareAfter = sh.shares * (1 - newInvestorSharePercent / 100);
+                const dilution = sh.shares - shareAfter;
+                return {
+                    name: sh.name,
+                    shareBefore: sh.shares,
+                    shareAfter: shareAfter,
+                    dilution: dilution
+                };
+            });
+
+            document.getElementById('totalDilution').textContent = newInvestorSharePercent.toFixed(2) + '%';
+            document.getElementById('newInvestorShare').textContent = newInvestorSharePercent.toFixed(2) + '%';
+
+            const tbody = document.getElementById('resultsBody');
+            tbody.innerHTML = results.map(r => `
+                <tr>
+                    <td><strong>${r.name}</strong></td>
+                    <td>${r.shareBefore.toFixed(2)}%</td>
+                    <td>${r.shareAfter.toFixed(2)}%</td>
+                    <td style="color: #f5576c;">-${r.dilution.toFixed(2)}%</td>
+                </tr>
+            `).join('');
+
+            tbody.innerHTML += `
+                <tr style="background: #e8f5e9;">
+                    <td><strong>${newInvestorName}</strong></td>
+                    <td>0.00%</td>
+                    <td><strong>${newInvestorSharePercent.toFixed(2)}%</strong></td>
+                    <td style="color: #00b894;">+${newInvestorSharePercent.toFixed(2)}%</td>
+                </tr>
+            `;
+
+            document.getElementById('resultsCard').style.display = 'block';
+
+            createCharts(results, newInvestorName, newInvestorSharePercent);
+        }
+
+        function createCharts(results, newInvestorName, newInvestorSharePercent) {
+            const colors = [
+                '#667eea', '#f5576c', '#4facfe', '#fdcb6e', '#00b894',
+                '#e17055', '#6c5ce7', '#00cec9', '#fd79a8', '#a29bfe'
+            ];
+
+            const beforeCtx = document.getElementById('beforeChart').getContext('2d');
+            if (beforeChart) beforeChart.destroy();
+
+            beforeChart = new Chart(beforeCtx, {
+                type: 'pie',
+                data: {
+                    labels: results.map(r => r.name),
+                    datasets: [{
+                        data: results.map(r => r.shareBefore),
+                        backgroundColor: colors.slice(0, results.length),
+                        borderWidth: 2,
+                        borderColor: '#fff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom' },
+                        title: {
+                            display: true,
+                            text: 'Capital AVANT levée',
+                            font: { size: 16, weight: 'bold' }
+                        }
+                    }
+                }
+            });
+
+            const afterCtx = document.getElementById('afterChart').getContext('2d');
+            if (afterChart) afterChart.destroy();
+
+            afterChart = new Chart(afterCtx, {
+                type: 'pie',
+                data: {
+                    labels: [...results.map(r => r.name), newInvestorName],
+                    datasets: [{
+                        data: [...results.map(r => r.shareAfter), newInvestorSharePercent],
+                        backgroundColor: [...colors.slice(0, results.length), '#2ecc71'],
+                        borderWidth: 2,
+                        borderColor: '#fff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom' },
+                        title: {
+                            display: true,
+                            text: 'Capital APRÈS levée',
+                            font: { size: 16, weight: 'bold' }
+                        }
+                    }
+                }
+            });
+        }
+
+        function exportCSV() {
+            const fundingAmount = parseFloat(document.getElementById('fundingAmount').value) || 0;
+            const postMoneyValuation = parseFloat(document.getElementById('postMoneyValuation').value) || 0;
+            const newInvestorName = document.getElementById('newInvestorName').value || 'Nouvel Investisseur';
+
+            if (fundingAmount === 0 || postMoneyValuation === 0) {
+                alert('Calculez d\'abord la dilution');
+                return;
+            }
+
+            const newInvestorSharePercent = (fundingAmount / postMoneyValuation) * 100;
+
+            let csv = 'Calculateur Dilution Capital\n\n';
+            csv += `Montant levé,${fundingAmount} €\n`;
+            csv += `Valorisation post-money,${postMoneyValuation} €\n`;
+            csv += `Part nouvel investisseur,${newInvestorSharePercent.toFixed(2)}%\n\n`;
+
+            csv += 'Actionnaire,Parts avant (%),Parts après (%),Dilution (%)\n';
+
+            shareholders.forEach(sh => {
+                const shareAfter = sh.shares * (1 - newInvestorSharePercent / 100);
+                const dilution = sh.shares - shareAfter;
+                csv += `${sh.name},${sh.shares.toFixed(2)},${shareAfter.toFixed(2)},${dilution.toFixed(2)}\n`;
+            });
+
+            csv += `${newInvestorName},0.00,${newInvestorSharePercent.toFixed(2)},0.00\n`;
+
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `dilution_capital_${new Date().toISOString().split('T')[0]}.csv`;
+            link.click();
+        }
+
+        function resetForm() {
+            if (confirm('Voulez-vous vraiment réinitialiser toutes les données ?')) {
+                localStorage.removeItem('equityDilutionData');
+                shareholders = [
+                    { name: 'Fondateur 1', shares: 60 },
+                    { name: 'Fondateur 2', shares: 40 }
+                ];
+                document.getElementById('fundingAmount').value = '';
+                document.getElementById('postMoneyValuation').value = '';
+                document.getElementById('newInvestorName').value = '';
+                renderShareholders();
+                document.getElementById('resultsCard').style.display = 'none';
+                if (beforeChart) beforeChart.destroy();
+                if (afterChart) afterChart.destroy();
+            }
+        }
+
+        loadData();
     </script>
 </body>
 </html>

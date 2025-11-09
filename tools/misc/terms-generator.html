@@ -3,57 +3,234 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Outil Business - Business Tools</title>
+    <title>Générateur CGV/CGU - Business Tools</title>
     <link rel="stylesheet" href="../../assets/css/main.css">
     <link rel="stylesheet" href="../../assets/css/tools.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .type-selector { display: flex; gap: 20px; margin: 20px 0; }
+        .type-card { flex: 1; padding: 20px; border: 2px solid #ddd; border-radius: 8px; cursor: pointer; text-align: center; transition: all 0.3s; }
+        .type-card.active { border-color: #4CAF50; background: #e8f5e9; }
+        .doc-preview { background: white; padding: 30px; margin: 20px 0; border: 1px solid #ddd; font-family: Arial, sans-serif; line-height: 1.6; }
+        .doc-preview h1 { text-align: center; text-transform: uppercase; }
+        @media print { .tool-header, .tool-input, .tool-footer, nav, button { display: none !important; } .doc-preview { border: none; } }
+    </style>
 </head>
 <body>
     <nav class="breadcrumb">
-        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> > 
-        <a href="../../index.html#tools">Divers</a> > 
-        <span>Outil</span>
+        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> >
+        <a href="../../index.html#tools">Divers</a> >
+        <span>CGV/CGU</span>
     </nav>
     <main class="tool-container">
         <header class="tool-header">
-            <h1><i class="fas fa-tools"></i> Outil Business</h1>
-            <p class="tool-description">Outil professionnel pour optimiser votre activité.</p>
+            <h1><i class="fas fa-file-contract"></i> Générateur CGV/CGU</h1>
+            <p class="tool-description">Générez vos Conditions Générales de Vente ou d'Utilisation.</p>
         </header>
+
         <section class="tool-input">
-            <form id="mainForm">
-                <div class="form-group">
-                    <label for="input1" class="form-label">Donnée d'entrée</label>
-                    <input type="number" id="input1" class="form-input" value="100" min="0" required>
+            <h3>Type de document</h3>
+            <div class="type-selector">
+                <div class="type-card active" onclick="selectType('cgv')">
+                    <i class="fas fa-shopping-cart" style="font-size: 2em; color: #4CAF50;"></i>
+                    <h4>CGV</h4>
+                    <p>Conditions Générales de Vente</p>
                 </div>
-                <button type="submit" class="btn btn-primary"><i class="fas fa-calculator"></i> Calculer</button>
-            </form>
-        </section>
-        <section class="tool-output" id="results" style="display: none;">
-            <div class="results-grid">
-                <div class="result-item">
-                    <div class="result-label">Résultat</div>
-                    <div class="result-value highlight" id="result">-</div>
+                <div class="type-card" onclick="selectType('cgu')">
+                    <i class="fas fa-user-check" style="font-size: 2em; color: #2196F3;"></i>
+                    <h4>CGU</h4>
+                    <p>Conditions Générales d'Utilisation</p>
                 </div>
             </div>
+
+            <h3><i class="fas fa-building"></i> Informations Entreprise</h3>
+            <div class="form-group">
+                <label class="form-label">Raison sociale</label>
+                <input type="text" id="company" class="form-input" placeholder="Ex: MonEntreprise SAS">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Forme juridique</label>
+                <input type="text" id="legal_form" class="form-input" placeholder="Ex: SAS au capital de 10 000€">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Adresse siège social</label>
+                <input type="text" id="address" class="form-input" placeholder="123 Rue du Commerce, 75001 Paris">
+            </div>
+            <div class="form-group">
+                <label class="form-label">SIRET</label>
+                <input type="text" id="siret" class="form-input" placeholder="123 456 789 00010">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Email contact</label>
+                <input type="email" id="email" class="form-input" placeholder="contact@entreprise.fr">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Numéro TVA</label>
+                <input type="text" id="vat" class="form-input" placeholder="FR 12 345678901">
+            </div>
+            <div class="form-group" id="activity-field">
+                <label class="form-label">Description activité</label>
+                <textarea id="activity" class="form-input" rows="2" placeholder="Ex: Vente en ligne de produits électroniques"></textarea>
+            </div>
+
+            <div style="display: flex; gap: 10px; margin-top: 20px;">
+                <button class="btn btn-secondary" onclick="saveTerms()"><i class="fas fa-save"></i> Sauvegarder</button>
+                <button class="btn btn-secondary" onclick="loadTerms()"><i class="fas fa-folder-open"></i> Charger</button>
+                <button class="btn btn-secondary" onclick="exportCSV()"><i class="fas fa-file-csv"></i> CSV</button>
+                <button class="btn btn-primary" onclick="generate()"><i class="fas fa-sync"></i> Générer</button>
+                <button class="btn btn-primary" onclick="window.print()"><i class="fas fa-print"></i> Imprimer/PDF</button>
+            </div>
         </section>
+
+        <section class="tool-output">
+            <h3><i class="fas fa-eye"></i> Aperçu du Document</h3>
+            <div class="doc-preview" id="preview">
+                <h1 id="doc-title">CONDITIONS GÉNÉRALES DE VENTE</h1>
+                <p><strong>En vigueur au <span id="prev-date"></span></strong></p>
+
+                <h2>ARTICLE 1 - CHAMP D'APPLICATION</h2>
+                <p>Les présentes Conditions Générales de Vente (CGV) régissent les ventes de <strong id="prev-company">l'entreprise</strong>, <span id="prev-legal">forme juridique</span>, dont le siège social est situé <span id="prev-address">adresse</span>, immatriculée au RCS sous le numéro SIRET <span id="prev-siret">siret</span>, numéro de TVA intracommunautaire <span id="prev-vat">TVA</span>.</p>
+
+                <p>Les présentes CGV s'appliquent à toutes les ventes conclues sur le site internet de la société ou en magasin.</p>
+
+                <h2>ARTICLE 2 - PRIX</h2>
+                <p>Les prix sont indiqués en euros toutes taxes comprises (TTC). La société se réserve le droit de modifier ses prix à tout moment, étant toutefois entendu que le prix figurant au catalogue le jour de la commande sera le seul applicable à l'acheteur.</p>
+
+                <h2>ARTICLE 3 - COMMANDES</h2>
+                <p>Toute commande implique l'acceptation sans réserve des présentes CGV. Le client reconnaît avoir pris connaissance des présentes conditions de vente et les avoir acceptées avant de passer commande.</p>
+
+                <h2>ARTICLE 4 - PAIEMENT</h2>
+                <p>Le paiement est exigible immédiatement à la commande. Les modes de paiement acceptés sont : carte bancaire, virement, chèque. En cas de retard de paiement, des pénalités de retard au taux de 3 fois le taux d'intérêt légal seront appliquées.</p>
+
+                <h2>ARTICLE 5 - LIVRAISON</h2>
+                <p>Les produits sont livrés à l'adresse indiquée par le client lors de la commande. Les délais de livraison sont donnés à titre indicatif. La société s'engage à livrer les produits dans un délai raisonnable.</p>
+
+                <h2>ARTICLE 6 - DROIT DE RÉTRACTATION</h2>
+                <p>Conformément aux dispositions légales, le client dispose d'un délai de 14 jours à compter de la réception des produits pour exercer son droit de rétractation sans avoir à justifier de motifs ni à payer de pénalités.</p>
+
+                <h2>ARTICLE 7 - GARANTIES</h2>
+                <p>Tous nos produits bénéficient de la garantie légale de conformité et de la garantie contre les vices cachés, prévues par les articles 1641 et suivants du Code civil.</p>
+
+                <h2>ARTICLE 8 - RESPONSABILITÉ</h2>
+                <p>La société ne saurait être tenue responsable de l'inexécution du contrat en cas de rupture de stock, indisponibilité du produit, ou cas de force majeure.</p>
+
+                <h2>ARTICLE 9 - PROPRIÉTÉ INTELLECTUELLE</h2>
+                <p>Tous les éléments du site (textes, images, graphismes, logo, icônes, etc.) sont la propriété exclusive de la société. Toute reproduction, représentation, modification, publication est interdite.</p>
+
+                <h2>ARTICLE 10 - PROTECTION DES DONNÉES</h2>
+                <p>Conformément au RGPD, le client dispose d'un droit d'accès, de rectification et de suppression de ses données personnelles. Contact : <span id="prev-email">email</span></p>
+
+                <h2>ARTICLE 11 - LITIGES</h2>
+                <p>Les présentes CGV sont soumises au droit français. En cas de litige, et à défaut d'accord amiable, le tribunal compétent sera celui du siège social de la société.</p>
+
+                <p style="margin-top: 30px;"><strong>Pour toute question : <span id="prev-email2">contact@entreprise.fr</span></strong></p>
+            </div>
+        </section>
+
         <section class="tool-help">
-            <h3><i class="fas fa-info-circle"></i> Aide</h3>
-            <p>Utilisez cet outil pour optimiser votre gestion d'entreprise.</p>
+            <h3><i class="fas fa-info-circle"></i> Informations Légales</h3>
+            <ul>
+                <li><strong>Obligation légale :</strong> Les CGV sont obligatoires pour toute vente professionnelle.</li>
+                <li><strong>Affichage :</strong> Les CGV doivent être facilement accessibles sur votre site.</li>
+                <li><strong>Acceptation :</strong> Le client doit accepter les CGV avant toute commande.</li>
+                <li><strong>Mise à jour :</strong> Pensez à dater vos CGV et à les mettre à jour régulièrement.</li>
+                <li><strong>Conseil :</strong> Ce modèle est générique. Consultez un avocat pour l'adapter à votre activité.</li>
+            </ul>
         </section>
     </main>
-    <footer class="tool-footer"><a href="../../index.html"><i class="fas fa-arrow-left"></i> Retour</a></footer>
+    <footer class="tool-footer">
+        <div><a href="../../index.html"><i class="fas fa-arrow-left"></i> Retour</a></div>
+        <div style="text-align: center; color: #666;">Synoptia - <a href="mailto:ludo@synoptia.fr">ludo@synoptia.fr</a></div>
+    </footer>
     <script src="../../assets/js/utils.js"></script>
     <script src="../../assets/js/main.js"></script>
     <script>
-        document.getElementById('mainForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const val = parseFloat(document.getElementById('input1').value);
-            document.getElementById('result').textContent = val.toFixed(2);
-            document.getElementById('results').style.display = 'block';
-            showNotification('Opération réussie !', 'success');
+        let docType = 'cgv';
+
+        function selectType(type) {
+            docType = type;
+            document.querySelectorAll('.type-card').forEach(c => c.classList.remove('active'));
+            event.target.closest('.type-card').classList.add('active');
+            document.getElementById('doc-title').textContent = type === 'cgv' ?
+                'CONDITIONS GÉNÉRALES DE VENTE' : 'CONDITIONS GÉNÉRALES D\'UTILISATION';
+            generate();
+        }
+
+        function generate() {
+            const today = new Date().toLocaleDateString('fr-FR');
+            document.getElementById('prev-date').textContent = today;
+            document.getElementById('prev-company').textContent = document.getElementById('company').value || 'l\'entreprise';
+            document.getElementById('prev-legal').textContent = document.getElementById('legal_form').value || 'forme juridique';
+            document.getElementById('prev-address').textContent = document.getElementById('address').value || 'adresse';
+            document.getElementById('prev-siret').textContent = document.getElementById('siret').value || 'siret';
+            document.getElementById('prev-vat').textContent = document.getElementById('vat').value || 'TVA';
+            document.getElementById('prev-email').textContent = document.getElementById('email').value || 'email';
+            document.getElementById('prev-email2').textContent = document.getElementById('email').value || 'contact@entreprise.fr';
+        }
+
+        function saveTerms() {
+            const data = {
+                type: docType,
+                company: document.getElementById('company').value,
+                legal_form: document.getElementById('legal_form').value,
+                address: document.getElementById('address').value,
+                siret: document.getElementById('siret').value,
+                email: document.getElementById('email').value,
+                vat: document.getElementById('vat').value,
+                activity: document.getElementById('activity').value
+            };
+            localStorage.setItem('termsData', JSON.stringify(data));
+            showNotification('CGV/CGU sauvegardées !', 'success');
+        }
+
+        function loadTerms() {
+            const saved = localStorage.getItem('termsData');
+            if (saved) {
+                const data = JSON.parse(saved);
+                Object.keys(data).forEach(key => {
+                    if (key === 'type') docType = data[key];
+                    else {
+                        const el = document.getElementById(key);
+                        if (el) el.value = data[key];
+                    }
+                });
+                generate();
+                showNotification('CGV/CGU chargées !', 'success');
+            } else {
+                showNotification('Aucune donnée sauvegardée', 'info');
+            }
+        }
+
+        function exportCSV() {
+            const data = [
+                ['Champ', 'Valeur'],
+                ['Type', docType],
+                ['Société', document.getElementById('company').value],
+                ['Forme juridique', document.getElementById('legal_form').value],
+                ['Adresse', document.getElementById('address').value],
+                ['SIRET', document.getElementById('siret').value],
+                ['Email', document.getElementById('email').value],
+                ['TVA', document.getElementById('vat').value],
+                ['Activité', document.getElementById('activity').value]
+            ];
+            const csv = data.map(row => row.map(cell => `"${cell}"`).join(',')).join('\n');
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'cgv-cgu.csv';
+            link.click();
+            showNotification('Export CSV réussi !', 'success');
+        }
+
+        document.querySelectorAll('input, textarea').forEach(el => {
+            el.addEventListener('input', generate);
         });
-        window.addEventListener('load', () => document.getElementById('mainForm').dispatchEvent(new Event('submit')));
+
+        window.addEventListener('load', () => {
+            loadTerms();
+            generate();
+        });
     </script>
 </body>
 </html>

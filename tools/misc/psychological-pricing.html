@@ -3,57 +3,518 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Outil Business - Business Tools</title>
-    <link rel="stylesheet" href="../../assets/css/main.css">
-    <link rel="stylesheet" href="../../assets/css/tools.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <title>Tarification Psychologique - Synoptia</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 1.3em;
+            color: #667eea;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .input-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+            font-size: 0.95em;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1em;
+            transition: all 0.3s;
+        }
+
+        input:focus,
+        select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 10px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .strategy-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .strategy-card {
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .strategy-card h3 {
+            color: #764ba2;
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+
+        .strategy-card .price-display {
+            font-size: 2.5em;
+            font-weight: 700;
+            color: #f5576c;
+            margin: 15px 0;
+            text-align: center;
+        }
+
+        .strategy-card .description {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 0.95em;
+        }
+
+        .strategy-card .impact {
+            background: rgba(255,255,255,0.5);
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 0.9em;
+        }
+
+        .strategy-card .impact strong {
+            color: #667eea;
+        }
+
+        .strategy-card .example {
+            margin-top: 10px;
+            font-style: italic;
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .comparison-table th,
+        .comparison-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .comparison-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+        }
+
+        .comparison-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .recommendation {
+            background: #e8f5e9;
+            padding: 20px;
+            border-radius: 15px;
+            margin-top: 20px;
+        }
+
+        .recommendation h3 {
+            color: #2e7d32;
+            margin-bottom: 15px;
+        }
+
+        .recommendation ul {
+            list-style-position: inside;
+            color: #333;
+        }
+
+        .recommendation li {
+            padding: 8px 0;
+        }
+
+        .footer {
+            text-align: center;
+            color: white;
+            margin-top: 40px;
+            padding: 20px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            .input-grid,
+            .strategy-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .card {
+                padding: 20px;
+            }
+
+            .strategy-card .price-display {
+                font-size: 2em;
+            }
+        }
+    </style>
 </head>
 <body>
-    <nav class="breadcrumb">
-        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> > 
-        <a href="../../index.html#tools">Divers</a> > 
-        <span>Outil</span>
-    </nav>
-    <main class="tool-container">
-        <header class="tool-header">
-            <h1><i class="fas fa-tools"></i> Outil Business</h1>
-            <p class="tool-description">Outil professionnel pour optimiser votre activité.</p>
-        </header>
-        <section class="tool-input">
-            <form id="mainForm">
-                <div class="form-group">
-                    <label for="input1" class="form-label">Donnée d'entrée</label>
-                    <input type="number" id="input1" class="form-input" value="100" min="0" required>
+    <div class="container">
+        <div class="header">
+            <h1>💡 Tarification Psychologique</h1>
+            <p>Optimisez vos prix avec les techniques de pricing psychologique</p>
+        </div>
+
+        <div class="card">
+            <div class="section-title">Informations Produit</div>
+            <div class="input-grid">
+                <div class="input-group">
+                    <label>Nom du produit</label>
+                    <input type="text" id="productName" placeholder="Ex: Formation Premium">
                 </div>
-                <button type="submit" class="btn btn-primary"><i class="fas fa-calculator"></i> Calculer</button>
-            </form>
-        </section>
-        <section class="tool-output" id="results" style="display: none;">
-            <div class="results-grid">
-                <div class="result-item">
-                    <div class="result-label">Résultat</div>
-                    <div class="result-value highlight" id="result">-</div>
+                <div class="input-group">
+                    <label>Prix actuel (€)</label>
+                    <input type="number" id="currentPrice" placeholder="99" min="0" step="0.01">
                 </div>
             </div>
-        </section>
-        <section class="tool-help">
-            <h3><i class="fas fa-info-circle"></i> Aide</h3>
-            <p>Utilisez cet outil pour optimiser votre gestion d'entreprise.</p>
-        </section>
-    </main>
-    <footer class="tool-footer"><a href="../../index.html"><i class="fas fa-arrow-left"></i> Retour</a></footer>
-    <script src="../../assets/js/utils.js"></script>
-    <script src="../../assets/js/main.js"></script>
+            <div class="input-group">
+                <label>Type de produit</label>
+                <select id="productType">
+                    <option value="luxe">Produit de luxe / Premium</option>
+                    <option value="standard">Produit standard</option>
+                    <option value="budget">Produit économique</option>
+                    <option value="service">Service / Formation</option>
+                </select>
+            </div>
+
+            <button class="btn" onclick="generateStrategies()">🎯 Générer Stratégies de Prix</button>
+            <button class="btn btn-secondary" onclick="exportCSV()">📥 Export CSV</button>
+        </div>
+
+        <div id="strategiesSection" style="display: none;">
+            <div class="card">
+                <div class="section-title">Stratégies de Tarification</div>
+                <div class="strategy-grid" id="strategiesGrid"></div>
+            </div>
+
+            <div class="card">
+                <div class="section-title">Comparaison des Stratégies</div>
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Stratégie</th>
+                            <th>Prix suggéré</th>
+                            <th>Impact psychologique</th>
+                            <th>Recommandation</th>
+                        </tr>
+                    </thead>
+                    <tbody id="comparisonBody"></tbody>
+                </table>
+            </div>
+
+            <div class="card">
+                <div class="recommendation" id="recommendationSection"></div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p><strong>Synoptia - Outils Business</strong></p>
+            <p>Contact: <a href="mailto:ludo@synoptia.fr" style="color: white; text-decoration: underline;">ludo@synoptia.fr</a></p>
+        </div>
+    </div>
+
     <script>
-        document.getElementById('mainForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const val = parseFloat(document.getElementById('input1').value);
-            document.getElementById('result').textContent = val.toFixed(2);
-            document.getElementById('results').style.display = 'block';
-            showNotification('Opération réussie !', 'success');
-        });
-        window.addEventListener('load', () => document.getElementById('mainForm').dispatchEvent(new Event('submit')));
+        let strategies = [];
+
+        function loadData() {
+            const saved = localStorage.getItem('psychologicalPricingData');
+            if (saved) {
+                const data = JSON.parse(saved);
+                document.getElementById('productName').value = data.productName || '';
+                document.getElementById('currentPrice').value = data.currentPrice || '';
+                document.getElementById('productType').value = data.productType || 'standard';
+            }
+        }
+
+        function saveData() {
+            const data = {
+                productName: document.getElementById('productName').value,
+                currentPrice: document.getElementById('currentPrice').value,
+                productType: document.getElementById('productType').value
+            };
+            localStorage.setItem('psychologicalPricingData', JSON.stringify(data));
+        }
+
+        function generateStrategies() {
+            saveData();
+
+            const productName = document.getElementById('productName').value || 'Votre produit';
+            const currentPrice = parseFloat(document.getElementById('currentPrice').value);
+            const productType = document.getElementById('productType').value;
+
+            if (!currentPrice || currentPrice <= 0) {
+                alert('Veuillez entrer un prix valide');
+                return;
+            }
+
+            strategies = [
+                {
+                    name: 'Charm Pricing (Prix Magique)',
+                    price: Math.floor(currentPrice) - 0.01,
+                    description: 'Prix se terminant par 0.99 ou 0.95 pour créer une perception de meilleur prix.',
+                    impact: 'Augmente les ventes de 20-30% en moyenne',
+                    example: `${(Math.floor(currentPrice) - 0.01).toFixed(2)}€ paraît significativement moins cher que ${Math.floor(currentPrice)}€`,
+                    recommendation: productType !== 'luxe' ? 'Fortement recommandé' : 'Déconseillé'
+                },
+                {
+                    name: 'Prestige Pricing (Prix Rond)',
+                    price: Math.ceil(currentPrice / 10) * 10,
+                    description: 'Prix ronds pour évoquer qualité et prestige.',
+                    impact: 'Renforce la perception de qualité premium',
+                    example: `${Math.ceil(currentPrice / 10) * 10}€ communique exclusivité et qualité`,
+                    recommendation: productType === 'luxe' ? 'Fortement recommandé' : 'Recommandé'
+                },
+                {
+                    name: 'Ancrage (Prix Barré)',
+                    originalPrice: currentPrice * 1.3,
+                    price: currentPrice,
+                    description: 'Afficher un prix barré plus élevé pour ancrer la valeur perçue.',
+                    impact: 'Augmente la perception de l\'offre de 40%',
+                    example: `${(currentPrice * 1.3).toFixed(2)}€ → ${currentPrice.toFixed(2)}€ crée un sentiment d'économie`,
+                    recommendation: 'Recommandé pour promotions'
+                },
+                {
+                    name: 'Bundle Pricing',
+                    price: currentPrice * 2.5,
+                    description: 'Offre groupée : 3 produits pour moins que le prix unitaire × 3.',
+                    impact: 'Augmente le panier moyen de 35%',
+                    example: `3 × ${currentPrice.toFixed(2)}€ = ${(currentPrice * 3).toFixed(2)}€ → Pack ${(currentPrice * 2.5).toFixed(2)}€`,
+                    recommendation: 'Recommandé pour augmenter le panier'
+                },
+                {
+                    name: 'Decoy Pricing (Prix Leurre)',
+                    options: [
+                        { name: 'Basic', price: currentPrice * 0.7 },
+                        { name: 'Standard', price: currentPrice },
+                        { name: 'Premium', price: currentPrice * 1.8 }
+                    ],
+                    description: 'Proposer 3 options où l\'option intermédiaire semble être le meilleur rapport qualité-prix.',
+                    impact: '68% des clients choisissent l\'option intermédiaire',
+                    example: 'L\'option Standard à ' + currentPrice.toFixed(2) + '€ devient attractive',
+                    recommendation: 'Recommandé pour maximiser la conversion'
+                }
+            ];
+
+            renderStrategies();
+            renderComparison();
+            renderRecommendations(productType);
+
+            document.getElementById('strategiesSection').style.display = 'block';
+        }
+
+        function renderStrategies() {
+            const grid = document.getElementById('strategiesGrid');
+
+            grid.innerHTML = strategies.map(strategy => {
+                let priceHTML = '';
+
+                if (strategy.name === 'Decoy Pricing (Prix Leurre)') {
+                    priceHTML = strategy.options.map(opt =>
+                        `<div style="font-size: 1.2em; margin: 5px 0;">
+                            <strong>${opt.name}:</strong> ${opt.price.toFixed(2)}€
+                        </div>`
+                    ).join('');
+                } else if (strategy.name === 'Ancrage (Prix Barré)') {
+                    priceHTML = `
+                        <div style="text-decoration: line-through; color: #999; font-size: 1.2em;">
+                            ${strategy.originalPrice.toFixed(2)}€
+                        </div>
+                        <div>${strategy.price.toFixed(2)}€</div>
+                    `;
+                } else {
+                    priceHTML = `${strategy.price.toFixed(2)}€`;
+                }
+
+                return `
+                    <div class="strategy-card">
+                        <h3>${strategy.name}</h3>
+                        <div class="price-display">${priceHTML}</div>
+                        <div class="description">${strategy.description}</div>
+                        <div class="impact"><strong>Impact:</strong> ${strategy.impact}</div>
+                        <div class="example">💡 ${strategy.example}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderComparison() {
+            const tbody = document.getElementById('comparisonBody');
+
+            tbody.innerHTML = strategies.map(strategy => {
+                const priceDisplay = strategy.name === 'Decoy Pricing (Prix Leurre)'
+                    ? 'Variable'
+                    : strategy.price.toFixed(2) + '€';
+
+                return `
+                    <tr>
+                        <td><strong>${strategy.name}</strong></td>
+                        <td>${priceDisplay}</td>
+                        <td>${strategy.impact}</td>
+                        <td>${strategy.recommendation}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function renderRecommendations(productType) {
+            const section = document.getElementById('recommendationSection');
+
+            const recommendations = {
+                luxe: [
+                    'Privilégiez le <strong>Prestige Pricing</strong> avec des prix ronds pour renforcer l\'image premium',
+                    'Évitez les prix en .99 qui peuvent dévaloriser le produit',
+                    'Utilisez le <strong>Decoy Pricing</strong> pour guider vers l\'offre Premium',
+                    'L\'ancrage fonctionne bien avec des éditions limitées'
+                ],
+                standard: [
+                    'Le <strong>Charm Pricing</strong> (prix en .99) est très efficace pour ce segment',
+                    'Le <strong>Bundle Pricing</strong> peut augmenter significativement le panier moyen',
+                    'Testez le <strong>Decoy Pricing</strong> avec 3 offres pour maximiser les conversions',
+                    'L\'ancrage est efficace lors de promotions ponctuelles'
+                ],
+                budget: [
+                    'Le <strong>Charm Pricing</strong> est essentiel pour rester compétitif',
+                    'Mettez en avant les économies avec l\'<strong>Ancrage</strong>',
+                    'Les bundles permettent d\'augmenter le panier sans augmenter le prix unitaire perçu',
+                    'Communiquez clairement sur le rapport qualité-prix'
+                ],
+                service: [
+                    'Le <strong>Decoy Pricing</strong> fonctionne exceptionnellement bien pour les services',
+                    'Proposez toujours au moins 3 options de prix',
+                    'Le <strong>Prestige Pricing</strong> renforce la perception de qualité',
+                    'Les bundles de services augmentent l\'engagement client'
+                ]
+            };
+
+            const recs = recommendations[productType] || recommendations.standard;
+
+            section.innerHTML = `
+                <h3>💡 Recommandations pour ${document.getElementById('productType').selectedOptions[0].text}</h3>
+                <ul>
+                    ${recs.map(rec => `<li>${rec}</li>`).join('')}
+                </ul>
+            `;
+        }
+
+        function exportCSV() {
+            const productName = document.getElementById('productName').value || 'Produit';
+            const currentPrice = parseFloat(document.getElementById('currentPrice').value);
+            const productType = document.getElementById('productType').selectedOptions[0].text;
+
+            if (!currentPrice || strategies.length === 0) {
+                alert('Générez d\'abord les stratégies de prix');
+                return;
+            }
+
+            let csv = 'Stratégies de Tarification Psychologique\n\n';
+            csv += `Produit,${productName}\n`;
+            csv += `Prix actuel,${currentPrice.toFixed(2)} €\n`;
+            csv += `Type,${productType}\n\n`;
+
+            csv += 'Stratégie,Prix suggéré,Impact psychologique,Recommandation\n';
+
+            strategies.forEach(strategy => {
+                const priceDisplay = strategy.name === 'Decoy Pricing (Prix Leurre)'
+                    ? 'Variable'
+                    : strategy.price.toFixed(2) + ' €';
+
+                csv += `"${strategy.name}","${priceDisplay}","${strategy.impact}","${strategy.recommendation}"\n`;
+            });
+
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `tarification_psychologique_${productName.replace(/\s/g, '_')}_${new Date().toISOString().split('T')[0]}.csv`;
+            link.click();
+        }
+
+        loadData();
     </script>
 </body>
 </html>

@@ -3,57 +3,679 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Outil Business - Business Tools</title>
-    <link rel="stylesheet" href="../../assets/css/main.css">
-    <link rel="stylesheet" href="../../assets/css/tools.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <title>Simulateur de Scénarios Business - Synoptia</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 1.3em;
+            color: #667eea;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .scenario-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .scenario-card {
+            padding: 20px;
+            border-radius: 15px;
+            border: 3px solid;
+        }
+
+        .scenario-card.pessimistic {
+            border-color: #f5576c;
+            background: linear-gradient(135deg, #fff5f5 0%, #ffe5e5 100%);
+        }
+
+        .scenario-card.realistic {
+            border-color: #4facfe;
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+        }
+
+        .scenario-card.optimistic {
+            border-color: #00b894;
+            background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+        }
+
+        .scenario-card h3 {
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .scenario-card.pessimistic h3 {
+            color: #f5576c;
+        }
+
+        .scenario-card.realistic h3 {
+            color: #4facfe;
+        }
+
+        .scenario-card.optimistic h3 {
+            color: #00b894;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+            font-size: 0.9em;
+        }
+
+        input[type="number"] {
+            width: 100%;
+            padding: 10px 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 0.95em;
+            transition: all 0.3s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 10px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .result-card {
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+        }
+
+        .result-card h4 {
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .result-card .value {
+            font-size: 2em;
+            font-weight: 700;
+            margin: 10px 0;
+        }
+
+        .result-card .label {
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+
+        .chart-container {
+            height: 400px;
+            margin: 20px 0;
+        }
+
+        .sensitivity-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        .sensitivity-table th,
+        .sensitivity-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .sensitivity-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+        }
+
+        .sensitivity-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .insight {
+            background: #fff9e6;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 10px 0;
+            border-left: 4px solid #fdcb6e;
+        }
+
+        .insight strong {
+            color: #d63031;
+        }
+
+        .footer {
+            text-align: center;
+            color: white;
+            margin-top: 40px;
+            padding: 20px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            .scenario-grid,
+            .results-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .card {
+                padding: 20px;
+            }
+        }
+    </style>
 </head>
 <body>
-    <nav class="breadcrumb">
-        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> > 
-        <a href="../../index.html#tools">Divers</a> > 
-        <span>Outil</span>
-    </nav>
-    <main class="tool-container">
-        <header class="tool-header">
-            <h1><i class="fas fa-tools"></i> Outil Business</h1>
-            <p class="tool-description">Outil professionnel pour optimiser votre activité.</p>
-        </header>
-        <section class="tool-input">
-            <form id="mainForm">
-                <div class="form-group">
-                    <label for="input1" class="form-label">Donnée d'entrée</label>
-                    <input type="number" id="input1" class="form-input" value="100" min="0" required>
+    <div class="container">
+        <div class="header">
+            <h1>🎯 Simulateur de Scénarios Business</h1>
+            <p>Analysez 3 scénarios (Pessimiste, Réaliste, Optimiste) et leur impact sur votre business</p>
+        </div>
+
+        <div class="card">
+            <div class="section-title">Hypothèses de Base (Année 1)</div>
+            <div class="scenario-grid">
+                <div class="input-group">
+                    <label>Chiffre d'affaires initial (€)</label>
+                    <input type="number" id="baseRevenue" placeholder="100000" min="0" step="1000">
                 </div>
-                <button type="submit" class="btn btn-primary"><i class="fas fa-calculator"></i> Calculer</button>
-            </form>
-        </section>
-        <section class="tool-output" id="results" style="display: none;">
-            <div class="results-grid">
-                <div class="result-item">
-                    <div class="result-label">Résultat</div>
-                    <div class="result-value highlight" id="result">-</div>
+                <div class="input-group">
+                    <label>Coûts fixes annuels (€)</label>
+                    <input type="number" id="fixedCosts" placeholder="50000" min="0" step="1000">
+                </div>
+                <div class="input-group">
+                    <label>Taux de marge (%)</label>
+                    <input type="number" id="marginRate" placeholder="40" min="0" max="100" step="1">
                 </div>
             </div>
-        </section>
-        <section class="tool-help">
-            <h3><i class="fas fa-info-circle"></i> Aide</h3>
-            <p>Utilisez cet outil pour optimiser votre gestion d'entreprise.</p>
-        </section>
-    </main>
-    <footer class="tool-footer"><a href="../../index.html"><i class="fas fa-arrow-left"></i> Retour</a></footer>
-    <script src="../../assets/js/utils.js"></script>
-    <script src="../../assets/js/main.js"></script>
+        </div>
+
+        <div class="card">
+            <div class="section-title">Scénarios sur 3 ans</div>
+            <div class="scenario-grid">
+                <div class="scenario-card pessimistic">
+                    <h3>📉 Pessimiste</h3>
+                    <div class="input-group">
+                        <label>Croissance CA annuelle (%)</label>
+                        <input type="number" id="pessGrowth" value="-5" step="0.1">
+                    </div>
+                    <div class="input-group">
+                        <label>Évolution coûts (%)</label>
+                        <input type="number" id="pessCosts" value="10" step="0.1">
+                    </div>
+                    <div class="input-group">
+                        <label>Évolution marge (%)</label>
+                        <input type="number" id="pessMargin" value="-5" step="0.1">
+                    </div>
+                </div>
+
+                <div class="scenario-card realistic">
+                    <h3>📊 Réaliste</h3>
+                    <div class="input-group">
+                        <label>Croissance CA annuelle (%)</label>
+                        <input type="number" id="realGrowth" value="15" step="0.1">
+                    </div>
+                    <div class="input-group">
+                        <label>Évolution coûts (%)</label>
+                        <input type="number" id="realCosts" value="5" step="0.1">
+                    </div>
+                    <div class="input-group">
+                        <label>Évolution marge (%)</label>
+                        <input type="number" id="realMargin" value="2" step="0.1">
+                    </div>
+                </div>
+
+                <div class="scenario-card optimistic">
+                    <h3>📈 Optimiste</h3>
+                    <div class="input-group">
+                        <label>Croissance CA annuelle (%)</label>
+                        <input type="number" id="optiGrowth" value="30" step="0.1">
+                    </div>
+                    <div class="input-group">
+                        <label>Évolution coûts (%)</label>
+                        <input type="number" id="optiCosts" value="3" step="0.1">
+                    </div>
+                    <div class="input-group">
+                        <label>Évolution marge (%)</label>
+                        <input type="number" id="optiMargin" value="5" step="0.1">
+                    </div>
+                </div>
+            </div>
+
+            <button class="btn" onclick="simulate()">🚀 Lancer Simulation</button>
+            <button class="btn btn-secondary" onclick="exportCSV()">📥 Export CSV</button>
+        </div>
+
+        <div id="resultsSection" style="display: none;">
+            <div class="card">
+                <div class="section-title">Résultats Année 3</div>
+                <div class="results-grid" id="resultsGrid"></div>
+            </div>
+
+            <div class="card">
+                <div class="section-title">Évolution sur 3 ans</div>
+                <div class="chart-container">
+                    <canvas id="revenueChart"></canvas>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="section-title">Résultat Net sur 3 ans</div>
+                <div class="chart-container">
+                    <canvas id="profitChart"></canvas>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="section-title">Analyse de Sensibilité</div>
+                <table class="sensitivity-table">
+                    <thead>
+                        <tr>
+                            <th>Variable</th>
+                            <th>Pessimiste</th>
+                            <th>Réaliste</th>
+                            <th>Optimiste</th>
+                            <th>Impact</th>
+                        </tr>
+                    </thead>
+                    <tbody id="sensitivityBody"></tbody>
+                </table>
+
+                <div id="insights"></div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p><strong>Synoptia - Outils Business</strong></p>
+            <p>Contact: <a href="mailto:ludo@synoptia.fr" style="color: white; text-decoration: underline;">ludo@synoptia.fr</a></p>
+        </div>
+    </div>
+
     <script>
-        document.getElementById('mainForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const val = parseFloat(document.getElementById('input1').value);
-            document.getElementById('result').textContent = val.toFixed(2);
-            document.getElementById('results').style.display = 'block';
-            showNotification('Opération réussie !', 'success');
-        });
-        window.addEventListener('load', () => document.getElementById('mainForm').dispatchEvent(new Event('submit')));
+        let simulationResults = null;
+        let revenueChart = null;
+        let profitChart = null;
+
+        function loadData() {
+            const saved = localStorage.getItem('scenarioSimulatorData');
+            if (saved) {
+                const data = JSON.parse(saved);
+                document.getElementById('baseRevenue').value = data.baseRevenue || '';
+                document.getElementById('fixedCosts').value = data.fixedCosts || '';
+                document.getElementById('marginRate').value = data.marginRate || '';
+                document.getElementById('pessGrowth').value = data.pessGrowth || -5;
+                document.getElementById('pessCosts').value = data.pessCosts || 10;
+                document.getElementById('pessMargin').value = data.pessMargin || -5;
+                document.getElementById('realGrowth').value = data.realGrowth || 15;
+                document.getElementById('realCosts').value = data.realCosts || 5;
+                document.getElementById('realMargin').value = data.realMargin || 2;
+                document.getElementById('optiGrowth').value = data.optiGrowth || 30;
+                document.getElementById('optiCosts').value = data.optiCosts || 3;
+                document.getElementById('optiMargin').value = data.optiMargin || 5;
+            }
+        }
+
+        function saveData() {
+            const data = {
+                baseRevenue: document.getElementById('baseRevenue').value,
+                fixedCosts: document.getElementById('fixedCosts').value,
+                marginRate: document.getElementById('marginRate').value,
+                pessGrowth: document.getElementById('pessGrowth').value,
+                pessCosts: document.getElementById('pessCosts').value,
+                pessMargin: document.getElementById('pessMargin').value,
+                realGrowth: document.getElementById('realGrowth').value,
+                realCosts: document.getElementById('realCosts').value,
+                realMargin: document.getElementById('realMargin').value,
+                optiGrowth: document.getElementById('optiGrowth').value,
+                optiCosts: document.getElementById('optiCosts').value,
+                optiMargin: document.getElementById('optiMargin').value
+            };
+            localStorage.setItem('scenarioSimulatorData', JSON.stringify(data));
+        }
+
+        function simulateScenario(baseRevenue, fixedCosts, marginRate, growthRate, costsGrowth, marginGrowth, years = 3) {
+            const results = [];
+
+            for (let year = 0; year <= years; year++) {
+                const revenue = baseRevenue * Math.pow(1 + growthRate / 100, year);
+                const costs = fixedCosts * Math.pow(1 + costsGrowth / 100, year);
+                const margin = marginRate * Math.pow(1 + marginGrowth / 100, year);
+                const grossProfit = revenue * (margin / 100);
+                const netProfit = grossProfit - costs;
+
+                results.push({
+                    year: year,
+                    revenue: revenue,
+                    costs: costs,
+                    margin: margin,
+                    grossProfit: grossProfit,
+                    netProfit: netProfit
+                });
+            }
+
+            return results;
+        }
+
+        function simulate() {
+            saveData();
+
+            const baseRevenue = parseFloat(document.getElementById('baseRevenue').value) || 0;
+            const fixedCosts = parseFloat(document.getElementById('fixedCosts').value) || 0;
+            const marginRate = parseFloat(document.getElementById('marginRate').value) || 0;
+
+            if (!baseRevenue || !fixedCosts || !marginRate) {
+                alert('Veuillez remplir tous les champs de base');
+                return;
+            }
+
+            const pessimistic = simulateScenario(
+                baseRevenue, fixedCosts, marginRate,
+                parseFloat(document.getElementById('pessGrowth').value),
+                parseFloat(document.getElementById('pessCosts').value),
+                parseFloat(document.getElementById('pessMargin').value)
+            );
+
+            const realistic = simulateScenario(
+                baseRevenue, fixedCosts, marginRate,
+                parseFloat(document.getElementById('realGrowth').value),
+                parseFloat(document.getElementById('realCosts').value),
+                parseFloat(document.getElementById('realMargin').value)
+            );
+
+            const optimistic = simulateScenario(
+                baseRevenue, fixedCosts, marginRate,
+                parseFloat(document.getElementById('optiGrowth').value),
+                parseFloat(document.getElementById('optiCosts').value),
+                parseFloat(document.getElementById('optiMargin').value)
+            );
+
+            simulationResults = { pessimistic, realistic, optimistic };
+
+            displayResults();
+            createCharts();
+            analyzeSensitivity();
+
+            document.getElementById('resultsSection').style.display = 'block';
+        }
+
+        function displayResults() {
+            const { pessimistic, realistic, optimistic } = simulationResults;
+            const year3 = 3;
+
+            const grid = document.getElementById('resultsGrid');
+            grid.innerHTML = `
+                <div class="result-card pessimistic">
+                    <h4>📉 Pessimiste</h4>
+                    <div class="value" style="color: #f5576c;">${pessimistic[year3].revenue.toLocaleString('fr-FR', { maximumFractionDigits: 0 })} €</div>
+                    <div class="label">CA Année 3</div>
+                    <div class="value" style="color: #f5576c; font-size: 1.5em; margin-top: 10px;">
+                        ${pessimistic[year3].netProfit.toLocaleString('fr-FR', { maximumFractionDigits: 0 })} €
+                    </div>
+                    <div class="label">Résultat Net</div>
+                </div>
+                <div class="result-card realistic">
+                    <h4>📊 Réaliste</h4>
+                    <div class="value" style="color: #4facfe;">${realistic[year3].revenue.toLocaleString('fr-FR', { maximumFractionDigits: 0 })} €</div>
+                    <div class="label">CA Année 3</div>
+                    <div class="value" style="color: #4facfe; font-size: 1.5em; margin-top: 10px;">
+                        ${realistic[year3].netProfit.toLocaleString('fr-FR', { maximumFractionDigits: 0 })} €
+                    </div>
+                    <div class="label">Résultat Net</div>
+                </div>
+                <div class="result-card optimistic">
+                    <h4>📈 Optimiste</h4>
+                    <div class="value" style="color: #00b894;">${optimistic[year3].revenue.toLocaleString('fr-FR', { maximumFractionDigits: 0 })} €</div>
+                    <div class="label">CA Année 3</div>
+                    <div class="value" style="color: #00b894; font-size: 1.5em; margin-top: 10px;">
+                        ${optimistic[year3].netProfit.toLocaleString('fr-FR', { maximumFractionDigits: 0 })} €
+                    </div>
+                    <div class="label">Résultat Net</div>
+                </div>
+            `;
+        }
+
+        function createCharts() {
+            const { pessimistic, realistic, optimistic } = simulationResults;
+
+            // Graphique CA
+            const revenueCtx = document.getElementById('revenueChart').getContext('2d');
+            if (revenueChart) revenueChart.destroy();
+
+            revenueChart = new Chart(revenueCtx, {
+                type: 'line',
+                data: {
+                    labels: ['Année 0', 'Année 1', 'Année 2', 'Année 3'],
+                    datasets: [{
+                        label: 'Pessimiste',
+                        data: pessimistic.map(r => r.revenue),
+                        borderColor: '#f5576c',
+                        backgroundColor: 'rgba(245, 87, 108, 0.1)',
+                        tension: 0.3
+                    }, {
+                        label: 'Réaliste',
+                        data: realistic.map(r => r.revenue),
+                        borderColor: '#4facfe',
+                        backgroundColor: 'rgba(79, 172, 254, 0.1)',
+                        tension: 0.3
+                    }, {
+                        label: 'Optimiste',
+                        data: optimistic.map(r => r.revenue),
+                        borderColor: '#00b894',
+                        backgroundColor: 'rgba(0, 184, 148, 0.1)',
+                        tension: 0.3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom' },
+                        title: {
+                            display: true,
+                            text: 'Évolution du Chiffre d\'Affaires',
+                            font: { size: 16, weight: 'bold' }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: value => value.toLocaleString('fr-FR') + ' €'
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Graphique Résultat Net
+            const profitCtx = document.getElementById('profitChart').getContext('2d');
+            if (profitChart) profitChart.destroy();
+
+            profitChart = new Chart(profitCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Année 0', 'Année 1', 'Année 2', 'Année 3'],
+                    datasets: [{
+                        label: 'Pessimiste',
+                        data: pessimistic.map(r => r.netProfit),
+                        backgroundColor: '#f5576c'
+                    }, {
+                        label: 'Réaliste',
+                        data: realistic.map(r => r.netProfit),
+                        backgroundColor: '#4facfe'
+                    }, {
+                        label: 'Optimiste',
+                        data: optimistic.map(r => r.netProfit),
+                        backgroundColor: '#00b894'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom' },
+                        title: {
+                            display: true,
+                            text: 'Résultat Net par Scénario',
+                            font: { size: 16, weight: 'bold' }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            ticks: {
+                                callback: value => value.toLocaleString('fr-FR') + ' €'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function analyzeSensitivity() {
+            const { pessimistic, realistic, optimistic } = simulationResults;
+            const year3 = 3;
+
+            const tbody = document.getElementById('sensitivityBody');
+            tbody.innerHTML = `
+                <tr>
+                    <td><strong>CA Année 3</strong></td>
+                    <td>${pessimistic[year3].revenue.toLocaleString('fr-FR', { maximumFractionDigits: 0 })} €</td>
+                    <td>${realistic[year3].revenue.toLocaleString('fr-FR', { maximumFractionDigits: 0 })} €</td>
+                    <td>${optimistic[year3].revenue.toLocaleString('fr-FR', { maximumFractionDigits: 0 })} €</td>
+                    <td>±${((optimistic[year3].revenue - pessimistic[year3].revenue) / 2).toLocaleString('fr-FR', { maximumFractionDigits: 0 })} €</td>
+                </tr>
+                <tr>
+                    <td><strong>Résultat Net</strong></td>
+                    <td>${pessimistic[year3].netProfit.toLocaleString('fr-FR', { maximumFractionDigits: 0 })} €</td>
+                    <td>${realistic[year3].netProfit.toLocaleString('fr-FR', { maximumFractionDigits: 0 })} €</td>
+                    <td>${optimistic[year3].netProfit.toLocaleString('fr-FR', { maximumFractionDigits: 0 })} €</td>
+                    <td>±${((optimistic[year3].netProfit - pessimistic[year3].netProfit) / 2).toLocaleString('fr-FR', { maximumFractionDigits: 0 })} €</td>
+                </tr>
+                <tr>
+                    <td><strong>Marge (%)</strong></td>
+                    <td>${pessimistic[year3].margin.toFixed(1)}%</td>
+                    <td>${realistic[year3].margin.toFixed(1)}%</td>
+                    <td>${optimistic[year3].margin.toFixed(1)}%</td>
+                    <td>±${((optimistic[year3].margin - pessimistic[year3].margin) / 2).toFixed(1)}%</td>
+                </tr>
+            `;
+
+            const insights = document.getElementById('insights');
+            const profitableScenarios = [
+                pessimistic[year3].netProfit > 0,
+                realistic[year3].netProfit > 0,
+                optimistic[year3].netProfit > 0
+            ].filter(Boolean).length;
+
+            insights.innerHTML = `
+                <div class="insight">
+                    <strong>💡 Insights clés:</strong><br>
+                    • ${profitableScenarios}/3 scénarios sont rentables en année 3<br>
+                    • Écart de CA entre pessimiste et optimiste: ${((optimistic[year3].revenue - pessimistic[year3].revenue) / pessimistic[year3].revenue * 100).toFixed(0)}%<br>
+                    • Le scénario réaliste projette un CA de ${realistic[year3].revenue.toLocaleString('fr-FR', { maximumFractionDigits: 0 })} € avec un résultat net de ${realistic[year3].netProfit.toLocaleString('fr-FR', { maximumFractionDigits: 0 })} €
+                </div>
+            `;
+        }
+
+        function exportCSV() {
+            if (!simulationResults) {
+                alert('Lancez d\'abord la simulation');
+                return;
+            }
+
+            const { pessimistic, realistic, optimistic } = simulationResults;
+
+            let csv = 'Simulation de Scénarios Business\n\n';
+            csv += 'Année,Scénario,CA (€),Coûts fixes (€),Marge (%),Résultat Net (€)\n';
+
+            for (let year = 0; year <= 3; year++) {
+                csv += `${year},Pessimiste,${pessimistic[year].revenue.toFixed(2)},${pessimistic[year].costs.toFixed(2)},${pessimistic[year].margin.toFixed(2)},${pessimistic[year].netProfit.toFixed(2)}\n`;
+                csv += `${year},Réaliste,${realistic[year].revenue.toFixed(2)},${realistic[year].costs.toFixed(2)},${realistic[year].margin.toFixed(2)},${realistic[year].netProfit.toFixed(2)}\n`;
+                csv += `${year},Optimiste,${optimistic[year].revenue.toFixed(2)},${optimistic[year].costs.toFixed(2)},${optimistic[year].margin.toFixed(2)},${optimistic[year].netProfit.toFixed(2)}\n`;
+            }
+
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `scenarios_business_${new Date().toISOString().split('T')[0]}.csv`;
+            link.click();
+        }
+
+        loadData();
     </script>
 </body>
 </html>

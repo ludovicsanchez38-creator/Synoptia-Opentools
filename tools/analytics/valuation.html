@@ -3,57 +3,347 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Outil Business - Business Tools</title>
+    <title>Valorisation Entreprise - Business Tools by Synoptia</title>
     <link rel="stylesheet" href="../../assets/css/main.css">
     <link rel="stylesheet" href="../../assets/css/tools.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <nav class="breadcrumb">
-        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> > 
-        <a href="../../index.html#tools">Analyse</a> > 
-        <span>Outil</span>
+        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> >
+        <a href="../../index.html#tools">Analytics</a> >
+        <span>Valorisation Entreprise</span>
     </nav>
     <main class="tool-container">
         <header class="tool-header">
-            <h1><i class="fas fa-tools"></i> Outil Business</h1>
-            <p class="tool-description">Outil professionnel pour optimiser votre activité.</p>
+            <h1><i class="fas fa-dollar-sign"></i> Calculateur de Valorisation d'Entreprise</h1>
+            <p class="tool-description">Calculez la valorisation de votre entreprise selon plusieurs méthodes : DCF, multiples de revenus, EBITDA et actifs nets.</p>
         </header>
+
         <section class="tool-input">
-            <form id="mainForm">
-                <div class="form-group">
-                    <label for="input1" class="form-label">Donnée d'entrée</label>
-                    <input type="number" id="input1" class="form-input" value="100" min="0" required>
+            <h2>Données financières de l'entreprise</h2>
+            <form id="valuationForm">
+                <div class="card" style="margin-bottom: 1.5rem;">
+                    <h3>Données de base</h3>
+                    <div class="input-grid">
+                        <div class="form-group">
+                            <label for="revenue" class="form-label">Chiffre d'affaires annuel (€)</label>
+                            <input type="number" id="revenue" class="form-input" placeholder="1000000" step="0.01" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="ebitda" class="form-label">EBITDA (€)</label>
+                            <input type="number" id="ebitda" class="form-input" placeholder="200000" step="0.01" required>
+                            <small style="color: var(--gray);">Bénéfice avant intérêts, impôts, dépréciation et amortissement</small>
+                        </div>
+                        <div class="form-group">
+                            <label for="netAssets" class="form-label">Actifs nets (€)</label>
+                            <input type="number" id="netAssets" class="form-input" placeholder="500000" step="0.01" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="growthRate" class="form-label">Taux de croissance annuel (%)</label>
+                            <input type="number" id="growthRate" class="form-input" placeholder="10" step="0.1" value="10" required>
+                        </div>
+                    </div>
                 </div>
-                <button type="submit" class="btn btn-primary"><i class="fas fa-calculator"></i> Calculer</button>
+
+                <div class="card" style="margin-bottom: 1.5rem;">
+                    <h3>Paramètres de valorisation</h3>
+                    <div class="input-grid">
+                        <div class="form-group">
+                            <label for="discountRate" class="form-label">Taux d'actualisation (%)</label>
+                            <input type="number" id="discountRate" class="form-input" placeholder="12" step="0.1" value="12" required>
+                            <small style="color: var(--gray);">Pour la méthode DCF</small>
+                        </div>
+                        <div class="form-group">
+                            <label for="revenueMultiple" class="form-label">Multiple de CA</label>
+                            <input type="number" id="revenueMultiple" class="form-input" placeholder="2" step="0.1" value="2" required>
+                            <small style="color: var(--gray);">Ex: 1-3x pour les PME</small>
+                        </div>
+                        <div class="form-group">
+                            <label for="ebitdaMultiple" class="form-label">Multiple d'EBITDA</label>
+                            <input type="number" id="ebitdaMultiple" class="form-input" placeholder="5" step="0.1" value="5" required>
+                            <small style="color: var(--gray);">Ex: 4-8x selon le secteur</small>
+                        </div>
+                        <div class="form-group">
+                            <label for="yearsProjection" class="form-label">Années de projection (DCF)</label>
+                            <input type="number" id="yearsProjection" class="form-input" placeholder="5" min="3" max="10" value="5" required>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="action-buttons">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-calculator"></i> Calculer la valorisation
+                    </button>
+                    <button type="button" class="btn btn-secondary" id="exportBtn">
+                        <i class="fas fa-download"></i> Export CSV
+                    </button>
+                </div>
             </form>
         </section>
+
         <section class="tool-output" id="results" style="display: none;">
-            <div class="results-grid">
-                <div class="result-item">
-                    <div class="result-label">Résultat</div>
-                    <div class="result-value highlight" id="result">-</div>
+            <h2><i class="fas fa-chart-line"></i> Résultats de Valorisation</h2>
+
+            <div class="results-grid" id="valuationCards">
+                <!-- Cartes de valorisation -->
+            </div>
+
+            <div class="card" style="margin-top: 2rem;">
+                <h3>Synthèse des valorisations</h3>
+                <canvas id="valuationChart"></canvas>
+            </div>
+
+            <div class="card" style="margin-top: 2rem;">
+                <h3>Détails par méthode</h3>
+                <div id="methodDetails"></div>
+            </div>
+
+            <div class="card" style="margin-top: 2rem;">
+                <h3>Recommandation</h3>
+                <div id="recommendation" style="padding: 1.5rem; background: var(--light); border-radius: var(--radius-md);">
                 </div>
             </div>
         </section>
+
         <section class="tool-help">
-            <h3><i class="fas fa-info-circle"></i> Aide</h3>
-            <p>Utilisez cet outil pour optimiser votre gestion d'entreprise.</p>
+            <h3><i class="fas fa-question-circle"></i> Comment utiliser ce calculateur ?</h3>
+            <ol>
+                <li>Renseignez vos <strong>données financières</strong> (CA, EBITDA, actifs)</li>
+                <li>Ajustez les <strong>paramètres de valorisation</strong> selon votre secteur</li>
+                <li>Le calculateur applique <strong>4 méthodes</strong> différentes</li>
+                <li>Consultez la <strong>valorisation moyenne</strong> et les écarts</li>
+                <li>Exportez le <strong>rapport de valorisation</strong></li>
+            </ol>
+
+            <h3><i class="fas fa-lightbulb"></i> Méthodes de valorisation</h3>
+            <ul>
+                <li><strong>DCF</strong> : Somme des flux de trésorerie actualisés sur N années</li>
+                <li><strong>Multiple de CA</strong> : Chiffre d'affaires × Multiple sectoriel</li>
+                <li><strong>Multiple d'EBITDA</strong> : EBITDA × Multiple sectoriel</li>
+                <li><strong>Actifs nets</strong> : Valeur comptable des actifs nets</li>
+            </ul>
         </section>
     </main>
-    <footer class="tool-footer"><a href="../../index.html"><i class="fas fa-arrow-left"></i> Retour</a></footer>
+
+    <footer class="tool-footer">
+        <p>Synoptia - Business Tools | Contact: <a href="mailto:ludo@synoptia.fr">ludo@synoptia.fr</a></p>
+        <a href="../../index.html"><i class="fas fa-arrow-left"></i> Retour aux outils</a>
+    </footer>
+
     <script src="../../assets/js/utils.js"></script>
     <script src="../../assets/js/main.js"></script>
     <script>
-        document.getElementById('mainForm').addEventListener('submit', function(e) {
+        let chart = null;
+        let valuationData = null;
+
+        document.getElementById('valuationForm').addEventListener('submit', function(e) {
             e.preventDefault();
-            const val = parseFloat(document.getElementById('input1').value);
-            document.getElementById('result').textContent = val.toFixed(2);
-            document.getElementById('results').style.display = 'block';
-            showNotification('Opération réussie !', 'success');
+
+            const data = {
+                revenue: parseFloat(document.getElementById('revenue').value),
+                ebitda: parseFloat(document.getElementById('ebitda').value),
+                netAssets: parseFloat(document.getElementById('netAssets').value),
+                growthRate: parseFloat(document.getElementById('growthRate').value) / 100,
+                discountRate: parseFloat(document.getElementById('discountRate').value) / 100,
+                revenueMultiple: parseFloat(document.getElementById('revenueMultiple').value),
+                ebitdaMultiple: parseFloat(document.getElementById('ebitdaMultiple').value),
+                yearsProjection: parseInt(document.getElementById('yearsProjection').value)
+            };
+
+            valuationData = calculateValuations(data);
+            displayResults(valuationData);
+            showNotification('Valorisation calculée avec succès !', 'success');
         });
-        window.addEventListener('load', () => document.getElementById('mainForm').dispatchEvent(new Event('submit')));
+
+        function calculateValuations(data) {
+            // 1. Méthode DCF simplifié
+            let dcfValue = 0;
+            let currentCashFlow = data.ebitda; // Simplification : on utilise l'EBITDA comme proxy du cash flow
+
+            for (let i = 1; i <= data.yearsProjection; i++) {
+                const projectedCF = currentCashFlow * Math.pow(1 + data.growthRate, i);
+                const discountedCF = projectedCF / Math.pow(1 + data.discountRate, i);
+                dcfValue += discountedCF;
+            }
+
+            // 2. Multiple de revenus
+            const revenueMultipleValue = data.revenue * data.revenueMultiple;
+
+            // 3. Multiple d'EBITDA
+            const ebitdaMultipleValue = data.ebitda * data.ebitdaMultiple;
+
+            // 4. Actifs nets
+            const netAssetsValue = data.netAssets;
+
+            // Moyenne et statistiques
+            const values = [dcfValue, revenueMultipleValue, ebitdaMultipleValue, netAssetsValue];
+            const average = values.reduce((sum, v) => sum + v, 0) / values.length;
+            const min = Math.min(...values);
+            const max = Math.max(...values);
+
+            return {
+                dcf: dcfValue,
+                revenueMultiple: revenueMultipleValue,
+                ebitdaMultiple: ebitdaMultipleValue,
+                netAssets: netAssetsValue,
+                average: average,
+                min: min,
+                max: max,
+                inputData: data
+            };
+        }
+
+        function displayResults(val) {
+            // Cartes de résultats
+            document.getElementById('valuationCards').innerHTML = `
+                <div class="result-item">
+                    <div class="result-label">Valorisation moyenne</div>
+                    <div class="result-value highlight">${formatCurrency(val.average)}</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Fourchette basse</div>
+                    <div class="result-value">${formatCurrency(val.min)}</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Fourchette haute</div>
+                    <div class="result-value">${formatCurrency(val.max)}</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Écart max</div>
+                    <div class="result-value">${formatCurrency(val.max - val.min)}</div>
+                </div>
+            `;
+
+            // Détails des méthodes
+            document.getElementById('methodDetails').innerHTML = `
+                <div class="results-grid">
+                    <div style="padding: 1rem; background: var(--light); border-radius: var(--radius-md);">
+                        <h4 style="color: var(--primary);">Méthode DCF</h4>
+                        <div style="font-size: 1.5rem; font-weight: 700; margin: 0.5rem 0;">${formatCurrency(val.dcf)}</div>
+                        <small style="color: var(--gray);">Flux actualisés sur ${val.inputData.yearsProjection} ans</small>
+                    </div>
+                    <div style="padding: 1rem; background: var(--light); border-radius: var(--radius-md);">
+                        <h4 style="color: var(--primary);">Multiple de CA</h4>
+                        <div style="font-size: 1.5rem; font-weight: 700; margin: 0.5rem 0;">${formatCurrency(val.revenueMultiple)}</div>
+                        <small style="color: var(--gray);">CA × ${val.inputData.revenueMultiple}x</small>
+                    </div>
+                    <div style="padding: 1rem; background: var(--light); border-radius: var(--radius-md);">
+                        <h4 style="color: var(--primary);">Multiple d'EBITDA</h4>
+                        <div style="font-size: 1.5rem; font-weight: 700; margin: 0.5rem 0;">${formatCurrency(val.ebitdaMultiple)}</div>
+                        <small style="color: var(--gray);">EBITDA × ${val.inputData.ebitdaMultiple}x</small>
+                    </div>
+                    <div style="padding: 1rem; background: var(--light); border-radius: var(--radius-md);">
+                        <h4 style="color: var(--primary);">Actifs nets</h4>
+                        <div style="font-size: 1.5rem; font-weight: 700; margin: 0.5rem 0;">${formatCurrency(val.netAssets)}</div>
+                        <small style="color: var(--gray);">Valeur comptable</small>
+                    </div>
+                </div>
+            `;
+
+            // Recommandation
+            const highestMethod = Object.entries({
+                'DCF': val.dcf,
+                'Multiple de CA': val.revenueMultiple,
+                'Multiple d\'EBITDA': val.ebitdaMultiple,
+                'Actifs nets': val.netAssets
+            }).sort((a, b) => b[1] - a[1])[0];
+
+            document.getElementById('recommendation').innerHTML = `
+                <p style="font-size: 1.125rem; margin-bottom: 1rem;">
+                    <strong>Fourchette de valorisation recommandée :</strong>
+                    ${formatCurrency(val.min)} - ${formatCurrency(val.max)}
+                </p>
+                <p style="margin-bottom: 1rem;">
+                    <strong>Valorisation moyenne :</strong> ${formatCurrency(val.average)}
+                </p>
+                <p style="color: var(--gray);">
+                    La méthode qui donne la valorisation la plus élevée est : <strong>${highestMethod[0]}</strong> (${formatCurrency(highestMethod[1])})
+                </p>
+                <p style="color: var(--gray); margin-top: 1rem;">
+                    <i class="fas fa-info-circle"></i> Note : Ces valorisations sont des estimations.
+                    Consultez un expert-comptable ou un conseil en fusions-acquisitions pour une évaluation détaillée.
+                </p>
+            `;
+
+            // Graphique
+            displayChart(val);
+
+            document.getElementById('results').style.display = 'block';
+        }
+
+        function displayChart(val) {
+            const ctx = document.getElementById('valuationChart');
+
+            if (chart) {
+                chart.destroy();
+            }
+
+            chart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['DCF', 'Multiple CA', 'Multiple EBITDA', 'Actifs nets', 'Moyenne'],
+                    datasets: [{
+                        label: 'Valorisation (€)',
+                        data: [val.dcf, val.revenueMultiple, val.ebitdaMultiple, val.netAssets, val.average],
+                        backgroundColor: ['#3b82f6', '#22c55e', '#f59e0b', '#ef4444', '#8b5cf6'],
+                        borderColor: ['#2563eb', '#16a34a', '#d97706', '#dc2626', '#7c3aed'],
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return 'Valorisation: ' + formatCurrency(context.parsed.y);
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return formatCurrency(value);
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        document.getElementById('exportBtn').addEventListener('click', function() {
+            if (!valuationData) {
+                showNotification('Effectuez d\'abord un calcul de valorisation', 'warning');
+                return;
+            }
+
+            const val = valuationData;
+            let csv = 'Méthode,Valorisation\n';
+            csv += `"DCF",${val.dcf}\n`;
+            csv += `"Multiple de CA",${val.revenueMultiple}\n`;
+            csv += `"Multiple d'EBITDA",${val.ebitdaMultiple}\n`;
+            csv += `"Actifs nets",${val.netAssets}\n`;
+            csv += `"Moyenne",${val.average}\n`;
+            csv += `"Minimum",${val.min}\n`;
+            csv += `"Maximum",${val.max}\n`;
+
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `valorisation-entreprise-${new Date().toISOString().split('T')[0]}.csv`;
+            link.click();
+
+            showNotification('Export CSV réussi !', 'success');
+        });
     </script>
 </body>
 </html>

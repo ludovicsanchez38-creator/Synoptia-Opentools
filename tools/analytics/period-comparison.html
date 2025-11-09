@@ -3,57 +3,332 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Outil Business - Business Tools</title>
+    <title>Comparaison de Périodes - Business Tools by Synoptia</title>
     <link rel="stylesheet" href="../../assets/css/main.css">
     <link rel="stylesheet" href="../../assets/css/tools.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <nav class="breadcrumb">
-        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> > 
-        <a href="../../index.html#tools">Analyse</a> > 
-        <span>Outil</span>
+        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> >
+        <a href="../../index.html#tools">Analytics</a> >
+        <span>Comparaison de Périodes</span>
     </nav>
     <main class="tool-container">
         <header class="tool-header">
-            <h1><i class="fas fa-tools"></i> Outil Business</h1>
-            <p class="tool-description">Outil professionnel pour optimiser votre activité.</p>
+            <h1><i class="fas fa-balance-scale"></i> Comparaison de Périodes</h1>
+            <p class="tool-description">Comparez les performances entre deux périodes pour analyser les variations et tendances.</p>
         </header>
+
         <section class="tool-input">
-            <form id="mainForm">
-                <div class="form-group">
-                    <label for="input1" class="form-label">Donnée d'entrée</label>
-                    <input type="number" id="input1" class="form-input" value="100" min="0" required>
+            <h2>Ajouter une métrique à comparer</h2>
+            <form id="comparisonForm">
+                <div class="input-grid">
+                    <div class="form-group">
+                        <label for="metricName" class="form-label">Nom de la métrique</label>
+                        <input type="text" id="metricName" class="form-input" placeholder="Ex: Chiffre d'affaires" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="periodAValue" class="form-label">Valeur Période A</label>
+                        <input type="number" id="periodAValue" class="form-input" placeholder="10000" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="periodBValue" class="form-label">Valeur Période B</label>
+                        <input type="number" id="periodBValue" class="form-input" placeholder="12000" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="unit" class="form-label">Unité</label>
+                        <input type="text" id="unit" class="form-input" placeholder="€" value="€">
+                    </div>
                 </div>
-                <button type="submit" class="btn btn-primary"><i class="fas fa-calculator"></i> Calculer</button>
+
+                <div class="input-grid" style="margin-top: 1rem;">
+                    <div class="form-group">
+                        <label for="periodAName" class="form-label">Nom Période A</label>
+                        <input type="text" id="periodAName" class="form-input" placeholder="Q1 2024" value="Période A">
+                    </div>
+                    <div class="form-group">
+                        <label for="periodBName" class="form-label">Nom Période B</label>
+                        <input type="text" id="periodBName" class="form-input" placeholder="Q1 2025" value="Période B">
+                    </div>
+                </div>
+
+                <div class="action-buttons">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Ajouter la métrique
+                    </button>
+                    <button type="button" class="btn btn-secondary" id="exportBtn">
+                        <i class="fas fa-download"></i> Export CSV
+                    </button>
+                    <button type="button" class="btn btn-danger" id="clearBtn">
+                        <i class="fas fa-trash"></i> Tout effacer
+                    </button>
+                </div>
             </form>
         </section>
+
         <section class="tool-output" id="results" style="display: none;">
-            <div class="results-grid">
-                <div class="result-item">
-                    <div class="result-label">Résultat</div>
-                    <div class="result-value highlight" id="result">-</div>
+            <h2><i class="fas fa-chart-bar"></i> Analyse Comparative</h2>
+
+            <div class="results-grid" id="summaryCards">
+                <!-- Cartes de résumé -->
+            </div>
+
+            <div class="card" style="margin-top: 2rem;">
+                <h3>Tableau comparatif</h3>
+                <div style="overflow-x: auto;">
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <thead style="background: var(--primary); color: white;">
+                            <tr>
+                                <th style="padding: 1rem; text-align: left;">Métrique</th>
+                                <th style="padding: 1rem; text-align: right;" id="periodAHeader">Période A</th>
+                                <th style="padding: 1rem; text-align: right;" id="periodBHeader">Période B</th>
+                                <th style="padding: 1rem; text-align: right;">Variation</th>
+                                <th style="padding: 1rem; text-align: right;">Variation (%)</th>
+                                <th style="padding: 1rem; text-align: center;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody">
+                        </tbody>
+                    </table>
                 </div>
             </div>
+
+            <div class="card" style="margin-top: 2rem;">
+                <h3>Graphique comparatif</h3>
+                <canvas id="comparisonChart"></canvas>
+            </div>
         </section>
+
         <section class="tool-help">
-            <h3><i class="fas fa-info-circle"></i> Aide</h3>
-            <p>Utilisez cet outil pour optimiser votre gestion d'entreprise.</p>
+            <h3><i class="fas fa-question-circle"></i> Comment utiliser cet outil ?</h3>
+            <ol>
+                <li>Définissez vos <strong>deux périodes</strong> à comparer</li>
+                <li>Ajoutez vos <strong>métriques</strong> (revenus, clients, etc.)</li>
+                <li>Renseignez les <strong>valeurs</strong> pour chaque période</li>
+                <li>Analysez les <strong>variations absolues et relatives</strong></li>
+                <li>Identifiez les <strong>tendances</strong> à la hausse ou à la baisse</li>
+            </ol>
+
+            <h3><i class="fas fa-lightbulb"></i> Interprétation</h3>
+            <ul>
+                <li><strong style="color: #22c55e;">Vert</strong> : Variation positive (&gt;0%)</li>
+                <li><strong style="color: #ef4444;">Rouge</strong> : Variation négative (&lt;0%)</li>
+                <li><strong>Variation %</strong> = ((Période B - Période A) / Période A) × 100</li>
+            </ul>
         </section>
     </main>
-    <footer class="tool-footer"><a href="../../index.html"><i class="fas fa-arrow-left"></i> Retour</a></footer>
+
+    <footer class="tool-footer">
+        <p>Synoptia - Business Tools | Contact: <a href="mailto:ludo@synoptia.fr">ludo@synoptia.fr</a></p>
+        <a href="../../index.html"><i class="fas fa-arrow-left"></i> Retour aux outils</a>
+    </footer>
+
     <script src="../../assets/js/utils.js"></script>
     <script src="../../assets/js/main.js"></script>
     <script>
-        document.getElementById('mainForm').addEventListener('submit', function(e) {
+        const STORAGE_KEY = 'synoptia_period_comparison';
+        let metrics = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+        let periodNames = JSON.parse(localStorage.getItem(STORAGE_KEY + '_periods')) || { a: 'Période A', b: 'Période B' };
+        let chart = null;
+
+        if (metrics.length > 0) {
+            updatePeriodNames();
+            displayResults();
+        }
+
+        document.getElementById('comparisonForm').addEventListener('submit', function(e) {
             e.preventDefault();
-            const val = parseFloat(document.getElementById('input1').value);
-            document.getElementById('result').textContent = val.toFixed(2);
-            document.getElementById('results').style.display = 'block';
-            showNotification('Opération réussie !', 'success');
+
+            const metric = {
+                id: Date.now(),
+                name: document.getElementById('metricName').value,
+                periodA: parseFloat(document.getElementById('periodAValue').value),
+                periodB: parseFloat(document.getElementById('periodBValue').value),
+                unit: document.getElementById('unit').value
+            };
+
+            metric.variation = metric.periodB - metric.periodA;
+            metric.variationPercent = metric.periodA !== 0 ? ((metric.variation / metric.periodA) * 100).toFixed(2) : 0;
+
+            metrics.push(metric);
+
+            // Sauvegarder les noms de périodes
+            periodNames.a = document.getElementById('periodAName').value;
+            periodNames.b = document.getElementById('periodBName').value;
+
+            saveData();
+            updatePeriodNames();
+            displayResults();
+
+            // Reset seulement les valeurs, pas les noms de périodes
+            document.getElementById('metricName').value = '';
+            document.getElementById('periodAValue').value = '';
+            document.getElementById('periodBValue').value = '';
+
+            showNotification('Métrique ajoutée avec succès !', 'success');
         });
-        window.addEventListener('load', () => document.getElementById('mainForm').dispatchEvent(new Event('submit')));
+
+        function saveData() {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(metrics));
+            localStorage.setItem(STORAGE_KEY + '_periods', JSON.stringify(periodNames));
+        }
+
+        function updatePeriodNames() {
+            document.getElementById('periodAHeader').textContent = periodNames.a;
+            document.getElementById('periodBHeader').textContent = periodNames.b;
+        }
+
+        function displayResults() {
+            displaySummary();
+            displayTable();
+            displayChart();
+            document.getElementById('results').style.display = 'block';
+        }
+
+        function displaySummary() {
+            const positiveMetrics = metrics.filter(m => m.variation > 0).length;
+            const negativeMetrics = metrics.filter(m => m.variation < 0).length;
+            const avgVariation = metrics.reduce((sum, m) => sum + parseFloat(m.variationPercent), 0) / metrics.length;
+
+            document.getElementById('summaryCards').innerHTML = `
+                <div class="result-item">
+                    <div class="result-label">Métriques en hausse</div>
+                    <div class="result-value" style="color: #22c55e;">${positiveMetrics}</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Métriques en baisse</div>
+                    <div class="result-value" style="color: #ef4444;">${negativeMetrics}</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Variation moyenne</div>
+                    <div class="result-value highlight" style="color: ${avgVariation >= 0 ? '#22c55e' : '#ef4444'};">${avgVariation.toFixed(2)}%</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Total métriques</div>
+                    <div class="result-value">${metrics.length}</div>
+                </div>
+            `;
+        }
+
+        function displayTable() {
+            const tbody = document.getElementById('tableBody');
+            tbody.innerHTML = '';
+
+            metrics.forEach(metric => {
+                const row = document.createElement('tr');
+                row.style.borderBottom = '1px solid var(--border)';
+                const color = metric.variation >= 0 ? '#22c55e' : '#ef4444';
+                const icon = metric.variation >= 0 ? 'fa-arrow-up' : 'fa-arrow-down';
+
+                row.innerHTML = `
+                    <td style="padding: 0.75rem; font-weight: 600;">${metric.name}</td>
+                    <td style="padding: 0.75rem; text-align: right;">${metric.periodA.toLocaleString()} ${metric.unit}</td>
+                    <td style="padding: 0.75rem; text-align: right;">${metric.periodB.toLocaleString()} ${metric.unit}</td>
+                    <td style="padding: 0.75rem; text-align: right; font-weight: 600; color: ${color};">
+                        ${metric.variation >= 0 ? '+' : ''}${metric.variation.toLocaleString()} ${metric.unit}
+                    </td>
+                    <td style="padding: 0.75rem; text-align: right; font-weight: 700; color: ${color};">
+                        <i class="fas ${icon}"></i> ${metric.variation >= 0 ? '+' : ''}${metric.variationPercent}%
+                    </td>
+                    <td style="padding: 0.75rem; text-align: center;">
+                        <button class="btn btn-danger btn-sm" onclick="deleteMetric(${metric.id})">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function displayChart() {
+            const ctx = document.getElementById('comparisonChart');
+
+            if (chart) {
+                chart.destroy();
+            }
+
+            const labels = metrics.map(m => m.name);
+            const periodAData = metrics.map(m => m.periodA);
+            const periodBData = metrics.map(m => m.periodB);
+
+            chart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: periodNames.a,
+                            data: periodAData,
+                            backgroundColor: '#3b82f6',
+                            borderColor: '#2563eb',
+                            borderWidth: 2
+                        },
+                        {
+                            label: periodNames.b,
+                            data: periodBData,
+                            backgroundColor: '#22c55e',
+                            borderColor: '#16a34a',
+                            borderWidth: 2
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: { display: true, position: 'top' }
+                    },
+                    scales: {
+                        y: { beginAtZero: true }
+                    }
+                }
+            });
+        }
+
+        window.deleteMetric = function(id) {
+            if (confirm('Supprimer cette métrique ?')) {
+                metrics = metrics.filter(m => m.id !== id);
+                saveData();
+                if (metrics.length === 0) {
+                    document.getElementById('results').style.display = 'none';
+                } else {
+                    displayResults();
+                }
+                showNotification('Métrique supprimée', 'success');
+            }
+        };
+
+        document.getElementById('exportBtn').addEventListener('click', function() {
+            if (metrics.length === 0) {
+                showNotification('Aucune donnée à exporter', 'warning');
+                return;
+            }
+
+            let csv = `Métrique,${periodNames.a},${periodNames.b},Variation,Variation (%)\n`;
+            metrics.forEach(m => {
+                csv += `"${m.name}",${m.periodA},${m.periodB},${m.variation},${m.variationPercent}%\n`;
+            });
+
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `comparaison-periodes-${new Date().toISOString().split('T')[0]}.csv`;
+            link.click();
+
+            showNotification('Export CSV réussi !', 'success');
+        });
+
+        document.getElementById('clearBtn').addEventListener('click', function() {
+            if (confirm('Effacer toutes les métriques ?')) {
+                metrics = [];
+                saveData();
+                document.getElementById('results').style.display = 'none';
+                showNotification('Données effacées', 'success');
+            }
+        });
     </script>
 </body>
 </html>
