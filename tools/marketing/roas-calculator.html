@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculateur de ROAS - Business Tools</title>
+    <link rel="stylesheet" href="../../assets/css/main.css">
+    <link rel="stylesheet" href="../../assets/css/tools.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav class="breadcrumb">
+        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> > <a href="../../index.html#tools">Marketing</a> > <span>Calculateur de ROAS</span>
+    </nav>
+
+    <main class="tool-container">
+        <header class="tool-header">
+            <h1><i class="fas fa-ad"></i> Calculateur de ROAS (Return on Ad Spend)</h1>
+            <p class="tool-description">Mesurez l'efficacité de vos campagnes publicitaires et calculez le retour sur investissement publicitaire.</p>
+        </header>
+
+        <section class="tool-input">
+            <h2>Données de campagne</h2>
+            <form id="roasForm">
+                <div class="input-grid">
+                    <div class="form-group">
+                        <label for="revenue" class="form-label"><i class="fas fa-euro-sign"></i> Revenus générés (€)</label>
+                        <input type="number" id="revenue" class="form-input" placeholder="Ex: 5000" min="0" step="1" value="5000" required>
+                        <span class="form-help">CA généré par la campagne</span>
+                    </div>
+                    <div class="form-group">
+                        <label for="adSpend" class="form-label"><i class="fas fa-money-bill-wave"></i> Dépenses publicitaires (€)</label>
+                        <input type="number" id="adSpend" class="form-input" placeholder="Ex: 1000" min="0" step="1" value="1000" required>
+                        <span class="form-help">Budget investi dans la pub</span>
+                    </div>
+                </div>
+                <div class="action-buttons">
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-calculator"></i> Calculer</button>
+                </div>
+            </form>
+        </section>
+
+        <section class="tool-output" id="results" style="display: none;">
+            <h2><i class="fas fa-chart-bar"></i> Résultats</h2>
+            <div class="results-grid">
+                <div class="result-item">
+                    <div class="result-label">ROAS</div>
+                    <div class="result-value highlight" id="roas">-</div>
+                </div>
+                <div class="result-item success">
+                    <div class="result-label">Profit net</div>
+                    <div class="result-value" id="profit">-</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">ROI</div>
+                    <div class="result-value" id="roi">-</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Rentabilité</div>
+                    <div class="result-value" id="profitability">-</div>
+                </div>
+            </div>
+            <div class="alert" id="interpretation"></div>
+        </section>
+
+        <section class="tool-help">
+            <h3><i class="fas fa-question-circle"></i> Comment utiliser cet outil ?</h3>
+            <ol>
+                <li>Entrez les <strong>revenus générés</strong> par votre campagne publicitaire</li>
+                <li>Indiquez le <strong>budget publicitaire</strong> dépensé</li>
+                <li>Obtenez votre <strong>ROAS</strong> et analysez la performance</li>
+            </ol>
+            <h3><i class="fas fa-calculator"></i> Formules</h3>
+            <code>ROAS = Revenus / Dépenses pub\nROI = ((Revenus - Dépenses) / Dépenses) × 100</code>
+            <h3><i class="fas fa-lightbulb"></i> Interprétation</h3>
+            <ul>
+                <li><strong>ROAS &gt; 4</strong> : Excellente performance</li>
+                <li><strong>ROAS 2-4</strong> : Bonne performance</li>
+                <li><strong>ROAS &lt; 2</strong> : Performance à améliorer</li>
+            </ul>
+        </section>
+    </main>
+
+    <footer class="tool-footer"><a href="../../index.html"><i class="fas fa-arrow-left"></i> Retour aux outils</a></footer>
+
+    <script src="../../assets/js/utils.js"></script>
+    <script src="../../assets/js/main.js"></script>
+    <script>
+        document.getElementById('roasForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const revenue = parseFloat(document.getElementById('revenue').value);
+            const adSpend = parseFloat(document.getElementById('adSpend').value);
+
+            if (adSpend === 0) {
+                showNotification('Les dépenses ne peuvent pas être zéro', 'error');
+                return;
+            }
+
+            const roas = revenue / adSpend;
+            const profit = revenue - adSpend;
+            const roi = (profit / adSpend) * 100;
+
+            document.getElementById('roas').innerHTML = roas.toFixed(2) + '<span class="result-unit">:1</span>';
+            document.getElementById('profit').textContent = formatCurrency(profit);
+            document.getElementById('profit').className = profit >= 0 ? 'result-value success' : 'result-value danger';
+            document.getElementById('roi').textContent = formatPercentage(roi);
+            document.getElementById('profitability').textContent = profit >= 0 ? 'Rentable ✓' : 'Déficitaire ✗';
+
+            let interpretation = '';
+            let alertClass = 'alert-info';
+
+            if (roas >= 4) {
+                interpretation = '<strong>🚀 Excellent !</strong> Votre campagne est très performante.';
+                alertClass = 'alert-success';
+            } else if (roas >= 2) {
+                interpretation = '<strong>👍 Bien !</strong> Votre campagne est rentable.';
+                alertClass = 'alert-success';
+            } else if (roas >= 1) {
+                interpretation = '<strong>⚡ Correct</strong> mais vous pourriez optimiser.';
+                alertClass = 'alert-warning';
+            } else {
+                interpretation = '<strong>⚠️ Attention !</strong> Votre campagne n\'est pas rentable.';
+                alertClass = 'alert-danger';
+            }
+
+            const interpDiv = document.getElementById('interpretation');
+            interpDiv.className = `alert ${alertClass}`;
+            interpDiv.innerHTML = interpretation;
+
+            document.getElementById('results').style.display = 'block';
+            scrollToElement('#results', 100);
+            showNotification('Calcul effectué !', 'success');
+        });
+
+        window.addEventListener('load', () => document.getElementById('roasForm').dispatchEvent(new Event('submit')));
+    </script>
+</body>
+</html>

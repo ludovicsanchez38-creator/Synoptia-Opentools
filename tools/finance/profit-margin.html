@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculateur de Marge Bénéficiaire - Business Tools</title>
+    <link rel="stylesheet" href="../../assets/css/main.css">
+    <link rel="stylesheet" href="../../assets/css/tools.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav class="breadcrumb">
+        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> >
+        <a href="../../index.html#tools">Finance</a> >
+        <span>Calculateur de Marge Bénéficiaire</span>
+    </nav>
+
+    <main class="tool-container">
+        <header class="tool-header">
+            <h1><i class="fas fa-percent"></i> Calculateur de Marge Bénéficiaire</h1>
+            <p class="tool-description">
+                Déterminez le pourcentage de profit sur vos revenus et analysez la rentabilité de votre activité.
+            </p>
+        </header>
+
+        <section class="tool-input">
+            <h2>Données financières</h2>
+            <form id="marginForm">
+                <div class="input-grid">
+                    <div class="form-group">
+                        <label for="revenue" class="form-label">
+                            <i class="fas fa-euro-sign"></i> Chiffre d'affaires (€)
+                        </label>
+                        <input type="number" id="revenue" class="form-input" placeholder="Ex: 100000" min="0" step="100" value="100000" required>
+                        <span class="form-help">Revenus totaux</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="costs" class="form-label">
+                            <i class="fas fa-shopping-cart"></i> Coûts totaux (€)
+                        </label>
+                        <input type="number" id="costs" class="form-input" placeholder="Ex: 65000" min="0" step="100" value="65000" required>
+                        <span class="form-help">Charges + coûts de production</span>
+                    </div>
+                </div>
+
+                <div class="action-buttons">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-calculator"></i> Calculer
+                    </button>
+                    <button type="button" class="btn btn-outline" id="resetBtn">
+                        <i class="fas fa-redo"></i> Réinitialiser
+                    </button>
+                </div>
+            </form>
+        </section>
+
+        <section class="tool-output" id="results" style="display: none;">
+            <h2><i class="fas fa-chart-bar"></i> Résultats</h2>
+
+            <div class="results-grid">
+                <div class="result-item success">
+                    <div class="result-label">Bénéfice net</div>
+                    <div class="result-value success" id="netProfit">-</div>
+                </div>
+
+                <div class="result-item">
+                    <div class="result-label">Marge bénéficiaire</div>
+                    <div class="result-value highlight" id="profitMargin">-</div>
+                </div>
+
+                <div class="result-item">
+                    <div class="result-label">Ratio coûts/revenus</div>
+                    <div class="result-value" id="costRatio">-</div>
+                </div>
+
+                <div class="result-item">
+                    <div class="result-label">Taux de rentabilité</div>
+                    <div class="result-value" id="profitability">-</div>
+                </div>
+            </div>
+
+            <div class="alert alert-info" id="interpretation" style="margin-top: var(--spacing-lg);">
+                <!-- Interprétation dynamique -->
+            </div>
+        </section>
+
+        <section class="tool-help">
+            <h3><i class="fas fa-question-circle"></i> Comment utiliser cet outil ?</h3>
+            <ol>
+                <li>Entrez votre <strong>chiffre d'affaires</strong> total</li>
+                <li>Indiquez vos <strong>coûts totaux</strong> (achats, charges, salaires, etc.)</li>
+                <li>Cliquez sur <strong>Calculer</strong> pour voir votre marge bénéficiaire</li>
+            </ol>
+
+            <h3><i class="fas fa-calculator"></i> Formules utilisées</h3>
+            <code>
+Bénéfice net = Chiffre d'affaires - Coûts totaux
+
+Marge bénéficiaire = (Bénéfice net / CA) × 100
+
+Ratio coûts/revenus = (Coûts / CA) × 100
+            </code>
+
+            <h3><i class="fas fa-lightbulb"></i> Interprétation</h3>
+            <ul>
+                <li><strong>&gt; 20%</strong> : Excellente marge bénéficiaire</li>
+                <li><strong>10-20%</strong> : Bonne marge, activité saine</li>
+                <li><strong>5-10%</strong> : Marge correcte mais améliorable</li>
+                <li><strong>&lt; 5%</strong> : Marge faible, attention</li>
+            </ul>
+        </section>
+    </main>
+
+    <footer class="tool-footer">
+        <a href="../../index.html"><i class="fas fa-arrow-left"></i> Retour aux outils</a>
+    </footer>
+
+    <script src="../../assets/js/utils.js"></script>
+    <script src="../../assets/js/main.js"></script>
+    <script>
+        document.getElementById('marginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            calculate();
+        });
+
+        document.getElementById('resetBtn').addEventListener('click', function() {
+            document.getElementById('marginForm').reset();
+            document.getElementById('results').style.display = 'none';
+        });
+
+        function calculate() {
+            const revenue = parseFloat(document.getElementById('revenue').value);
+            const costs = parseFloat(document.getElementById('costs').value);
+
+            if (revenue < 0 || costs < 0) {
+                showNotification('Les valeurs ne peuvent pas être négatives', 'error');
+                return;
+            }
+
+            const netProfit = revenue - costs;
+            const profitMargin = revenue > 0 ? (netProfit / revenue) * 100 : 0;
+            const costRatio = revenue > 0 ? (costs / revenue) * 100 : 0;
+            const profitability = costs > 0 ? (netProfit / costs) * 100 : 0;
+
+            document.getElementById('netProfit').textContent = formatCurrency(netProfit);
+            document.getElementById('profitMargin').textContent = formatPercentage(profitMargin);
+            document.getElementById('costRatio').textContent = formatPercentage(costRatio);
+            document.getElementById('profitability').textContent = formatPercentage(profitability);
+
+            // Interprétation
+            let interpretation = '';
+            let alertClass = 'alert-info';
+
+            if (netProfit < 0) {
+                interpretation = '<strong>⚠️ Attention :</strong> Vous êtes en déficit. Vos coûts dépassent vos revenus.';
+                alertClass = 'alert-danger';
+            } else if (profitMargin >= 20) {
+                interpretation = '<strong>✅ Excellent !</strong> Votre marge bénéficiaire est très bonne.';
+                alertClass = 'alert-success';
+            } else if (profitMargin >= 10) {
+                interpretation = '<strong>👍 Bien !</strong> Votre activité est rentable avec une marge saine.';
+                alertClass = 'alert-success';
+            } else if (profitMargin >= 5) {
+                interpretation = '<strong>⚡ Correct</strong> mais vous pourriez améliorer votre marge.';
+                alertClass = 'alert-warning';
+            } else {
+                interpretation = '<strong>⚠️ Attention :</strong> Votre marge est faible. Pensez à optimiser vos coûts ou augmenter vos prix.';
+                alertClass = 'alert-warning';
+            }
+
+            const interpDiv = document.getElementById('interpretation');
+            interpDiv.className = `alert ${alertClass}`;
+            interpDiv.innerHTML = interpretation;
+
+            document.getElementById('results').style.display = 'block';
+            scrollToElement('#results', 100);
+            showNotification('Calcul effectué !', 'success');
+        }
+
+        window.addEventListener('load', calculate);
+    </script>
+</body>
+</html>

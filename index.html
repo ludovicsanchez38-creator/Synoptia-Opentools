@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Collection complète de 100 outils web gratuits et open-source pour faciliter la gestion d'entreprise et l'entrepreneuriat">
+    <meta name="keywords" content="outils business, calculateurs, entreprise, entrepreneur, gratuit, open-source">
+    <meta name="author" content="Business Tools">
+    <title>100 Business Tools - Outils Open-Source pour Entrepreneurs</title>
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="assets/css/main.css">
+
+    <!-- Font Awesome pour les icônes -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* Styles spécifiques à l'index */
+        .hero {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            padding: var(--spacing-2xl) 0;
+            text-align: center;
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            margin-bottom: var(--spacing-md);
+            color: var(--white);
+        }
+
+        .hero p {
+            font-size: 1.25rem;
+            max-width: 800px;
+            margin: 0 auto var(--spacing-xl);
+            opacity: 0.95;
+        }
+
+        .hero-stats {
+            display: flex;
+            justify-content: center;
+            gap: var(--spacing-2xl);
+            margin-top: var(--spacing-xl);
+        }
+
+        .hero-stat {
+            text-align: center;
+        }
+
+        .hero-stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+        }
+
+        .hero-stat-label {
+            font-size: 0.875rem;
+            opacity: 0.9;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .search-section {
+            background-color: var(--white);
+            padding: var(--spacing-xl) 0;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .search-box {
+            max-width: 600px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 0.875rem 1.25rem 0.875rem 3rem;
+            font-size: 1.125rem;
+            border: 2px solid var(--border);
+            border-radius: var(--radius-lg);
+            transition: all var(--transition-base);
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gray);
+            font-size: 1.25rem;
+        }
+
+        .filters {
+            background-color: var(--light);
+            padding: var(--spacing-lg) 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .filter-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--spacing-sm);
+            justify-content: center;
+        }
+
+        .filter-btn {
+            padding: 0.5rem 1rem;
+            border: 2px solid var(--border);
+            background-color: var(--white);
+            color: var(--dark);
+            border-radius: var(--radius-md);
+            font-weight: 500;
+            cursor: pointer;
+            transition: all var(--transition-base);
+        }
+
+        .filter-btn:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .filter-btn.active {
+            background-color: var(--primary);
+            color: var(--white);
+            border-color: var(--primary);
+        }
+
+        .tools-section {
+            padding: var(--spacing-2xl) 0;
+        }
+
+        .tools-header {
+            text-align: center;
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .tools-count {
+            color: var(--gray);
+            font-size: 1.125rem;
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .tool-card {
+            background-color: var(--white);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-lg);
+            transition: all var(--transition-base);
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .tool-card:hover {
+            box-shadow: var(--shadow-lg);
+            transform: translateY(-4px);
+            border-color: var(--primary);
+        }
+
+        .tool-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: var(--spacing-md);
+        }
+
+        .tool-number {
+            background-color: var(--light);
+            color: var(--gray);
+            font-weight: 700;
+            font-size: 0.875rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: var(--radius-sm);
+        }
+
+        .tool-icon {
+            font-size: 2rem;
+            color: var(--primary);
+            margin-bottom: var(--spacing-md);
+        }
+
+        .tool-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            margin-bottom: var(--spacing-sm);
+            color: var(--dark);
+        }
+
+        .tool-description {
+            font-size: 0.875rem;
+            color: var(--gray);
+            margin-bottom: var(--spacing-md);
+            flex-grow: 1;
+        }
+
+        .tool-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: auto;
+            padding-top: var(--spacing-md);
+            border-top: 1px solid var(--border);
+        }
+
+        .tool-link {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            color: var(--primary);
+            font-weight: 500;
+            text-decoration: none;
+            transition: gap var(--transition-fast);
+        }
+
+        .tool-link:hover {
+            gap: var(--spacing-md);
+            text-decoration: none;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: var(--spacing-2xl);
+            color: var(--gray);
+        }
+
+        .no-results i {
+            font-size: 4rem;
+            margin-bottom: var(--spacing-lg);
+            opacity: 0.5;
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2rem;
+            }
+
+            .hero-stats {
+                flex-direction: column;
+                gap: var(--spacing-lg);
+            }
+
+            .filter-buttons {
+                gap: var(--spacing-xs);
+            }
+
+            .filter-btn {
+                padding: 0.375rem 0.75rem;
+                font-size: 0.875rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <a href="index.html" class="logo">
+                    <i class="fas fa-tools"></i>
+                    Business Tools
+                </a>
+                <nav class="nav">
+                    <a href="#tools">Outils</a>
+                    <a href="https://github.com" target="_blank">
+                        <i class="fab fa-github"></i> GitHub
+                    </a>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <h1>🚀 100 Outils Business Open-Source</h1>
+            <p>Collection complète d'outils web gratuits et open-source pour faciliter la gestion de votre entreprise et booster votre entrepreneuriat</p>
+
+            <div class="hero-stats">
+                <div class="hero-stat">
+                    <div class="hero-stat-value">100</div>
+                    <div class="hero-stat-label">Outils Gratuits</div>
+                </div>
+                <div class="hero-stat">
+                    <div class="hero-stat-value">8</div>
+                    <div class="hero-stat-label">Catégories</div>
+                </div>
+                <div class="hero-stat">
+                    <div class="hero-stat-value">100%</div>
+                    <div class="hero-stat-label">Open-Source</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Search Section -->
+    <section class="search-section">
+        <div class="container">
+            <div class="search-box">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" class="search-input" id="searchInput" placeholder="Rechercher un outil...">
+            </div>
+        </div>
+    </section>
+
+    <!-- Filters -->
+    <section class="filters">
+        <div class="container">
+            <div class="filter-buttons">
+                <button class="filter-btn active" data-category="all">
+                    <i class="fas fa-th"></i> Tous
+                </button>
+                <button class="filter-btn" data-category="finance">
+                    <i class="fas fa-coins"></i> Finance
+                </button>
+                <button class="filter-btn" data-category="invoicing">
+                    <i class="fas fa-file-invoice"></i> Facturation
+                </button>
+                <button class="filter-btn" data-category="time">
+                    <i class="fas fa-clock"></i> Temps
+                </button>
+                <button class="filter-btn" data-category="marketing">
+                    <i class="fas fa-bullhorn"></i> Marketing
+                </button>
+                <button class="filter-btn" data-category="hr">
+                    <i class="fas fa-users"></i> RH
+                </button>
+                <button class="filter-btn" data-category="inventory">
+                    <i class="fas fa-boxes"></i> Inventaire
+                </button>
+                <button class="filter-btn" data-category="analytics">
+                    <i class="fas fa-chart-line"></i> Analyse
+                </button>
+                <button class="filter-btn" data-category="misc">
+                    <i class="fas fa-ellipsis-h"></i> Divers
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Tools Section -->
+    <section class="tools-section" id="tools">
+        <div class="container">
+            <div class="tools-header">
+                <p class="tools-count">
+                    <span id="toolsCount">100</span> outils disponibles
+                </p>
+            </div>
+
+            <div class="grid grid-cols-3" id="toolsGrid">
+                <!-- Les outils seront générés ici par JavaScript -->
+            </div>
+
+            <div class="no-results hidden" id="noResults">
+                <i class="fas fa-search"></i>
+                <h3>Aucun outil trouvé</h3>
+                <p>Essayez de modifier vos critères de recherche</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="text-center">
+                <p style="margin-bottom: var(--spacing-lg);">
+                    <strong>100 Business Tools</strong> - Outils Open-Source pour Entrepreneurs
+                </p>
+                <p style="color: var(--gray); margin-bottom: var(--spacing-md);">
+                    Développé avec ❤️ pour la communauté entrepreneuriale
+                </p>
+                <p style="font-size: 0.875rem;">
+                    <a href="https://github.com" target="_blank" style="margin: 0 var(--spacing-sm);">
+                        <i class="fab fa-github"></i> GitHub
+                    </a>
+                    •
+                    <a href="#" style="margin: 0 var(--spacing-sm);">Licence MIT</a>
+                    •
+                    <a href="#" style="margin: 0 var(--spacing-sm);">Documentation</a>
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script src="assets/js/utils.js"></script>
+    <script src="assets/js/main.js"></script>
+    <script>
+        // Liste complète des 100 outils
+        const tools = [
+            {id: 1, name: "Calculateur de prêt business", desc: "Calcule mensualités, intérêts, coût total d'un prêt professionnel", category: "finance", icon: "calculator", url: "tools/finance/loan-calculator.html"},
+            {id: 2, name: "Calculateur de marge bénéficiaire", desc: "Détermine le pourcentage de profit sur les revenus", category: "finance", icon: "percent", url: "tools/finance/profit-margin.html"},
+            {id: 3, name: "Calculateur de seuil de rentabilité", desc: "Calcule le volume d'affaires à atteindre pour couvrir les coûts", category: "finance", icon: "chart-line", url: "tools/finance/break-even.html"},
+            {id: 4, name: "Calculateur de ROI", desc: "Mesure la rentabilité d'un investissement", category: "finance", icon: "chart-bar", url: "tools/finance/roi-calculator.html"},
+            {id: 5, name: "Calculateur de markup", desc: "Calcule le prix de vente à partir du coût et d'une marge souhaitée", category: "finance", icon: "tags", url: "tools/finance/markup-calculator.html"},
+            {id: 6, name: "Calculateur de marge brute", desc: "Calcule la marge brute en pourcentage sur le CA", category: "finance", icon: "percentage", url: "tools/finance/gross-margin.html"},
+            {id: 7, name: "Calculateur de taux de remise", desc: "Calcule le nouveau prix après application d'une remise", category: "finance", icon: "tag", url: "tools/finance/discount-calculator.html"},
+            {id: 8, name: "Calculateur de ROAS", desc: "Mesure l'efficacité d'une campagne publicitaire", category: "marketing", icon: "ad", url: "tools/marketing/roas-calculator.html"},
+            {id: 9, name: "Calculateur de Break-even ROAS", desc: "Trouve le ROAS minimum pour rentabilité", category: "marketing", icon: "balance-scale", url: "tools/marketing/breakeven-roas.html"},
+            {id: 10, name: "Convertisseur de devises", desc: "Convertit instantanément entre différentes monnaies", category: "finance", icon: "exchange-alt", url: "tools/finance/currency-converter.html"},
+            {id: 11, name: "Calculateur de TVA", desc: "Calcule montant HT, TTC, taux intermédiaires", category: "finance", icon: "receipt", url: "tools/finance/vat-calculator.html"},
+            {id: 12, name: "Calculateur de marge de contribution", desc: "Mesure la part d'un produit au profit global", category: "finance", icon: "coins", url: "tools/finance/contribution-margin.html"},
+            {id: 13, name: "Calculateur d'amortissement", desc: "Génère un tableau d'amortissement d'un prêt", category: "finance", icon: "table", url: "tools/finance/amortization.html"},
+            {id: 14, name: "Calculateur de TAEG", desc: "Calcule le Taux Annuel Effectif Global pour un prêt", category: "finance", icon: "percentage", url: "tools/finance/apr-calculator.html"},
+            {id: 15, name: "Calculateur ratio dette/revenu", desc: "Évalue la capacité d'endettement de l'entreprise", category: "finance", icon: "scale-balanced", url: "tools/finance/debt-ratio.html"},
+            {id: 16, name: "Générateur de factures", desc: "Crée, exporte et archive des factures PDF professionnelles", category: "invoicing", icon: "file-invoice-dollar", url: "tools/invoicing/invoice-generator.html"},
+            {id: 17, name: "Générateur de devis", desc: "Produit des devis professionnels personnalisés", category: "invoicing", icon: "file-contract", url: "tools/invoicing/quote-generator.html"},
+            {id: 18, name: "Suivi des paiements", desc: "Gère et relance les paiements clients/fournisseurs", category: "invoicing", icon: "money-check-alt", url: "tools/invoicing/payment-tracker.html"},
+            {id: 19, name: "Générateur de notes de frais", desc: "Saisie et justification des notes de frais", category: "invoicing", icon: "receipt", url: "tools/invoicing/expense-report.html"},
+            {id: 20, name: "Calculateur de frais de retard", desc: "Calcule pénalités en cas de paiement en retard", category: "invoicing", icon: "exclamation-triangle", url: "tools/invoicing/late-fee-calculator.html"},
+            {id: 21, name: "Générateur de bons de commande", desc: "Crée des bons de commande conformes", category: "invoicing", icon: "file-alt", url: "tools/invoicing/purchase-order.html"},
+            {id: 22, name: "Générateur de reçus", desc: "Génère des reçus PDF instantanés", category: "invoicing", icon: "receipt", url: "tools/invoicing/receipt-generator.html"},
+            {id: 23, name: "Tableau de bord comptable", desc: "Vue synthétique des flux financiers", category: "invoicing", icon: "chart-pie", url: "tools/invoicing/accounting-dashboard.html"},
+            {id: 24, name: "Suivi des dépenses", desc: "Analyse et catégorise les dépenses", category: "invoicing", icon: "wallet", url: "tools/invoicing/expense-tracker.html"},
+            {id: 25, name: "Réconciliation bancaire", desc: "Fait correspondre opérations et relevés", category: "invoicing", icon: "university", url: "tools/invoicing/bank-reconciliation.html"},
+            {id: 26, name: "Calculateur d'heures de travail", desc: "Compte exact d'heures effectuées", category: "time", icon: "business-time", url: "tools/time/hours-calculator.html"},
+            {id: 27, name: "Time tracker automatique", desc: "Enregistre automatiquement les temps de tâche", category: "time", icon: "stopwatch", url: "tools/time/time-tracker.html"},
+            {id: 28, name: "Timesheet hebdomadaire", desc: "Feuilles de temps complètes/exportables", category: "time", icon: "calendar-week", url: "tools/time/timesheet.html"},
+            {id: 29, name: "Calculateur de coût horaire", desc: "Calcule le vrai coût de revient horaire", category: "time", icon: "dollar-sign", url: "tools/time/hourly-rate.html"},
+            {id: 30, name: "Minuteur Pomodoro", desc: "Gestion du temps par plages réglables", category: "time", icon: "clock", url: "tools/time/pomodoro.html"},
+            {id: 31, name: "Planificateur de tâches", desc: "Liste de tâches + alertes/repriorisation", category: "time", icon: "tasks", url: "tools/time/task-planner.html"},
+            {id: 32, name: "Calendrier de disponibilité", desc: "Réservations clients/partenaires", category: "time", icon: "calendar-check", url: "tools/time/availability-calendar.html"},
+            {id: 33, name: "Calculateur de productivité", desc: "Analyse efficacité vs temps passé", category: "time", icon: "chart-area", url: "tools/time/productivity-calculator.html"},
+            {id: 34, name: "Tableau Kanban projet", desc: "Organisation visuelle des tâches", category: "time", icon: "columns", url: "tools/time/kanban-board.html"},
+            {id: 35, name: "Diagramme de Gantt", desc: "Timeline projet multi-tâche visuelle", category: "time", icon: "project-diagram", url: "tools/time/gantt-chart.html"},
+            {id: 36, name: "Calculateur de charge de travail", desc: "Évaluer la capacité par période", category: "time", icon: "weight", url: "tools/time/workload-calculator.html"},
+            {id: 37, name: "Suivi des jalons projet", desc: "Dashboard d'avancement", category: "time", icon: "flag-checkered", url: "tools/time/milestone-tracker.html"},
+            {id: 38, name: "Estimateur de temps projet", desc: "Prévision automatique durée totale", category: "time", icon: "hourglass-half", url: "tools/time/project-estimator.html"},
+            {id: 39, name: "Calculateur d'heures sup", desc: "Calcul prime heures supplémentaires automatiquement", category: "time", icon: "user-clock", url: "tools/time/overtime-calculator.html"},
+            {id: 40, name: "Planning d'équipe", desc: "Planning visuel collaborateurs/équipes", category: "time", icon: "users-cog", url: "tools/time/team-schedule.html"},
+            {id: 41, name: "Calculateur de CPC", desc: "Calcule coût par clic réel sur pubs", category: "marketing", icon: "mouse-pointer", url: "tools/marketing/cpc-calculator.html"},
+            {id: 42, name: "Calculateur de CPM", desc: "Coût pour mille vues/publicité", category: "marketing", icon: "eye", url: "tools/marketing/cpm-calculator.html"},
+            {id: 43, name: "Calculateur taux de conversion", desc: "Taux visiteurs transformés en clients", category: "marketing", icon: "sync-alt", url: "tools/marketing/conversion-rate.html"},
+            {id: 44, name: "Calculateur CTR", desc: "Taux de clics publicitaires", category: "marketing", icon: "hand-pointer", url: "tools/marketing/ctr-calculator.html"},
+            {id: 45, name: "Calculateur taux de churn", desc: "Mesure la perte de clients sur période", category: "marketing", icon: "user-minus", url: "tools/marketing/churn-rate.html"},
+            {id: 46, name: "Calculateur LTV", desc: "Valeur vie client", category: "marketing", icon: "gem", url: "tools/marketing/ltv-calculator.html"},
+            {id: 47, name: "Calculateur CAC", desc: "Coût d'acquisition client", category: "marketing", icon: "user-plus", url: "tools/marketing/cac-calculator.html"},
+            {id: 48, name: "Comparateur de prix concurrentiels", desc: "Benchmark positionnement prix", category: "marketing", icon: "chart-line", url: "tools/marketing/price-comparison.html"},
+            {id: 49, name: "Générateur de landing pages", desc: "Gabarit de pages d'atterrissage", category: "marketing", icon: "pager", url: "tools/marketing/landing-page.html"},
+            {id: 50, name: "Calculateur A/B test", desc: "Analyse de significativité de deux variantes", category: "marketing", icon: "flask", url: "tools/marketing/ab-test.html"},
+            {id: 51, name: "Calculateur taux d'engagement", desc: "Mesure engagement sur réseaux sociaux", category: "marketing", icon: "heart", url: "tools/marketing/engagement-rate.html"},
+            {id: 52, name: "Générateur de QR codes", desc: "Création QR custom", category: "marketing", icon: "qrcode", url: "tools/marketing/qr-generator.html"},
+            {id: 53, name: "Simulateur de budget pub", desc: "Répartit optimalement un budget publicité", category: "marketing", icon: "money-bill-wave", url: "tools/marketing/ad-budget.html"},
+            {id: 54, name: "Estimateur reach réseaux sociaux", desc: "Prédiction portée d'une campagne", category: "marketing", icon: "share-alt", url: "tools/marketing/reach-estimator.html"},
+            {id: 55, name: "Calculateur Lead Scoring", desc: "Classe prospects par probabilité de conversion", category: "marketing", icon: "sort-amount-down", url: "tools/marketing/lead-scoring.html"},
+            {id: 56, name: "Calculateur de salaire net", desc: "Brut/Net France ou international", category: "hr", icon: "hand-holding-usd", url: "tools/hr/salary-calculator.html"},
+            {id: 57, name: "Calculateur de charges sociales", desc: "Calcul complet cotisations", category: "hr", icon: "piggy-bank", url: "tools/hr/payroll-taxes.html"},
+            {id: 58, name: "Générateur de fiches de paie", desc: "Génère bulletins modélisables", category: "hr", icon: "file-invoice", url: "tools/hr/payslip-generator.html"},
+            {id: 59, name: "Calculateur de congés payés", desc: "Nombre de jours acquis/restants", category: "hr", icon: "umbrella-beach", url: "tools/hr/vacation-calculator.html"},
+            {id: 60, name: "Suivi des absences", desc: "Plan de présence/absences équipe", category: "hr", icon: "user-times", url: "tools/hr/absence-tracker.html"},
+            {id: 61, name: "Calculateur indemnités licenciement", desc: "Calcul légal indemnités", category: "hr", icon: "gavel", url: "tools/hr/severance-calculator.html"},
+            {id: 62, name: "Outils d'évaluation de performance", desc: "Système de notations", category: "hr", icon: "star", url: "tools/hr/performance-review.html"},
+            {id: 63, name: "Calculateur du coût employé", desc: "Coût réel pour employeur d'un salarié", category: "hr", icon: "calculator", url: "tools/hr/employee-cost.html"},
+            {id: 64, name: "Planificateur de recrutement", desc: "Gestion canal/priorité des postes à pourvoir", category: "hr", icon: "user-tie", url: "tools/hr/recruitment-planner.html"},
+            {id: 65, name: "Générateur de contrats", desc: "CDI/CDD/Stage personnalisable", category: "hr", icon: "file-signature", url: "tools/hr/contract-generator.html"},
+            {id: 66, name: "Gestionnaire de stock", desc: "Suivi quantités en temps réel", category: "inventory", icon: "warehouse", url: "tools/inventory/stock-manager.html"},
+            {id: 67, name: "Calculateur de point de commande", desc: "Optimise réapprovisionnements", category: "inventory", icon: "cart-plus", url: "tools/inventory/reorder-point.html"},
+            {id: 68, name: "Calculateur de rotation stock", desc: "Vitesse écoulement stocks", category: "inventory", icon: "sync", url: "tools/inventory/turnover-rate.html"},
+            {id: 69, name: "Calculateur coût de stockage", desc: "Évaluations frais logistiques", category: "inventory", icon: "box", url: "tools/inventory/storage-cost.html"},
+            {id: 70, name: "Calculateur de quantité économique", desc: "EOQ optimal de commande", category: "inventory", icon: "boxes", url: "tools/inventory/eoq-calculator.html"},
+            {id: 71, name: "Calculateur de frais d'expédition", desc: "Simule coûts de livraison", category: "inventory", icon: "shipping-fast", url: "tools/inventory/shipping-cost.html"},
+            {id: 72, name: "Suivi des livraisons", desc: "Tracking clients et fournisseurs", category: "inventory", icon: "truck", url: "tools/inventory/delivery-tracker.html"},
+            {id: 73, name: "Générateur d'étiquettes produits", desc: "Création d'étiquettes code-barres/QR code", category: "inventory", icon: "barcode", url: "tools/inventory/label-generator.html"},
+            {id: 74, name: "Calculateur de délais de livraison", desc: "Prévision délais client", category: "inventory", icon: "clock", url: "tools/inventory/lead-time.html"},
+            {id: 75, name: "Gestionnaires de fournisseurs", desc: "CRM fournisseurs", category: "inventory", icon: "handshake", url: "tools/inventory/supplier-manager.html"},
+            {id: 76, name: "Tableaux de bord KPI", desc: "Synthèse visuelle des indicateurs clés", category: "analytics", icon: "tachometer-alt", url: "tools/analytics/kpi-dashboard.html"},
+            {id: 77, name: "Générateur de rapports financiers", desc: "Fiches PDF détaillées", category: "analytics", icon: "file-pdf", url: "tools/analytics/financial-reports.html"},
+            {id: 78, name: "Analyseur de trésorerie", desc: "Anticipe flux entrants/sortants", category: "analytics", icon: "money-check", url: "tools/analytics/cash-flow.html"},
+            {id: 79, name: "Calculateur de croissance", desc: "Mois/Mois ou Année/Année%", category: "analytics", icon: "chart-line", url: "tools/analytics/growth-calculator.html"},
+            {id: 80, name: "Profiteur de rentabilité produit", desc: "Mesure la marge par article/service", category: "analytics", icon: "tag", url: "tools/analytics/product-profitability.html"},
+            {id: 81, name: "Comparateur périodes d'activité", desc: "Compare CA, marges sur différentes périodes", category: "analytics", icon: "calendar-alt", url: "tools/analytics/period-comparison.html"},
+            {id: 82, name: "Calculateur de valorisation d'entreprise", desc: "Méthodes multiples (DCF, multiples)", category: "analytics", icon: "building", url: "tools/analytics/valuation.html"},
+            {id: 83, name: "Analyseur de concurrence", desc: "Benchmark automatisé via scraping/entrée data", category: "analytics", icon: "users", url: "tools/analytics/competitor-analysis.html"},
+            {id: 84, name: "Prédicteur de tendances", desc: "Projette l'évolution (stat/ML)", category: "analytics", icon: "crystal-ball", url: "tools/analytics/trend-predictor.html"},
+            {id: 85, name: "Calculateur de part de marché", desc: "Sur data de secteur", category: "analytics", icon: "pie-chart", url: "tools/analytics/market-share.html"},
+            {id: 86, name: "Calculateur empreinte carbone entreprise", desc: "Co2 scope 1/2/3", category: "misc", icon: "leaf", url: "tools/misc/carbon-calculator.html"},
+            {id: 87, name: "Générateur de CGV", desc: "Conditions générales personnalisées rapides", category: "misc", icon: "file-contract", url: "tools/misc/terms-generator.html"},
+            {id: 88, name: "Calculateur de prix psychologique", desc: "Détermine le prix optimal attendu", category: "misc", icon: "brain", url: "tools/misc/psychological-pricing.html"},
+            {id: 89, name: "Générateur de pitch deck", desc: "Template + customisation pour lever des fonds", category: "misc", icon: "presentation", url: "tools/misc/pitch-deck.html"},
+            {id: 90, name: "Générateur de business plan", desc: "Formulaire interactif et PDF", category: "misc", icon: "briefcase", url: "tools/misc/business-plan.html"},
+            {id: 91, name: "Calculateur BFR", desc: "Besoin en fonds de roulement simulé", category: "misc", icon: "coins", url: "tools/misc/working-capital.html"},
+            {id: 92, name: "Simulateur de scénarios business", desc: "Teste hypothèses (chute CA, hausse coûts…)", category: "misc", icon: "dice", url: "tools/misc/scenario-simulator.html"},
+            {id: 93, name: "Break-even multi-produits", desc: "Rentabilité simultanée sur plusieurs gammes", category: "misc", icon: "layer-group", url: "tools/misc/multi-product-breakeven.html"},
+            {id: 94, name: "Générateur de signature d'email", desc: "Modèles professionnels HTML", category: "misc", icon: "envelope", url: "tools/misc/email-signature.html"},
+            {id: 95, name: "Calculateur taux effectif d'imposition", desc: "Calcule taux moyen réel", category: "misc", icon: "percent", url: "tools/misc/effective-tax-rate.html"},
+            {id: 96, name: "Planificateur budget annuel", desc: "Répartition des budgets par poste/mois", category: "misc", icon: "calendar", url: "tools/misc/budget-planner.html"},
+            {id: 97, name: "Calculateur de prix de revient", desc: "Coût total produit (matière, prod, transport…)", category: "misc", icon: "industry", url: "tools/misc/cost-price.html"},
+            {id: 98, name: "Générateur de NDA", desc: "Génère des accords de confidentialité", category: "misc", icon: "lock", url: "tools/misc/nda-generator.html"},
+            {id: 99, name: "Calculateur de dilution actions", desc: "Simule impact d'une levée de fonds", category: "misc", icon: "chart-pie", url: "tools/misc/equity-dilution.html"},
+            {id: 100, name: "Tableau de bord client CRM", desc: "Suivi pipeline prospects/clients", category: "misc", icon: "user-friends", url: "tools/misc/crm-dashboard.html"}
+        ];
+
+        let currentFilter = 'all';
+        let currentSearch = '';
+
+        // Rendu des outils
+        function renderTools() {
+            const grid = document.getElementById('toolsGrid');
+            const noResults = document.getElementById('noResults');
+            const toolsCount = document.getElementById('toolsCount');
+
+            // Filtre les outils
+            const filteredTools = tools.filter(tool => {
+                const matchCategory = currentFilter === 'all' || tool.category === currentFilter;
+                const matchSearch = tool.name.toLowerCase().includes(currentSearch.toLowerCase()) ||
+                                    tool.desc.toLowerCase().includes(currentSearch.toLowerCase());
+                return matchCategory && matchSearch;
+            });
+
+            // Affiche ou cache "pas de résultats"
+            if (filteredTools.length === 0) {
+                grid.classList.add('hidden');
+                noResults.classList.remove('hidden');
+            } else {
+                grid.classList.remove('hidden');
+                noResults.classList.add('hidden');
+            }
+
+            // Met à jour le compteur
+            toolsCount.textContent = filteredTools.length;
+
+            // Génère les cartes
+            grid.innerHTML = filteredTools.map(tool => `
+                <div class="tool-card" data-category="${tool.category}">
+                    <div class="tool-card-header">
+                        <span class="tool-number">#${tool.id}</span>
+                        <span class="badge badge-${tool.category}">${getCategoryLabel(tool.category)}</span>
+                    </div>
+                    <div class="tool-icon">
+                        <i class="fas fa-${tool.icon}"></i>
+                    </div>
+                    <h3 class="tool-title">${tool.name}</h3>
+                    <p class="tool-description">${tool.desc}</p>
+                    <div class="tool-footer">
+                        <a href="${tool.url}" class="tool-link">
+                            Ouvrir l'outil
+                            <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Obtient le label de catégorie
+        function getCategoryLabel(category) {
+            const labels = {
+                'finance': 'Finance',
+                'invoicing': 'Facturation',
+                'time': 'Temps',
+                'marketing': 'Marketing',
+                'hr': 'RH',
+                'inventory': 'Inventaire',
+                'analytics': 'Analyse',
+                'misc': 'Divers'
+            };
+            return labels[category] || category;
+        }
+
+        // Gestion des filtres
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                // Retire la classe active de tous les boutons
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+
+                // Ajoute la classe active au bouton cliqué
+                this.classList.add('active');
+
+                // Met à jour le filtre
+                currentFilter = this.getAttribute('data-category');
+
+                // Re-rend les outils
+                renderTools();
+            });
+        });
+
+        // Gestion de la recherche
+        const searchInput = document.getElementById('searchInput');
+        searchInput.addEventListener('input', debounce(function() {
+            currentSearch = this.value;
+            renderTools();
+        }, 300));
+
+        // Rendu initial
+        renderTools();
+
+        console.log('100 Business Tools chargés !');
+    </script>
+</body>
+</html>

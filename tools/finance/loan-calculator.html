@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculateur de Prêt Business - Business Tools</title>
+    <link rel="stylesheet" href="../../assets/css/main.css">
+    <link rel="stylesheet" href="../../assets/css/tools.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb">
+        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> >
+        <a href="../../index.html#tools">Finance</a> >
+        <span>Calculateur de Prêt Business</span>
+    </nav>
+
+    <!-- Main Container -->
+    <main class="tool-container">
+        <!-- Header -->
+        <header class="tool-header">
+            <h1><i class="fas fa-calculator"></i> Calculateur de Prêt Business</h1>
+            <p class="tool-description">
+                Calculez vos mensualités, le coût total de votre prêt professionnel et visualisez
+                l'amortissement de votre emprunt avec un tableau détaillé et un graphique interactif.
+            </p>
+        </header>
+
+        <!-- Input Section -->
+        <section class="tool-input">
+            <h2>Informations du prêt</h2>
+            <form id="loanForm">
+                <div class="input-grid">
+                    <div class="form-group">
+                        <label for="loanAmount" class="form-label">
+                            <i class="fas fa-euro-sign"></i> Montant du prêt (€)
+                        </label>
+                        <input
+                            type="number"
+                            id="loanAmount"
+                            class="form-input"
+                            placeholder="Ex: 50000"
+                            min="1000"
+                            step="1000"
+                            value="50000"
+                            required>
+                        <span class="form-help">Montant total emprunté</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="annualRate" class="form-label">
+                            <i class="fas fa-percent"></i> Taux annuel (%)
+                        </label>
+                        <input
+                            type="number"
+                            id="annualRate"
+                            class="form-input"
+                            placeholder="Ex: 4.5"
+                            min="0.1"
+                            max="20"
+                            step="0.1"
+                            value="4.5"
+                            required>
+                        <span class="form-help">Taux d'intérêt annuel du prêt</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="loanMonths" class="form-label">
+                            <i class="fas fa-calendar-alt"></i> Durée (mois)
+                        </label>
+                        <input
+                            type="number"
+                            id="loanMonths"
+                            class="form-input"
+                            placeholder="Ex: 60"
+                            min="6"
+                            max="360"
+                            step="6"
+                            value="60"
+                            required>
+                        <span class="form-help">Durée du prêt en mois</span>
+                    </div>
+                </div>
+
+                <div class="action-buttons">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-calculator"></i> Calculer
+                    </button>
+                    <button type="button" class="btn btn-outline" id="resetBtn">
+                        <i class="fas fa-redo"></i> Réinitialiser
+                    </button>
+                </div>
+            </form>
+        </section>
+
+        <!-- Output Section -->
+        <section class="tool-output" id="results" style="display: none;">
+            <h2><i class="fas fa-chart-bar"></i> Résultats</h2>
+
+            <div class="results-grid">
+                <div class="result-item">
+                    <div class="result-label">Mensualité</div>
+                    <div class="result-value highlight" id="monthlyPayment">-</div>
+                </div>
+
+                <div class="result-item">
+                    <div class="result-label">Total remboursé</div>
+                    <div class="result-value" id="totalPaid">-</div>
+                </div>
+
+                <div class="result-item">
+                    <div class="result-label">Total intérêts</div>
+                    <div class="result-value danger" id="totalInterest">-</div>
+                </div>
+
+                <div class="result-item success">
+                    <div class="result-label">Coût du crédit</div>
+                    <div class="result-value" id="creditCost">-</div>
+                </div>
+            </div>
+
+            <!-- Chart -->
+            <div class="chart-container">
+                <h3>Évolution de l'amortissement</h3>
+                <div class="chart-wrapper">
+                    <canvas id="loanChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Amortization Table -->
+            <div style="margin-top: var(--spacing-xl);">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-md);">
+                    <h3>Tableau d'amortissement</h3>
+                    <button class="btn btn-secondary btn-sm" id="exportBtn">
+                        <i class="fas fa-download"></i> Exporter CSV
+                    </button>
+                </div>
+
+                <div style="overflow-x: auto;">
+                    <table class="tool-table" id="amortizationTable">
+                        <thead>
+                            <tr>
+                                <th>Mois</th>
+                                <th>Mensualité</th>
+                                <th>Capital</th>
+                                <th>Intérêts</th>
+                                <th>Capital restant</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody">
+                            <!-- Généré dynamiquement -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="action-buttons" style="margin-top: var(--spacing-xl);">
+                <button class="btn btn-accent" id="printBtn">
+                    <i class="fas fa-print"></i> Imprimer
+                </button>
+                <button class="btn btn-outline" id="shareBtn">
+                    <i class="fas fa-share-alt"></i> Partager
+                </button>
+            </div>
+        </section>
+
+        <!-- Help Section -->
+        <section class="tool-help">
+            <h3><i class="fas fa-question-circle"></i> Comment utiliser cet outil ?</h3>
+            <ol>
+                <li>Entrez le <strong>montant total</strong> que vous souhaitez emprunter</li>
+                <li>Indiquez le <strong>taux d'intérêt annuel</strong> proposé par votre banque</li>
+                <li>Spécifiez la <strong>durée du prêt</strong> en mois (ex: 60 mois = 5 ans)</li>
+                <li>Cliquez sur <strong>Calculer</strong> pour voir vos mensualités et l'amortissement</li>
+                <li>Consultez le tableau détaillé et exportez-le en CSV si besoin</li>
+            </ol>
+
+            <h3><i class="fas fa-calculator"></i> Formule utilisée</h3>
+            <code>
+Mensualité = P × [r(1 + r)^n] / [(1 + r)^n - 1]
+
+Où :
+• P = montant du prêt
+• r = taux mensuel (taux annuel / 12 / 100)
+• n = nombre de mois
+            </code>
+
+            <h3><i class="fas fa-lightbulb"></i> Conseils</h3>
+            <ul>
+                <li>Comparez plusieurs simulations avec différents taux et durées</li>
+                <li>Un taux plus bas ou une durée plus courte réduit le coût total</li>
+                <li>Vérifiez que la mensualité ne dépasse pas 30% de vos revenus</li>
+                <li>Pensez aux assurances et frais de dossier en plus</li>
+            </ul>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="tool-footer">
+        <a href="../../index.html">
+            <i class="fas fa-arrow-left"></i> Retour aux outils
+        </a>
+    </footer>
+
+    <!-- JavaScript -->
+    <script src="../../assets/js/utils.js"></script>
+    <script src="../../assets/js/main.js"></script>
+    <script>
+        let loanChart = null;
+        let amortizationData = [];
+
+        // Gestion de la soumission du formulaire
+        document.getElementById('loanForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            calculateLoan();
+        });
+
+        // Bouton reset
+        document.getElementById('resetBtn').addEventListener('click', function() {
+            document.getElementById('loanForm').reset();
+            document.getElementById('results').style.display = 'none';
+            if (loanChart) {
+                loanChart.destroy();
+                loanChart = null;
+            }
+        });
+
+        // Bouton export
+        document.getElementById('exportBtn').addEventListener('click', function() {
+            exportToCSV(amortizationData, 'amortissement-pret.csv');
+            showNotification('Tableau exporté avec succès !', 'success');
+        });
+
+        // Bouton print
+        document.getElementById('printBtn').addEventListener('click', function() {
+            window.print();
+        });
+
+        // Bouton share
+        document.getElementById('shareBtn').addEventListener('click', async function() {
+            const url = window.location.href;
+            const success = await copyToClipboard(url);
+            if (success) {
+                showNotification('Lien copié dans le presse-papier !', 'success');
+            }
+        });
+
+        /**
+         * Calcule le prêt
+         */
+        function calculateLoan() {
+            // Récupère les valeurs
+            const amount = parseFloat(document.getElementById('loanAmount').value);
+            const annualRate = parseFloat(document.getElementById('annualRate').value);
+            const months = parseInt(document.getElementById('loanMonths').value);
+
+            // Validation
+            const amountValidation = validateNumber(amount, 1000);
+            const rateValidation = validateNumber(annualRate, 0.1, 20);
+            const monthsValidation = validateNumber(months, 6, 360);
+
+            if (!amountValidation.valid || !rateValidation.valid || !monthsValidation.valid) {
+                showNotification('Veuillez vérifier les valeurs saisies', 'error');
+                return;
+            }
+
+            // Calcul du taux mensuel
+            const monthlyRate = annualRate / 100 / 12;
+
+            // Calcul de la mensualité
+            // Formule : M = P × [r(1 + r)^n] / [(1 + r)^n - 1]
+            const monthlyPayment = amount *
+                (monthlyRate * Math.pow(1 + monthlyRate, months)) /
+                (Math.pow(1 + monthlyRate, months) - 1);
+
+            const totalPaid = monthlyPayment * months;
+            const totalInterest = totalPaid - amount;
+
+            // Affiche les résultats
+            document.getElementById('monthlyPayment').textContent = formatCurrency(monthlyPayment);
+            document.getElementById('totalPaid').textContent = formatCurrency(totalPaid);
+            document.getElementById('totalInterest').textContent = formatCurrency(totalInterest);
+            document.getElementById('creditCost').textContent = formatPercentage((totalInterest / amount) * 100);
+
+            // Génère le tableau d'amortissement
+            generateAmortizationTable(amount, monthlyRate, monthlyPayment, months);
+
+            // Génère le graphique
+            generateChart();
+
+            // Affiche la section résultats
+            document.getElementById('results').style.display = 'block';
+
+            // Scroll vers les résultats
+            scrollToElement('#results', 100);
+
+            showNotification('Calcul effectué avec succès !', 'success');
+        }
+
+        /**
+         * Génère le tableau d'amortissement
+         */
+        function generateAmortizationTable(principal, monthlyRate, monthlyPayment, months) {
+            amortizationData = [];
+            let remainingPrincipal = principal;
+            const tbody = document.getElementById('tableBody');
+            tbody.innerHTML = '';
+
+            for (let month = 1; month <= months; month++) {
+                // Calcul des intérêts du mois
+                const interestPayment = remainingPrincipal * monthlyRate;
+
+                // Calcul du capital remboursé
+                const principalPayment = monthlyPayment - interestPayment;
+
+                // Nouveau capital restant
+                remainingPrincipal -= principalPayment;
+
+                // Correction pour le dernier mois (éviter les valeurs négatives dues aux arrondis)
+                if (month === months) {
+                    remainingPrincipal = 0;
+                }
+
+                // Stocke les données
+                const rowData = {
+                    Mois: month,
+                    Mensualité: monthlyPayment.toFixed(2),
+                    Capital: principalPayment.toFixed(2),
+                    Intérêts: interestPayment.toFixed(2),
+                    'Capital restant': remainingPrincipal.toFixed(2)
+                };
+                amortizationData.push(rowData);
+
+                // Ajoute une ligne au tableau (affiche seulement tous les 6 mois pour ne pas surcharger)
+                if (month % 6 === 0 || month === 1 || month === months) {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td><strong>${month}</strong></td>
+                        <td>${formatCurrency(monthlyPayment)}</td>
+                        <td>${formatCurrency(principalPayment)}</td>
+                        <td>${formatCurrency(interestPayment)}</td>
+                        <td>${formatCurrency(Math.max(0, remainingPrincipal))}</td>
+                    `;
+                    tbody.appendChild(row);
+                }
+            }
+
+            // Si le tableau est long, ajoute une note
+            if (months > 12) {
+                const noteRow = document.createElement('tr');
+                noteRow.innerHTML = `
+                    <td colspan="5" style="text-align: center; font-style: italic; color: var(--gray);">
+                        <i class="fas fa-info-circle"></i>
+                        Tableau simplifié (affiche tous les 6 mois).
+                        Exportez en CSV pour voir tous les mois.
+                    </td>
+                `;
+                tbody.appendChild(noteRow);
+            }
+        }
+
+        /**
+         * Génère le graphique d'amortissement
+         */
+        function generateChart() {
+            const ctx = document.getElementById('loanChart').getContext('2d');
+
+            // Détruit le graphique existant
+            if (loanChart) {
+                loanChart.destroy();
+            }
+
+            // Prépare les données (affiche tous les 3 mois pour ne pas surcharger)
+            const labels = [];
+            const principalData = [];
+            const interestData = [];
+
+            amortizationData.forEach((row, index) => {
+                if (index % 3 === 0 || index === amortizationData.length - 1) {
+                    labels.push(`Mois ${row.Mois}`);
+                    principalData.push(parseFloat(row.Capital));
+                    interestData.push(parseFloat(row.Intérêts));
+                }
+            });
+
+            // Crée le graphique
+            loanChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Capital remboursé',
+                            data: principalData,
+                            backgroundColor: 'rgba(16, 185, 129, 0.7)',
+                            borderColor: 'rgba(16, 185, 129, 1)',
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'Intérêts',
+                            data: interestData,
+                            backgroundColor: 'rgba(239, 68, 68, 0.7)',
+                            borderColor: 'rgba(239, 68, 68, 1)',
+                            borderWidth: 1
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            stacked: true,
+                        },
+                        y: {
+                            stacked: true,
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return formatCurrency(value, 'EUR', 'fr-FR');
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': ' + formatCurrency(context.parsed.y);
+                                }
+                            }
+                        },
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        }
+                    }
+                }
+            });
+        }
+
+        // Calcul automatique au chargement avec les valeurs par défaut
+        window.addEventListener('load', function() {
+            calculateLoan();
+        });
+    </script>
+</body>
+</html>

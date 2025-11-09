@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Convertisseur de Devises - Business Tools</title>
+    <link rel="stylesheet" href="../../assets/css/main.css">
+    <link rel="stylesheet" href="../../assets/css/tools.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav class="breadcrumb">
+        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> > <a href="../../index.html#tools">Finance</a> > <span>Convertisseur de Devises</span>
+    </nav>
+
+    <main class="tool-container">
+        <header class="tool-header">
+            <h1><i class="fas fa-exchange-alt"></i> Convertisseur de Devises</h1>
+            <p class="tool-description">Convertissez instantanément entre différentes monnaies avec des taux de change en temps réel.</p>
+        </header>
+
+        <section class="tool-input">
+            <h2>Conversion</h2>
+            <form id="converterForm">
+                <div class="form-group">
+                    <label for="amount" class="form-label"><i class="fas fa-euro-sign"></i> Montant</label>
+                    <input type="number" id="amount" class="form-input" placeholder="Ex: 100" min="0" step="0.01" value="100" required>
+                </div>
+
+                <div class="input-row">
+                    <div class="form-group">
+                        <label for="fromCurrency" class="form-label">De</label>
+                        <select id="fromCurrency" class="form-select" required>
+                            <option value="EUR" selected>EUR - Euro</option>
+                            <option value="USD">USD - Dollar US</option>
+                            <option value="GBP">GBP - Livre Sterling</option>
+                            <option value="CHF">CHF - Franc Suisse</option>
+                            <option value="JPY">JPY - Yen Japonais</option>
+                            <option value="CAD">CAD - Dollar Canadien</option>
+                            <option value="AUD">AUD - Dollar Australien</option>
+                            <option value="CNY">CNY - Yuan Chinois</option>
+                        </select>
+                    </div>
+
+                    <div style="display: flex; align-items: center; justify-content: center; padding-top: 2rem;">
+                        <button type="button" class="btn btn-outline btn-sm" id="swapBtn">
+                            <i class="fas fa-exchange-alt"></i>
+                        </button>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="toCurrency" class="form-label">Vers</label>
+                        <select id="toCurrency" class="form-select" required>
+                            <option value="EUR">EUR - Euro</option>
+                            <option value="USD" selected>USD - Dollar US</option>
+                            <option value="GBP">GBP - Livre Sterling</option>
+                            <option value="CHF">CHF - Franc Suisse</option>
+                            <option value="JPY">JPY - Yen Japonais</option>
+                            <option value="CAD">CAD - Dollar Canadien</option>
+                            <option value="AUD">AUD - Dollar Australien</option>
+                            <option value="CNY">CNY - Yuan Chinois</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="action-buttons">
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-calculator"></i> Convertir</button>
+                </div>
+            </form>
+        </section>
+
+        <section class="tool-output" id="results" style="display: none;">
+            <h2><i class="fas fa-chart-bar"></i> Résultat</h2>
+            <div class="results-grid">
+                <div class="result-item">
+                    <div class="result-label">Montant converti</div>
+                    <div class="result-value highlight" id="convertedAmount">-</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Taux de change</div>
+                    <div class="result-value" id="exchangeRate">-</div>
+                </div>
+            </div>
+
+            <div class="alert alert-info" id="rateInfo">
+                <!-- Info sur le taux -->
+            </div>
+        </section>
+
+        <section class="tool-help">
+            <h3><i class="fas fa-question-circle"></i> Comment utiliser cet outil ?</h3>
+            <ol>
+                <li>Entrez le <strong>montant</strong> à convertir</li>
+                <li>Sélectionnez la <strong>devise source</strong></li>
+                <li>Sélectionnez la <strong>devise cible</strong></li>
+                <li>Cliquez sur <strong>Convertir</strong></li>
+            </ol>
+
+            <h3><i class="fas fa-info-circle"></i> À propos des taux</h3>
+            <p>
+                Les taux de change utilisés sont des taux indicatifs basés sur des données approximatives.
+                Pour des transactions réelles, consultez votre banque ou un service de change professionnel.
+            </p>
+        </section>
+    </main>
+
+    <footer class="tool-footer"><a href="../../index.html"><i class="fas fa-arrow-left"></i> Retour aux outils</a></footer>
+
+    <script src="../../assets/js/utils.js"></script>
+    <script src="../../assets/js/main.js"></script>
+    <script>
+        // Taux de change approximatifs (EUR comme base)
+        const exchangeRates = {
+            EUR: 1.0,
+            USD: 1.08,
+            GBP: 0.85,
+            CHF: 0.96,
+            JPY: 160.5,
+            CAD: 1.46,
+            AUD: 1.65,
+            CNY: 7.85
+        };
+
+        document.getElementById('converterForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            convert();
+        });
+
+        document.getElementById('swapBtn').addEventListener('click', function() {
+            const from = document.getElementById('fromCurrency').value;
+            const to = document.getElementById('toCurrency').value;
+            document.getElementById('fromCurrency').value = to;
+            document.getElementById('toCurrency').value = from;
+            convert();
+        });
+
+        // Auto-conversion lors du changement de devise ou montant
+        document.getElementById('amount').addEventListener('input', debounce(convert, 500));
+        document.getElementById('fromCurrency').addEventListener('change', convert);
+        document.getElementById('toCurrency').addEventListener('change', convert);
+
+        function convert() {
+            const amount = parseFloat(document.getElementById('amount').value);
+            const from = document.getElementById('fromCurrency').value;
+            const to = document.getElementById('toCurrency').value;
+
+            if (!amount || amount <= 0) {
+                return;
+            }
+
+            // Conversion : montant → EUR → devise cible
+            const amountInEUR = amount / exchangeRates[from];
+            const convertedAmount = amountInEUR * exchangeRates[to];
+
+            // Taux de change direct
+            const rate = exchangeRates[to] / exchangeRates[from];
+
+            // Affichage
+            document.getElementById('convertedAmount').innerHTML =
+                `${formatNumber(convertedAmount, 2)} <span class="result-unit">${to}</span>`;
+
+            document.getElementById('exchangeRate').innerHTML =
+                `1 ${from} = ${formatNumber(rate, 4)} ${to}`;
+
+            document.getElementById('rateInfo').innerHTML =
+                `<strong>💱 Information :</strong> ${formatNumber(amount, 2)} ${from} = ${formatNumber(convertedAmount, 2)} ${to}`;
+
+            document.getElementById('results').style.display = 'block';
+            scrollToElement('#results', 100);
+        }
+
+        window.addEventListener('load', convert);
+    </script>
+</body>
+</html>

@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculateur de ROI - Business Tools</title>
+    <link rel="stylesheet" href="../../assets/css/main.css">
+    <link rel="stylesheet" href="../../assets/css/tools.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav class="breadcrumb">
+        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> >
+        <a href="../../index.html#tools">Finance</a> >
+        <span>Calculateur de ROI</span>
+    </nav>
+
+    <main class="tool-container">
+        <header class="tool-header">
+            <h1><i class="fas fa-chart-bar"></i> Calculateur de ROI (Return on Investment)</h1>
+            <p class="tool-description">
+                Mesurez la rentabilité de vos investissements et comparez plusieurs options d'investissement.
+            </p>
+        </header>
+
+        <section class="tool-input">
+            <h2>Données d'investissement</h2>
+            <form id="roiForm">
+                <div class="input-grid">
+                    <div class="form-group">
+                        <label for="initialInvestment" class="form-label">
+                            <i class="fas fa-euro-sign"></i> Investissement initial (€)
+                        </label>
+                        <input type="number" id="initialInvestment" class="form-input" placeholder="Ex: 10000" min="1" step="100" value="10000" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="finalValue" class="form-label">
+                            <i class="fas fa-hand-holding-usd"></i> Valeur finale (€)
+                        </label>
+                        <input type="number" id="finalValue" class="form-input" placeholder="Ex: 15000" min="0" step="100" value="15000" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="duration" class="form-label">
+                            <i class="fas fa-calendar-alt"></i> Durée (années)
+                        </label>
+                        <input type="number" id="duration" class="form-input" placeholder="Ex: 2" min="0.1" step="0.1" value="2">
+                        <span class="form-help">Optionnel - pour calcul annualisé</span>
+                    </div>
+                </div>
+
+                <div class="action-buttons">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-calculator"></i> Calculer
+                    </button>
+                    <button type="button" class="btn btn-outline" id="resetBtn">
+                        <i class="fas fa-redo"></i> Réinitialiser
+                    </button>
+                </div>
+            </form>
+        </section>
+
+        <section class="tool-output" id="results" style="display: none;">
+            <h2><i class="fas fa-chart-bar"></i> Résultats</h2>
+
+            <div class="results-grid">
+                <div class="result-item">
+                    <div class="result-label">Gain/Perte</div>
+                    <div class="result-value" id="gain">-</div>
+                </div>
+
+                <div class="result-item">
+                    <div class="result-label">ROI</div>
+                    <div class="result-value highlight" id="roi">-</div>
+                </div>
+
+                <div class="result-item">
+                    <div class="result-label">ROI annualisé</div>
+                    <div class="result-value" id="annualizedROI">-</div>
+                </div>
+
+                <div class="result-item">
+                    <div class="result-label">Multiple</div>
+                    <div class="result-value" id="multiple">-</div>
+                </div>
+            </div>
+
+            <div class="alert" id="interpretation"></div>
+        </section>
+
+        <section class="tool-help">
+            <h3><i class="fas fa-question-circle"></i> Comment utiliser cet outil ?</h3>
+            <ol>
+                <li>Entrez le montant de votre <strong>investissement initial</strong></li>
+                <li>Indiquez la <strong>valeur finale</strong> (ou actuelle) de votre investissement</li>
+                <li>Précisez la <strong>durée</strong> pour calculer le ROI annualisé (optionnel)</li>
+            </ol>
+
+            <h3><i class="fas fa-calculator"></i> Formule utilisée</h3>
+            <code>
+ROI = ((Valeur finale - Investissement initial) / Investissement initial) × 100
+
+ROI annualisé = ((Valeur finale / Investissement initial)^(1/années) - 1) × 100
+            </code>
+        </section>
+    </main>
+
+    <footer class="tool-footer">
+        <a href="../../index.html"><i class="fas fa-arrow-left"></i> Retour aux outils</a>
+    </footer>
+
+    <script src="../../assets/js/utils.js"></script>
+    <script src="../../assets/js/main.js"></script>
+    <script>
+        document.getElementById('roiForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            calculate();
+        });
+
+        document.getElementById('resetBtn').addEventListener('click', function() {
+            document.getElementById('roiForm').reset();
+            document.getElementById('results').style.display = 'none';
+        });
+
+        function calculate() {
+            const initial = parseFloat(document.getElementById('initialInvestment').value);
+            const final = parseFloat(document.getElementById('finalValue').value);
+            const duration = parseFloat(document.getElementById('duration').value) || 1;
+
+            const gain = final - initial;
+            const roi = (gain / initial) * 100;
+            const multiple = final / initial;
+            const annualizedROI = (Math.pow(final / initial, 1 / duration) - 1) * 100;
+
+            document.getElementById('gain').textContent = formatCurrency(gain);
+            document.getElementById('gain').className = gain >= 0 ? 'result-value success' : 'result-value danger';
+
+            document.getElementById('roi').textContent = formatPercentage(roi);
+            document.getElementById('annualizedROI').textContent = formatPercentage(annualizedROI);
+            document.getElementById('multiple').innerHTML = `×${multiple.toFixed(2)}`;
+
+            let interpretation = '';
+            let alertClass = 'alert-info';
+
+            if (roi < 0) {
+                interpretation = '<strong>⚠️ Perte :</strong> Votre investissement a perdu de la valeur.';
+                alertClass = 'alert-danger';
+            } else if (roi === 0) {
+                interpretation = '<strong>➡️ Neutre :</strong> Votre investissement n\'a ni gagné ni perdu.';
+                alertClass = 'alert-warning';
+            } else if (roi < 10) {
+                interpretation = '<strong>📊 Faible :</strong> Rentabilité modeste. Comparez avec d\'autres options.';
+                alertClass = 'alert-warning';
+            } else if (roi < 50) {
+                interpretation = '<strong>👍 Bon :</strong> Investissement rentable !';
+                alertClass = 'alert-success';
+            } else {
+                interpretation = '<strong>🚀 Excellent :</strong> Très bon retour sur investissement !';
+                alertClass = 'alert-success';
+            }
+
+            const interpDiv = document.getElementById('interpretation');
+            interpDiv.className = `alert ${alertClass}`;
+            interpDiv.innerHTML = interpretation;
+
+            document.getElementById('results').style.display = 'block';
+            scrollToElement('#results', 100);
+            showNotification('Calcul effectué !', 'success');
+        }
+
+        window.addEventListener('load', calculate);
+    </script>
+</body>
+</html>
