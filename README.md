@@ -168,10 +168,10 @@ Parmi les 100 outils, **6 outils phares** ont été développés avec des foncti
 ### Option 2 : Installation locale
 ```bash
 # Cloner le repository
-git clone https://github.com/votre-username/100-business-tools.git
+git clone https://github.com/ludovicsanchez38-creator/Synoptia-Opentools.git
 
 # Ouvrir le fichier index.html dans votre navigateur
-cd 100-business-tools
+cd Synoptia-Opentools
 open index.html  # macOS
 start index.html # Windows
 xdg-open index.html # Linux
@@ -187,14 +187,15 @@ xdg-open index.html # Linux
 - **HTML5** - Structure sémantique
 - **CSS3** - Design moderne avec variables CSS, Flexbox et Grid
 - **JavaScript (ES6+)** - Logique métier sans dépendances externes
-- **Chart.js** - Visualisations graphiques (seule bibliothèque externe)
+- **Chart.js** - Visualisations graphiques pour les outils financiers
+- **QRCode.js** - Génération de QR codes côté client
 - **Font Awesome** - Icônes
 - **Google Fonts (Inter)** - Typographie
 
 ## 📦 Structure du Projet
 
 ```
-100-business-tools/
+Synoptia-Opentools/
 ├── index.html                 # Page d'accueil avec liste des 100 outils
 ├── README.md                  # Documentation
 ├── LICENSE                    # Licence MIT
@@ -210,14 +211,14 @@ xdg-open index.html # Linux
 │       └── logo.png
 │
 ├── tools/
-│   ├── finance/              # Outils financiers
-│   ├── invoicing/            # Outils de facturation
-│   ├── time/                 # Outils de gestion du temps
-│   ├── marketing/            # Outils marketing
-│   ├── hr/                   # Outils RH
-│   ├── inventory/            # Outils inventaire
-│   ├── analytics/            # Outils d'analyse
-│   └── misc/                 # Outils divers
+│   ├── finance/              # Outils financiers (15 outils)
+│   ├── invoicing/            # Outils de facturation (10 outils)
+│   ├── time/                 # Outils de gestion du temps (15 outils)
+│   ├── marketing/            # Outils marketing (15 outils)
+│   ├── hr/                   # Outils RH (10 outils)
+│   ├── inventory/            # Outils inventaire (10 outils)
+│   ├── analytics/            # Outils d'analyse (10 outils)
+│   └── misc/                 # Outils divers (15 outils)
 │
 └── data/
     └── tools-list.json       # Liste des 100 outils (optionnel)
@@ -231,7 +232,7 @@ Ce projet est compatible avec tous les hébergeurs de sites statiques :
 1. Forkez ce repository
 2. Allez dans Settings > Pages
 3. Sélectionnez la branche `main` comme source
-4. Votre site sera disponible sur `https://votre-username.github.io/100-business-tools`
+4. Votre site sera disponible sur `https://votre-username.github.io/Synoptia-Opentools`
 
 ### Netlify (Gratuit)
 1. Connectez votre repository GitHub
