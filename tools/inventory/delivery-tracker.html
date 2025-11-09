@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Outil Business - Business Tools</title>
+    <title>Suivi Livraisons - Business Tools</title>
     <link rel="stylesheet" href="../../assets/css/main.css">
     <link rel="stylesheet" href="../../assets/css/tools.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -11,49 +11,193 @@
 </head>
 <body>
     <nav class="breadcrumb">
-        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> > 
-        <a href="../../index.html#tools">Inventaire</a> > 
-        <span>Outil</span>
+        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> >
+        <a href="../../index.html#tools">Inventaire</a> >
+        <span>Suivi Livraisons</span>
     </nav>
     <main class="tool-container">
         <header class="tool-header">
-            <h1><i class="fas fa-tools"></i> Outil Business</h1>
-            <p class="tool-description">Outil professionnel pour optimiser votre activité.</p>
+            <h1><i class="fas fa-truck"></i> Suivi des Livraisons</h1>
+            <p class="tool-description">Suivez vos commandes et livraisons en temps réel.</p>
         </header>
+
         <section class="tool-input">
-            <form id="mainForm">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1rem;">
                 <div class="form-group">
-                    <label for="input1" class="form-label">Donnée d'entrée</label>
-                    <input type="number" id="input1" class="form-input" value="100" min="0" required>
+                    <label class="form-label">N° commande</label>
+                    <input type="text" id="orderNumber" class="form-input" placeholder="Ex: CMD-2024-001">
                 </div>
-                <button type="submit" class="btn btn-primary"><i class="fas fa-calculator"></i> Calculer</button>
-            </form>
+                <div class="form-group">
+                    <label class="form-label">Fournisseur</label>
+                    <input type="text" id="supplier" class="form-input" placeholder="Nom du fournisseur">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Date commande</label>
+                    <input type="date" id="orderDate" class="form-input">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Date livraison prévue</label>
+                    <input type="date" id="expectedDate" class="form-input">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Statut</label>
+                    <select id="status" class="form-input">
+                        <option value="ordered">📋 Commandé</option>
+                        <option value="shipped">🚚 Expédié</option>
+                        <option value="in-transit">🌍 En transit</option>
+                        <option value="delivered">✅ Livré</option>
+                        <option value="delayed">⚠️ Retardé</option>
+                    </select>
+                </div>
+                <button class="btn btn-primary" id="addBtn" style="align-self:end;">
+                    <i class="fas fa-plus"></i> Ajouter
+                </button>
+            </div>
+            <button class="btn btn-secondary" id="exportBtn">
+                <i class="fas fa-download"></i> Export CSV
+            </button>
         </section>
-        <section class="tool-output" id="results" style="display: none;">
+
+        <section class="tool-output">
             <div class="results-grid">
                 <div class="result-item">
-                    <div class="result-label">Résultat</div>
-                    <div class="result-value highlight" id="result">-</div>
+                    <div class="result-label">Total livraisons</div>
+                    <div class="result-value highlight" id="totalDeliveries">0</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">En cours</div>
+                    <div class="result-value" id="inProgress">0</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Livrées</div>
+                    <div class="result-value success" id="delivered">0</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">En retard</div>
+                    <div class="result-value" id="delayed">0</div>
                 </div>
             </div>
+
+            <div style="margin-top: 1.5rem;">
+                <h3>Liste des livraisons</h3>
+                <div id="deliveryList"></div>
+            </div>
         </section>
+
         <section class="tool-help">
-            <h3><i class="fas fa-info-circle"></i> Aide</h3>
-            <p>Utilisez cet outil pour optimiser votre gestion d'entreprise.</p>
+            <h3><i class="fas fa-info-circle"></i> Utilisation</h3>
+            <ol>
+                <li>Ajoutez chaque commande avec son numéro et fournisseur</li>
+                <li>Indiquez la date de commande et date prévue de livraison</li>
+                <li>Mettez à jour le statut au fil de l'avancement</li>
+                <li>Suivez les retards pour améliorer la planification</li>
+            </ol>
         </section>
     </main>
-    <footer class="tool-footer"><a href="../../index.html"><i class="fas fa-arrow-left"></i> Retour</a></footer>
+    <footer class="tool-footer">
+        <a href="../../index.html"><i class="fas fa-arrow-left"></i> Retour</a>
+    </footer>
     <script src="../../assets/js/utils.js"></script>
     <script src="../../assets/js/main.js"></script>
     <script>
-        document.getElementById('mainForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const val = parseFloat(document.getElementById('input1').value);
-            document.getElementById('result').textContent = val.toFixed(2);
-            document.getElementById('results').style.display = 'block';
-            showNotification('Opération réussie !', 'success');
+        let deliveries = JSON.parse(localStorage.getItem('deliveries') || '[]');
+
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('orderDate').value = today;
+        const nextWeek = new Date();
+        nextWeek.setDate(nextWeek.getDate() + 7);
+        document.getElementById('expectedDate').value = nextWeek.toISOString().split('T')[0];
+
+        document.getElementById('addBtn').addEventListener('click', function() {
+            const orderNumber = document.getElementById('orderNumber').value.trim();
+            const supplier = document.getElementById('supplier').value.trim();
+            const orderDate = document.getElementById('orderDate').value;
+            const expectedDate = document.getElementById('expectedDate').value;
+            const status = document.getElementById('status').value;
+
+            if (orderNumber && supplier && orderDate && expectedDate) {
+                deliveries.push({
+                    id: Date.now(),
+                    orderNumber: orderNumber,
+                    supplier: supplier,
+                    orderDate: orderDate,
+                    expectedDate: expectedDate,
+                    status: status
+                });
+                localStorage.setItem('deliveries', JSON.stringify(deliveries));
+                document.getElementById('orderNumber').value = '';
+                document.getElementById('supplier').value = '';
+                render();
+                showNotification('Livraison ajoutée !', 'success');
+            }
         });
-        window.addEventListener('load', () => document.getElementById('mainForm').dispatchEvent(new Event('submit')));
+
+        document.getElementById('exportBtn').addEventListener('click', function() {
+            const csv = 'N° Commande,Fournisseur,Date Commande,Date Prévue,Statut\n' +
+                deliveries.map(function(d) { return '"' + d.orderNumber + '","' + d.supplier + '","' + d.orderDate + '","' + d.expectedDate + '","' + d.status + '"'; }).join('\n');
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'livraisons.csv';
+            a.click();
+            showNotification('Export réussi !', 'success');
+        });
+
+        function render() {
+            const total = deliveries.length;
+            const inProgress = deliveries.filter(function(d) { return ['ordered', 'shipped', 'in-transit'].includes(d.status); }).length;
+            const delivered = deliveries.filter(function(d) { return d.status === 'delivered'; }).length;
+            const delayed = deliveries.filter(function(d) { return d.status === 'delayed'; }).length;
+
+            document.getElementById('totalDeliveries').textContent = total;
+            document.getElementById('inProgress').textContent = inProgress;
+            document.getElementById('delivered').textContent = delivered;
+            document.getElementById('delayed').textContent = delayed;
+
+            const container = document.getElementById('deliveryList');
+            if (total === 0) {
+                container.innerHTML = '<p style="text-align:center;color:#999;">Aucune livraison</p>';
+                return;
+            }
+
+            const statusColors = {
+                ordered: '#2196f3',
+                shipped: '#9c27b0',
+                'in-transit': '#ff9800',
+                delivered: '#4caf50',
+                delayed: '#ff6b6b'
+            };
+
+            const statusLabels = {
+                ordered: '📋 Commandé',
+                shipped: '🚚 Expédié',
+                'in-transit': '🌍 En transit',
+                delivered: '✅ Livré',
+                delayed: '⚠️ Retardé'
+            };
+
+            container.innerHTML = deliveries.map(function(d) {
+                const daysUntil = Math.ceil((new Date(d.expectedDate) - new Date()) / (1000 * 60 * 60 * 24));
+                const daysText = daysUntil > 0 ? 'dans ' + daysUntil + 'j' : daysUntil === 0 ? 'aujourd\'hui' : 'retard ' + Math.abs(daysUntil) + 'j';
+
+                return '<div style="display:flex;justify-content:space-between;align-items:center;padding:1rem;background:white;border-left:4px solid ' + statusColors[d.status] + ';border-radius:var(--radius);margin-bottom:0.5rem;box-shadow:0 1px 3px rgba(0,0,0,0.1);">' +
+                    '<div style="flex:1;"><strong>' + d.orderNumber + '</strong> - ' + d.supplier + '<br>' +
+                    '<small style="color:#666;">Commandé: ' + new Date(d.orderDate).toLocaleDateString('fr-FR') + ' • ' +
+                    'Prévu: ' + new Date(d.expectedDate).toLocaleDateString('fr-FR') + ' (' + daysText + ')<br>' +
+                    statusLabels[d.status] + '</small></div>' +
+                    '<button onclick="deleteDelivery(' + d.id + ')" style="padding:0.5rem 1rem;border:none;background:#ff6b6b;color:white;border-radius:var(--radius);cursor:pointer;">' +
+                    '<i class="fas fa-trash"></i></button></div>';
+            }).join('');
+        }
+
+        window.deleteDelivery = function(id) {
+            deliveries = deliveries.filter(function(d) { return d.id !== id; });
+            localStorage.setItem('deliveries', JSON.stringify(deliveries));
+            render();
+        };
+
+        render();
     </script>
 </body>
 </html>

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Outil Business - Business Tools</title>
+    <title>Analyse Délai d'Approvisionnement - Business Tools</title>
     <link rel="stylesheet" href="../../assets/css/main.css">
     <link rel="stylesheet" href="../../assets/css/tools.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -11,49 +11,147 @@
 </head>
 <body>
     <nav class="breadcrumb">
-        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> > 
-        <a href="../../index.html#tools">Inventaire</a> > 
-        <span>Outil</span>
+        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> >
+        <a href="../../index.html#tools">Inventaire</a> >
+        <span>Délai d'Approvisionnement</span>
     </nav>
     <main class="tool-container">
         <header class="tool-header">
-            <h1><i class="fas fa-tools"></i> Outil Business</h1>
-            <p class="tool-description">Outil professionnel pour optimiser votre activité.</p>
+            <h1><i class="fas fa-clock"></i> Analyse du Délai d'Approvisionnement</h1>
+            <p class="tool-description">Analysez et optimisez vos délais de réapprovisionnement.</p>
         </header>
+
         <section class="tool-input">
-            <form id="mainForm">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; margin: 1.5rem 0;">
                 <div class="form-group">
-                    <label for="input1" class="form-label">Donnée d'entrée</label>
-                    <input type="number" id="input1" class="form-input" value="100" min="0" required>
+                    <label class="form-label">Délai fournisseur (jours)</label>
+                    <input type="number" id="supplierTime" class="form-input" value="7" min="0">
+                    <span class="form-help">Production + préparation</span>
                 </div>
-                <button type="submit" class="btn btn-primary"><i class="fas fa-calculator"></i> Calculer</button>
-            </form>
-        </section>
-        <section class="tool-output" id="results" style="display: none;">
-            <div class="results-grid">
-                <div class="result-item">
-                    <div class="result-label">Résultat</div>
-                    <div class="result-value highlight" id="result">-</div>
+                <div class="form-group">
+                    <label class="form-label">Délai transport (jours)</label>
+                    <input type="number" id="shippingTime" class="form-input" value="3" min="0">
+                    <span class="form-help">Acheminement</span>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Délai douane (jours)</label>
+                    <input type="number" id="customsTime" class="form-input" value="2" min="0">
+                    <span class="form-help">Formalités import</span>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Délai réception (jours)</label>
+                    <input type="number" id="receivingTime" class="form-input" value="1" min="0">
+                    <span class="form-help">Contrôle + mise en stock</span>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Variation +/- (jours)</label>
+                    <input type="number" id="variance" class="form-input" value="2" min="0">
+                    <span class="form-help">Incertitude/retards</span>
                 </div>
             </div>
+
+            <button class="btn btn-primary" id="calculateBtn">
+                <i class="fas fa-calculator"></i> Analyser
+            </button>
         </section>
+
+        <section class="tool-output">
+            <div class="results-grid">
+                <div class="result-item">
+                    <div class="result-label">Délai total moyen</div>
+                    <div class="result-value highlight" id="totalLeadTime">-</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Délai minimum</div>
+                    <div class="result-value success" id="minLeadTime">-</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Délai maximum</div>
+                    <div class="result-value" id="maxLeadTime">-</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Fiabilité</div>
+                    <div class="result-value" id="reliability">-</div>
+                </div>
+            </div>
+
+            <div style="margin-top: 1.5rem; padding: 1rem; background: white; border-radius: var(--radius);">
+                <h3>Décomposition du délai</h3>
+                <div id="breakdown" style="line-height: 2;"></div>
+            </div>
+
+            <div style="margin-top: 1.5rem; padding: 1rem; background: #fff3cd; border-left: 4px solid #ffc107; border-radius: var(--radius);">
+                <h3 style="margin-top:0;">💡 Recommandations</h3>
+                <div id="recommendations"></div>
+            </div>
+        </section>
+
         <section class="tool-help">
-            <h3><i class="fas fa-info-circle"></i> Aide</h3>
-            <p>Utilisez cet outil pour optimiser votre gestion d'entreprise.</p>
+            <h3><i class="fas fa-info-circle"></i> Utilisation</h3>
+            <ul>
+                <li>Décomposez votre délai total en étapes</li>
+                <li>Identifiez les étapes les plus longues à optimiser</li>
+                <li>La variation représente l'incertitude (retards possibles)</li>
+                <li>Utilisez le délai maximum pour calculer votre stock de sécurité</li>
+            </ul>
         </section>
     </main>
-    <footer class="tool-footer"><a href="../../index.html"><i class="fas fa-arrow-left"></i> Retour</a></footer>
+    <footer class="tool-footer">
+        <a href="../../index.html"><i class="fas fa-arrow-left"></i> Retour</a>
+    </footer>
     <script src="../../assets/js/utils.js"></script>
     <script src="../../assets/js/main.js"></script>
     <script>
-        document.getElementById('mainForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const val = parseFloat(document.getElementById('input1').value);
-            document.getElementById('result').textContent = val.toFixed(2);
-            document.getElementById('results').style.display = 'block';
-            showNotification('Opération réussie !', 'success');
+        document.getElementById('calculateBtn').addEventListener('click', function() {
+            const supplier = parseFloat(document.getElementById('supplierTime').value) || 0;
+            const shipping = parseFloat(document.getElementById('shippingTime').value) || 0;
+            const customs = parseFloat(document.getElementById('customsTime').value) || 0;
+            const receiving = parseFloat(document.getElementById('receivingTime').value) || 0;
+            const variance = parseFloat(document.getElementById('variance').value) || 0;
+
+            const totalLead = supplier + shipping + customs + receiving;
+            const minLead = Math.max(0, totalLead - variance);
+            const maxLead = totalLead + variance;
+            const reliability = variance > 0 ? Math.round((1 - variance / totalLead) * 100) : 100;
+
+            document.getElementById('totalLeadTime').textContent = totalLead + ' jours';
+            document.getElementById('minLeadTime').textContent = minLead + ' jours';
+            document.getElementById('maxLeadTime').textContent = maxLead + ' jours';
+            document.getElementById('reliability').textContent = reliability + '%';
+
+            const pctSupplier = totalLead > 0 ? ((supplier / totalLead) * 100).toFixed(1) : 0;
+            const pctShipping = totalLead > 0 ? ((shipping / totalLead) * 100).toFixed(1) : 0;
+            const pctCustoms = totalLead > 0 ? ((customs / totalLead) * 100).toFixed(1) : 0;
+            const pctReceiving = totalLead > 0 ? ((receiving / totalLead) * 100).toFixed(1) : 0;
+
+            const breakdown = '<div>📦 <strong>Fournisseur :</strong> ' + supplier + ' jours (' + pctSupplier + '%)</div>' +
+                '<div>🚚 <strong>Transport :</strong> ' + shipping + ' jours (' + pctShipping + '%)</div>' +
+                '<div>🛃 <strong>Douane :</strong> ' + customs + ' jours (' + pctCustoms + '%)</div>' +
+                '<div>📥 <strong>Réception :</strong> ' + receiving + ' jours (' + pctReceiving + '%)</div>' +
+                '<br><div style="font-weight:700;">Total : ' + totalLead + ' jours ± ' + variance + ' jours</div>' +
+                '<div>Fourchette : ' + minLead + ' à ' + maxLead + ' jours</div>';
+
+            document.getElementById('breakdown').innerHTML = breakdown;
+
+            let recs = [];
+            if (supplier > 7) recs.push('Négociez des délais plus courts avec votre fournisseur');
+            if (shipping > 5) recs.push('Étudiez des options de transport plus rapides');
+            if (customs > 3) recs.push('Optimisez vos procédures douanières');
+            if (variance > totalLead * 0.3) recs.push('Forte variation : envisagez un stock de sécurité accru');
+            if (reliability < 70) recs.push('Faible fiabilité : diversifiez vos fournisseurs');
+            if (recs.length === 0) recs.push('✅ Votre délai d\'approvisionnement est bien maîtrisé');
+
+            document.getElementById('recommendations').innerHTML = recs.map(function(r) { return '<div>• ' + r + '</div>'; }).join('');
+            showNotification('Analyse terminée !', 'success');
         });
-        window.addEventListener('load', () => document.getElementById('mainForm').dispatchEvent(new Event('submit')));
+
+        ['supplierTime', 'shippingTime', 'customsTime', 'receivingTime', 'variance'].forEach(function(id) {
+            document.getElementById(id).addEventListener('input', function() {
+                document.getElementById('calculateBtn').click();
+            });
+        });
+
+        document.getElementById('calculateBtn').click();
     </script>
 </body>
 </html>

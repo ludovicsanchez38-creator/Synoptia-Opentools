@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Outil Business - Business Tools</title>
+    <title>Coût de Stockage - Business Tools</title>
     <link rel="stylesheet" href="../../assets/css/main.css">
     <link rel="stylesheet" href="../../assets/css/tools.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -11,49 +11,141 @@
 </head>
 <body>
     <nav class="breadcrumb">
-        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> > 
-        <a href="../../index.html#tools">Inventaire</a> > 
-        <span>Outil</span>
+        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> >
+        <a href="../../index.html#tools">Inventaire</a> >
+        <span>Coût de Stockage</span>
     </nav>
     <main class="tool-container">
         <header class="tool-header">
-            <h1><i class="fas fa-tools"></i> Outil Business</h1>
-            <p class="tool-description">Outil professionnel pour optimiser votre activité.</p>
+            <h1><i class="fas fa-warehouse"></i> Calculateur de Coût de Stockage</h1>
+            <p class="tool-description">Calculez le coût total de votre entrepôt et le coût par unité stockée.</p>
         </header>
+
         <section class="tool-input">
-            <form id="mainForm">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; margin: 1.5rem 0;">
                 <div class="form-group">
-                    <label for="input1" class="form-label">Donnée d'entrée</label>
-                    <input type="number" id="input1" class="form-input" value="100" min="0" required>
+                    <label class="form-label">Loyer mensuel (€)</label>
+                    <input type="number" id="rent" class="form-input" value="5000" min="0">
+                    <span class="form-help">Coût location entrepôt</span>
                 </div>
-                <button type="submit" class="btn btn-primary"><i class="fas fa-calculator"></i> Calculer</button>
-            </form>
-        </section>
-        <section class="tool-output" id="results" style="display: none;">
-            <div class="results-grid">
-                <div class="result-item">
-                    <div class="result-label">Résultat</div>
-                    <div class="result-value highlight" id="result">-</div>
+                <div class="form-group">
+                    <label class="form-label">Main d'œuvre (€/mois)</label>
+                    <input type="number" id="labor" class="form-input" value="8000" min="0">
+                    <span class="form-help">Salaires personnel</span>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Assurance (€/mois)</label>
+                    <input type="number" id="insurance" class="form-input" value="500" min="0">
+                    <span class="form-help">Assurance stock</span>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Amortissement (€/mois)</label>
+                    <input type="number" id="depreciation" class="form-input" value="1500" min="0">
+                    <span class="form-help">Équipements, rayonnages</span>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Unités stockées</label>
+                    <input type="number" id="units" class="form-input" value="5000" min="1">
+                    <span class="form-help">Nombre moyen d'unités</span>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Autres frais (€/mois)</label>
+                    <input type="number" id="other" class="form-input" value="1000" min="0">
+                    <span class="form-help">Énergie, maintenance, etc.</span>
                 </div>
             </div>
+
+            <button class="btn btn-primary" id="calculateBtn">
+                <i class="fas fa-calculator"></i> Calculer
+            </button>
         </section>
+
+        <section class="tool-output">
+            <div class="results-grid">
+                <div class="result-item">
+                    <div class="result-label">Coût mensuel total</div>
+                    <div class="result-value highlight" id="totalMonthly">-</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Coût annuel total</div>
+                    <div class="result-value" id="totalYearly">-</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Coût par unité/mois</div>
+                    <div class="result-value success" id="costPerUnit">-</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Coût par unité/an</div>
+                    <div class="result-value" id="costPerUnitYear">-</div>
+                </div>
+            </div>
+
+            <div style="margin-top: 1.5rem; padding: 1rem; background: white; border-radius: var(--radius);">
+                <h3>Répartition des coûts</h3>
+                <div id="breakdown" style="line-height: 2;"></div>
+            </div>
+        </section>
+
         <section class="tool-help">
-            <h3><i class="fas fa-info-circle"></i> Aide</h3>
-            <p>Utilisez cet outil pour optimiser votre gestion d'entreprise.</p>
+            <h3><i class="fas fa-info-circle"></i> Utilisation</h3>
+            <ul>
+                <li>Saisissez tous vos coûts mensuels de stockage</li>
+                <li>Indiquez le nombre moyen d'unités en stock</li>
+                <li>Le calculateur vous donne le coût par unité stockée</li>
+                <li>Utilisez cette donnée pour calculer vos coûts de détention (holding costs)</li>
+            </ul>
         </section>
     </main>
-    <footer class="tool-footer"><a href="../../index.html"><i class="fas fa-arrow-left"></i> Retour</a></footer>
+    <footer class="tool-footer">
+        <a href="../../index.html"><i class="fas fa-arrow-left"></i> Retour</a>
+    </footer>
     <script src="../../assets/js/utils.js"></script>
     <script src="../../assets/js/main.js"></script>
     <script>
-        document.getElementById('mainForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const val = parseFloat(document.getElementById('input1').value);
-            document.getElementById('result').textContent = val.toFixed(2);
-            document.getElementById('results').style.display = 'block';
-            showNotification('Opération réussie !', 'success');
+        document.getElementById('calculateBtn').addEventListener('click', () => {
+            const rent = parseFloat(document.getElementById('rent').value) || 0;
+            const labor = parseFloat(document.getElementById('labor').value) || 0;
+            const insurance = parseFloat(document.getElementById('insurance').value) || 0;
+            const depreciation = parseFloat(document.getElementById('depreciation').value) || 0;
+            const other = parseFloat(document.getElementById('other').value) || 0;
+            const units = parseFloat(document.getElementById('units').value) || 1;
+
+            const totalMonthly = rent + labor + insurance + depreciation + other;
+            const totalYearly = totalMonthly * 12;
+            const costPerUnit = totalMonthly / units;
+            const costPerUnitYear = totalYearly / units;
+
+            document.getElementById('totalMonthly').textContent = formatCurrency(totalMonthly);
+            document.getElementById('totalYearly').textContent = formatCurrency(totalYearly);
+            document.getElementById('costPerUnit').textContent = formatCurrency(costPerUnit);
+            document.getElementById('costPerUnitYear').textContent = formatCurrency(costPerUnitYear);
+
+            const pctRent = ((rent / totalMonthly) * 100).toFixed(1);
+            const pctLabor = ((labor / totalMonthly) * 100).toFixed(1);
+            const pctInsurance = ((insurance / totalMonthly) * 100).toFixed(1);
+            const pctDepreciation = ((depreciation / totalMonthly) * 100).toFixed(1);
+            const pctOther = ((other / totalMonthly) * 100).toFixed(1);
+
+            const breakdown = `
+                <div><strong>Loyer :</strong> ${formatCurrency(rent)} (${pctRent}%)</div>
+                <div><strong>Main d'œuvre :</strong> ${formatCurrency(labor)} (${pctLabor}%)</div>
+                <div><strong>Assurance :</strong> ${formatCurrency(insurance)} (${pctInsurance}%)</div>
+                <div><strong>Amortissement :</strong> ${formatCurrency(depreciation)} (${pctDepreciation}%)</div>
+                <div><strong>Autres frais :</strong> ${formatCurrency(other)} (${pctOther}%)</div>
+                <br>
+                <div style="font-weight:700;">Total mensuel : ${formatCurrency(totalMonthly)}</div>
+                <div>Pour ${units.toLocaleString()} unités : <strong>${formatCurrency(costPerUnit)}/unité/mois</strong></div>
+            `;
+            document.getElementById('breakdown').innerHTML = breakdown;
+
+            showNotification('Coûts calculés !', 'success');
         });
-        window.addEventListener('load', () => document.getElementById('mainForm').dispatchEvent(new Event('submit')));
+
+        ['rent', 'labor', 'insurance', 'depreciation', 'other', 'units'].forEach(id => {
+            document.getElementById(id).addEventListener('input', () => document.getElementById('calculateBtn').click());
+        });
+
+        document.getElementById('calculateBtn').click();
     </script>
 </body>
 </html>

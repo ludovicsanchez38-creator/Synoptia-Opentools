@@ -108,7 +108,7 @@ Autres outils utiles pour entreprises
 
 ## 📊 Statut du Projet
 
-**Progression globale : 65/100 outils complets (65%)**
+**Progression globale : 75/100 outils complets (75%)**
 
 | Catégorie | Progression | Outils Complets |
 |-----------|-------------|-----------------|
@@ -117,15 +117,15 @@ Autres outils utiles pour entreprises
 | 📢 Marketing | ✅ 17/17 (100%) | QR Code, ROAS, Breakeven ROAS, CPC, CPM, Conversion Rate, CAC, LTV, CTR, Churn Rate, Engagement Rate, Landing Page Analyzer, Lead Scoring, Price Comparison, Reach Estimator, A/B Test, Ad Budget Planner |
 | ⏰ Temps | ✅ 15/15 (100%) | Time Tracker, Pomodoro, Kanban, Timesheet, Hours Calculator, Task Planner, Team Schedule, Hourly Rate, Overtime Calculator, Productivity Calculator, Workload Calculator, Project Estimator, Milestone Tracker, Gantt Chart, Availability Calendar |
 | 👥 RH | ✅ 10/10 (100%) | Salary Calculator, Vacation Calculator, Absence Tracker, Employee Cost, Severance Calculator, Payroll Taxes, Performance Review, Recruitment Planner, Payslip Generator, Contract Generator |
-| 📦 Inventaire | ⏳ 0/10 (0%) | À développer |
+| 📦 Inventaire | ✅ 10/10 (100%) | Stock Manager, EOQ Calculator, Reorder Point, Turnover Rate, Supplier Manager, Storage Cost, Shipping Cost, Lead Time Analyzer, Delivery Tracker, Label Generator |
 | 📊 Analytics | ⏳ 0/10 (0%) | À développer |
 | 🔧 Divers | ⏳ 0/15 (0%) | À développer |
 
-**Prochaines étapes** : Compléter les 35 outils restants (voir Roadmap ci-dessous)
+**Prochaines étapes** : Compléter les 25 outils restants (voir Roadmap ci-dessous)
 
 ## ⭐ Outils Complets et Avancés
 
-**Catégories 100% complètes** : Finance (13/13), Facturation (10/10), Marketing (17/17), Temps (15/15) et RH (10/10)
+**Catégories 100% complètes** : Finance (13/13), Facturation (10/10), Marketing (17/17), Temps (15/15), RH (10/10) et Inventaire (10/10)
 
 **10 outils phares** ont été développés avec des fonctionnalités avancées et complètes :
 
