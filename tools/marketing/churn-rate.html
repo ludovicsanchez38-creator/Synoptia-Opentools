@@ -11,57 +11,116 @@
 </head>
 <body>
     <nav class="breadcrumb">
-        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> > 
-        <a href="../../index.html#tools">Marketing</a> > 
-        <span>Calculateur Taux de Churn</span>
+        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> > <a href="../../index.html#tools">Marketing</a> > <span>Churn Rate</span>
     </nav>
     <main class="tool-container">
         <header class="tool-header">
-            <h1><i class="fas fa-user-minus"></i> Calculateur Taux de Churn</h1>
-            <p class="tool-description">Outil marketing pour optimiser vos campagnes.</p>
+            <h1><i class="fas fa-user-minus"></i> Calculateur de Taux de Churn</h1>
+            <p class="tool-description">Mesurez le taux d'attrition de vos clients/abonnés pour optimiser la rétention.</p>
         </header>
         <section class="tool-input">
-            <form id="mainForm">
+            <h2>Données de rétention</h2>
+            <form id="churnForm">
                 <div class="input-grid">
                     <div class="form-group">
-                        <label for="input1" class="form-label">Valeur 1</label>
-                        <input type="number" id="input1" class="form-input" value="100" min="0" required>
+                        <label for="startCustomers" class="form-label"><i class="fas fa-users"></i> Clients en début de période</label>
+                        <input type="number" id="startCustomers" class="form-input" placeholder="Ex: 1000" min="1" value="1000" required>
+                        <span class="form-help">Nombre de clients au début du mois/trimestre</span>
                     </div>
                     <div class="form-group">
-                        <label for="input2" class="form-label">Valeur 2</label>
-                        <input type="number" id="input2" class="form-input" value="50" min="0" required>
+                        <label for="lostCustomers" class="form-label"><i class="fas fa-user-times"></i> Clients perdus</label>
+                        <input type="number" id="lostCustomers" class="form-input" placeholder="Ex: 50" min="0" value="50" required>
+                        <span class="form-help">Clients partis durant la période</span>
+                    </div>
+                    <div class="form-group">
+                        <label for="mrr" class="form-label"><i class="fas fa-euro-sign"></i> MRR (€)</label>
+                        <input type="number" id="mrr" class="form-input" placeholder="Ex: 50000" min="0" step="0.01" value="50000">
+                        <span class="form-help">Revenu récurrent mensuel (optionnel)</span>
+                    </div>
+                    <div class="form-group">
+                        <label for="lostMrr" class="form-label"><i class="fas fa-money-bill-wave"></i> MRR perdu (€)</label>
+                        <input type="number" id="lostMrr" class="form-input" placeholder="Ex: 2500" min="0" step="0.01" value="2500">
+                        <span class="form-help">Revenu perdu (optionnel)</span>
                     </div>
                 </div>
-                <button type="submit" class="btn btn-primary"><i class="fas fa-calculator"></i> Calculer</button>
+                <button type="submit" class="btn btn-primary"><i class="fas fa-calculator"></i> Calculer le Churn</button>
             </form>
         </section>
         <section class="tool-output" id="results" style="display: none;">
+            <h2><i class="fas fa-chart-line"></i> Analyse de rétention</h2>
             <div class="results-grid">
-                <div class="result-item">
-                    <div class="result-label">Résultat</div>
-                    <div class="result-value highlight" id="result">-</div>
-                </div>
+                <div class="result-item"><div class="result-label">Taux de churn</div><div class="result-value highlight" id="churn">-</div></div>
+                <div class="result-item success"><div class="result-label">Taux de rétention</div><div class="result-value success" id="retention">-</div></div>
+                <div class="result-item"><div class="result-label">Revenue Churn</div><div class="result-value" id="revChurn">-</div></div>
+                <div class="result-item"><div class="result-label">Clients restants</div><div class="result-value" id="remaining">-</div></div>
             </div>
+            <div class="alert" id="interpretation"></div>
         </section>
         <section class="tool-help">
-            <h3><i class="fas fa-info-circle"></i> Information</h3>
-            <p>Optimisez vos campagnes marketing avec cet outil.</p>
+            <h3><i class="fas fa-calculator"></i> Formules</h3>
+            <code>Churn Rate = (Clients perdus / Clients début) × 100
+Retention Rate = 100 - Churn Rate
+Revenue Churn = (MRR perdu / MRR début) × 100</code>
+            <h3><i class="fas fa-chart-bar"></i> Benchmarks Churn</h3>
+            <ul>
+                <li><strong>SaaS B2B</strong> : 5-7% annuel (excellent), 10-15% (acceptable)</li>
+                <li><strong>SaaS B2C</strong> : 3-5% mensuel (bon)</li>
+                <li><strong>E-commerce</strong> : 20-30% annuel</li>
+                <li><strong>Abonnements</strong> : 5-10% mensuel</li>
+            </ul>
+            <h3><i class="fas fa-lightbulb"></i> Réduire le Churn</h3>
+            <ul>
+                <li>Onboarding optimal pour nouveaux clients</li>
+                <li>Support client réactif et efficace</li>
+                <li>Engagement régulier (emails, notifications)</li>
+                <li>Programmes de fidélité</li>
+                <li>Identifier les signaux de départ précoces</li>
+            </ul>
         </section>
     </main>
     <footer class="tool-footer"><a href="../../index.html"><i class="fas fa-arrow-left"></i> Retour</a></footer>
     <script src="../../assets/js/utils.js"></script>
     <script src="../../assets/js/main.js"></script>
     <script>
-        document.getElementById('mainForm').addEventListener('submit', function(e) {
+        document.getElementById('churnForm').addEventListener('submit', function(e) {
             e.preventDefault();
-            const val1 = parseFloat(document.getElementById('input1').value);
-            const val2 = parseFloat(document.getElementById('input2').value);
-            const result = val2 > 0 ? (val1 / val2) : 0;
-            document.getElementById('result').textContent = result.toFixed(2);
+            const start = parseInt(document.getElementById('startCustomers').value);
+            const lost = parseInt(document.getElementById('lostCustomers').value);
+            const mrr = parseFloat(document.getElementById('mrr').value) || 0;
+            const lostMrr = parseFloat(document.getElementById('lostMrr').value) || 0;
+            
+            const churn = (lost / start) * 100;
+            const retention = 100 - churn;
+            const revChurn = mrr > 0 ? (lostMrr / mrr) * 100 : 0;
+            const remaining = start - lost;
+            
+            document.getElementById('churn').textContent = formatPercentage(churn);
+            document.getElementById('retention').textContent = formatPercentage(retention);
+            document.getElementById('revChurn').textContent = mrr > 0 ? formatPercentage(revChurn) : 'N/A';
+            document.getElementById('remaining').textContent = remaining.toLocaleString('fr-FR');
+            
+            let interpretation = '';
+            let alertClass = 'alert-info';
+            if (churn < 2) {
+                interpretation = '<strong>✅ Excellent churn !</strong> Taux de rétention exceptionnel. Votre produit fidélise très bien.';
+                alertClass = 'alert-success';
+            } else if (churn < 5) {
+                interpretation = '<strong>👍 Bon churn</strong> Rétention solide, continuez vos efforts.';
+                alertClass = 'alert-success';
+            } else if (churn < 10) {
+                interpretation = '<strong>⚠️ Churn élevé</strong> Travaillez sur la rétention : onboarding, support, engagement.';
+                alertClass = 'alert-warning';
+            } else {
+                interpretation = '<strong>🔴 Churn critique !</strong> Problème majeur de rétention. Action urgente requise.';
+                alertClass = 'alert-danger';
+            }
+            
+            document.getElementById('interpretation').className = `alert ${alertClass}`;
+            document.getElementById('interpretation').innerHTML = interpretation;
             document.getElementById('results').style.display = 'block';
-            showNotification('Calcul effectué !', 'success');
+            showNotification('Churn calculé !', 'success');
         });
-        window.addEventListener('load', () => document.getElementById('mainForm').dispatchEvent(new Event('submit')));
+        window.addEventListener('load', () => document.getElementById('churnForm').dispatchEvent(new Event('submit')));
     </script>
 </body>
 </html>
