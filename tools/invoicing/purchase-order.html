@@ -8,88 +8,337 @@
     <link rel="stylesheet" href="../../assets/css/tools.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .po-preview {
+            background: white;
+            padding: 2rem;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            margin-top: 2rem;
+        }
+        .po-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--primary);
+        }
+        .po-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 2rem 0;
+        }
+        .po-table th,
+        .po-table td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+        .po-table th {
+            background: var(--light);
+            font-weight: 600;
+        }
+        .po-total {
+            text-align: right;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-top: 1rem;
+        }
+        @media print {
+            .tool-input, .btn, .breadcrumb, .tool-footer, .tool-help { display: none; }
+        }
+    </style>
 </head>
 <body>
     <nav class="breadcrumb">
-        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> > 
-        <a href="../../index.html#tools">Facturation</a> > 
+        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> >
+        <a href="../../index.html#tools">Facturation</a> >
         <span>Générateur de Bons de Commande</span>
     </nav>
     <main class="tool-container">
         <header class="tool-header">
             <h1><i class="fas fa-file-alt"></i> Générateur de Bons de Commande</h1>
-            <p class="tool-description">Crée des bons de commande conformes</p>
+            <p class="tool-description">Créez des bons de commande professionnels</p>
         </header>
+
         <section class="tool-input">
-            <h2>Informations</h2>
-            <form id="mainForm">
+            <form id="poForm">
+                <h3><i class="fas fa-building"></i> Votre entreprise (Acheteur)</h3>
+                <div class="input-grid">
+                    <div class="form-group">
+                        <label class="form-label">Nom de l'entreprise</label>
+                        <input type="text" id="buyerName" class="form-input" value="Synoptia" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Email</label>
+                        <input type="email" id="buyerEmail" class="form-input" value="ludo@synoptia.fr" required>
+                    </div>
+                </div>
                 <div class="form-group">
-                    <label for="input1" class="form-label">
-                        <i class="fas fa-edit"></i> Champ principal
-                    </label>
-                    <input type="text" id="input1" class="form-input" placeholder="Entrez les informations" required>
+                    <label class="form-label">Adresse complète</label>
+                    <textarea id="buyerAddress" class="form-input" rows="2"></textarea>
                 </div>
-                <div class="action-buttons">
-                    <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-save"></i> Générer
-                    </button>
-                    <button type="button" class="btn btn-outline" id="resetBtn">
-                        <i class="fas fa-redo"></i> Réinitialiser
-                    </button>
+
+                <h3 style="margin-top: 2rem;"><i class="fas fa-truck"></i> Fournisseur</h3>
+                <div class="input-grid">
+                    <div class="form-group">
+                        <label class="form-label">Nom du fournisseur</label>
+                        <input type="text" id="supplierName" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Email</label>
+                        <input type="email" id="supplierEmail" class="form-input">
+                    </div>
                 </div>
+                <div class="form-group">
+                    <label class="form-label">Adresse</label>
+                    <textarea id="supplierAddress" class="form-input" rows="2"></textarea>
+                </div>
+
+                <h3 style="margin-top: 2rem;"><i class="fas fa-info-circle"></i> Détails de la commande</h3>
+                <div class="input-grid">
+                    <div class="form-group">
+                        <label class="form-label">Numéro de commande</label>
+                        <input type="text" id="poNumber" class="form-input" value="BC-2025-001" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Date de commande</label>
+                        <input type="date" id="poDate" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Date de livraison souhaitée</label>
+                        <input type="date" id="deliveryDate" class="form-input" required>
+                    </div>
+                </div>
+
+                <h3 style="margin-top: 2rem;"><i class="fas fa-list"></i> Produits commandés</h3>
+                <div id="itemsContainer"></div>
+                <button type="button" class="btn btn-secondary" id="addItemBtn">
+                    <i class="fas fa-plus"></i> Ajouter une ligne
+                </button>
+
+                <button type="submit" class="btn btn-primary btn-lg" style="margin-top: 2rem;">
+                    <i class="fas fa-file-alt"></i> Générer le bon de commande
+                </button>
             </form>
         </section>
+
         <section class="tool-output" id="results" style="display: none;">
-            <h2><i class="fas fa-check-circle"></i> Résultat</h2>
-            <div class="alert alert-success">
-                <strong>✓ Succès !</strong> Votre document a été généré.
+            <div style="display: flex; justify-content: space-between; margin-bottom: 1rem;">
+                <h2><i class="fas fa-eye"></i> Aperçu du bon de commande</h2>
+                <div>
+                    <button class="btn btn-success" onclick="window.print()">
+                        <i class="fas fa-print"></i> Imprimer
+                    </button>
+                    <button class="btn btn-primary" id="newPoBtn">
+                        <i class="fas fa-plus"></i> Nouvelle commande
+                    </button>
+                </div>
             </div>
-            <div class="action-buttons">
-                <button class="btn btn-accent" id="downloadBtn">
-                    <i class="fas fa-download"></i> Télécharger
-                </button>
-                <button class="btn btn-secondary" id="printBtn">
-                    <i class="fas fa-print"></i> Imprimer
-                </button>
-            </div>
+            <div class="po-preview" id="poPreview"></div>
         </section>
+
         <section class="tool-help">
-            <h3><i class="fas fa-question-circle"></i> Comment utiliser cet outil ?</h3>
-            <ol>
-                <li>Remplissez les informations requises</li>
-                <li>Cliquez sur <strong>Générer</strong></li>
-                <li>Téléchargez ou imprimez le document</li>
-            </ol>
-            <h3><i class="fas fa-lightbulb"></i> Conseil</h3>
-            <p>Conservez une copie de tous vos documents pour votre comptabilité.</p>
+            <h3><i class="fas fa-question-circle"></i> Guide</h3>
+            <ul>
+                <li>Remplissez les informations de votre entreprise et du fournisseur</li>
+                <li>Ajoutez les produits à commander avec quantités et prix</li>
+                <li>Indiquez la date de livraison souhaitée</li>
+                <li>Le bon de commande sert à formaliser votre commande auprès du fournisseur</li>
+            </ul>
         </section>
     </main>
     <footer class="tool-footer">
         <a href="../../index.html"><i class="fas fa-arrow-left"></i> Retour aux outils</a>
     </footer>
+
     <script src="../../assets/js/utils.js"></script>
     <script src="../../assets/js/main.js"></script>
     <script>
-        document.getElementById('mainForm').addEventListener('submit', function(e) {
+        let itemCount = 0;
+
+        // Set dates
+        document.getElementById('poDate').valueAsDate = new Date();
+        const futureDate = new Date();
+        futureDate.setDate(futureDate.getDate() + 14);
+        document.getElementById('deliveryDate').valueAsDate = futureDate;
+
+        // Add item
+        document.getElementById('addItemBtn').addEventListener('click', addItem);
+
+        function addItem() {
+            itemCount++;
+            const itemDiv = document.createElement('div');
+            itemDiv.id = `item-${itemCount}`;
+            itemDiv.className = 'input-grid';
+            itemDiv.style.marginBottom = '1rem';
+            itemDiv.innerHTML = `
+                <div class="form-group">
+                    <input type="text" class="form-input item-desc" placeholder="Description du produit" required>
+                </div>
+                <div class="form-group">
+                    <input type="text" class="form-input item-ref" placeholder="Référence" required>
+                </div>
+                <div class="form-group">
+                    <input type="number" class="form-input item-qty" value="1" min="1" required>
+                </div>
+                <div class="form-group">
+                    <input type="number" class="form-input item-price" value="0" min="0" step="0.01" placeholder="Prix unitaire HT" required>
+                </div>
+                <div class="form-group">
+                    <button type="button" class="btn btn-danger btn-sm" onclick="removeItem(${itemCount})">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            `;
+            document.getElementById('itemsContainer').appendChild(itemDiv);
+        }
+
+        window.removeItem = function(itemId) {
+            document.getElementById(`item-${itemId}`).remove();
+        };
+
+        // Add initial item
+        addItem();
+
+        // Generate PO
+        document.getElementById('poForm').addEventListener('submit', function(e) {
             e.preventDefault();
-            
-            // Simulation de génération
+
+            const poData = {
+                buyer: {
+                    name: document.getElementById('buyerName').value,
+                    email: document.getElementById('buyerEmail').value,
+                    address: document.getElementById('buyerAddress').value
+                },
+                supplier: {
+                    name: document.getElementById('supplierName').value,
+                    email: document.getElementById('supplierEmail').value,
+                    address: document.getElementById('supplierAddress').value
+                },
+                po: {
+                    number: document.getElementById('poNumber').value,
+                    date: document.getElementById('poDate').value,
+                    deliveryDate: document.getElementById('deliveryDate').value
+                },
+                items: []
+            };
+
+            // Get all items
+            document.querySelectorAll('#itemsContainer > div').forEach(itemDiv => {
+                const desc = itemDiv.querySelector('.item-desc').value;
+                const ref = itemDiv.querySelector('.item-ref').value;
+                const qty = parseInt(itemDiv.querySelector('.item-qty').value);
+                const price = parseFloat(itemDiv.querySelector('.item-price').value);
+                poData.items.push({
+                    description: desc,
+                    reference: ref,
+                    quantity: qty,
+                    unitPrice: price,
+                    total: qty * price
+                });
+            });
+
+            // Calculate totals
+            const subtotal = poData.items.reduce((sum, item) => sum + item.total, 0);
+            const tva = subtotal * 0.20;
+            const total = subtotal + tva;
+
+            // Generate preview
+            const preview = `
+                <div class="po-header">
+                    <div>
+                        <h2>${poData.buyer.name}</h2>
+                        <p>${poData.buyer.email}</p>
+                        ${poData.buyer.address ? `<p style="white-space: pre-line;">${poData.buyer.address}</p>` : ''}
+                    </div>
+                    <div style="text-align: right;">
+                        <div style="font-size: 1.5rem; font-weight: 700; color: var(--primary);">BON DE COMMANDE</div>
+                        <div style="font-weight: 600; margin-top: 0.5rem;">${poData.po.number}</div>
+                        <p>Date : ${new Date(poData.po.date).toLocaleDateString('fr-FR')}</p>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin: 2rem 0;">
+                    <div style="background: var(--light); padding: 1.5rem; border-radius: var(--radius);">
+                        <h3>Fournisseur</h3>
+                        <p><strong>${poData.supplier.name}</strong></p>
+                        ${poData.supplier.email ? `<p>${poData.supplier.email}</p>` : ''}
+                        ${poData.supplier.address ? `<p style="white-space: pre-line;">${poData.supplier.address}</p>` : ''}
+                    </div>
+                    <div style="background: var(--light); padding: 1.5rem; border-radius: var(--radius);">
+                        <h3>Livraison</h3>
+                        <p><strong>Date souhaitée :</strong></p>
+                        <p style="font-size: 1.1rem; font-weight: 600;">${new Date(poData.po.deliveryDate).toLocaleDateString('fr-FR')}</p>
+                        <p style="margin-top: 0.5rem;"><strong>Adresse de livraison :</strong></p>
+                        <p>${poData.buyer.address || 'Adresse du siège'}</p>
+                    </div>
+                </div>
+
+                <h3>Détail de la commande</h3>
+                <table class="po-table">
+                    <thead>
+                        <tr>
+                            <th>Référence</th>
+                            <th>Description</th>
+                            <th style="text-align: center;">Quantité</th>
+                            <th style="text-align: right;">Prix unitaire HT</th>
+                            <th style="text-align: right;">Total HT</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${poData.items.map(item => `
+                            <tr>
+                                <td>${item.reference}</td>
+                                <td>${item.description}</td>
+                                <td style="text-align: center;">${item.quantity}</td>
+                                <td style="text-align: right;">${formatCurrency(item.unitPrice)}</td>
+                                <td style="text-align: right;">${formatCurrency(item.total)}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+
+                <div style="text-align: right; margin-top: 2rem;">
+                    <div style="margin: 0.5rem 0;">
+                        <strong>Sous-total HT :</strong> ${formatCurrency(subtotal)}
+                    </div>
+                    <div style="margin: 0.5rem 0;">
+                        <strong>TVA (20%) :</strong> ${formatCurrency(tva)}
+                    </div>
+                    <div class="po-total">
+                        Total TTC : ${formatCurrency(total)}
+                    </div>
+                </div>
+
+                <div style="margin-top: 3rem; padding-top: 2rem; border-top: 1px solid var(--border); font-size: 0.9rem; color: var(--text-secondary);">
+                    <p><strong>Conditions :</strong></p>
+                    <p>Cette commande est soumise à vos conditions générales de vente.</p>
+                    <p>Merci de confirmer la réception de ce bon de commande et la date de livraison.</p>
+                </div>
+            `;
+
+            document.getElementById('poPreview').innerHTML = preview;
             document.getElementById('results').style.display = 'block';
-            scrollToElement('#results', 100);
-            showNotification('Document généré avec succès !', 'success');
+            document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
+            showNotification('Bon de commande généré !', 'success');
         });
 
-        document.getElementById('resetBtn').addEventListener('click', function() {
-            document.getElementById('mainForm').reset();
+        // New PO
+        document.getElementById('newPoBtn').addEventListener('click', function() {
+            document.getElementById('poForm').reset();
+            document.getElementById('poDate').valueAsDate = new Date();
+            const futureDate = new Date();
+            futureDate.setDate(futureDate.getDate() + 14);
+            document.getElementById('deliveryDate').valueAsDate = futureDate;
+            document.getElementById('buyerName').value = 'Synoptia';
+            document.getElementById('buyerEmail').value = 'ludo@synoptia.fr';
             document.getElementById('results').style.display = 'none';
-        });
-
-        document.getElementById('downloadBtn')?.addEventListener('click', function() {
-            showNotification('Fonctionnalité de téléchargement à implémenter', 'info');
-        });
-
-        document.getElementById('printBtn')?.addEventListener('click', function() {
-            window.print();
+            document.getElementById('itemsContainer').innerHTML = '';
+            itemCount = 0;
+            addItem();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         });
     </script>
 </body>

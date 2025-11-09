@@ -6,90 +6,190 @@
     <title>Calculateur de Frais de Retard - Business Tools</title>
     <link rel="stylesheet" href="../../assets/css/main.css">
     <link rel="stylesheet" href="../../assets/css/tools.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../../assets/css/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
     <nav class="breadcrumb">
-        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> > 
-        <a href="../../index.html#tools">Facturation</a> > 
+        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> >
+        <a href="../../index.html#tools">Facturation</a> >
         <span>Calculateur de Frais de Retard</span>
     </nav>
     <main class="tool-container">
         <header class="tool-header">
             <h1><i class="fas fa-exclamation-triangle"></i> Calculateur de Frais de Retard</h1>
-            <p class="tool-description">Calcule pénalités en cas de paiement en retard</p>
+            <p class="tool-description">Calcule les pénalités de retard légales en France</p>
         </header>
+
         <section class="tool-input">
-            <h2>Informations</h2>
-            <form id="mainForm">
-                <div class="form-group">
-                    <label for="input1" class="form-label">
-                        <i class="fas fa-edit"></i> Champ principal
-                    </label>
-                    <input type="text" id="input1" class="form-input" placeholder="Entrez les informations" required>
+            <form id="feeForm">
+                <h3><i class="fas fa-file-invoice-dollar"></i> Informations de la facture</h3>
+                <div class="input-grid">
+                    <div class="form-group">
+                        <label class="form-label">Montant de la facture (€)</label>
+                        <input type="number" id="invoiceAmount" class="form-input" min="0" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Date d'échéance</label>
+                        <input type="date" id="dueDate" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Date de paiement (ou aujourd'hui)</label>
+                        <input type="date" id="paymentDate" class="form-input" required>
+                    </div>
                 </div>
-                <div class="action-buttons">
-                    <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-save"></i> Générer
-                    </button>
-                    <button type="button" class="btn btn-outline" id="resetBtn">
-                        <i class="fas fa-redo"></i> Réinitialiser
-                    </button>
+
+                <h3 style="margin-top: 2rem;"><i class="fas fa-percent"></i> Taux et pénalités</h3>
+                <div class="input-grid">
+                    <div class="form-group">
+                        <label class="form-label">Taux de pénalité (%/an)</label>
+                        <input type="number" id="penaltyRate" class="form-input" value="10" min="0" step="0.1" required>
+                        <small style="color: var(--text-secondary);">Taux légal France: 10% (taux BCE + 10 points)</small>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Indemnité forfaitaire (€)</label>
+                        <input type="number" id="flatFee" class="form-input" value="40" min="0" step="0.01" required>
+                        <small style="color: var(--text-secondary);">Indemnité forfaitaire légale: 40 €</small>
+                    </div>
                 </div>
+
+                <button type="submit" class="btn btn-primary btn-lg">
+                    <i class="fas fa-calculator"></i> Calculer les frais de retard
+                </button>
             </form>
         </section>
+
         <section class="tool-output" id="results" style="display: none;">
-            <h2><i class="fas fa-check-circle"></i> Résultat</h2>
-            <div class="alert alert-success">
-                <strong>✓ Succès !</strong> Votre document a été généré.
+            <h2><i class="fas fa-chart-bar"></i> Résultat du calcul</h2>
+
+            <div class="result-card" style="background: linear-gradient(135deg, var(--primary), var(--accent)); color: white; padding: 2rem; border-radius: var(--radius-lg); margin: 1.5rem 0;">
+                <div style="font-size: 0.9rem; opacity: 0.9; margin-bottom: 0.5rem;">TOTAL DES PÉNALITÉS</div>
+                <div style="font-size: 2.5rem; font-weight: 700;" id="totalPenalties">0,00 €</div>
             </div>
-            <div class="action-buttons">
-                <button class="btn btn-accent" id="downloadBtn">
-                    <i class="fas fa-download"></i> Télécharger
-                </button>
-                <button class="btn btn-secondary" id="printBtn">
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; margin: 2rem 0;">
+                <div class="stat-box">
+                    <div class="stat-label">Retard</div>
+                    <div class="stat-value" id="daysLate">0 jours</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-label">Pénalités de retard</div>
+                    <div class="stat-value" id="latePenalty">0,00 €</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-label">Indemnité forfaitaire</div>
+                    <div class="stat-value" id="flatFeAmount">0,00 €</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-label">Montant total à réclamer</div>
+                    <div class="stat-value" id="totalDue">0,00 €</div>
+                </div>
+            </div>
+
+            <div style="background: white; padding: 2rem; border-radius: var(--radius-lg); border: 1px solid var(--border);">
+                <h3><i class="fas fa-info-circle"></i> Détails du calcul</h3>
+                <div id="calculationDetails"></div>
+            </div>
+
+            <div class="action-buttons" style="margin-top: 2rem;">
+                <button class="btn btn-primary" onclick="window.print()">
                     <i class="fas fa-print"></i> Imprimer
+                </button>
+                <button class="btn btn-secondary" id="resetBtn">
+                    <i class="fas fa-redo"></i> Nouveau calcul
                 </button>
             </div>
         </section>
+
         <section class="tool-help">
-            <h3><i class="fas fa-question-circle"></i> Comment utiliser cet outil ?</h3>
-            <ol>
-                <li>Remplissez les informations requises</li>
-                <li>Cliquez sur <strong>Générer</strong></li>
-                <li>Téléchargez ou imprimez le document</li>
-            </ol>
-            <h3><i class="fas fa-lightbulb"></i> Conseil</h3>
-            <p>Conservez une copie de tous vos documents pour votre comptabilité.</p>
+            <h3><i class="fas fa-question-circle"></i> Guide d'utilisation</h3>
+            <ul>
+                <li>Entrez le montant de la facture impayée</li>
+                <li>Indiquez la date d'échéance et la date de paiement (ou aujourd'hui si non payé)</li>
+                <li>Le taux légal en France est de 10% par an (taux BCE + 10 points)</li>
+                <li>L'indemnité forfaitaire légale est de 40 € par facture</li>
+            </ul>
+            <div class="alert alert-info" style="margin-top: 1rem;">
+                <strong>ℹ️ Information légale</strong>
+                <p>Conformément à la loi française (art. L441-6 du Code de commerce), tout professionnel en situation de retard de paiement est redevable de pénalités de retard + indemnité forfaitaire de 40 € pour frais de recouvrement.</p>
+            </div>
         </section>
     </main>
     <footer class="tool-footer">
         <a href="../../index.html"><i class="fas fa-arrow-left"></i> Retour aux outils</a>
     </footer>
+
     <script src="../../assets/js/utils.js"></script>
     <script src="../../assets/js/main.js"></script>
     <script>
-        document.getElementById('mainForm').addEventListener('submit', function(e) {
+        // Set today's date as default payment date
+        document.getElementById('paymentDate').valueAsDate = new Date();
+
+        // Calculate late fees
+        document.getElementById('feeForm').addEventListener('submit', function(e) {
             e.preventDefault();
-            
-            // Simulation de génération
+
+            const invoiceAmount = parseFloat(document.getElementById('invoiceAmount').value);
+            const dueDate = new Date(document.getElementById('dueDate').value);
+            const paymentDate = new Date(document.getElementById('paymentDate').value);
+            const penaltyRate = parseFloat(document.getElementById('penaltyRate').value);
+            const flatFee = parseFloat(document.getElementById('flatFee').value);
+
+            // Calculate days late
+            const timeDiff = paymentDate - dueDate;
+            const daysLate = Math.max(0, Math.ceil(timeDiff / (1000 * 60 * 60 * 24)));
+
+            // Calculate late penalty (daily rate)
+            const dailyRate = penaltyRate / 365 / 100;
+            const latePenalty = invoiceAmount * dailyRate * daysLate;
+
+            // Total penalties
+            const totalPenalties = latePenalty + (daysLate > 0 ? flatFee : 0);
+            const totalDue = invoiceAmount + totalPenalties;
+
+            // Display results
+            document.getElementById('daysLate').textContent = `${daysLate} jour${daysLate > 1 ? 's' : ''}`;
+            document.getElementById('latePenalty').textContent = formatCurrency(latePenalty);
+            document.getElementById('flatFeAmount').textContent = daysLate > 0 ? formatCurrency(flatFee) : '0,00 €';
+            document.getElementById('totalPenalties').textContent = formatCurrency(totalPenalties);
+            document.getElementById('totalDue').textContent = formatCurrency(totalDue);
+
+            // Calculation details
+            const details = `
+                <div style="line-height: 1.8;">
+                    <p><strong>Montant de la facture :</strong> ${formatCurrency(invoiceAmount)}</p>
+                    <p><strong>Date d'échéance :</strong> ${dueDate.toLocaleDateString('fr-FR')}</p>
+                    <p><strong>Date de paiement :</strong> ${paymentDate.toLocaleDateString('fr-FR')}</p>
+                    <p><strong>Nombre de jours de retard :</strong> ${daysLate} jour${daysLate > 1 ? 's' : ''}</p>
+                    <hr>
+                    <p><strong>Calcul des pénalités de retard :</strong></p>
+                    <p>${formatCurrency(invoiceAmount)} × ${penaltyRate}% / 365 × ${daysLate} jours = ${formatCurrency(latePenalty)}</p>
+                    <p><strong>Indemnité forfaitaire :</strong> ${daysLate > 0 ? formatCurrency(flatFee) : '0,00 € (pas de retard)'}</p>
+                    <hr>
+                    <p style="font-size: 1.1rem;"><strong>Total des pénalités :</strong> <span style="color: var(--primary);">${formatCurrency(totalPenalties)}</span></p>
+                    <p style="font-size: 1.2rem;"><strong>Montant total à réclamer :</strong> <span style="color: var(--primary); font-weight: 700;">${formatCurrency(totalDue)}</span></p>
+                </div>
+            `;
+            document.getElementById('calculationDetails').innerHTML = details;
+
             document.getElementById('results').style.display = 'block';
-            scrollToElement('#results', 100);
-            showNotification('Document généré avec succès !', 'success');
+            document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
+
+            if (daysLate === 0) {
+                showNotification('Aucun retard de paiement détecté', 'info');
+            } else {
+                showNotification('Frais de retard calculés', 'success');
+            }
         });
 
+        // Reset
         document.getElementById('resetBtn').addEventListener('click', function() {
-            document.getElementById('mainForm').reset();
+            document.getElementById('feeForm').reset();
+            document.getElementById('paymentDate').valueAsDate = new Date();
+            document.getElementById('penaltyRate').value = '10';
+            document.getElementById('flatFee').value = '40';
             document.getElementById('results').style.display = 'none';
-        });
-
-        document.getElementById('downloadBtn')?.addEventListener('click', function() {
-            showNotification('Fonctionnalité de téléchargement à implémenter', 'info');
-        });
-
-        document.getElementById('printBtn')?.addEventListener('click', function() {
-            window.print();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         });
     </script>
 </body>

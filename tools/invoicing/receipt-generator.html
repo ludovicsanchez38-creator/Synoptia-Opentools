@@ -8,88 +8,286 @@
     <link rel="stylesheet" href="../../assets/css/tools.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .receipt-preview {
+            background: white;
+            max-width: 400px;
+            margin: 2rem auto;
+            padding: 2rem;
+            border: 2px dashed var(--border);
+            border-radius: var(--radius-lg);
+            font-family: 'Courier New', monospace;
+        }
+        .receipt-header {
+            text-align: center;
+            border-bottom: 2px dashed var(--border);
+            padding-bottom: 1rem;
+            margin-bottom: 1rem;
+        }
+        .receipt-line {
+            display: flex;
+            justify-content: space-between;
+            margin: 0.5rem 0;
+        }
+        .receipt-total {
+            border-top: 2px dashed var(--border);
+            padding-top: 1rem;
+            margin-top: 1rem;
+            font-weight: 700;
+            font-size: 1.25rem;
+        }
+        .receipt-footer {
+            text-align: center;
+            border-top: 2px dashed var(--border);
+            padding-top: 1rem;
+            margin-top: 1rem;
+            font-size: 0.9rem;
+        }
+        @media print {
+            .tool-input, .btn, .breadcrumb, .tool-footer, .tool-help { display: none; }
+            .receipt-preview { border: none; }
+        }
+    </style>
 </head>
 <body>
     <nav class="breadcrumb">
-        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> > 
-        <a href="../../index.html#tools">Facturation</a> > 
+        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> >
+        <a href="../../index.html#tools">Facturation</a> >
         <span>Générateur de Reçus</span>
     </nav>
     <main class="tool-container">
         <header class="tool-header">
             <h1><i class="fas fa-receipt"></i> Générateur de Reçus</h1>
-            <p class="tool-description">Génère des reçus PDF instantanés</p>
+            <p class="tool-description">Créez des reçus de paiement professionnels</p>
         </header>
+
         <section class="tool-input">
-            <h2>Informations</h2>
-            <form id="mainForm">
-                <div class="form-group">
-                    <label for="input1" class="form-label">
-                        <i class="fas fa-edit"></i> Champ principal
-                    </label>
-                    <input type="text" id="input1" class="form-input" placeholder="Entrez les informations" required>
+            <form id="receiptForm">
+                <h3><i class="fas fa-store"></i> Informations entreprise</h3>
+                <div class="input-grid">
+                    <div class="form-group">
+                        <label class="form-label">Nom de l'entreprise</label>
+                        <input type="text" id="businessName" class="form-input" value="Synoptia" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Adresse</label>
+                        <input type="text" id="businessAddress" class="form-input">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Email</label>
+                        <input type="email" id="businessEmail" class="form-input" value="ludo@synoptia.fr">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Téléphone</label>
+                        <input type="tel" id="businessPhone" class="form-input">
+                    </div>
                 </div>
-                <div class="action-buttons">
-                    <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-save"></i> Générer
-                    </button>
-                    <button type="button" class="btn btn-outline" id="resetBtn">
-                        <i class="fas fa-redo"></i> Réinitialiser
-                    </button>
+
+                <h3 style="margin-top: 2rem;"><i class="fas fa-user"></i> Informations client</h3>
+                <div class="input-grid">
+                    <div class="form-group">
+                        <label class="form-label">Nom du client</label>
+                        <input type="text" id="customerName" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Numéro de reçu</label>
+                        <input type="text" id="receiptNumber" class="form-input" value="REC-2025-001" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Date</label>
+                        <input type="date" id="receiptDate" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Mode de paiement</label>
+                        <select id="paymentMethod" class="form-input" required>
+                            <option value="Espèces">💵 Espèces</option>
+                            <option value="Carte bancaire">💳 Carte bancaire</option>
+                            <option value="Chèque">📝 Chèque</option>
+                            <option value="Virement">🏦 Virement</option>
+                            <option value="PayPal">🌐 PayPal</option>
+                        </select>
+                    </div>
                 </div>
+
+                <h3 style="margin-top: 2rem;"><i class="fas fa-shopping-cart"></i> Articles</h3>
+                <div id="itemsContainer"></div>
+                <button type="button" class="btn btn-secondary" id="addItemBtn">
+                    <i class="fas fa-plus"></i> Ajouter un article
+                </button>
+
+                <button type="submit" class="btn btn-primary btn-lg" style="margin-top: 2rem;">
+                    <i class="fas fa-receipt"></i> Générer le reçu
+                </button>
             </form>
         </section>
+
         <section class="tool-output" id="results" style="display: none;">
-            <h2><i class="fas fa-check-circle"></i> Résultat</h2>
-            <div class="alert alert-success">
-                <strong>✓ Succès !</strong> Votre document a été généré.
-            </div>
-            <div class="action-buttons">
-                <button class="btn btn-accent" id="downloadBtn">
-                    <i class="fas fa-download"></i> Télécharger
-                </button>
-                <button class="btn btn-secondary" id="printBtn">
+            <div style="display: flex; justify-content: center; gap: 1rem; margin-bottom: 1rem;">
+                <button class="btn btn-success" onclick="window.print()">
                     <i class="fas fa-print"></i> Imprimer
                 </button>
+                <button class="btn btn-primary" id="newReceiptBtn">
+                    <i class="fas fa-plus"></i> Nouveau reçu
+                </button>
             </div>
+            <div class="receipt-preview" id="receiptPreview"></div>
         </section>
+
         <section class="tool-help">
-            <h3><i class="fas fa-question-circle"></i> Comment utiliser cet outil ?</h3>
-            <ol>
-                <li>Remplissez les informations requises</li>
-                <li>Cliquez sur <strong>Générer</strong></li>
-                <li>Téléchargez ou imprimez le document</li>
-            </ol>
-            <h3><i class="fas fa-lightbulb"></i> Conseil</h3>
-            <p>Conservez une copie de tous vos documents pour votre comptabilité.</p>
+            <h3><i class="fas fa-question-circle"></i> Guide</h3>
+            <ul>
+                <li>Remplissez les informations de votre entreprise et du client</li>
+                <li>Ajoutez les articles/services vendus avec leurs prix</li>
+                <li>Le total est calculé automatiquement</li>
+                <li>Imprimez ou sauvegardez en PDF</li>
+            </ul>
         </section>
     </main>
     <footer class="tool-footer">
         <a href="../../index.html"><i class="fas fa-arrow-left"></i> Retour aux outils</a>
     </footer>
+
     <script src="../../assets/js/utils.js"></script>
     <script src="../../assets/js/main.js"></script>
     <script>
-        document.getElementById('mainForm').addEventListener('submit', function(e) {
+        let itemCount = 0;
+
+        // Set today's date
+        document.getElementById('receiptDate').valueAsDate = new Date();
+
+        // Add item
+        document.getElementById('addItemBtn').addEventListener('click', addItem);
+
+        function addItem() {
+            itemCount++;
+            const itemDiv = document.createElement('div');
+            itemDiv.id = `item-${itemCount}`;
+            itemDiv.className = 'input-grid';
+            itemDiv.style.marginBottom = '1rem';
+            itemDiv.innerHTML = `
+                <div class="form-group">
+                    <input type="text" class="form-input item-desc" placeholder="Description" required>
+                </div>
+                <div class="form-group">
+                    <input type="number" class="form-input item-qty" value="1" min="1" required>
+                </div>
+                <div class="form-group">
+                    <input type="number" class="form-input item-price" value="0" min="0" step="0.01" placeholder="Prix unitaire" required>
+                </div>
+                <div class="form-group">
+                    <button type="button" class="btn btn-danger btn-sm" onclick="removeItem(${itemCount})">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            `;
+            document.getElementById('itemsContainer').appendChild(itemDiv);
+        }
+
+        window.removeItem = function(itemId) {
+            document.getElementById(`item-${itemId}`).remove();
+        };
+
+        // Add initial item
+        addItem();
+
+        // Generate receipt
+        document.getElementById('receiptForm').addEventListener('submit', function(e) {
             e.preventDefault();
-            
-            // Simulation de génération
+
+            const receiptData = {
+                business: {
+                    name: document.getElementById('businessName').value,
+                    address: document.getElementById('businessAddress').value,
+                    email: document.getElementById('businessEmail').value,
+                    phone: document.getElementById('businessPhone').value
+                },
+                receipt: {
+                    number: document.getElementById('receiptNumber').value,
+                    date: document.getElementById('receiptDate').value,
+                    customer: document.getElementById('customerName').value,
+                    paymentMethod: document.getElementById('paymentMethod').value
+                },
+                items: []
+            };
+
+            // Get all items
+            document.querySelectorAll('#itemsContainer > div').forEach(itemDiv => {
+                const desc = itemDiv.querySelector('.item-desc').value;
+                const qty = parseInt(itemDiv.querySelector('.item-qty').value);
+                const price = parseFloat(itemDiv.querySelector('.item-price').value);
+                receiptData.items.push({
+                    description: desc,
+                    quantity: qty,
+                    price: price,
+                    total: qty * price
+                });
+            });
+
+            // Calculate total
+            const total = receiptData.items.reduce((sum, item) => sum + item.total, 0);
+
+            // Generate preview
+            const preview = `
+                <div class="receipt-header">
+                    <div style="font-size: 1.5rem; font-weight: 700;">${receiptData.business.name}</div>
+                    ${receiptData.business.address ? `<div>${receiptData.business.address}</div>` : ''}
+                    ${receiptData.business.email ? `<div>${receiptData.business.email}</div>` : ''}
+                    ${receiptData.business.phone ? `<div>${receiptData.business.phone}</div>` : ''}
+                </div>
+
+                <div style="margin: 1rem 0;">
+                    <div style="font-weight: 700; font-size: 1.1rem; text-align: center;">REÇU</div>
+                    <div style="text-align: center; margin-top: 0.5rem;">N° ${receiptData.receipt.number}</div>
+                </div>
+
+                <div style="margin: 1rem 0; font-size: 0.9rem;">
+                    <div>Date: ${new Date(receiptData.receipt.date).toLocaleDateString('fr-FR')}</div>
+                    <div>Client: ${receiptData.receipt.customer}</div>
+                    <div>Paiement: ${receiptData.receipt.paymentMethod}</div>
+                </div>
+
+                <div style="border-top: 1px dashed var(--border); border-bottom: 1px dashed var(--border); padding: 1rem 0; margin: 1rem 0;">
+                    ${receiptData.items.map(item => `
+                        <div class="receipt-line">
+                            <span>${item.description}</span>
+                        </div>
+                        <div class="receipt-line" style="font-size: 0.9rem;">
+                            <span>${item.quantity} × ${formatCurrency(item.price)}</span>
+                            <span>${formatCurrency(item.total)}</span>
+                        </div>
+                    `).join('')}
+                </div>
+
+                <div class="receipt-total receipt-line">
+                    <span>TOTAL</span>
+                    <span>${formatCurrency(total)}</span>
+                </div>
+
+                <div class="receipt-footer">
+                    <div>Merci de votre confiance !</div>
+                    <div style="margin-top: 0.5rem; font-size: 0.8rem;">
+                        ${new Date().toLocaleDateString('fr-FR')} - ${new Date().toLocaleTimeString('fr-FR')}
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('receiptPreview').innerHTML = preview;
             document.getElementById('results').style.display = 'block';
-            scrollToElement('#results', 100);
-            showNotification('Document généré avec succès !', 'success');
+            document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
+            showNotification('Reçu généré !', 'success');
         });
 
-        document.getElementById('resetBtn').addEventListener('click', function() {
-            document.getElementById('mainForm').reset();
+        // New receipt
+        document.getElementById('newReceiptBtn').addEventListener('click', function() {
+            document.getElementById('receiptForm').reset();
+            document.getElementById('receiptDate').valueAsDate = new Date();
+            document.getElementById('businessName').value = 'Synoptia';
+            document.getElementById('businessEmail').value = 'ludo@synoptia.fr';
             document.getElementById('results').style.display = 'none';
-        });
-
-        document.getElementById('downloadBtn')?.addEventListener('click', function() {
-            showNotification('Fonctionnalité de téléchargement à implémenter', 'info');
-        });
-
-        document.getElementById('printBtn')?.addEventListener('click', function() {
-            window.print();
+            document.getElementById('itemsContainer').innerHTML = '';
+            itemCount = 0;
+            addItem();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         });
     </script>
 </body>
