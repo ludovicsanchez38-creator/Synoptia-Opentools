@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Outil Business - Business Tools</title>
+    <title>Point de Commande - Business Tools</title>
     <link rel="stylesheet" href="../../assets/css/main.css">
     <link rel="stylesheet" href="../../assets/css/tools.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -11,49 +11,115 @@
 </head>
 <body>
     <nav class="breadcrumb">
-        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> > 
-        <a href="../../index.html#tools">Inventaire</a> > 
-        <span>Outil</span>
+        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> >
+        <a href="../../index.html#tools">Inventaire</a> >
+        <span>Point de Commande</span>
     </nav>
     <main class="tool-container">
         <header class="tool-header">
-            <h1><i class="fas fa-tools"></i> Outil Business</h1>
-            <p class="tool-description">Outil professionnel pour optimiser votre activité.</p>
+            <h1><i class="fas fa-bell"></i> Calculateur de Point de Commande</h1>
+            <p class="tool-description">Déterminez quand recommander pour éviter les ruptures de stock.</p>
         </header>
+
         <section class="tool-input">
-            <form id="mainForm">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; margin: 1.5rem 0;">
                 <div class="form-group">
-                    <label for="input1" class="form-label">Donnée d'entrée</label>
-                    <input type="number" id="input1" class="form-input" value="100" min="0" required>
+                    <label class="form-label">Demande quotidienne moyenne</label>
+                    <input type="number" id="dailyDemand" class="form-input" value="50" min="0">
+                    <span class="form-help">Unités vendues par jour</span>
                 </div>
-                <button type="submit" class="btn btn-primary"><i class="fas fa-calculator"></i> Calculer</button>
-            </form>
-        </section>
-        <section class="tool-output" id="results" style="display: none;">
-            <div class="results-grid">
-                <div class="result-item">
-                    <div class="result-label">Résultat</div>
-                    <div class="result-value highlight" id="result">-</div>
+                <div class="form-group">
+                    <label class="form-label">Délai de livraison (jours)</label>
+                    <input type="number" id="leadTime" class="form-input" value="7" min="0">
+                    <span class="form-help">Temps de réapprovisionnement</span>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Stock de sécurité (unités)</label>
+                    <input type="number" id="safetyStock" class="form-input" value="100" min="0">
+                    <span class="form-help">Buffer pour imprévus</span>
                 </div>
             </div>
+
+            <button class="btn btn-primary" id="calculateBtn">
+                <i class="fas fa-calculator"></i> Calculer
+            </button>
         </section>
+
+        <section class="tool-output">
+            <div class="results-grid">
+                <div class="result-item">
+                    <div class="result-label">Point de commande</div>
+                    <div class="result-value highlight" id="reorderPoint">-</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Stock pendant livraison</div>
+                    <div class="result-value" id="leadTimeStock">-</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Stock de sécurité</div>
+                    <div class="result-value success" id="safetyDisplay">-</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Couverture (jours)</div>
+                    <div class="result-value" id="coverage">-</div>
+                </div>
+            </div>
+
+            <div style="margin-top: 1.5rem; padding: 1rem; background: white; border-radius: var(--radius);">
+                <h3>Explication</h3>
+                <div id="explanation" style="line-height: 2;"></div>
+            </div>
+        </section>
+
         <section class="tool-help">
-            <h3><i class="fas fa-info-circle"></i> Aide</h3>
-            <p>Utilisez cet outil pour optimiser votre gestion d'entreprise.</p>
+            <h3><i class="fas fa-info-circle"></i> Formule</h3>
+            <p><strong>Point de Commande = (Demande quotidienne × Délai) + Stock de sécurité</strong></p>
+            <ul>
+                <li>Quand votre stock atteint ce niveau, passez commande</li>
+                <li>Le stock de sécurité protège contre les variations de demande</li>
+                <li>Recommandé : 1-2 semaines de demande en stock de sécurité</li>
+            </ul>
         </section>
     </main>
-    <footer class="tool-footer"><a href="../../index.html"><i class="fas fa-arrow-left"></i> Retour</a></footer>
+    <footer class="tool-footer">
+        <a href="../../index.html"><i class="fas fa-arrow-left"></i> Retour</a>
+    </footer>
     <script src="../../assets/js/utils.js"></script>
     <script src="../../assets/js/main.js"></script>
     <script>
-        document.getElementById('mainForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const val = parseFloat(document.getElementById('input1').value);
-            document.getElementById('result').textContent = val.toFixed(2);
-            document.getElementById('results').style.display = 'block';
-            showNotification('Opération réussie !', 'success');
+        document.getElementById('calculateBtn').addEventListener('click', () => {
+            const dailyDemand = parseFloat(document.getElementById('dailyDemand').value) || 0;
+            const leadTime = parseFloat(document.getElementById('leadTime').value) || 0;
+            const safetyStock = parseFloat(document.getElementById('safetyStock').value) || 0;
+
+            const leadTimeStock = dailyDemand * leadTime;
+            const reorderPoint = leadTimeStock + safetyStock;
+            const coverageDays = reorderPoint / dailyDemand;
+
+            document.getElementById('reorderPoint').textContent = Math.round(reorderPoint) + ' unités';
+            document.getElementById('leadTimeStock').textContent = Math.round(leadTimeStock) + ' unités';
+            document.getElementById('safetyDisplay').textContent = safetyStock + ' unités';
+            document.getElementById('coverage').textContent = coverageDays.toFixed(1) + ' jours';
+
+            const explanation = `
+                <div>📊 <strong>Calcul :</strong></div>
+                <div>Stock pendant livraison = ${dailyDemand} unités/jour × ${leadTime} jours = ${Math.round(leadTimeStock)} unités</div>
+                <div>Stock de sécurité = ${safetyStock} unités</div>
+                <div><strong>Point de commande = ${Math.round(reorderPoint)} unités</strong></div>
+                <br>
+                <div>⚠️ <strong>Action :</strong> Passez commande quand votre stock descend à ${Math.round(reorderPoint)} unités</div>
+                <div>✅ Ce niveau vous couvre pour ${coverageDays.toFixed(1)} jours de ventes</div>
+            `;
+            document.getElementById('explanation').innerHTML = explanation;
+
+            showNotification('Point de commande calculé !', 'success');
         });
-        window.addEventListener('load', () => document.getElementById('mainForm').dispatchEvent(new Event('submit')));
+
+        ['dailyDemand', 'leadTime', 'safetyStock'].forEach(id => {
+            document.getElementById(id).addEventListener('input', () => document.getElementById('calculateBtn').click());
+        });
+
+        document.getElementById('calculateBtn').click();
     </script>
 </body>
 </html>
