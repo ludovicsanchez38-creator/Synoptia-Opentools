@@ -3,65 +3,472 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculateur de CPC - Business Tools</title>
+    <title>Calculateur CPC - Business Tools by Synoptia</title>
     <link rel="stylesheet" href="../../assets/css/main.css">
     <link rel="stylesheet" href="../../assets/css/tools.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .benchmark-card {
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .benchmark-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        .benchmark-item {
+            padding: 1rem;
+            background: var(--light);
+            border-radius: var(--radius-md);
+            border-left: 4px solid var(--primary);
+        }
+        .benchmark-industry {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+        .benchmark-value {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+        .campaign-item {
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 1rem;
+            margin-bottom: 0.75rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+    </style>
 </head>
 <body>
     <nav class="breadcrumb">
-        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> > 
-        <a href="../../index.html#tools">Marketing</a> > 
-        <span>Calculateur de CPC</span>
+        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> >
+        <a href="../../index.html#tools">Marketing</a> >
+        <span>Calculateur CPC</span>
     </nav>
+
     <main class="tool-container">
         <header class="tool-header">
-            <h1><i class="fas fa-mouse-pointer"></i> Calculateur de CPC</h1>
-            <p class="tool-description">Outil marketing pour optimiser vos campagnes.</p>
+            <h1><i class="fas fa-mouse-pointer"></i> Calculateur CPC (Coût Par Clic)</h1>
+            <p class="tool-description">Calculez et optimisez le coût par clic de vos campagnes publicitaires.</p>
         </header>
+
         <section class="tool-input">
-            <form id="mainForm">
+            <h2>Données de campagne</h2>
+            <form id="cpcForm">
                 <div class="input-grid">
                     <div class="form-group">
-                        <label for="input1" class="form-label">Valeur 1</label>
-                        <input type="number" id="input1" class="form-input" value="100" min="0" required>
+                        <label for="campaignName" class="form-label"><i class="fas fa-tag"></i> Nom de la campagne</label>
+                        <input type="text" id="campaignName" class="form-input" placeholder="Ex: Google Ads - Recherche" required>
                     </div>
                     <div class="form-group">
-                        <label for="input2" class="form-label">Valeur 2</label>
-                        <input type="number" id="input2" class="form-input" value="50" min="0" required>
+                        <label for="budget" class="form-label"><i class="fas fa-euro-sign"></i> Budget publicitaire (€)</label>
+                        <input type="number" id="budget" class="form-input" placeholder="Ex: 1000" min="0" step="0.01" value="1000" required>
+                        <span class="form-help">Budget total dépensé</span>
+                    </div>
+                    <div class="form-group">
+                        <label for="clicks" class="form-label"><i class="fas fa-hand-pointer"></i> Nombre de clics</label>
+                        <input type="number" id="clicks" class="form-input" placeholder="Ex: 500" min="1" step="1" value="500" required>
+                        <span class="form-help">Clics générés par la campagne</span>
+                    </div>
+                    <div class="form-group">
+                        <label for="industry" class="form-label"><i class="fas fa-industry"></i> Industrie</label>
+                        <select id="industry" class="form-select">
+                            <option value="">Sélectionner...</option>
+                            <option value="ecommerce">E-commerce</option>
+                            <option value="finance">Finance & Assurance</option>
+                            <option value="immobilier">Immobilier</option>
+                            <option value="sante">Santé & Bien-être</option>
+                            <option value="technologie">Technologie & SaaS</option>
+                            <option value="education">Éducation & Formation</option>
+                            <option value="voyage">Voyage & Tourisme</option>
+                            <option value="automobile">Automobile</option>
+                            <option value="retail">Retail & Distribution</option>
+                            <option value="b2b">Services B2B</option>
+                        </select>
+                        <span class="form-help">Pour comparer aux benchmarks</span>
                     </div>
                 </div>
-                <button type="submit" class="btn btn-primary"><i class="fas fa-calculator"></i> Calculer</button>
+                <div class="action-buttons">
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-calculator"></i> Calculer et sauvegarder</button>
+                </div>
             </form>
         </section>
+
         <section class="tool-output" id="results" style="display: none;">
+            <h2><i class="fas fa-chart-bar"></i> Résultats</h2>
             <div class="results-grid">
                 <div class="result-item">
-                    <div class="result-label">Résultat</div>
-                    <div class="result-value highlight" id="result">-</div>
+                    <div class="result-label">CPC moyen</div>
+                    <div class="result-value highlight" id="cpc">-</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Budget total</div>
+                    <div class="result-value" id="totalBudget">-</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Clics générés</div>
+                    <div class="result-value" id="totalClicks">-</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Performance</div>
+                    <div class="result-value" id="performance">-</div>
+                </div>
+            </div>
+            <div class="alert" id="interpretation"></div>
+        </section>
+
+        <section class="tool-output" id="benchmarkSection" style="display: none;">
+            <div class="benchmark-card">
+                <h3><i class="fas fa-chart-line"></i> Comparaison avec les benchmarks de votre industrie</h3>
+                <div id="benchmarkComparison"></div>
+            </div>
+        </section>
+
+        <section class="tool-output">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                <h2><i class="fas fa-history"></i> Historique des campagnes</h2>
+                <div>
+                    <button type="button" class="btn btn-sm btn-secondary" id="exportBtn" style="margin-right: 0.5rem;">
+                        <i class="fas fa-download"></i> Exporter CSV
+                    </button>
+                    <button type="button" class="btn btn-sm btn-danger" id="clearBtn">
+                        <i class="fas fa-trash"></i> Effacer
+                    </button>
+                </div>
+            </div>
+            <div id="campaignsList"></div>
+            <div class="results-grid" style="margin-top: 1.5rem;" id="statsSection" style="display: none;">
+                <div class="result-item">
+                    <div class="result-label">Campagnes totales</div>
+                    <div class="result-value" id="totalCampaigns">0</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">CPC moyen global</div>
+                    <div class="result-value highlight" id="avgCpc">0 €</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Budget total dépensé</div>
+                    <div class="result-value" id="totalSpent">0 €</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Clics totaux</div>
+                    <div class="result-value" id="totalClicksAll">0</div>
                 </div>
             </div>
         </section>
+
+        <section class="tool-output">
+            <div class="benchmark-card">
+                <h3><i class="fas fa-industry"></i> Benchmarks CPC par industrie</h3>
+                <div class="benchmark-grid" id="allBenchmarks"></div>
+            </div>
+        </section>
+
         <section class="tool-help">
-            <h3><i class="fas fa-info-circle"></i> Information</h3>
-            <p>Optimisez vos campagnes marketing avec cet outil.</p>
+            <h3><i class="fas fa-question-circle"></i> Comment utiliser cet outil ?</h3>
+            <ol>
+                <li>Entrez le <strong>nom de votre campagne</strong></li>
+                <li>Indiquez le <strong>budget publicitaire</strong> dépensé</li>
+                <li>Renseignez le <strong>nombre de clics</strong> générés</li>
+                <li>Sélectionnez votre <strong>industrie</strong> pour comparer</li>
+                <li>Analysez votre <strong>CPC moyen</strong> et optimisez</li>
+            </ol>
+
+            <h3><i class="fas fa-calculator"></i> Formule</h3>
+            <code>CPC = Budget publicitaire / Nombre de clics
+
+Exemple: 1000€ de budget pour 500 clics
+CPC = 1000 / 500 = 2€ par clic</code>
+
+            <h3><i class="fas fa-lightbulb"></i> Conseils d'optimisation</h3>
+            <ul>
+                <li><strong>Améliorez le Quality Score</strong> : Un meilleur score réduit le CPC</li>
+                <li><strong>Ciblez des mots-clés long-tail</strong> : Moins de concurrence = CPC plus bas</li>
+                <li><strong>Optimisez vos annonces</strong> : Meilleur CTR = CPC réduit</li>
+                <li><strong>Testez différents réseaux</strong> : Google, Facebook, LinkedIn ont des CPC variés</li>
+                <li><strong>Affinez votre ciblage</strong> : Audience qualifiée = meilleur ROI</li>
+            </ul>
         </section>
     </main>
-    <footer class="tool-footer"><a href="../../index.html"><i class="fas fa-arrow-left"></i> Retour</a></footer>
+
+    <footer class="tool-footer">
+        <a href="../../index.html"><i class="fas fa-arrow-left"></i> Retour aux outils</a>
+        <span style="margin-left: auto; color: var(--text-secondary);">Synoptia - ludo@synoptia.fr</span>
+    </footer>
+
     <script src="../../assets/js/utils.js"></script>
     <script src="../../assets/js/main.js"></script>
     <script>
-        document.getElementById('mainForm').addEventListener('submit', function(e) {
+        let campaigns = [];
+
+        const benchmarks = {
+            'ecommerce': { min: 0.30, max: 1.50, avg: 0.80, name: 'E-commerce' },
+            'finance': { min: 3.00, max: 6.00, avg: 4.50, name: 'Finance & Assurance' },
+            'immobilier': { min: 1.50, max: 3.50, avg: 2.50, name: 'Immobilier' },
+            'sante': { min: 1.00, max: 3.00, avg: 2.00, name: 'Santé & Bien-être' },
+            'technologie': { min: 1.50, max: 4.00, avg: 2.75, name: 'Technologie & SaaS' },
+            'education': { min: 0.80, max: 2.50, avg: 1.50, name: 'Éducation & Formation' },
+            'voyage': { min: 0.50, max: 1.80, avg: 1.00, name: 'Voyage & Tourisme' },
+            'automobile': { min: 1.00, max: 2.50, avg: 1.75, name: 'Automobile' },
+            'retail': { min: 0.40, max: 1.20, avg: 0.75, name: 'Retail & Distribution' },
+            'b2b': { min: 2.00, max: 5.00, avg: 3.50, name: 'Services B2B' }
+        };
+
+        function loadCampaigns() {
+            const stored = localStorage.getItem('cpcCampaigns');
+            if (stored) {
+                campaigns = JSON.parse(stored);
+            }
+            renderCampaigns();
+            updateStats();
+        }
+
+        function saveCampaigns() {
+            localStorage.setItem('cpcCampaigns', JSON.stringify(campaigns));
+        }
+
+        document.getElementById('cpcForm').addEventListener('submit', function(e) {
             e.preventDefault();
-            const val1 = parseFloat(document.getElementById('input1').value);
-            const val2 = parseFloat(document.getElementById('input2').value);
-            const result = val2 > 0 ? (val1 / val2) : 0;
-            document.getElementById('result').textContent = result.toFixed(2);
+
+            const campaignName = document.getElementById('campaignName').value.trim();
+            const budget = parseFloat(document.getElementById('budget').value);
+            const clicks = parseInt(document.getElementById('clicks').value);
+            const industry = document.getElementById('industry').value;
+
+            if (clicks === 0) {
+                showNotification('Le nombre de clics doit être supérieur à 0', 'error');
+                return;
+            }
+
+            const cpc = budget / clicks;
+
+            // Display results
+            document.getElementById('cpc').textContent = formatCurrency(cpc);
+            document.getElementById('totalBudget').textContent = formatCurrency(budget);
+            document.getElementById('totalClicks').textContent = clicks.toLocaleString('fr-FR');
+
+            // Performance vs benchmark
+            let performanceText = 'À évaluer';
+            let interpretation = '';
+            let alertClass = 'alert-info';
+
+            if (industry && benchmarks[industry]) {
+                const bench = benchmarks[industry];
+                document.getElementById('benchmarkSection').style.display = 'block';
+
+                let comparisonHtml = `
+                    <div class="results-grid" style="margin-top: 1rem;">
+                        <div class="result-item">
+                            <div class="result-label">Votre CPC</div>
+                            <div class="result-value">${formatCurrency(cpc)}</div>
+                        </div>
+                        <div class="result-item">
+                            <div class="result-label">CPC moyen (${bench.name})</div>
+                            <div class="result-value highlight">${formatCurrency(bench.avg)}</div>
+                        </div>
+                        <div class="result-item">
+                            <div class="result-label">Fourchette basse</div>
+                            <div class="result-value success">${formatCurrency(bench.min)}</div>
+                        </div>
+                        <div class="result-item">
+                            <div class="result-label">Fourchette haute</div>
+                            <div class="result-value danger">${formatCurrency(bench.max)}</div>
+                        </div>
+                    </div>
+                `;
+
+                if (cpc <= bench.min) {
+                    performanceText = 'Excellent ✓✓';
+                    interpretation = `<strong>🚀 Excellent !</strong> Votre CPC (${formatCurrency(cpc)}) est inférieur à la moyenne de votre industrie (${formatCurrency(bench.avg)}). Continuez sur cette voie !`;
+                    alertClass = 'alert-success';
+                    comparisonHtml += `<p style="margin-top: 1rem; color: var(--success);"><i class="fas fa-check-circle"></i> Votre CPC est <strong>excellent</strong> pour votre industrie.</p>`;
+                } else if (cpc <= bench.avg) {
+                    performanceText = 'Bon ✓';
+                    interpretation = `<strong>👍 Bon !</strong> Votre CPC (${formatCurrency(cpc)}) est dans la moyenne basse de votre industrie. Vous êtes compétitif.`;
+                    alertClass = 'alert-success';
+                    comparisonHtml += `<p style="margin-top: 1rem; color: var(--success);"><i class="fas fa-thumbs-up"></i> Votre CPC est <strong>bon</strong> comparé à la moyenne du marché.</p>`;
+                } else if (cpc <= bench.max) {
+                    performanceText = 'Moyen ⚡';
+                    interpretation = `<strong>⚡ Moyen</strong> : Votre CPC (${formatCurrency(cpc)}) est au-dessus de la moyenne (${formatCurrency(bench.avg)}). Il y a des opportunités d'optimisation.`;
+                    alertClass = 'alert-warning';
+                    comparisonHtml += `<p style="margin-top: 1rem; color: var(--warning);"><i class="fas fa-exclamation-triangle"></i> Votre CPC est <strong>au-dessus de la moyenne</strong>. Optimisez vos campagnes.</p>`;
+                } else {
+                    performanceText = 'Élevé ✗';
+                    interpretation = `<strong>⚠️ Attention !</strong> Votre CPC (${formatCurrency(cpc)}) est très élevé pour votre industrie. Revoyez votre stratégie.`;
+                    alertClass = 'alert-danger';
+                    comparisonHtml += `<p style="margin-top: 1rem; color: var(--danger);"><i class="fas fa-times-circle"></i> Votre CPC est <strong>très élevé</strong>. Optimisation urgente recommandée.</p>`;
+                }
+
+                document.getElementById('benchmarkComparison').innerHTML = comparisonHtml;
+            } else {
+                document.getElementById('benchmarkSection').style.display = 'none';
+                interpretation = `<strong>CPC calculé :</strong> Votre coût par clic est de ${formatCurrency(cpc)}. Sélectionnez une industrie pour comparer aux benchmarks.`;
+                alertClass = 'alert-info';
+            }
+
+            document.getElementById('performance').textContent = performanceText;
+
+            const interpDiv = document.getElementById('interpretation');
+            interpDiv.className = `alert ${alertClass}`;
+            interpDiv.innerHTML = interpretation;
+
+            // Save campaign
+            const campaign = {
+                name: campaignName,
+                budget: budget,
+                clicks: clicks,
+                cpc: cpc,
+                industry: industry,
+                date: new Date().toISOString()
+            };
+
+            campaigns.unshift(campaign);
+            saveCampaigns();
+            renderCampaigns();
+            updateStats();
+
             document.getElementById('results').style.display = 'block';
-            showNotification('Calcul effectué !', 'success');
+            scrollToElement('#results', 100);
+            showNotification('Campagne enregistrée !', 'success');
+
+            // Reset form
+            document.getElementById('campaignName').value = '';
         });
-        window.addEventListener('load', () => document.getElementById('mainForm').dispatchEvent(new Event('submit')));
+
+        function renderCampaigns() {
+            const container = document.getElementById('campaignsList');
+
+            if (campaigns.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 3rem 1rem; color: var(--text-secondary);">
+                        <i class="fas fa-mouse-pointer" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.3;"></i>
+                        <p>Aucune campagne enregistrée</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = campaigns.map((campaign, index) => {
+                const industryName = campaign.industry && benchmarks[campaign.industry]
+                    ? benchmarks[campaign.industry].name
+                    : 'Non spécifiée';
+
+                return `
+                    <div class="campaign-item">
+                        <div style="flex: 1;">
+                            <div style="font-weight: 600; margin-bottom: 0.25rem;">${campaign.name}</div>
+                            <div style="font-size: 0.9rem; color: var(--text-secondary);">
+                                <i class="fas fa-calendar"></i> ${formatDateShort(campaign.date)} |
+                                <i class="fas fa-euro-sign"></i> Budget: ${formatCurrency(campaign.budget)} |
+                                Clics: ${campaign.clicks} |
+                                ${industryName}
+                            </div>
+                        </div>
+                        <div style="display: flex; align-items: center;">
+                            <div style="font-weight: 700; color: var(--primary); font-size: 1.1rem; margin-right: 1rem;">
+                                ${formatCurrency(campaign.cpc)}
+                            </div>
+                            <button class="btn btn-sm btn-danger" onclick="deleteCampaign(${index})">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        window.deleteCampaign = function(index) {
+            if (confirm('Supprimer cette campagne ?')) {
+                campaigns.splice(index, 1);
+                saveCampaigns();
+                renderCampaigns();
+                updateStats();
+                showNotification('Campagne supprimée', 'success');
+            }
+        };
+
+        function updateStats() {
+            if (campaigns.length === 0) {
+                document.getElementById('statsSection').style.display = 'none';
+                return;
+            }
+
+            document.getElementById('statsSection').style.display = 'grid';
+
+            const totalBudget = campaigns.reduce((sum, c) => sum + c.budget, 0);
+            const totalClicks = campaigns.reduce((sum, c) => sum + c.clicks, 0);
+            const avgCpc = totalBudget / totalClicks;
+
+            document.getElementById('totalCampaigns').textContent = campaigns.length;
+            document.getElementById('avgCpc').textContent = formatCurrency(avgCpc);
+            document.getElementById('totalSpent').textContent = formatCurrency(totalBudget);
+            document.getElementById('totalClicksAll').textContent = totalClicks.toLocaleString('fr-FR');
+        }
+
+        document.getElementById('exportBtn').addEventListener('click', function() {
+            if (campaigns.length === 0) {
+                showNotification('Aucune campagne à exporter', 'error');
+                return;
+            }
+
+            const csv = [
+                ['Campagne', 'Date', 'Budget (€)', 'Clics', 'CPC (€)', 'Industrie'],
+                ...campaigns.map(c => [
+                    c.name,
+                    formatDateShort(c.date),
+                    c.budget.toFixed(2),
+                    c.clicks,
+                    c.cpc.toFixed(2),
+                    c.industry && benchmarks[c.industry] ? benchmarks[c.industry].name : 'Non spécifiée'
+                ])
+            ].map(row => row.join(';')).join('\n');
+
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `cpc-campaigns-${new Date().toISOString().split('T')[0]}.csv`;
+            link.click();
+
+            showNotification('Export CSV réussi !', 'success');
+        });
+
+        document.getElementById('clearBtn').addEventListener('click', function() {
+            if (confirm('Effacer toutes les campagnes ? Cette action est irréversible.')) {
+                campaigns = [];
+                saveCampaigns();
+                renderCampaigns();
+                updateStats();
+                showNotification('Toutes les campagnes ont été effacées', 'success');
+            }
+        });
+
+        // Display all benchmarks
+        function displayAllBenchmarks() {
+            const html = Object.entries(benchmarks).map(([key, bench]) => `
+                <div class="benchmark-item">
+                    <div class="benchmark-industry">${bench.name}</div>
+                    <div class="benchmark-value">${formatCurrency(bench.avg)}</div>
+                    <div style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.5rem;">
+                        ${formatCurrency(bench.min)} - ${formatCurrency(bench.max)}
+                    </div>
+                </div>
+            `).join('');
+            document.getElementById('allBenchmarks').innerHTML = html;
+        }
+
+        loadCampaigns();
+        displayAllBenchmarks();
     </script>
 </body>
 </html>

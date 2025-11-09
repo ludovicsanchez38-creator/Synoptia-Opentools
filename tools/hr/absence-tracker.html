@@ -3,57 +3,470 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Outil Business - Business Tools</title>
+    <title>Suivi des Absences - Business Tools by Synoptia</title>
     <link rel="stylesheet" href="../../assets/css/main.css">
     <link rel="stylesheet" href="../../assets/css/tools.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 0.5rem;
+            margin: 1rem 0;
+        }
+        .calendar-header {
+            text-align: center;
+            font-weight: 600;
+            padding: 0.5rem;
+            background: var(--primary);
+            color: white;
+            border-radius: var(--radius-sm);
+        }
+        .calendar-day {
+            aspect-ratio: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+        .calendar-day:hover {
+            border-color: var(--primary);
+            transform: scale(1.05);
+        }
+        .calendar-day.empty {
+            border: none;
+            cursor: default;
+        }
+        .calendar-day.empty:hover {
+            transform: none;
+        }
+        .calendar-day.has-absence {
+            font-weight: 700;
+        }
+        .calendar-day.congés { background-color: #d4edda; }
+        .calendar-day.maladie { background-color: #f8d7da; }
+        .calendar-day.rtt { background-color: #d1ecf1; }
+        .calendar-day.absence { background-color: #f8f9fa; border-color: #dc3545; }
+        .absence-badge {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            position: absolute;
+            top: 2px;
+            right: 2px;
+        }
+        .badge-congés { background-color: #28a745; }
+        .badge-maladie { background-color: #dc3545; }
+        .badge-rtt { background-color: #17a2b8; }
+        .badge-absence { background-color: #6c757d; }
+        .month-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        .absence-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .absence-item {
+            padding: 1rem;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            margin-bottom: 0.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+        .stat-card {
+            padding: 1rem;
+            border-radius: var(--radius-md);
+            color: white;
+            text-align: center;
+        }
+        .stat-card.congés { background: linear-gradient(135deg, #28a745, #20c997); }
+        .stat-card.maladie { background: linear-gradient(135deg, #dc3545, #e83e8c); }
+        .stat-card.rtt { background: linear-gradient(135deg, #17a2b8, #6610f2); }
+        .stat-card.absence { background: linear-gradient(135deg, #6c757d, #495057); }
+        @media (max-width: 768px) {
+            .calendar-grid {
+                gap: 0.25rem;
+            }
+            .calendar-day {
+                font-size: 0.75rem;
+                padding: 0.25rem;
+            }
+        }
+    </style>
 </head>
 <body>
     <nav class="breadcrumb">
-        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> > 
-        <a href="../../index.html#tools">RH</a> > 
-        <span>Outil</span>
+        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> >
+        <a href="../../index.html#tools">RH</a> >
+        <span>Suivi des Absences</span>
     </nav>
     <main class="tool-container">
         <header class="tool-header">
-            <h1><i class="fas fa-tools"></i> Outil Business</h1>
-            <p class="tool-description">Outil professionnel pour optimiser votre activité.</p>
+            <h1><i class="fas fa-calendar-times"></i> Suivi des Absences</h1>
+            <p class="tool-description">Gérez et suivez les absences de vos employés avec un calendrier visuel et des statistiques détaillées.</p>
         </header>
+
         <section class="tool-input">
-            <form id="mainForm">
-                <div class="form-group">
-                    <label for="input1" class="form-label">Donnée d'entrée</label>
-                    <input type="number" id="input1" class="form-input" value="100" min="0" required>
-                </div>
-                <button type="submit" class="btn btn-primary"><i class="fas fa-calculator"></i> Calculer</button>
-            </form>
-        </section>
-        <section class="tool-output" id="results" style="display: none;">
-            <div class="results-grid">
-                <div class="result-item">
-                    <div class="result-label">Résultat</div>
-                    <div class="result-value highlight" id="result">-</div>
-                </div>
+            <div class="card">
+                <h3><i class="fas fa-plus-circle"></i> Ajouter une absence</h3>
+                <form id="absenceForm">
+                    <div class="input-grid">
+                        <div class="form-group">
+                            <label for="employeeName" class="form-label">Employé</label>
+                            <input type="text" id="employeeName" class="form-input" placeholder="Nom de l'employé" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="absenceType" class="form-label">Type d'absence</label>
+                            <select id="absenceType" class="form-select" required>
+                                <option value="congés">Congés payés</option>
+                                <option value="maladie">Maladie</option>
+                                <option value="rtt">RTT</option>
+                                <option value="absence">Absence non justifiée</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="startDate" class="form-label">Date de début</label>
+                            <input type="date" id="startDate" class="form-input" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="endDate" class="form-label">Date de fin</label>
+                            <input type="date" id="endDate" class="form-input" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="absenceNotes" class="form-label">Notes (optionnel)</label>
+                        <textarea id="absenceNotes" class="form-input" rows="2" placeholder="Notes ou commentaires"></textarea>
+                    </div>
+                    <div class="action-buttons">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-plus"></i> Ajouter l'absence
+                        </button>
+                        <button type="button" class="btn btn-secondary" id="exportBtn">
+                            <i class="fas fa-file-csv"></i> Exporter CSV
+                        </button>
+                        <button type="button" class="btn btn-danger" id="clearBtn">
+                            <i class="fas fa-trash"></i> Tout effacer
+                        </button>
+                    </div>
+                </form>
             </div>
         </section>
+
+        <section class="tool-output">
+            <div class="card">
+                <h3><i class="fas fa-chart-bar"></i> Statistiques globales</h3>
+                <div class="stats-grid" id="globalStats">
+                    <div class="stat-card congés">
+                        <div style="font-size: 2rem; font-weight: 700;" id="statCongés">0</div>
+                        <div>Jours de congés</div>
+                    </div>
+                    <div class="stat-card maladie">
+                        <div style="font-size: 2rem; font-weight: 700;" id="statMaladie">0</div>
+                        <div>Jours maladie</div>
+                    </div>
+                    <div class="stat-card rtt">
+                        <div style="font-size: 2rem; font-weight: 700;" id="statRTT">0</div>
+                        <div>Jours RTT</div>
+                    </div>
+                    <div class="stat-card absence">
+                        <div style="font-size: 2rem; font-weight: 700;" id="statAbsence">0</div>
+                        <div>Absences non justifiées</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3><i class="fas fa-calendar-alt"></i> Calendrier mensuel</h3>
+                <div class="month-nav">
+                    <button class="btn btn-sm btn-outline" id="prevMonth">
+                        <i class="fas fa-chevron-left"></i> Mois précédent
+                    </button>
+                    <h3 id="currentMonth"></h3>
+                    <button class="btn btn-sm btn-outline" id="nextMonth">
+                        Mois suivant <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+                <div class="calendar-grid" id="calendar"></div>
+            </div>
+
+            <div class="card">
+                <h3><i class="fas fa-list"></i> Liste des absences</h3>
+                <div class="form-group" style="max-width: 300px;">
+                    <label for="filterEmployee" class="form-label">Filtrer par employé</label>
+                    <select id="filterEmployee" class="form-select">
+                        <option value="">Tous les employés</option>
+                    </select>
+                </div>
+                <div class="absence-list" id="absenceList"></div>
+            </div>
+        </section>
+
         <section class="tool-help">
-            <h3><i class="fas fa-info-circle"></i> Aide</h3>
-            <p>Utilisez cet outil pour optimiser votre gestion d'entreprise.</p>
+            <h3><i class="fas fa-question-circle"></i> Guide d'utilisation</h3>
+            <ul>
+                <li><strong>Ajouter une absence :</strong> Remplissez le formulaire avec les informations de l'employé et les dates</li>
+                <li><strong>Calendrier visuel :</strong> Les jours d'absence sont colorés selon le type (vert = congés, rouge = maladie, bleu = RTT, gris = non justifié)</li>
+                <li><strong>Statistiques :</strong> Consultez le nombre total de jours par type d'absence</li>
+                <li><strong>Filtre :</strong> Filtrez les absences par employé pour une vue personnalisée</li>
+                <li><strong>Export CSV :</strong> Exportez toutes les données pour Excel ou Google Sheets</li>
+            </ul>
         </section>
     </main>
-    <footer class="tool-footer"><a href="../../index.html"><i class="fas fa-arrow-left"></i> Retour</a></footer>
+
+    <footer class="tool-footer">
+        <a href="../../index.html"><i class="fas fa-arrow-left"></i> Retour aux outils</a>
+        <span style="margin-left: auto;">Synoptia - <a href="mailto:ludo@synoptia.fr">ludo@synoptia.fr</a></span>
+    </footer>
+
     <script src="../../assets/js/utils.js"></script>
     <script src="../../assets/js/main.js"></script>
     <script>
-        document.getElementById('mainForm').addEventListener('submit', function(e) {
+        let absences = JSON.parse(localStorage.getItem('absences') || '[]');
+        let currentDate = new Date();
+
+        // Initialiser les dates
+        document.getElementById('startDate').valueAsDate = new Date();
+        document.getElementById('endDate').valueAsDate = new Date();
+
+        // Ajouter une absence
+        document.getElementById('absenceForm').addEventListener('submit', function(e) {
             e.preventDefault();
-            const val = parseFloat(document.getElementById('input1').value);
-            document.getElementById('result').textContent = val.toFixed(2);
-            document.getElementById('results').style.display = 'block';
-            showNotification('Opération réussie !', 'success');
+
+            const absence = {
+                id: Date.now(),
+                employee: document.getElementById('employeeName').value,
+                type: document.getElementById('absenceType').value,
+                startDate: document.getElementById('startDate').value,
+                endDate: document.getElementById('endDate').value,
+                notes: document.getElementById('absenceNotes').value
+            };
+
+            absences.push(absence);
+            saveAbsences();
+            updateUI();
+            this.reset();
+            document.getElementById('startDate').valueAsDate = new Date();
+            document.getElementById('endDate').valueAsDate = new Date();
+            showNotification('Absence ajoutée avec succès', 'success');
         });
-        window.addEventListener('load', () => document.getElementById('mainForm').dispatchEvent(new Event('submit')));
+
+        // Sauvegarder dans localStorage
+        function saveAbsences() {
+            localStorage.setItem('absences', JSON.stringify(absences));
+        }
+
+        // Calculer le nombre de jours entre deux dates
+        function getDaysBetween(start, end) {
+            const startDate = new Date(start);
+            const endDate = new Date(end);
+            const days = Math.floor((endDate - startDate) / (1000 * 60 * 60 * 24)) + 1;
+            return days > 0 ? days : 1;
+        }
+
+        // Mettre à jour l'interface
+        function updateUI() {
+            updateStats();
+            updateCalendar();
+            updateAbsenceList();
+            updateEmployeeFilter();
+        }
+
+        // Mettre à jour les statistiques
+        function updateStats() {
+            const stats = { congés: 0, maladie: 0, rtt: 0, absence: 0 };
+
+            absences.forEach(abs => {
+                const days = getDaysBetween(abs.startDate, abs.endDate);
+                stats[abs.type] += days;
+            });
+
+            document.getElementById('statCongés').textContent = stats.congés;
+            document.getElementById('statMaladie').textContent = stats.maladie;
+            document.getElementById('statRTT').textContent = stats.rtt;
+            document.getElementById('statAbsence').textContent = stats.absence;
+        }
+
+        // Mettre à jour le calendrier
+        function updateCalendar() {
+            const calendar = document.getElementById('calendar');
+            const monthYear = currentDate.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
+            document.getElementById('currentMonth').textContent = monthYear.charAt(0).toUpperCase() + monthYear.slice(1);
+
+            const firstDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+            const lastDay = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
+            const startingDayOfWeek = firstDay.getDay() === 0 ? 6 : firstDay.getDay() - 1;
+
+            calendar.innerHTML = '';
+
+            // En-têtes des jours
+            ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'].forEach(day => {
+                const header = document.createElement('div');
+                header.className = 'calendar-header';
+                header.textContent = day;
+                calendar.appendChild(header);
+            });
+
+            // Jours vides au début
+            for (let i = 0; i < startingDayOfWeek; i++) {
+                const empty = document.createElement('div');
+                empty.className = 'calendar-day empty';
+                calendar.appendChild(empty);
+            }
+
+            // Jours du mois
+            for (let day = 1; day <= lastDay.getDate(); day++) {
+                const dayEl = document.createElement('div');
+                dayEl.className = 'calendar-day';
+                dayEl.textContent = day;
+
+                const currentDateStr = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+
+                // Vérifier s'il y a des absences ce jour
+                const dayAbsences = absences.filter(abs => {
+                    return currentDateStr >= abs.startDate && currentDateStr <= abs.endDate;
+                });
+
+                if (dayAbsences.length > 0) {
+                    dayEl.classList.add('has-absence');
+                    const mainAbsence = dayAbsences[0];
+                    dayEl.classList.add(mainAbsence.type);
+
+                    const badge = document.createElement('div');
+                    badge.className = `absence-badge badge-${mainAbsence.type}`;
+                    dayEl.appendChild(badge);
+
+                    dayEl.title = dayAbsences.map(a => `${a.employee} - ${a.type}`).join('\n');
+                }
+
+                calendar.appendChild(dayEl);
+            }
+        }
+
+        // Mettre à jour la liste des absences
+        function updateAbsenceList() {
+            const list = document.getElementById('absenceList');
+            const filter = document.getElementById('filterEmployee').value;
+
+            let filtered = absences;
+            if (filter) {
+                filtered = absences.filter(a => a.employee === filter);
+            }
+
+            if (filtered.length === 0) {
+                list.innerHTML = '<p style="text-align: center; color: var(--text-secondary);">Aucune absence enregistrée</p>';
+                return;
+            }
+
+            list.innerHTML = filtered.sort((a, b) => new Date(b.startDate) - new Date(a.startDate)).map(abs => {
+                const days = getDaysBetween(abs.startDate, abs.endDate);
+                return `
+                    <div class="absence-item">
+                        <div>
+                            <strong>${abs.employee}</strong>
+                            <span class="badge badge-${abs.type}" style="margin-left: 0.5rem; padding: 0.25rem 0.5rem; border-radius: var(--radius-sm); font-size: 0.75rem; background: var(--primary); color: white;">${abs.type}</span>
+                            <div style="font-size: 0.875rem; color: var(--text-secondary); margin-top: 0.25rem;">
+                                ${formatDateShort(abs.startDate)} - ${formatDateShort(abs.endDate)} (${days} jour${days > 1 ? 's' : ''})
+                            </div>
+                            ${abs.notes ? `<div style="font-size: 0.875rem; margin-top: 0.25rem;">${abs.notes}</div>` : ''}
+                        </div>
+                        <button class="btn btn-danger btn-sm" onclick="deleteAbsence(${abs.id})">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Mettre à jour le filtre employé
+        function updateEmployeeFilter() {
+            const filter = document.getElementById('filterEmployee');
+            const currentValue = filter.value;
+            const employees = [...new Set(absences.map(a => a.employee))].sort();
+
+            filter.innerHTML = '<option value="">Tous les employés</option>' +
+                employees.map(emp => `<option value="${emp}" ${emp === currentValue ? 'selected' : ''}>${emp}</option>`).join('');
+        }
+
+        // Supprimer une absence
+        window.deleteAbsence = function(id) {
+            if (confirm('Voulez-vous vraiment supprimer cette absence ?')) {
+                absences = absences.filter(a => a.id !== id);
+                saveAbsences();
+                updateUI();
+                showNotification('Absence supprimée', 'success');
+            }
+        };
+
+        // Navigation mois
+        document.getElementById('prevMonth').addEventListener('click', () => {
+            currentDate.setMonth(currentDate.getMonth() - 1);
+            updateCalendar();
+        });
+
+        document.getElementById('nextMonth').addEventListener('click', () => {
+            currentDate.setMonth(currentDate.getMonth() + 1);
+            updateCalendar();
+        });
+
+        // Filtre employé
+        document.getElementById('filterEmployee').addEventListener('change', updateAbsenceList);
+
+        // Export CSV
+        document.getElementById('exportBtn').addEventListener('click', function() {
+            if (absences.length === 0) {
+                showNotification('Aucune absence à exporter', 'warning');
+                return;
+            }
+
+            const csv = [
+                ['Employé', 'Type', 'Date début', 'Date fin', 'Nombre de jours', 'Notes'],
+                ...absences.map(abs => [
+                    abs.employee,
+                    abs.type,
+                    abs.startDate,
+                    abs.endDate,
+                    getDaysBetween(abs.startDate, abs.endDate),
+                    abs.notes || ''
+                ])
+            ].map(row => row.map(cell => `"${cell}"`).join(',')).join('\n');
+
+            const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `absences_${new Date().toISOString().split('T')[0]}.csv`;
+            link.click();
+            showNotification('Export CSV réussi', 'success');
+        });
+
+        // Tout effacer
+        document.getElementById('clearBtn').addEventListener('click', function() {
+            if (confirm('Voulez-vous vraiment supprimer toutes les absences ? Cette action est irréversible.')) {
+                absences = [];
+                saveAbsences();
+                updateUI();
+                showNotification('Toutes les absences ont été supprimées', 'success');
+            }
+        });
+
+        // Initialiser
+        updateUI();
     </script>
 </body>
 </html>

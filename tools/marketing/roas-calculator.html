@@ -3,20 +3,62 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculateur de ROAS - Business Tools</title>
+    <title>Calculateur ROAS - Business Tools by Synoptia</title>
     <link rel="stylesheet" href="../../assets/css/main.css">
     <link rel="stylesheet" href="../../assets/css/tools.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .campaign-item {
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 1rem;
+            margin-bottom: 0.75rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .campaign-info {
+            flex: 1;
+        }
+        .campaign-name {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.25rem;
+        }
+        .campaign-stats {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+        .campaign-roas {
+            font-weight: 700;
+            color: var(--primary);
+            font-size: 1.1rem;
+            margin-right: 1rem;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: var(--text-secondary);
+        }
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.3;
+        }
+    </style>
 </head>
 <body>
     <nav class="breadcrumb">
-        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> > <a href="../../index.html#tools">Marketing</a> > <span>Calculateur de ROAS</span>
+        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> >
+        <a href="../../index.html#tools">Marketing</a> >
+        <span>Calculateur ROAS</span>
     </nav>
 
     <main class="tool-container">
         <header class="tool-header">
-            <h1><i class="fas fa-ad"></i> Calculateur de ROAS (Return on Ad Spend)</h1>
+            <h1><i class="fas fa-ad"></i> Calculateur ROAS (Return on Ad Spend)</h1>
             <p class="tool-description">Mesurez l'efficacité de vos campagnes publicitaires et calculez le retour sur investissement publicitaire.</p>
         </header>
 
@@ -25,18 +67,23 @@
             <form id="roasForm">
                 <div class="input-grid">
                     <div class="form-group">
+                        <label for="campaignName" class="form-label"><i class="fas fa-tag"></i> Nom de la campagne</label>
+                        <input type="text" id="campaignName" class="form-input" placeholder="Ex: Google Ads Q4 2025" required>
+                        <span class="form-help">Pour identifier votre campagne</span>
+                    </div>
+                    <div class="form-group">
                         <label for="revenue" class="form-label"><i class="fas fa-euro-sign"></i> Revenus générés (€)</label>
-                        <input type="number" id="revenue" class="form-input" placeholder="Ex: 5000" min="0" step="1" value="5000" required>
+                        <input type="number" id="revenue" class="form-input" placeholder="Ex: 5000" min="0" step="0.01" value="5000" required>
                         <span class="form-help">CA généré par la campagne</span>
                     </div>
                     <div class="form-group">
                         <label for="adSpend" class="form-label"><i class="fas fa-money-bill-wave"></i> Dépenses publicitaires (€)</label>
-                        <input type="number" id="adSpend" class="form-input" placeholder="Ex: 1000" min="0" step="1" value="1000" required>
+                        <input type="number" id="adSpend" class="form-input" placeholder="Ex: 1000" min="0" step="0.01" value="1000" required>
                         <span class="form-help">Budget investi dans la pub</span>
                     </div>
                 </div>
                 <div class="action-buttons">
-                    <button type="submit" class="btn btn-primary"><i class="fas fa-calculator"></i> Calculer</button>
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-calculator"></i> Calculer et sauvegarder</button>
                 </div>
             </form>
         </section>
@@ -64,31 +111,93 @@
             <div class="alert" id="interpretation"></div>
         </section>
 
+        <section class="tool-output">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                <h2><i class="fas fa-history"></i> Historique des campagnes</h2>
+                <div>
+                    <button type="button" class="btn btn-sm btn-secondary" id="exportBtn" style="margin-right: 0.5rem;">
+                        <i class="fas fa-download"></i> Exporter CSV
+                    </button>
+                    <button type="button" class="btn btn-sm btn-danger" id="clearBtn">
+                        <i class="fas fa-trash"></i> Effacer
+                    </button>
+                </div>
+            </div>
+
+            <div id="campaignsList"></div>
+
+            <div class="results-grid" style="margin-top: 1.5rem;" id="statsSection" style="display: none;">
+                <div class="result-item">
+                    <div class="result-label">Nombre de campagnes</div>
+                    <div class="result-value" id="totalCampaigns">0</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">ROAS moyen</div>
+                    <div class="result-value highlight" id="avgRoas">0:1</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Revenus totaux</div>
+                    <div class="result-value" id="totalRevenue">0 €</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Dépenses totales</div>
+                    <div class="result-value" id="totalSpend">0 €</div>
+                </div>
+            </div>
+        </section>
+
         <section class="tool-help">
             <h3><i class="fas fa-question-circle"></i> Comment utiliser cet outil ?</h3>
             <ol>
+                <li>Donnez un <strong>nom à votre campagne</strong> pour l'identifier facilement</li>
                 <li>Entrez les <strong>revenus générés</strong> par votre campagne publicitaire</li>
                 <li>Indiquez le <strong>budget publicitaire</strong> dépensé</li>
                 <li>Obtenez votre <strong>ROAS</strong> et analysez la performance</li>
+                <li>Consultez l'historique pour comparer vos campagnes</li>
             </ol>
             <h3><i class="fas fa-calculator"></i> Formules</h3>
-            <code>ROAS = Revenus / Dépenses pub\nROI = ((Revenus - Dépenses) / Dépenses) × 100</code>
+            <code>ROAS = Revenus / Dépenses pub
+ROI = ((Revenus - Dépenses) / Dépenses) × 100
+Profit Net = Revenus - Dépenses</code>
             <h3><i class="fas fa-lightbulb"></i> Interprétation</h3>
             <ul>
-                <li><strong>ROAS &gt; 4</strong> : Excellente performance</li>
-                <li><strong>ROAS 2-4</strong> : Bonne performance</li>
-                <li><strong>ROAS &lt; 2</strong> : Performance à améliorer</li>
+                <li><strong>ROAS > 4:1</strong> : Excellente performance - campagne très rentable</li>
+                <li><strong>ROAS 2:1 à 4:1</strong> : Bonne performance - campagne rentable</li>
+                <li><strong>ROAS 1:1 à 2:1</strong> : Performance moyenne - à optimiser</li>
+                <li><strong>ROAS < 1:1</strong> : Performance insuffisante - campagne déficitaire</li>
             </ul>
         </section>
     </main>
 
-    <footer class="tool-footer"><a href="../../index.html"><i class="fas fa-arrow-left"></i> Retour aux outils</a></footer>
+    <footer class="tool-footer">
+        <a href="../../index.html"><i class="fas fa-arrow-left"></i> Retour aux outils</a>
+        <span style="margin-left: auto; color: var(--text-secondary);">Synoptia - ludo@synoptia.fr</span>
+    </footer>
 
     <script src="../../assets/js/utils.js"></script>
     <script src="../../assets/js/main.js"></script>
     <script>
+        let campaigns = [];
+
+        // Load campaigns from localStorage
+        function loadCampaigns() {
+            const stored = localStorage.getItem('roasCampaigns');
+            if (stored) {
+                campaigns = JSON.parse(stored);
+            }
+            renderCampaigns();
+            updateStats();
+        }
+
+        // Save campaigns to localStorage
+        function saveCampaigns() {
+            localStorage.setItem('roasCampaigns', JSON.stringify(campaigns));
+        }
+
+        // Calculate ROAS
         document.getElementById('roasForm').addEventListener('submit', function(e) {
             e.preventDefault();
+            const campaignName = document.getElementById('campaignName').value.trim();
             const revenue = parseFloat(document.getElementById('revenue').value);
             const adSpend = parseFloat(document.getElementById('adSpend').value);
 
@@ -101,6 +210,7 @@
             const profit = revenue - adSpend;
             const roi = (profit / adSpend) * 100;
 
+            // Display results
             document.getElementById('roas').innerHTML = roas.toFixed(2) + '<span class="result-unit">:1</span>';
             document.getElementById('profit').textContent = formatCurrency(profit);
             document.getElementById('profit').className = profit >= 0 ? 'result-value success' : 'result-value danger';
@@ -111,16 +221,16 @@
             let alertClass = 'alert-info';
 
             if (roas >= 4) {
-                interpretation = '<strong>🚀 Excellent !</strong> Votre campagne est très performante.';
+                interpretation = '<strong>🚀 Excellent !</strong> Votre campagne est très performante. Pour 1€ investi, vous générez ' + roas.toFixed(2) + '€ de revenus.';
                 alertClass = 'alert-success';
             } else if (roas >= 2) {
-                interpretation = '<strong>👍 Bien !</strong> Votre campagne est rentable.';
+                interpretation = '<strong>👍 Bien !</strong> Votre campagne est rentable. Continuez dans cette voie.';
                 alertClass = 'alert-success';
             } else if (roas >= 1) {
-                interpretation = '<strong>⚡ Correct</strong> mais vous pourriez optimiser.';
+                interpretation = '<strong>⚡ Correct</strong> mais vous pourriez optimiser. Testez différents ciblages et créatifs.';
                 alertClass = 'alert-warning';
             } else {
-                interpretation = '<strong>⚠️ Attention !</strong> Votre campagne n\'est pas rentable.';
+                interpretation = '<strong>⚠️ Attention !</strong> Votre campagne n\'est pas rentable. Revoyez votre stratégie.';
                 alertClass = 'alert-danger';
             }
 
@@ -128,12 +238,145 @@
             interpDiv.className = `alert ${alertClass}`;
             interpDiv.innerHTML = interpretation;
 
+            // Save to history
+            const campaign = {
+                name: campaignName,
+                revenue: revenue,
+                adSpend: adSpend,
+                roas: roas,
+                profit: profit,
+                roi: roi,
+                date: new Date().toISOString()
+            };
+
+            campaigns.unshift(campaign);
+            saveCampaigns();
+            renderCampaigns();
+            updateStats();
+
             document.getElementById('results').style.display = 'block';
             scrollToElement('#results', 100);
-            showNotification('Calcul effectué !', 'success');
+            showNotification('Campagne enregistrée !', 'success');
+
+            // Reset form
+            document.getElementById('campaignName').value = '';
+            document.getElementById('revenue').value = '5000';
+            document.getElementById('adSpend').value = '1000';
         });
 
-        window.addEventListener('load', () => document.getElementById('roasForm').dispatchEvent(new Event('submit')));
+        // Render campaigns list
+        function renderCampaigns() {
+            const container = document.getElementById('campaignsList');
+
+            if (campaigns.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-bullhorn"></i>
+                        <p>Aucune campagne enregistrée</p>
+                        <p style="font-size: 0.9rem;">Commencez à suivre vos campagnes publicitaires !</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = campaigns.map((campaign, index) => {
+                const roasClass = campaign.roas >= 4 ? 'success' : campaign.roas >= 2 ? 'primary' : campaign.roas >= 1 ? 'warning' : 'danger';
+                return `
+                    <div class="campaign-item">
+                        <div class="campaign-info">
+                            <div class="campaign-name">${campaign.name}</div>
+                            <div class="campaign-stats">
+                                <i class="fas fa-calendar"></i> ${formatDateShort(campaign.date)} |
+                                <i class="fas fa-euro-sign"></i> Revenus: ${formatCurrency(campaign.revenue)} |
+                                Dépenses: ${formatCurrency(campaign.adSpend)} |
+                                ROI: ${formatPercentage(campaign.roi)}
+                            </div>
+                        </div>
+                        <div style="display: flex; align-items: center;">
+                            <div class="campaign-roas" style="color: var(--${roasClass});">
+                                ${campaign.roas.toFixed(2)}:1
+                            </div>
+                            <button class="btn btn-sm btn-danger" onclick="deleteCampaign(${index})">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Delete campaign
+        window.deleteCampaign = function(index) {
+            if (confirm('Supprimer cette campagne ?')) {
+                campaigns.splice(index, 1);
+                saveCampaigns();
+                renderCampaigns();
+                updateStats();
+                showNotification('Campagne supprimée', 'success');
+            }
+        };
+
+        // Update statistics
+        function updateStats() {
+            if (campaigns.length === 0) {
+                document.getElementById('statsSection').style.display = 'none';
+                return;
+            }
+
+            document.getElementById('statsSection').style.display = 'grid';
+
+            const totalRevenue = campaigns.reduce((sum, c) => sum + c.revenue, 0);
+            const totalSpend = campaigns.reduce((sum, c) => sum + c.adSpend, 0);
+            const avgRoas = totalRevenue / totalSpend;
+
+            document.getElementById('totalCampaigns').textContent = campaigns.length;
+            document.getElementById('avgRoas').textContent = avgRoas.toFixed(2) + ':1';
+            document.getElementById('totalRevenue').textContent = formatCurrency(totalRevenue);
+            document.getElementById('totalSpend').textContent = formatCurrency(totalSpend);
+        }
+
+        // Export to CSV
+        document.getElementById('exportBtn').addEventListener('click', function() {
+            if (campaigns.length === 0) {
+                showNotification('Aucune campagne à exporter', 'error');
+                return;
+            }
+
+            const csv = [
+                ['Campagne', 'Date', 'Revenus (€)', 'Dépenses (€)', 'ROAS', 'Profit (€)', 'ROI (%)'],
+                ...campaigns.map(c => [
+                    c.name,
+                    formatDateShort(c.date),
+                    c.revenue.toFixed(2),
+                    c.adSpend.toFixed(2),
+                    c.roas.toFixed(2),
+                    c.profit.toFixed(2),
+                    c.roi.toFixed(2)
+                ])
+            ].map(row => row.join(';')).join('\n');
+
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `roas-campaigns-${new Date().toISOString().split('T')[0]}.csv`;
+            link.click();
+
+            showNotification('Export CSV réussi !', 'success');
+        });
+
+        // Clear all campaigns
+        document.getElementById('clearBtn').addEventListener('click', function() {
+            if (confirm('Effacer toutes les campagnes ? Cette action est irréversible.')) {
+                campaigns = [];
+                saveCampaigns();
+                renderCampaigns();
+                updateStats();
+                showNotification('Toutes les campagnes ont été effacées', 'success');
+            }
+        });
+
+        // Load campaigns on page load
+        loadCampaigns();
     </script>
 </body>
 </html>

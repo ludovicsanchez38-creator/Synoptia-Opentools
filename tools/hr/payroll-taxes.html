@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Outil Business - Business Tools</title>
+    <title>Calculateur Charges Sociales - Business Tools by Synoptia</title>
     <link rel="stylesheet" href="../../assets/css/main.css">
     <link rel="stylesheet" href="../../assets/css/tools.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -11,49 +11,569 @@
 </head>
 <body>
     <nav class="breadcrumb">
-        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> > 
-        <a href="../../index.html#tools">RH</a> > 
-        <span>Outil</span>
+        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> >
+        <a href="../../index.html#tools">RH</a> >
+        <span>Charges Sociales</span>
     </nav>
     <main class="tool-container">
         <header class="tool-header">
-            <h1><i class="fas fa-tools"></i> Outil Business</h1>
-            <p class="tool-description">Outil professionnel pour optimiser votre activité.</p>
+            <h1><i class="fas fa-file-invoice"></i> Calculateur de Charges Sociales</h1>
+            <p class="tool-description">Calculez le salaire net à partir du brut avec le détail complet de toutes les charges sociales (part salariale et patronale).</p>
         </header>
+
         <section class="tool-input">
-            <form id="mainForm">
-                <div class="form-group">
-                    <label for="input1" class="form-label">Donnée d'entrée</label>
-                    <input type="number" id="input1" class="form-input" value="100" min="0" required>
+            <h2>Salaire et paramètres</h2>
+            <form id="taxesForm">
+                <div class="card" style="margin-bottom: 2rem;">
+                    <h3>Salaire de base</h3>
+                    <div class="input-grid">
+                        <div class="form-group">
+                            <label for="grossSalary" class="form-label">Salaire brut mensuel (€)</label>
+                            <input type="number" id="grossSalary" class="form-input" value="3000" min="0" step="0.01" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="status" class="form-label">Statut</label>
+                            <select id="status" class="form-select">
+                                <option value="non-cadre">Non-cadre</option>
+                                <option value="cadre">Cadre</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="workingHours" class="form-label">Temps de travail</label>
+                            <select id="workingHours" class="form-select">
+                                <option value="full">Temps plein</option>
+                                <option value="partial">Temps partiel</option>
+                            </select>
+                        </div>
+                    </div>
                 </div>
-                <button type="submit" class="btn btn-primary"><i class="fas fa-calculator"></i> Calculer</button>
+
+                <div class="card" style="margin-bottom: 2rem;">
+                    <h3>Paramètres des charges</h3>
+                    <div class="input-grid">
+                        <div class="form-group">
+                            <label for="accidentRate" class="form-label">Taux AT/MP (%)</label>
+                            <input type="number" id="accidentRate" class="form-input" value="1.5" min="0" max="10" step="0.01">
+                            <small class="form-hint">Accidents du travail - Part patronale</small>
+                        </div>
+                        <div class="form-group">
+                            <label for="transportRate" class="form-label">Versement transport (%)</label>
+                            <input type="number" id="transportRate" class="form-input" value="2.0" min="0" max="3" step="0.01">
+                            <small class="form-hint">Selon localité - Part patronale</small>
+                        </div>
+                        <div class="form-group">
+                            <label for="mutuelleRate" class="form-label">Mutuelle salarié (€)</label>
+                            <input type="number" id="mutuelleRate" class="form-input" value="50" min="0" step="0.01">
+                            <small class="form-hint">Part salariale obligatoire</small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="action-buttons">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-calculator"></i> Calculer les charges
+                    </button>
+                    <button type="button" class="btn btn-secondary" id="saveBtn">
+                        <i class="fas fa-save"></i> Sauvegarder
+                    </button>
+                    <button type="reset" class="btn btn-outline">
+                        <i class="fas fa-redo"></i> Réinitialiser
+                    </button>
+                </div>
             </form>
         </section>
+
         <section class="tool-output" id="results" style="display: none;">
-            <div class="results-grid">
+            <h2><i class="fas fa-receipt"></i> Résultat du calcul</h2>
+
+            <div class="results-grid" style="margin-bottom: 2rem;">
                 <div class="result-item">
-                    <div class="result-label">Résultat</div>
-                    <div class="result-value highlight" id="result">-</div>
+                    <div class="result-label">Salaire brut</div>
+                    <div class="result-value" id="displayGross">-</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Charges salariales</div>
+                    <div class="result-value" id="displayEmployeeCharges">-</div>
+                </div>
+                <div class="result-item highlight">
+                    <div class="result-label">Salaire net</div>
+                    <div class="result-value" id="displayNet">-</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Charges patronales</div>
+                    <div class="result-value" id="displayEmployerCharges">-</div>
                 </div>
             </div>
+
+            <div class="card" style="margin-bottom: 2rem;">
+                <h3>Détail des charges salariales (déduites du brut)</h3>
+                <div id="employeeChargesBreakdown"></div>
+            </div>
+
+            <div class="card" style="margin-bottom: 2rem;">
+                <h3>Détail des charges patronales (en plus du brut)</h3>
+                <div id="employerChargesBreakdown"></div>
+            </div>
+
+            <div class="card">
+                <h3>Synthèse</h3>
+                <div id="summary"></div>
+            </div>
+
+            <div class="action-buttons" style="margin-top: 2rem;">
+                <button class="btn btn-accent" id="exportCsvBtn">
+                    <i class="fas fa-file-csv"></i> Exporter CSV
+                </button>
+                <button class="btn btn-secondary" id="printBtn">
+                    <i class="fas fa-print"></i> Imprimer
+                </button>
+            </div>
         </section>
+
         <section class="tool-help">
-            <h3><i class="fas fa-info-circle"></i> Aide</h3>
-            <p>Utilisez cet outil pour optimiser votre gestion d'entreprise.</p>
+            <h3><i class="fas fa-question-circle"></i> Comment utiliser ce calculateur ?</h3>
+            <ol>
+                <li>Saisissez le <strong>salaire brut mensuel</strong></li>
+                <li>Sélectionnez le <strong>statut</strong> (cadre ou non-cadre)</li>
+                <li>Indiquez le <strong>temps de travail</strong></li>
+                <li>Ajustez les paramètres spécifiques (AT/MP, transport, mutuelle)</li>
+                <li>Cliquez sur <strong>"Calculer"</strong> pour voir le détail complet</li>
+                <li>Exportez le résultat en CSV si nécessaire</li>
+            </ol>
+
+            <h3><i class="fas fa-lightbulb"></i> Informations importantes</h3>
+            <ul>
+                <li><strong>Charges salariales ≈ 22-25%</strong> du salaire brut</li>
+                <li><strong>Charges patronales ≈ 42%</strong> du salaire brut</li>
+                <li>La CSG/CRDS est calculée sur 98,25% du salaire brut</li>
+                <li>Le plafond de la Sécurité sociale 2025 : 3 864 € /mois</li>
+                <li>Les cadres ont des cotisations retraite complémentaire plus élevées</li>
+                <li>Ces taux sont conformes à la législation 2024-2025</li>
+            </ul>
         </section>
     </main>
-    <footer class="tool-footer"><a href="../../index.html"><i class="fas fa-arrow-left"></i> Retour</a></footer>
+
+    <footer class="tool-footer">
+        <div style="text-align: center; padding: 1rem;">
+            <a href="../../index.html"><i class="fas fa-arrow-left"></i> Retour aux outils</a>
+            <p style="margin-top: 1rem; color: var(--gray); font-size: 0.875rem;">
+                Business Tools by Synoptia - Contact: <a href="mailto:ludo@synoptia.fr">ludo@synoptia.fr</a>
+            </p>
+        </div>
+    </footer>
+
     <script src="../../assets/js/utils.js"></script>
     <script src="../../assets/js/main.js"></script>
     <script>
-        document.getElementById('mainForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const val = parseFloat(document.getElementById('input1').value);
-            document.getElementById('result').textContent = val.toFixed(2);
+        // Plafond mensuel Sécurité sociale 2025
+        const PLAFOND_SS = 3864;
+
+        // Taux charges salariales 2024-2025
+        const EMPLOYEE_RATES = {
+            healthInsurance: 0.00,          // Assurance maladie (0% depuis 2018)
+            oldAgeCapped: 6.90,             // Vieillesse plafonnée
+            oldAgeUncapped: 0.40,           // Vieillesse déplafonnée
+            unemployment: 0.00,             // Chômage (0% salarié)
+            retirementT1: 3.15,             // Retraite complémentaire Tranche 1
+            retirementT2: 8.64,             // Retraite complémentaire Tranche 2
+            csgDeductible: 6.80,            // CSG déductible
+            csgNonDeductible: 2.40,         // CSG non déductible
+            crds: 0.50,                     // CRDS
+            csgCrdsBase: 0.9825             // 98,25% du brut
+        };
+
+        // Taux charges patronales 2024-2025
+        const EMPLOYER_RATES = {
+            healthInsurance: 13.00,
+            oldAgeCapped: 8.55,
+            oldAgeUncapped: 1.90,
+            familyAllowancesLow: 3.45,      // ≤ 3,5 SMIC
+            familyAllowancesHigh: 5.25,     // > 3,5 SMIC
+            unemployment: 4.05,
+            fnal: 0.50,
+            csa: 0.30,
+            ags: 0.15,
+            retirementT1: 4.72,             // Retraite complémentaire Tranche 1
+            retirementT2: 12.95             // Retraite complémentaire Tranche 2
+        };
+
+        // LocalStorage
+        function saveToLocalStorage() {
+            const data = {
+                grossSalary: document.getElementById('grossSalary').value,
+                status: document.getElementById('status').value,
+                workingHours: document.getElementById('workingHours').value,
+                accidentRate: document.getElementById('accidentRate').value,
+                transportRate: document.getElementById('transportRate').value,
+                mutuelleRate: document.getElementById('mutuelleRate').value
+            };
+            localStorage.setItem('payrollTaxesData', JSON.stringify(data));
+            showNotification('Données sauvegardées !', 'success');
+        }
+
+        function loadFromLocalStorage() {
+            const data = localStorage.getItem('payrollTaxesData');
+            if (data) {
+                const parsed = JSON.parse(data);
+                Object.keys(parsed).forEach(key => {
+                    const element = document.getElementById(key);
+                    if (element) element.value = parsed[key];
+                });
+            }
+        }
+
+        // Calcul des charges
+        function calculatePayrollTaxes() {
+            const grossSalary = parseFloat(document.getElementById('grossSalary').value) || 0;
+            const status = document.getElementById('status').value;
+            const accidentRate = parseFloat(document.getElementById('accidentRate').value) || 1.5;
+            const transportRate = parseFloat(document.getElementById('transportRate').value) || 2.0;
+            const mutuelle = parseFloat(document.getElementById('mutuelleRate').value) || 0;
+
+            // Tranches pour retraite complémentaire
+            const tranche1 = Math.min(grossSalary, PLAFOND_SS);
+            const tranche2 = Math.max(0, Math.min(grossSalary - PLAFOND_SS, PLAFOND_SS * 7));
+
+            // Base CSG/CRDS
+            const csgBase = grossSalary * EMPLOYEE_RATES.csgCrdsBase;
+
+            // Charges salariales
+            const employeeCharges = {
+                oldAgeCapped: tranche1 * (EMPLOYEE_RATES.oldAgeCapped / 100),
+                oldAgeUncapped: grossSalary * (EMPLOYEE_RATES.oldAgeUncapped / 100),
+                retirementT1: tranche1 * (EMPLOYEE_RATES.retirementT1 / 100),
+                retirementT2: status === 'cadre' ? tranche2 * (EMPLOYEE_RATES.retirementT2 / 100) : 0,
+                csgDeductible: csgBase * (EMPLOYEE_RATES.csgDeductible / 100),
+                csgNonDeductible: csgBase * (EMPLOYEE_RATES.csgNonDeductible / 100),
+                crds: csgBase * (EMPLOYEE_RATES.crds / 100),
+                mutuelle: mutuelle
+            };
+
+            const totalEmployeeCharges = Object.values(employeeCharges).reduce((sum, val) => sum + val, 0);
+            const netSalary = grossSalary - totalEmployeeCharges;
+
+            // Charges patronales
+            const familyRate = grossSalary <= (1766.92 * 3.5) ? EMPLOYER_RATES.familyAllowancesLow : EMPLOYER_RATES.familyAllowancesHigh;
+
+            const employerCharges = {
+                healthInsurance: grossSalary * (EMPLOYER_RATES.healthInsurance / 100),
+                oldAgeCapped: tranche1 * (EMPLOYER_RATES.oldAgeCapped / 100),
+                oldAgeUncapped: grossSalary * (EMPLOYER_RATES.oldAgeUncapped / 100),
+                familyAllowances: grossSalary * (familyRate / 100),
+                accident: grossSalary * (accidentRate / 100),
+                unemployment: grossSalary * (EMPLOYER_RATES.unemployment / 100),
+                fnal: grossSalary * (EMPLOYER_RATES.fnal / 100),
+                csa: grossSalary * (EMPLOYER_RATES.csa / 100),
+                ags: grossSalary * (EMPLOYER_RATES.ags / 100),
+                retirementT1: tranche1 * (EMPLOYER_RATES.retirementT1 / 100),
+                retirementT2: status === 'cadre' ? tranche2 * (EMPLOYER_RATES.retirementT2 / 100) : 0,
+                transport: grossSalary * (transportRate / 100)
+            };
+
+            const totalEmployerCharges = Object.values(employerCharges).reduce((sum, val) => sum + val, 0);
+
+            return {
+                grossSalary,
+                employeeCharges,
+                totalEmployeeCharges,
+                netSalary,
+                employerCharges,
+                totalEmployerCharges,
+                totalCost: grossSalary + totalEmployerCharges,
+                status,
+                familyRate
+            };
+        }
+
+        // Afficher les résultats
+        function displayResults(result) {
+            document.getElementById('displayGross').textContent = formatCurrency(result.grossSalary);
+            document.getElementById('displayEmployeeCharges').textContent = formatCurrency(result.totalEmployeeCharges);
+            document.getElementById('displayNet').textContent = formatCurrency(result.netSalary);
+            document.getElementById('displayEmployerCharges').textContent = formatCurrency(result.totalEmployerCharges);
+
+            // Détail charges salariales
+            const employeeBreakdown = document.getElementById('employeeChargesBreakdown');
+            employeeBreakdown.innerHTML = `
+                <table style="width: 100%; border-collapse: collapse;">
+                    <thead>
+                        <tr style="border-bottom: 2px solid var(--border); background: var(--light);">
+                            <th style="padding: 0.75rem; text-align: left;">Cotisation salariale</th>
+                            <th style="padding: 0.75rem; text-align: right;">Base</th>
+                            <th style="padding: 0.75rem; text-align: right;">Taux</th>
+                            <th style="padding: 0.75rem; text-align: right;">Montant</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="border-bottom: 1px solid var(--border);">
+                            <td style="padding: 0.5rem;">Sécurité sociale - Vieillesse plafonnée</td>
+                            <td style="padding: 0.5rem; text-align: right;">${formatCurrency(Math.min(result.grossSalary, PLAFOND_SS))}</td>
+                            <td style="padding: 0.5rem; text-align: right;">${EMPLOYEE_RATES.oldAgeCapped}%</td>
+                            <td style="padding: 0.5rem; text-align: right;">${formatCurrency(result.employeeCharges.oldAgeCapped)}</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--border);">
+                            <td style="padding: 0.5rem;">Sécurité sociale - Vieillesse déplafonnée</td>
+                            <td style="padding: 0.5rem; text-align: right;">${formatCurrency(result.grossSalary)}</td>
+                            <td style="padding: 0.5rem; text-align: right;">${EMPLOYEE_RATES.oldAgeUncapped}%</td>
+                            <td style="padding: 0.5rem; text-align: right;">${formatCurrency(result.employeeCharges.oldAgeUncapped)}</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--border);">
+                            <td style="padding: 0.5rem;">Retraite complémentaire T1</td>
+                            <td style="padding: 0.5rem; text-align: right;">${formatCurrency(Math.min(result.grossSalary, PLAFOND_SS))}</td>
+                            <td style="padding: 0.5rem; text-align: right;">${EMPLOYEE_RATES.retirementT1}%</td>
+                            <td style="padding: 0.5rem; text-align: right;">${formatCurrency(result.employeeCharges.retirementT1)}</td>
+                        </tr>
+                        ${result.status === 'cadre' && result.employeeCharges.retirementT2 > 0 ? `
+                        <tr style="border-bottom: 1px solid var(--border);">
+                            <td style="padding: 0.5rem;">Retraite complémentaire T2 (Cadre)</td>
+                            <td style="padding: 0.5rem; text-align: right;">${formatCurrency(Math.max(0, result.grossSalary - PLAFOND_SS))}</td>
+                            <td style="padding: 0.5rem; text-align: right;">${EMPLOYEE_RATES.retirementT2}%</td>
+                            <td style="padding: 0.5rem; text-align: right;">${formatCurrency(result.employeeCharges.retirementT2)}</td>
+                        </tr>
+                        ` : ''}
+                        <tr style="border-bottom: 1px solid var(--border);">
+                            <td style="padding: 0.5rem;">CSG déductible</td>
+                            <td style="padding: 0.5rem; text-align: right;">${formatCurrency(result.grossSalary * 0.9825)}</td>
+                            <td style="padding: 0.5rem; text-align: right;">${EMPLOYEE_RATES.csgDeductible}%</td>
+                            <td style="padding: 0.5rem; text-align: right;">${formatCurrency(result.employeeCharges.csgDeductible)}</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--border);">
+                            <td style="padding: 0.5rem;">CSG non déductible</td>
+                            <td style="padding: 0.5rem; text-align: right;">${formatCurrency(result.grossSalary * 0.9825)}</td>
+                            <td style="padding: 0.5rem; text-align: right;">${EMPLOYEE_RATES.csgNonDeductible}%</td>
+                            <td style="padding: 0.5rem; text-align: right;">${formatCurrency(result.employeeCharges.csgNonDeductible)}</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--border);">
+                            <td style="padding: 0.5rem;">CRDS</td>
+                            <td style="padding: 0.5rem; text-align: right;">${formatCurrency(result.grossSalary * 0.9825)}</td>
+                            <td style="padding: 0.5rem; text-align: right;">${EMPLOYEE_RATES.crds}%</td>
+                            <td style="padding: 0.5rem; text-align: right;">${formatCurrency(result.employeeCharges.crds)}</td>
+                        </tr>
+                        ${result.employeeCharges.mutuelle > 0 ? `
+                        <tr style="border-bottom: 1px solid var(--border);">
+                            <td style="padding: 0.5rem;">Mutuelle (part salariale)</td>
+                            <td style="padding: 0.5rem; text-align: right;">-</td>
+                            <td style="padding: 0.5rem; text-align: right;">-</td>
+                            <td style="padding: 0.5rem; text-align: right;">${formatCurrency(result.employeeCharges.mutuelle)}</td>
+                        </tr>
+                        ` : ''}
+                        <tr style="background: var(--light); font-weight: 600;">
+                            <td style="padding: 0.75rem;" colspan="3">TOTAL CHARGES SALARIALES</td>
+                            <td style="padding: 0.75rem; text-align: right;">${formatCurrency(result.totalEmployeeCharges)}</td>
+                        </tr>
+                        <tr style="background: var(--primary); color: white; font-weight: 700;">
+                            <td style="padding: 1rem;" colspan="3">SALAIRE NET À PAYER</td>
+                            <td style="padding: 1rem; text-align: right;">${formatCurrency(result.netSalary)}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            `;
+
+            // Détail charges patronales
+            const employerBreakdown = document.getElementById('employerChargesBreakdown');
+            employerBreakdown.innerHTML = `
+                <table style="width: 100%; border-collapse: collapse;">
+                    <thead>
+                        <tr style="border-bottom: 2px solid var(--border); background: var(--light);">
+                            <th style="padding: 0.75rem; text-align: left;">Cotisation patronale</th>
+                            <th style="padding: 0.75rem; text-align: right;">Base</th>
+                            <th style="padding: 0.75rem; text-align: right;">Taux</th>
+                            <th style="padding: 0.75rem; text-align: right;">Montant</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="border-bottom: 1px solid var(--border);">
+                            <td style="padding: 0.5rem;">Assurance maladie</td>
+                            <td style="padding: 0.5rem; text-align: right;">${formatCurrency(result.grossSalary)}</td>
+                            <td style="padding: 0.5rem; text-align: right;">${EMPLOYER_RATES.healthInsurance}%</td>
+                            <td style="padding: 0.5rem; text-align: right;">${formatCurrency(result.employerCharges.healthInsurance)}</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--border);">
+                            <td style="padding: 0.5rem;">Vieillesse plafonnée</td>
+                            <td style="padding: 0.5rem; text-align: right;">${formatCurrency(Math.min(result.grossSalary, PLAFOND_SS))}</td>
+                            <td style="padding: 0.5rem; text-align: right;">${EMPLOYER_RATES.oldAgeCapped}%</td>
+                            <td style="padding: 0.5rem; text-align: right;">${formatCurrency(result.employerCharges.oldAgeCapped)}</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--border);">
+                            <td style="padding: 0.5rem;">Vieillesse déplafonnée</td>
+                            <td style="padding: 0.5rem; text-align: right;">${formatCurrency(result.grossSalary)}</td>
+                            <td style="padding: 0.5rem; text-align: right;">${EMPLOYER_RATES.oldAgeUncapped}%</td>
+                            <td style="padding: 0.5rem; text-align: right;">${formatCurrency(result.employerCharges.oldAgeUncapped)}</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--border);">
+                            <td style="padding: 0.5rem;">Allocations familiales</td>
+                            <td style="padding: 0.5rem; text-align: right;">${formatCurrency(result.grossSalary)}</td>
+                            <td style="padding: 0.5rem; text-align: right;">${result.familyRate}%</td>
+                            <td style="padding: 0.5rem; text-align: right;">${formatCurrency(result.employerCharges.familyAllowances)}</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--border);">
+                            <td style="padding: 0.5rem;">Accident du travail</td>
+                            <td style="padding: 0.5rem; text-align: right;">${formatCurrency(result.grossSalary)}</td>
+                            <td style="padding: 0.5rem; text-align: right;">${document.getElementById('accidentRate').value}%</td>
+                            <td style="padding: 0.5rem; text-align: right;">${formatCurrency(result.employerCharges.accident)}</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--border);">
+                            <td style="padding: 0.5rem;">Chômage</td>
+                            <td style="padding: 0.5rem; text-align: right;">${formatCurrency(result.grossSalary)}</td>
+                            <td style="padding: 0.5rem; text-align: right;">${EMPLOYER_RATES.unemployment}%</td>
+                            <td style="padding: 0.5rem; text-align: right;">${formatCurrency(result.employerCharges.unemployment)}</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--border);">
+                            <td style="padding: 0.5rem;">Retraite complémentaire T1</td>
+                            <td style="padding: 0.5rem; text-align: right;">${formatCurrency(Math.min(result.grossSalary, PLAFOND_SS))}</td>
+                            <td style="padding: 0.5rem; text-align: right;">${EMPLOYER_RATES.retirementT1}%</td>
+                            <td style="padding: 0.5rem; text-align: right;">${formatCurrency(result.employerCharges.retirementT1)}</td>
+                        </tr>
+                        ${result.status === 'cadre' && result.employerCharges.retirementT2 > 0 ? `
+                        <tr style="border-bottom: 1px solid var(--border);">
+                            <td style="padding: 0.5rem;">Retraite complémentaire T2 (Cadre)</td>
+                            <td style="padding: 0.5rem; text-align: right;">${formatCurrency(Math.max(0, result.grossSalary - PLAFOND_SS))}</td>
+                            <td style="padding: 0.5rem; text-align: right;">${EMPLOYER_RATES.retirementT2}%</td>
+                            <td style="padding: 0.5rem; text-align: right;">${formatCurrency(result.employerCharges.retirementT2)}</td>
+                        </tr>
+                        ` : ''}
+                        <tr style="border-bottom: 1px solid var(--border);">
+                            <td style="padding: 0.5rem;">Versement transport</td>
+                            <td style="padding: 0.5rem; text-align: right;">${formatCurrency(result.grossSalary)}</td>
+                            <td style="padding: 0.5rem; text-align: right;">${document.getElementById('transportRate').value}%</td>
+                            <td style="padding: 0.5rem; text-align: right;">${formatCurrency(result.employerCharges.transport)}</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--border);">
+                            <td style="padding: 0.5rem;">FNAL</td>
+                            <td style="padding: 0.5rem; text-align: right;">${formatCurrency(result.grossSalary)}</td>
+                            <td style="padding: 0.5rem; text-align: right;">${EMPLOYER_RATES.fnal}%</td>
+                            <td style="padding: 0.5rem; text-align: right;">${formatCurrency(result.employerCharges.fnal)}</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--border);">
+                            <td style="padding: 0.5rem;">CSA</td>
+                            <td style="padding: 0.5rem; text-align: right;">${formatCurrency(result.grossSalary)}</td>
+                            <td style="padding: 0.5rem; text-align: right;">${EMPLOYER_RATES.csa}%</td>
+                            <td style="padding: 0.5rem; text-align: right;">${formatCurrency(result.employerCharges.csa)}</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--border);">
+                            <td style="padding: 0.5rem;">AGS</td>
+                            <td style="padding: 0.5rem; text-align: right;">${formatCurrency(result.grossSalary)}</td>
+                            <td style="padding: 0.5rem; text-align: right;">${EMPLOYER_RATES.ags}%</td>
+                            <td style="padding: 0.5rem; text-align: right;">${formatCurrency(result.employerCharges.ags)}</td>
+                        </tr>
+                        <tr style="background: var(--light); font-weight: 600;">
+                            <td style="padding: 0.75rem;" colspan="3">TOTAL CHARGES PATRONALES</td>
+                            <td style="padding: 0.75rem; text-align: right;">${formatCurrency(result.totalEmployerCharges)}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            `;
+
+            // Synthèse
+            const summary = document.getElementById('summary');
+            summary.innerHTML = `
+                <div class="results-grid">
+                    <div class="result-item">
+                        <div class="result-label">Salaire brut</div>
+                        <div class="result-value">${formatCurrency(result.grossSalary)}</div>
+                    </div>
+                    <div class="result-item">
+                        <div class="result-label">Charges salariales (${((result.totalEmployeeCharges / result.grossSalary) * 100).toFixed(2)}%)</div>
+                        <div class="result-value">-${formatCurrency(result.totalEmployeeCharges)}</div>
+                    </div>
+                    <div class="result-item highlight">
+                        <div class="result-label">Salaire net</div>
+                        <div class="result-value">${formatCurrency(result.netSalary)}</div>
+                    </div>
+                    <div class="result-item">
+                        <div class="result-label">Charges patronales (${((result.totalEmployerCharges / result.grossSalary) * 100).toFixed(2)}%)</div>
+                        <div class="result-value">+${formatCurrency(result.totalEmployerCharges)}</div>
+                    </div>
+                    <div class="result-item highlight">
+                        <div class="result-label">Coût total employeur</div>
+                        <div class="result-value">${formatCurrency(result.totalCost)}</div>
+                    </div>
+                    <div class="result-item">
+                        <div class="result-label">Ratio Net/Brut</div>
+                        <div class="result-value">${((result.netSalary / result.grossSalary) * 100).toFixed(2)}%</div>
+                    </div>
+                </div>
+                <div style="margin-top: 2rem; padding: 1rem; background: var(--light); border-radius: var(--radius-md);">
+                    <h4 style="margin-bottom: 1rem;">Synthèse annuelle</h4>
+                    <div class="results-grid">
+                        <div class="result-item">
+                            <div class="result-label">Brut annuel</div>
+                            <div class="result-value">${formatCurrency(result.grossSalary * 12)}</div>
+                        </div>
+                        <div class="result-item">
+                            <div class="result-label">Net annuel</div>
+                            <div class="result-value">${formatCurrency(result.netSalary * 12)}</div>
+                        </div>
+                        <div class="result-item">
+                            <div class="result-label">Coût annuel employeur</div>
+                            <div class="result-value">${formatCurrency(result.totalCost * 12)}</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
             document.getElementById('results').style.display = 'block';
-            showNotification('Opération réussie !', 'success');
+            scrollToElement('#results', 100);
+        }
+
+        // Export CSV
+        function exportToCSV(result) {
+            let csv = 'Calculateur Charges Sociales - Synoptia\n\n';
+            csv += `Salaire brut mensuel,${result.grossSalary.toFixed(2)}\n`;
+            csv += `Statut,${result.status}\n\n`;
+
+            csv += 'Charges salariales\n';
+            csv += 'Cotisation,Montant (€)\n';
+            csv += `Vieillesse plafonnée,${result.employeeCharges.oldAgeCapped.toFixed(2)}\n`;
+            csv += `Vieillesse déplafonnée,${result.employeeCharges.oldAgeUncapped.toFixed(2)}\n`;
+            csv += `Retraite complémentaire T1,${result.employeeCharges.retirementT1.toFixed(2)}\n`;
+            if (result.status === 'cadre') csv += `Retraite complémentaire T2,${result.employeeCharges.retirementT2.toFixed(2)}\n`;
+            csv += `CSG déductible,${result.employeeCharges.csgDeductible.toFixed(2)}\n`;
+            csv += `CSG non déductible,${result.employeeCharges.csgNonDeductible.toFixed(2)}\n`;
+            csv += `CRDS,${result.employeeCharges.crds.toFixed(2)}\n`;
+            if (result.employeeCharges.mutuelle > 0) csv += `Mutuelle,${result.employeeCharges.mutuelle.toFixed(2)}\n`;
+            csv += `Total charges salariales,${result.totalEmployeeCharges.toFixed(2)}\n\n`;
+
+            csv += `Salaire net,${result.netSalary.toFixed(2)}\n\n`;
+
+            csv += 'Charges patronales\n';
+            csv += 'Cotisation,Montant (€)\n';
+            Object.keys(result.employerCharges).forEach(key => {
+                csv += `${key},${result.employerCharges[key].toFixed(2)}\n`;
+            });
+            csv += `Total charges patronales,${result.totalEmployerCharges.toFixed(2)}\n\n`;
+            csv += `Coût total employeur,${result.totalCost.toFixed(2)}\n`;
+
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `charges-sociales-${Date.now()}.csv`;
+            link.click();
+            showNotification('Export CSV réussi !', 'success');
+        }
+
+        // Event Listeners
+        let lastResult = null;
+
+        document.getElementById('taxesForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            lastResult = calculatePayrollTaxes();
+            displayResults(lastResult);
+            showNotification('Calcul effectué avec succès !', 'success');
         });
-        window.addEventListener('load', () => document.getElementById('mainForm').dispatchEvent(new Event('submit')));
+
+        document.getElementById('saveBtn').addEventListener('click', saveToLocalStorage);
+
+        document.getElementById('exportCsvBtn').addEventListener('click', function() {
+            if (lastResult) exportToCSV(lastResult);
+        });
+
+        document.getElementById('printBtn').addEventListener('click', function() {
+            window.print();
+        });
+
+        // Charger au démarrage
+        window.addEventListener('load', loadFromLocalStorage);
     </script>
 </body>
 </html>

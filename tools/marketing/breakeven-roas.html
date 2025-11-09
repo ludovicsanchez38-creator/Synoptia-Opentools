@@ -3,101 +3,381 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculateur Break-even ROAS - Business Tools</title>
+    <title>Calculateur Break-even ROAS - Business Tools by Synoptia</title>
     <link rel="stylesheet" href="../../assets/css/main.css">
     <link rel="stylesheet" href="../../assets/css/tools.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .comparison-card {
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        .comparison-item {
+            text-align: center;
+            padding: 1rem;
+            background: var(--light);
+            border-radius: var(--radius-md);
+        }
+        .comparison-label {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+        }
+        .comparison-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+        #roasChart {
+            max-width: 600px;
+            margin: 2rem auto;
+        }
+    </style>
 </head>
 <body>
     <nav class="breadcrumb">
-        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> > <a href="../../index.html#tools">Marketing</a> > <span>Break-even ROAS</span>
+        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> >
+        <a href="../../index.html#tools">Marketing</a> >
+        <span>Break-even ROAS</span>
     </nav>
 
     <main class="tool-container">
         <header class="tool-header">
-            <h1><i class="fas fa-balance-scale"></i> Calculateur de Break-even ROAS</h1>
-            <p class="tool-description">Trouvez le ROAS minimum nécessaire pour atteindre la rentabilité de vos campagnes.</p>
+            <h1><i class="fas fa-balance-scale"></i> Calculateur Break-even ROAS</h1>
+            <p class="tool-description">Déterminez le ROAS minimum nécessaire pour atteindre la rentabilité de vos campagnes publicitaires.</p>
         </header>
 
         <section class="tool-input">
-            <h2>Données économiques</h2>
+            <h2>Données de rentabilité</h2>
             <form id="breakevenForm">
                 <div class="input-grid">
                     <div class="form-group">
-                        <label for="marginPercent" class="form-label"><i class="fas fa-percent"></i> Marge bénéficiaire (%)</label>
-                        <input type="number" id="marginPercent" class="form-input" placeholder="Ex: 40" min="1" max="100" step="0.1" value="40" required>
-                        <span class="form-help">Marge sur le prix de vente</span>
+                        <label for="profitMargin" class="form-label"><i class="fas fa-percentage"></i> Marge bénéficiaire (%)</label>
+                        <input type="number" id="profitMargin" class="form-input" placeholder="Ex: 30" min="0.01" max="100" step="0.01" value="30" required>
+                        <span class="form-help">Marge nette sur vos ventes</span>
+                    </div>
+                    <div class="form-group">
+                        <label for="currentRoas" class="form-label"><i class="fas fa-chart-line"></i> ROAS actuel (optionnel)</label>
+                        <input type="number" id="currentRoas" class="form-input" placeholder="Ex: 4" min="0" step="0.01" value="4">
+                        <span class="form-help">Pour comparaison avec le seuil</span>
+                    </div>
+                    <div class="form-group">
+                        <label for="additionalCosts" class="form-label"><i class="fas fa-coins"></i> Coûts additionnels (%)</label>
+                        <input type="number" id="additionalCosts" class="form-input" placeholder="Ex: 5" min="0" max="100" step="0.01" value="0">
+                        <span class="form-help">Frais de traitement, livraison, etc.</span>
                     </div>
                 </div>
                 <div class="action-buttons">
                     <button type="submit" class="btn btn-primary"><i class="fas fa-calculator"></i> Calculer</button>
+                    <button type="button" class="btn btn-outline" id="resetBtn"><i class="fas fa-redo"></i> Réinitialiser</button>
                 </div>
             </form>
         </section>
 
         <section class="tool-output" id="results" style="display: none;">
             <h2><i class="fas fa-chart-bar"></i> Résultats</h2>
+
             <div class="results-grid">
                 <div class="result-item">
                     <div class="result-label">Break-even ROAS</div>
-                    <div class="result-value highlight" id="breakEvenROAS">-</div>
-                </div>
-                <div class="result-item success">
-                    <div class="result-label">ROAS cible recommandé</div>
-                    <div class="result-value success" id="targetROAS">-</div>
+                    <div class="result-value highlight" id="breakevenRoas">-</div>
                 </div>
                 <div class="result-item">
-                    <div class="result-label">Marge utilisée</div>
-                    <div class="result-value" id="margin">-</div>
+                    <div class="result-label">Marge nette ajustée</div>
+                    <div class="result-value" id="adjustedMargin">-</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">ROAS cible recommandé</div>
+                    <div class="result-value success" id="targetRoas">-</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Statut actuel</div>
+                    <div class="result-value" id="status">-</div>
                 </div>
             </div>
-            <div class="alert alert-info">
-                <strong>💡 Conseil :</strong> Visez un ROAS supérieur au break-even pour générer du profit.
-                Pour couvrir vos frais généraux, visez le ROAS cible recommandé.
+
+            <div class="alert" id="interpretation"></div>
+
+            <div class="comparison-card" id="comparisonSection" style="display: none;">
+                <h3><i class="fas fa-exchange-alt"></i> Comparaison avec votre ROAS actuel</h3>
+                <div class="comparison-grid">
+                    <div class="comparison-item">
+                        <div class="comparison-label">Votre ROAS actuel</div>
+                        <div class="comparison-value" id="currentRoasDisplay">-</div>
+                    </div>
+                    <div class="comparison-item">
+                        <div class="comparison-label">Seuil de rentabilité</div>
+                        <div class="comparison-value" id="breakevenDisplay">-</div>
+                    </div>
+                    <div class="comparison-item">
+                        <div class="comparison-label">Écart</div>
+                        <div class="comparison-value" id="difference">-</div>
+                    </div>
+                    <div class="comparison-item">
+                        <div class="comparison-label">Marge de sécurité</div>
+                        <div class="comparison-value" id="safetyMargin">-</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="comparison-card">
+                <h3><i class="fas fa-chart-area"></i> Visualisation du seuil de rentabilité</h3>
+                <canvas id="roasChart"></canvas>
+            </div>
+
+            <div class="comparison-card">
+                <h3><i class="fas fa-table"></i> Exemples selon votre marge</h3>
+                <div id="examplesTable"></div>
             </div>
         </section>
 
         <section class="tool-help">
             <h3><i class="fas fa-question-circle"></i> Comment utiliser cet outil ?</h3>
             <ol>
-                <li>Entrez votre <strong>marge bénéficiaire</strong> en pourcentage</li>
+                <li>Entrez votre <strong>marge bénéficiaire</strong> (en pourcentage du chiffre d'affaires)</li>
+                <li>Ajoutez vos <strong>coûts additionnels</strong> si nécessaire (frais de livraison, traitement...)</li>
+                <li>Indiquez votre <strong>ROAS actuel</strong> pour comparer avec le seuil de rentabilité</li>
                 <li>Obtenez le <strong>ROAS minimum</strong> pour être rentable</li>
-                <li>Utilisez cette valeur comme objectif pour vos campagnes</li>
             </ol>
+
             <h3><i class="fas fa-calculator"></i> Formule</h3>
-            <code>Break-even ROAS = 1 / (Marge / 100)\n\nExemple : Marge 40% → ROAS = 1 / 0.40 = 2.5</code>
+            <code>Break-even ROAS = 1 / Marge nette ajustée
+Marge nette ajustée = Marge bénéficiaire - Coûts additionnels
+
+Exemple: Avec 30% de marge et 5% de coûts additionnels:
+Marge ajustée = 30% - 5% = 25% = 0.25
+Break-even ROAS = 1 / 0.25 = 4:1</code>
+
+            <h3><i class="fas fa-lightbulb"></i> Interprétation</h3>
+            <ul>
+                <li><strong>Break-even ROAS = 4:1</strong> signifie que vous devez générer 4€ de revenus pour chaque 1€ investi pour être rentable</li>
+                <li><strong>ROAS cible</strong> : Visez 1.5x à 2x votre break-even pour une marge de sécurité</li>
+                <li><strong>Plus votre marge est faible</strong>, plus le ROAS requis est élevé</li>
+                <li><strong>Marges typiques</strong> : E-commerce 20-40%, Services 40-60%, SaaS 60-80%</li>
+            </ul>
         </section>
     </main>
 
-    <footer class="tool-footer"><a href="../../index.html"><i class="fas fa-arrow-left"></i> Retour aux outils</a></footer>
+    <footer class="tool-footer">
+        <a href="../../index.html"><i class="fas fa-arrow-left"></i> Retour aux outils</a>
+        <span style="margin-left: auto; color: var(--text-secondary);">Synoptia - ludo@synoptia.fr</span>
+    </footer>
 
     <script src="../../assets/js/utils.js"></script>
     <script src="../../assets/js/main.js"></script>
     <script>
+        let roasChart = null;
+
         document.getElementById('breakevenForm').addEventListener('submit', function(e) {
             e.preventDefault();
-            const marginPercent = parseFloat(document.getElementById('marginPercent').value);
+            calculate();
+        });
 
-            if (marginPercent <= 0 || marginPercent > 100) {
-                showNotification('La marge doit être entre 1 et 100%', 'error');
+        document.getElementById('resetBtn').addEventListener('click', function() {
+            document.getElementById('breakevenForm').reset();
+            document.getElementById('results').style.display = 'none';
+            if (roasChart) {
+                roasChart.destroy();
+                roasChart = null;
+            }
+        });
+
+        function calculate() {
+            const profitMargin = parseFloat(document.getElementById('profitMargin').value);
+            const currentRoas = parseFloat(document.getElementById('currentRoas').value) || 0;
+            const additionalCosts = parseFloat(document.getElementById('additionalCosts').value) || 0;
+
+            // Calculate adjusted margin
+            const adjustedMargin = profitMargin - additionalCosts;
+
+            if (adjustedMargin <= 0) {
+                showNotification('La marge ajustée doit être positive', 'error');
                 return;
             }
 
-            const margin = marginPercent / 100;
-            const breakEvenROAS = 1 / margin;
-            const targetROAS = breakEvenROAS * 1.5; // Recommandation : 50% au-dessus du break-even
+            const adjustedMarginDecimal = adjustedMargin / 100;
 
-            document.getElementById('breakEvenROAS').innerHTML = breakEvenROAS.toFixed(2) + '<span class="result-unit">:1</span>';
-            document.getElementById('targetROAS').innerHTML = targetROAS.toFixed(2) + '<span class="result-unit">:1</span>';
-            document.getElementById('margin').textContent = formatPercentage(marginPercent);
+            // Calculate break-even ROAS
+            const breakevenRoas = 1 / adjustedMarginDecimal;
+
+            // Calculate target ROAS (1.5x break-even for safety)
+            const targetRoas = breakevenRoas * 1.5;
+
+            // Display results
+            document.getElementById('breakevenRoas').innerHTML = breakevenRoas.toFixed(2) + '<span class="result-unit">:1</span>';
+            document.getElementById('adjustedMargin').textContent = adjustedMargin.toFixed(2) + '%';
+            document.getElementById('targetRoas').innerHTML = targetRoas.toFixed(2) + '<span class="result-unit">:1</span>';
+
+            // Interpretation
+            let interpretation = '';
+            let alertClass = 'alert-info';
+            let statusText = '';
+
+            if (currentRoas > 0) {
+                document.getElementById('comparisonSection').style.display = 'block';
+                document.getElementById('currentRoasDisplay').textContent = currentRoas.toFixed(2) + ':1';
+                document.getElementById('breakevenDisplay').textContent = breakevenRoas.toFixed(2) + ':1';
+
+                const difference = currentRoas - breakevenRoas;
+                const safetyMargin = ((currentRoas / breakevenRoas - 1) * 100);
+
+                document.getElementById('difference').textContent = (difference >= 0 ? '+' : '') + difference.toFixed(2);
+                document.getElementById('difference').style.color = difference >= 0 ? 'var(--success)' : 'var(--danger)';
+                document.getElementById('safetyMargin').textContent = safetyMargin.toFixed(1) + '%';
+                document.getElementById('safetyMargin').style.color = safetyMargin >= 50 ? 'var(--success)' : safetyMargin >= 0 ? 'var(--warning)' : 'var(--danger)';
+
+                if (currentRoas >= targetRoas) {
+                    interpretation = '<strong>🚀 Excellent !</strong> Votre ROAS actuel (' + currentRoas.toFixed(2) + ':1) dépasse largement le seuil de rentabilité. Vous avez une bonne marge de sécurité.';
+                    alertClass = 'alert-success';
+                    statusText = 'Très rentable ✓✓';
+                } else if (currentRoas >= breakevenRoas) {
+                    interpretation = '<strong>👍 Rentable</strong> : Votre ROAS actuel (' + currentRoas.toFixed(2) + ':1) est au-dessus du seuil, mais pourrait être optimisé pour plus de sécurité. Visez ' + targetRoas.toFixed(2) + ':1.';
+                    alertClass = 'alert-success';
+                    statusText = 'Rentable ✓';
+                } else {
+                    interpretation = '<strong>⚠️ Attention !</strong> Votre ROAS actuel (' + currentRoas.toFixed(2) + ':1) est en dessous du seuil de rentabilité (' + breakevenRoas.toFixed(2) + ':1). Vous perdez de l\'argent sur cette campagne.';
+                    alertClass = 'alert-danger';
+                    statusText = 'Non rentable ✗';
+                }
+            } else {
+                document.getElementById('comparisonSection').style.display = 'none';
+                interpretation = '<strong>Seuil calculé :</strong> Pour être rentable avec ' + adjustedMargin.toFixed(2) + '% de marge nette, vous devez atteindre un ROAS d\'au moins ' + breakevenRoas.toFixed(2) + ':1. Pour plus de sécurité, visez ' + targetRoas.toFixed(2) + ':1.';
+                alertClass = 'alert-info';
+                statusText = 'À évaluer';
+            }
+
+            document.getElementById('status').textContent = statusText;
+            const interpDiv = document.getElementById('interpretation');
+            interpDiv.className = `alert ${alertClass}`;
+            interpDiv.innerHTML = interpretation;
+
+            // Create chart
+            createChart(breakevenRoas, targetRoas, currentRoas);
+
+            // Create examples table
+            createExamplesTable(adjustedMarginDecimal, breakevenRoas);
 
             document.getElementById('results').style.display = 'block';
             scrollToElement('#results', 100);
             showNotification('Calcul effectué !', 'success');
-        });
+        }
 
-        window.addEventListener('load', () => document.getElementById('breakevenForm').dispatchEvent(new Event('submit')));
+        function createChart(breakevenRoas, targetRoas, currentRoas) {
+            const ctx = document.getElementById('roasChart');
+
+            if (roasChart) {
+                roasChart.destroy();
+            }
+
+            const datasets = [
+                {
+                    label: 'Break-even ROAS',
+                    data: [breakevenRoas],
+                    backgroundColor: 'rgba(255, 193, 7, 0.7)',
+                    borderColor: 'rgba(255, 193, 7, 1)',
+                    borderWidth: 2
+                },
+                {
+                    label: 'ROAS cible (recommandé)',
+                    data: [targetRoas],
+                    backgroundColor: 'rgba(40, 167, 69, 0.7)',
+                    borderColor: 'rgba(40, 167, 69, 1)',
+                    borderWidth: 2
+                }
+            ];
+
+            if (currentRoas > 0) {
+                datasets.push({
+                    label: 'Votre ROAS actuel',
+                    data: [currentRoas],
+                    backgroundColor: 'rgba(0, 123, 255, 0.7)',
+                    borderColor: 'rgba(0, 123, 255, 1)',
+                    borderWidth: 2
+                });
+            }
+
+            roasChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Comparaison ROAS'],
+                    datasets: datasets
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'ROAS (ratio)'
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'bottom'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': ' + context.parsed.y.toFixed(2) + ':1';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function createExamplesTable(marginDecimal, breakevenRoas) {
+            const html = `
+                <table style="width: 100%; border-collapse: collapse; margin-top: 1rem;">
+                    <thead style="background: var(--primary); color: white;">
+                        <tr>
+                            <th style="padding: 0.75rem; text-align: left;">Budget pub</th>
+                            <th style="padding: 0.75rem; text-align: right;">Revenus minimum</th>
+                            <th style="padding: 0.75rem; text-align: right;">ROAS</th>
+                            <th style="padding: 0.75rem; text-align: right;">Profit net</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${[500, 1000, 2000, 5000, 10000].map(b => {
+                            const rev = b * breakevenRoas;
+                            const p = rev * marginDecimal;
+                            return `
+                                <tr style="border-bottom: 1px solid var(--border);">
+                                    <td style="padding: 0.75rem;">${formatCurrency(b)}</td>
+                                    <td style="padding: 0.75rem; text-align: right;">${formatCurrency(rev)}</td>
+                                    <td style="padding: 0.75rem; text-align: right; font-weight: 600; color: var(--primary);">${breakevenRoas.toFixed(2)}:1</td>
+                                    <td style="padding: 0.75rem; text-align: right; color: var(--success);">${formatCurrency(p)}</td>
+                                </tr>
+                            `;
+                        }).join('')}
+                    </tbody>
+                </table>
+                <p style="margin-top: 1rem; font-size: 0.875rem; color: var(--text-secondary);">
+                    <i class="fas fa-info-circle"></i> Ces exemples montrent les revenus minimum à générer pour chaque budget pour atteindre le break-even.
+                </p>
+            `;
+
+            document.getElementById('examplesTable').innerHTML = html;
+        }
+
+        // Auto-calculate on load
+        window.addEventListener('load', calculate);
     </script>
 </body>
 </html>

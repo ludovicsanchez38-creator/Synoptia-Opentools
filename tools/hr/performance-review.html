@@ -3,57 +3,513 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Outil Business - Business Tools</title>
+    <title>Évaluation de Performance - Business Tools by Synoptia</title>
     <link rel="stylesheet" href="../../assets/css/main.css">
     <link rel="stylesheet" href="../../assets/css/tools.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        .rating-group {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        .rating-label {
+            flex: 1;
+            font-weight: 500;
+        }
+        .star-rating {
+            display: flex;
+            gap: 0.25rem;
+        }
+        .star {
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #ddd;
+            transition: color 0.2s;
+        }
+        .star.active,
+        .star:hover {
+            color: #ffc107;
+        }
+        .review-card {
+            padding: 1.5rem;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            margin-bottom: 1rem;
+            background: white;
+        }
+        .review-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        .score-badge {
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius-md);
+            font-weight: 700;
+            font-size: 1.25rem;
+        }
+        .score-excellent { background: #d4edda; color: #155724; }
+        .score-good { background: #d1ecf1; color: #0c5460; }
+        .score-average { background: #fff3cd; color: #856404; }
+        .score-poor { background: #f8d7da; color: #721c24; }
+        .chart-container {
+            position: relative;
+            height: 400px;
+            margin: 2rem auto;
+            max-width: 600px;
+        }
+        @media (max-width: 768px) {
+            .rating-group {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .chart-container {
+                height: 300px;
+            }
+        }
+    </style>
 </head>
 <body>
     <nav class="breadcrumb">
-        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> > 
-        <a href="../../index.html#tools">RH</a> > 
-        <span>Outil</span>
+        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> >
+        <a href="../../index.html#tools">RH</a> >
+        <span>Évaluation de Performance</span>
     </nav>
     <main class="tool-container">
         <header class="tool-header">
-            <h1><i class="fas fa-tools"></i> Outil Business</h1>
-            <p class="tool-description">Outil professionnel pour optimiser votre activité.</p>
+            <h1><i class="fas fa-star"></i> Évaluation de Performance</h1>
+            <p class="tool-description">Évaluez les compétences de vos employés avec un système de notation par étoiles et visualisez les résultats avec un graphique radar.</p>
         </header>
+
         <section class="tool-input">
-            <form id="mainForm">
-                <div class="form-group">
-                    <label for="input1" class="form-label">Donnée d'entrée</label>
-                    <input type="number" id="input1" class="form-input" value="100" min="0" required>
-                </div>
-                <button type="submit" class="btn btn-primary"><i class="fas fa-calculator"></i> Calculer</button>
-            </form>
-        </section>
-        <section class="tool-output" id="results" style="display: none;">
-            <div class="results-grid">
-                <div class="result-item">
-                    <div class="result-label">Résultat</div>
-                    <div class="result-value highlight" id="result">-</div>
-                </div>
+            <div class="card">
+                <h3><i class="fas fa-clipboard-check"></i> Nouvelle évaluation</h3>
+                <form id="reviewForm">
+                    <div class="input-grid">
+                        <div class="form-group">
+                            <label for="employeeName" class="form-label">Nom de l'employé</label>
+                            <input type="text" id="employeeName" class="form-input" placeholder="Nom Prénom" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="reviewDate" class="form-label">Date d'évaluation</label>
+                            <input type="date" id="reviewDate" class="form-input" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="position" class="form-label">Poste</label>
+                            <input type="text" id="position" class="form-input" placeholder="Développeur, Manager..." required>
+                        </div>
+                        <div class="form-group">
+                            <label for="reviewer" class="form-label">Évaluateur</label>
+                            <input type="text" id="reviewer" class="form-input" placeholder="Nom de l'évaluateur" required>
+                        </div>
+                    </div>
+
+                    <h4 style="margin-top: 2rem;">Compétences (1-5 étoiles)</h4>
+                    <div id="skillsRatings"></div>
+
+                    <div class="form-group" style="margin-top: 2rem;">
+                        <label for="objectives" class="form-label">Objectifs atteints</label>
+                        <textarea id="objectives" class="form-input" rows="3" placeholder="Liste des objectifs atteints durant la période évaluée"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="improvements" class="form-label">Axes d'amélioration</label>
+                        <textarea id="improvements" class="form-input" rows="3" placeholder="Points à améliorer et recommandations"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="comments" class="form-label">Commentaires généraux</label>
+                        <textarea id="comments" class="form-input" rows="3" placeholder="Commentaires supplémentaires"></textarea>
+                    </div>
+
+                    <div class="action-buttons" style="margin-top: 2rem;">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="fas fa-save"></i> Enregistrer l'évaluation
+                        </button>
+                        <button type="button" class="btn btn-secondary" id="exportCSVBtn">
+                            <i class="fas fa-file-csv"></i> Exporter CSV
+                        </button>
+                        <button type="button" class="btn btn-danger" id="clearAllBtn">
+                            <i class="fas fa-trash"></i> Tout effacer
+                        </button>
+                    </div>
+                </form>
             </div>
         </section>
+
+        <section class="tool-output">
+            <div class="card">
+                <h3><i class="fas fa-chart-radar"></i> Graphique de compétences</h3>
+                <div class="chart-container">
+                    <canvas id="radarChart"></canvas>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3><i class="fas fa-history"></i> Historique des évaluations</h3>
+                <div class="form-group" style="max-width: 300px;">
+                    <label for="filterEmployee" class="form-label">Filtrer par employé</label>
+                    <select id="filterEmployee" class="form-select">
+                        <option value="">Tous les employés</option>
+                    </select>
+                </div>
+                <div id="reviewsList"></div>
+            </div>
+        </section>
+
         <section class="tool-help">
-            <h3><i class="fas fa-info-circle"></i> Aide</h3>
-            <p>Utilisez cet outil pour optimiser votre gestion d'entreprise.</p>
+            <h3><i class="fas fa-question-circle"></i> Guide d'utilisation</h3>
+            <ul>
+                <li><strong>Évaluation par étoiles :</strong> Notez chaque compétence de 1 à 5 étoiles (1 = insuffisant, 5 = excellent)</li>
+                <li><strong>Graphique radar :</strong> Visualisez le profil de compétences de l'employé en un coup d'œil</li>
+                <li><strong>Score global :</strong> Moyenne automatique de toutes les compétences évaluées</li>
+                <li><strong>Historique :</strong> Consultez les évaluations passées pour suivre la progression</li>
+                <li><strong>Export CSV :</strong> Exportez toutes les évaluations pour analyse externe</li>
+            </ul>
+
+            <h3><i class="fas fa-info-circle"></i> Échelle de notation</h3>
+            <ul>
+                <li><strong>5 étoiles :</strong> Excellent - Dépasse largement les attentes</li>
+                <li><strong>4 étoiles :</strong> Très bon - Dépasse les attentes</li>
+                <li><strong>3 étoiles :</strong> Bon - Répond aux attentes</li>
+                <li><strong>2 étoiles :</strong> Satisfaisant - Répond partiellement aux attentes</li>
+                <li><strong>1 étoile :</strong> Insuffisant - Ne répond pas aux attentes</li>
+            </ul>
         </section>
     </main>
-    <footer class="tool-footer"><a href="../../index.html"><i class="fas fa-arrow-left"></i> Retour</a></footer>
+
+    <footer class="tool-footer">
+        <a href="../../index.html"><i class="fas fa-arrow-left"></i> Retour aux outils</a>
+        <span style="margin-left: auto;">Synoptia - <a href="mailto:ludo@synoptia.fr">ludo@synoptia.fr</a></span>
+    </footer>
+
     <script src="../../assets/js/utils.js"></script>
     <script src="../../assets/js/main.js"></script>
     <script>
-        document.getElementById('mainForm').addEventListener('submit', function(e) {
+        // Compétences à évaluer
+        const skills = [
+            'Compétences techniques',
+            'Communication',
+            'Travail d\'équipe',
+            'Autonomie',
+            'Créativité',
+            'Respect des délais',
+            'Qualité du travail',
+            'Leadership'
+        ];
+
+        let reviews = JSON.parse(localStorage.getItem('performanceReviews') || '[]');
+        let currentRatings = {};
+        let radarChart = null;
+
+        // Initialiser les notes
+        document.getElementById('reviewDate').valueAsDate = new Date();
+
+        // Créer les contrôles de notation
+        function createRatingControls() {
+            const container = document.getElementById('skillsRatings');
+            container.innerHTML = skills.map((skill, index) => `
+                <div class="rating-group">
+                    <div class="rating-label">${skill}</div>
+                    <div class="star-rating" data-skill="${index}">
+                        ${[1, 2, 3, 4, 5].map(star =>
+                            `<i class="fas fa-star star" data-star="${star}"></i>`
+                        ).join('')}
+                    </div>
+                </div>
+            `).join('');
+
+            // Événements de notation
+            document.querySelectorAll('.star-rating').forEach(ratingDiv => {
+                const skillIndex = ratingDiv.dataset.skill;
+                ratingDiv.querySelectorAll('.star').forEach(star => {
+                    star.addEventListener('click', function() {
+                        const rating = parseInt(this.dataset.star);
+                        currentRatings[skills[skillIndex]] = rating;
+                        updateStars(ratingDiv, rating);
+                        updateRadarChart();
+                    });
+                });
+            });
+
+            // Initialiser toutes les compétences à 3
+            skills.forEach(skill => {
+                currentRatings[skill] = 3;
+            });
+            updateAllStars();
+            updateRadarChart();
+        }
+
+        function updateStars(ratingDiv, rating) {
+            ratingDiv.querySelectorAll('.star').forEach((star, index) => {
+                star.classList.toggle('active', index < rating);
+            });
+        }
+
+        function updateAllStars() {
+            document.querySelectorAll('.star-rating').forEach(ratingDiv => {
+                const skillIndex = ratingDiv.dataset.skill;
+                const rating = currentRatings[skills[skillIndex]] || 0;
+                updateStars(ratingDiv, rating);
+            });
+        }
+
+        // Graphique radar
+        function createRadarChart() {
+            const ctx = document.getElementById('radarChart').getContext('2d');
+            radarChart = new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: skills,
+                    datasets: [{
+                        label: 'Évaluation',
+                        data: skills.map(skill => currentRatings[skill] || 0),
+                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 2,
+                        pointBackgroundColor: 'rgba(54, 162, 235, 1)',
+                        pointBorderColor: '#fff',
+                        pointHoverBackgroundColor: '#fff',
+                        pointHoverBorderColor: 'rgba(54, 162, 235, 1)'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            beginAtZero: true,
+                            min: 0,
+                            max: 5,
+                            ticks: {
+                                stepSize: 1
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateRadarChart() {
+            if (radarChart) {
+                radarChart.data.datasets[0].data = skills.map(skill => currentRatings[skill] || 0);
+                radarChart.update();
+            }
+        }
+
+        // Soumettre l'évaluation
+        document.getElementById('reviewForm').addEventListener('submit', function(e) {
             e.preventDefault();
-            const val = parseFloat(document.getElementById('input1').value);
-            document.getElementById('result').textContent = val.toFixed(2);
-            document.getElementById('results').style.display = 'block';
-            showNotification('Opération réussie !', 'success');
+
+            const review = {
+                id: Date.now(),
+                employeeName: document.getElementById('employeeName').value,
+                reviewDate: document.getElementById('reviewDate').value,
+                position: document.getElementById('position').value,
+                reviewer: document.getElementById('reviewer').value,
+                ratings: { ...currentRatings },
+                objectives: document.getElementById('objectives').value,
+                improvements: document.getElementById('improvements').value,
+                comments: document.getElementById('comments').value,
+                averageScore: calculateAverage(currentRatings)
+            };
+
+            reviews.push(review);
+            saveReviews();
+            updateReviewsList();
+            updateEmployeeFilter();
+
+            this.reset();
+            document.getElementById('reviewDate').valueAsDate = new Date();
+
+            // Réinitialiser les notes à 3
+            skills.forEach(skill => currentRatings[skill] = 3);
+            updateAllStars();
+            updateRadarChart();
+
+            showNotification('Évaluation enregistrée avec succès', 'success');
         });
-        window.addEventListener('load', () => document.getElementById('mainForm').dispatchEvent(new Event('submit')));
+
+        function calculateAverage(ratings) {
+            const values = Object.values(ratings);
+            return (values.reduce((a, b) => a + b, 0) / values.length).toFixed(2);
+        }
+
+        function saveReviews() {
+            localStorage.setItem('performanceReviews', JSON.stringify(reviews));
+        }
+
+        function getScoreClass(score) {
+            if (score >= 4.5) return 'score-excellent';
+            if (score >= 3.5) return 'score-good';
+            if (score >= 2.5) return 'score-average';
+            return 'score-poor';
+        }
+
+        function getScoreLabel(score) {
+            if (score >= 4.5) return 'Excellent';
+            if (score >= 3.5) return 'Très bon';
+            if (score >= 2.5) return 'Satisfaisant';
+            return 'À améliorer';
+        }
+
+        // Afficher la liste des évaluations
+        function updateReviewsList() {
+            const list = document.getElementById('reviewsList');
+            const filter = document.getElementById('filterEmployee').value;
+
+            let filtered = reviews;
+            if (filter) {
+                filtered = reviews.filter(r => r.employeeName === filter);
+            }
+
+            if (filtered.length === 0) {
+                list.innerHTML = '<p style="text-align: center; color: var(--text-secondary);">Aucune évaluation enregistrée</p>';
+                return;
+            }
+
+            list.innerHTML = filtered.sort((a, b) => new Date(b.reviewDate) - new Date(a.reviewDate)).map(review => `
+                <div class="review-card">
+                    <div class="review-header">
+                        <div>
+                            <h4 style="margin: 0;">${review.employeeName}</h4>
+                            <p style="margin: 0.25rem 0; color: var(--text-secondary);">
+                                ${review.position} - ${formatDateShort(review.reviewDate)}
+                            </p>
+                            <p style="margin: 0.25rem 0; font-size: 0.875rem;">
+                                <strong>Évaluateur :</strong> ${review.reviewer}
+                            </p>
+                        </div>
+                        <div style="text-align: center;">
+                            <div class="score-badge ${getScoreClass(review.averageScore)}">
+                                ${review.averageScore}/5
+                            </div>
+                            <div style="font-size: 0.875rem; margin-top: 0.5rem;">${getScoreLabel(review.averageScore)}</div>
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.5rem; margin-top: 1rem;">
+                        ${Object.entries(review.ratings).map(([skill, rating]) => `
+                            <div style="display: flex; justify-content: space-between; padding: 0.5rem; background: var(--light); border-radius: var(--radius-sm);">
+                                <span style="font-size: 0.875rem;">${skill}</span>
+                                <span style="color: #ffc107;">
+                                    ${Array(5).fill('').map((_, i) =>
+                                        `<i class="fas fa-star" style="font-size: 0.75rem; color: ${i < rating ? '#ffc107' : '#ddd'};"></i>`
+                                    ).join('')}
+                                </span>
+                            </div>
+                        `).join('')}
+                    </div>
+
+                    ${review.objectives ? `
+                        <div style="margin-top: 1rem;">
+                            <strong>Objectifs atteints :</strong>
+                            <p style="margin: 0.5rem 0; white-space: pre-wrap;">${review.objectives}</p>
+                        </div>
+                    ` : ''}
+
+                    ${review.improvements ? `
+                        <div style="margin-top: 1rem;">
+                            <strong>Axes d'amélioration :</strong>
+                            <p style="margin: 0.5rem 0; white-space: pre-wrap;">${review.improvements}</p>
+                        </div>
+                    ` : ''}
+
+                    ${review.comments ? `
+                        <div style="margin-top: 1rem;">
+                            <strong>Commentaires :</strong>
+                            <p style="margin: 0.5rem 0; white-space: pre-wrap;">${review.comments}</p>
+                        </div>
+                    ` : ''}
+
+                    <div style="margin-top: 1rem; text-align: right;">
+                        <button class="btn btn-danger btn-sm" onclick="deleteReview(${review.id})">
+                            <i class="fas fa-trash"></i> Supprimer
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Filtre employé
+        function updateEmployeeFilter() {
+            const filter = document.getElementById('filterEmployee');
+            const currentValue = filter.value;
+            const employees = [...new Set(reviews.map(r => r.employeeName))].sort();
+
+            filter.innerHTML = '<option value="">Tous les employés</option>' +
+                employees.map(emp => `<option value="${emp}" ${emp === currentValue ? 'selected' : ''}>${emp}</option>`).join('');
+        }
+
+        document.getElementById('filterEmployee').addEventListener('change', updateReviewsList);
+
+        // Supprimer une évaluation
+        window.deleteReview = function(id) {
+            if (confirm('Voulez-vous vraiment supprimer cette évaluation ?')) {
+                reviews = reviews.filter(r => r.id !== id);
+                saveReviews();
+                updateReviewsList();
+                updateEmployeeFilter();
+                showNotification('Évaluation supprimée', 'success');
+            }
+        };
+
+        // Export CSV
+        document.getElementById('exportCSVBtn').addEventListener('click', function() {
+            if (reviews.length === 0) {
+                showNotification('Aucune évaluation à exporter', 'warning');
+                return;
+            }
+
+            const csv = [
+                ['Employé', 'Poste', 'Date', 'Évaluateur', 'Score moyen', ...skills, 'Objectifs', 'Améliorations', 'Commentaires'],
+                ...reviews.map(r => [
+                    r.employeeName,
+                    r.position,
+                    r.reviewDate,
+                    r.reviewer,
+                    r.averageScore,
+                    ...skills.map(skill => r.ratings[skill]),
+                    r.objectives || '',
+                    r.improvements || '',
+                    r.comments || ''
+                ])
+            ].map(row => row.map(cell => `"${cell}"`).join(',')).join('\n');
+
+            const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `evaluations_${new Date().toISOString().split('T')[0]}.csv`;
+            link.click();
+            showNotification('Export CSV réussi', 'success');
+        });
+
+        // Tout effacer
+        document.getElementById('clearAllBtn').addEventListener('click', function() {
+            if (confirm('Voulez-vous vraiment supprimer toutes les évaluations ? Cette action est irréversible.')) {
+                reviews = [];
+                saveReviews();
+                updateReviewsList();
+                updateEmployeeFilter();
+                showNotification('Toutes les évaluations ont été supprimées', 'success');
+            }
+        });
+
+        // Initialiser
+        createRatingControls();
+        createRadarChart();
+        updateReviewsList();
+        updateEmployeeFilter();
     </script>
 </body>
 </html>

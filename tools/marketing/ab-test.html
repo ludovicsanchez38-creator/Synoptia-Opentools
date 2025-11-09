@@ -3,65 +3,398 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TOOL_TITLE - Business Tools</title>
+    <title>Analyseur de Tests A/B - Business Tools by Synoptia</title>
     <link rel="stylesheet" href="../../assets/css/main.css">
     <link rel="stylesheet" href="../../assets/css/tools.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <nav class="breadcrumb">
-        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> > 
-        <a href="../../index.html#tools">Marketing</a> > 
-        <span>TOOL_TITLE</span>
+        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> >
+        <a href="../../index.html#tools">Marketing</a> >
+        <span>Analyseur de Tests A/B</span>
     </nav>
     <main class="tool-container">
         <header class="tool-header">
-            <h1><i class="fas fa-flask"></i> TOOL_TITLE</h1>
-            <p class="tool-description">Outil marketing pour optimiser vos campagnes.</p>
+            <h1><i class="fas fa-flask"></i> Analyseur de Tests A/B</h1>
+            <p class="tool-description">Comparez deux versions et déterminez le gagnant avec significativité statistique</p>
         </header>
+
         <section class="tool-input">
-            <form id="mainForm">
-                <div class="input-grid">
-                    <div class="form-group">
-                        <label for="input1" class="form-label">Valeur 1</label>
-                        <input type="number" id="input1" class="form-input" value="100" min="0" required>
+            <h2><i class="fas fa-plus-circle"></i> Ajouter un test A/B</h2>
+            <form id="abTestForm">
+                <div class="form-group">
+                    <label for="testName" class="form-label">Nom du test</label>
+                    <input type="text" id="testName" class="form-input" placeholder="Ex: Bouton CTA - Bleu vs Rouge" required>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin: 1.5rem 0;">
+                    <div style="background: white; border: 2px solid var(--primary); border-radius: var(--radius-lg); padding: 1.5rem;">
+                        <h3 style="color: var(--primary); margin-bottom: 1rem;"><i class="fas fa-square-a"></i> Version A (Contrôle)</h3>
+                        <div class="form-group">
+                            <label for="visitorsA" class="form-label">Visiteurs</label>
+                            <input type="number" id="visitorsA" class="form-input" min="0" value="10000" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="conversionsA" class="form-label">Conversions</label>
+                            <input type="number" id="conversionsA" class="form-input" min="0" value="200" required>
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label for="input2" class="form-label">Valeur 2</label>
-                        <input type="number" id="input2" class="form-input" value="50" min="0" required>
+
+                    <div style="background: white; border: 2px solid var(--accent); border-radius: var(--radius-lg); padding: 1.5rem;">
+                        <h3 style="color: var(--accent); margin-bottom: 1rem;"><i class="fas fa-square-b"></i> Version B (Variante)</h3>
+                        <div class="form-group">
+                            <label for="visitorsB" class="form-label">Visiteurs</label>
+                            <input type="number" id="visitorsB" class="form-input" min="0" value="10000" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="conversionsB" class="form-label">Conversions</label>
+                            <input type="number" id="conversionsB" class="form-input" min="0" value="250" required>
+                        </div>
                     </div>
                 </div>
-                <button type="submit" class="btn btn-primary"><i class="fas fa-calculator"></i> Calculer</button>
+
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-calculator"></i> Analyser le test
+                </button>
             </form>
         </section>
+
         <section class="tool-output" id="results" style="display: none;">
+            <h2><i class="fas fa-chart-line"></i> Résultats de l'analyse</h2>
             <div class="results-grid">
                 <div class="result-item">
-                    <div class="result-label">Résultat</div>
-                    <div class="result-value highlight" id="result">-</div>
+                    <div class="result-label">Taux de conversion A</div>
+                    <div class="result-value" id="convRateA">-</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Taux de conversion B</div>
+                    <div class="result-value" id="convRateB">-</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Différence</div>
+                    <div class="result-value highlight" id="difference">-</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Amélioration relative</div>
+                    <div class="result-value" id="improvement">-</div>
                 </div>
             </div>
+
+            <div style="background: white; border-radius: var(--radius-lg); padding: 2rem; margin: 2rem 0;">
+                <h3><i class="fas fa-chart-bar"></i> Visualisation</h3>
+                <div style="position: relative; height: 250px;">
+                    <canvas id="abTestChart"></canvas>
+                </div>
+            </div>
+
+            <div id="significance" style="padding: 1.5rem; border-radius: var(--radius-lg); margin: 2rem 0;"></div>
+
+            <div id="recommendation" style="padding: 1.5rem; border-radius: var(--radius-lg);"></div>
         </section>
+
+        <section class="tool-output" id="historySection" style="display: none;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                <h2><i class="fas fa-history"></i> Historique des tests</h2>
+                <div>
+                    <button class="btn btn-success btn-sm" id="exportBtn">
+                        <i class="fas fa-file-csv"></i> Exporter CSV
+                    </button>
+                    <button class="btn btn-danger btn-sm" id="clearBtn">
+                        <i class="fas fa-trash"></i> Effacer
+                    </button>
+                </div>
+            </div>
+            <div id="testsList"></div>
+        </section>
+
         <section class="tool-help">
-            <h3><i class="fas fa-info-circle"></i> Information</h3>
-            <p>Optimisez vos campagnes marketing avec cet outil.</p>
+            <h3><i class="fas fa-question-circle"></i> Comment utiliser cet outil</h3>
+            <p>Un <strong>test A/B</strong> compare deux versions pour déterminer laquelle performe le mieux.</p>
+            <h4>Formules :</h4>
+            <ul>
+                <li><strong>Taux de conversion</strong> = (Conversions / Visiteurs) × 100</li>
+                <li><strong>Différence</strong> = Taux B - Taux A</li>
+                <li><strong>Amélioration relative</strong> = ((Taux B - Taux A) / Taux A) × 100</li>
+                <li><strong>Test Z</strong> pour significativité statistique (niveau de confiance 95%)</li>
+            </ul>
+            <h4>Interprétation :</h4>
+            <ul>
+                <li><strong>Statistiquement significatif</strong> : Confiance >95% - Vous pouvez déployer le gagnant</li>
+                <li><strong>Non significatif</strong> : Continuez le test ou augmentez l'échantillon</li>
+                <li><strong>Taille d'échantillon</strong> : Plus elle est grande, plus les résultats sont fiables</li>
+            </ul>
         </section>
     </main>
-    <footer class="tool-footer"><a href="../../index.html"><i class="fas fa-arrow-left"></i> Retour</a></footer>
+    <footer class="tool-footer">
+        <p>Développé par <a href="mailto:ludo@synoptia.fr">ludo@synoptia.fr</a> - Synoptia</p>
+    </footer>
+
     <script src="../../assets/js/utils.js"></script>
     <script src="../../assets/js/main.js"></script>
     <script>
-        document.getElementById('mainForm').addEventListener('submit', function(e) {
+        let tests = JSON.parse(localStorage.getItem('abTests')) || [];
+        let chart = null;
+
+        function saveTests() {
+            localStorage.setItem('abTests', JSON.stringify(tests));
+        }
+
+        // Calculate Z-score for statistical significance
+        function calculateZScore(pA, pB, nA, nB) {
+            const pPool = (pA * nA + pB * nB) / (nA + nB);
+            const se = Math.sqrt(pPool * (1 - pPool) * (1/nA + 1/nB));
+            return (pB - pA) / se;
+        }
+
+        function getConfidenceLevel(zScore) {
+            const absZ = Math.abs(zScore);
+            if (absZ >= 2.576) return { level: 99, text: '99%' };
+            if (absZ >= 1.96) return { level: 95, text: '95%' };
+            if (absZ >= 1.645) return { level: 90, text: '90%' };
+            return { level: 0, text: '<90%' };
+        }
+
+        document.getElementById('abTestForm').addEventListener('submit', function(e) {
             e.preventDefault();
-            const val1 = parseFloat(document.getElementById('input1').value);
-            const val2 = parseFloat(document.getElementById('input2').value);
-            const result = val2 > 0 ? (val1 / val2) : 0;
-            document.getElementById('result').textContent = result.toFixed(2);
+
+            const testName = document.getElementById('testName').value;
+            const visitorsA = parseFloat(document.getElementById('visitorsA').value);
+            const conversionsA = parseFloat(document.getElementById('conversionsA').value);
+            const visitorsB = parseFloat(document.getElementById('visitorsB').value);
+            const conversionsB = parseFloat(document.getElementById('conversionsB').value);
+
+            const convRateA = (conversionsA / visitorsA) * 100;
+            const convRateB = (conversionsB / visitorsB) * 100;
+            const difference = convRateB - convRateA;
+            const improvement = ((convRateB - convRateA) / convRateA) * 100;
+
+            // Statistical significance
+            const pA = conversionsA / visitorsA;
+            const pB = conversionsB / visitorsB;
+            const zScore = calculateZScore(pA, pB, visitorsA, visitorsB);
+            const confidence = getConfidenceLevel(zScore);
+            const isSignificant = confidence.level >= 95;
+
+            const test = {
+                id: Date.now(),
+                name: testName,
+                visitorsA,
+                conversionsA,
+                visitorsB,
+                conversionsB,
+                convRateA,
+                convRateB,
+                difference,
+                improvement,
+                zScore,
+                confidence: confidence.text,
+                isSignificant,
+                date: new Date().toISOString()
+            };
+
+            tests.push(test);
+            saveTests();
+
+            // Display results
+            document.getElementById('convRateA').textContent = convRateA.toFixed(2) + '%';
+            document.getElementById('convRateB').textContent = convRateB.toFixed(2) + '%';
+            document.getElementById('difference').textContent = (difference >= 0 ? '+' : '') + difference.toFixed(2) + '%';
+            document.getElementById('improvement').textContent = (improvement >= 0 ? '+' : '') + improvement.toFixed(1) + '%';
+
+            // Color coding
+            const improvementEl = document.getElementById('improvement');
+            improvementEl.style.color = improvement > 0 ? '#4CAF50' : (improvement < 0 ? '#F44336' : '#666');
+
+            // Significance
+            const sigDiv = document.getElementById('significance');
+            if (isSignificant) {
+                sigDiv.style.background = '#E8F5E9';
+                sigDiv.style.border = '2px solid #4CAF50';
+                sigDiv.innerHTML = `
+                    <h3 style="color: #2E7D32; margin-bottom: 0.5rem;">
+                        <i class="fas fa-check-circle"></i> Résultat statistiquement significatif
+                    </h3>
+                    <p style="margin: 0;">Niveau de confiance : <strong>${confidence.text}</strong> | Z-score : <strong>${zScore.toFixed(2)}</strong></p>
+                `;
+            } else {
+                sigDiv.style.background = '#FFF3E0';
+                sigDiv.style.border = '2px solid #FF9800';
+                sigDiv.innerHTML = `
+                    <h3 style="color: #E65100; margin-bottom: 0.5rem;">
+                        <i class="fas fa-exclamation-triangle"></i> Résultat non significatif
+                    </h3>
+                    <p style="margin: 0;">Niveau de confiance : <strong>${confidence.text}</strong> | Z-score : <strong>${zScore.toFixed(2)}</strong></p>
+                    <p style="margin-top: 0.5rem; font-size: 0.9rem;">Augmentez la taille de l'échantillon pour obtenir des résultats plus fiables.</p>
+                `;
+            }
+
+            // Recommendation
+            const recDiv = document.getElementById('recommendation');
+            const winner = convRateB > convRateA ? 'B' : (convRateB < convRateA ? 'A' : 'Égalité');
+            if (isSignificant) {
+                if (winner === 'B') {
+                    recDiv.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+                    recDiv.style.color = 'white';
+                    recDiv.innerHTML = `
+                        <h3 style="margin-bottom: 0.5rem;"><i class="fas fa-trophy"></i> Gagnant : Version B</h3>
+                        <p style="margin: 0;">La version B performe mieux avec une amélioration de <strong>${improvement.toFixed(1)}%</strong>. Vous pouvez la déployer en toute confiance.</p>
+                    `;
+                } else if (winner === 'A') {
+                    recDiv.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+                    recDiv.style.color = 'white';
+                    recDiv.innerHTML = `
+                        <h3 style="margin-bottom: 0.5rem;"><i class="fas fa-trophy"></i> Gagnant : Version A</h3>
+                        <p style="margin: 0;">La version A (contrôle) performe mieux. Conservez-la.</p>
+                    `;
+                }
+            } else {
+                recDiv.style.background = '#F5F5F5';
+                recDiv.style.color = '#333';
+                recDiv.innerHTML = `
+                    <h3 style="margin-bottom: 0.5rem;"><i class="fas fa-hourglass-half"></i> Recommandation</h3>
+                    <p style="margin: 0;">Continuez le test pour obtenir plus de données ou acceptez le risque d'un résultat incertain.</p>
+                `;
+            }
+
+            // Update chart
+            updateChart(convRateA, convRateB);
+
             document.getElementById('results').style.display = 'block';
-            showNotification('Calcul effectué !', 'success');
+            document.getElementById('historySection').style.display = 'block';
+            renderTests();
+
+            this.reset();
+            showNotification('Test A/B analysé !', 'success');
         });
-        window.addEventListener('load', () => document.getElementById('mainForm').dispatchEvent(new Event('submit')));
+
+        function updateChart(rateA, rateB) {
+            const ctx = document.getElementById('abTestChart').getContext('2d');
+
+            if (chart) {
+                chart.destroy();
+            }
+
+            chart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Version A', 'Version B'],
+                    datasets: [{
+                        label: 'Taux de conversion (%)',
+                        data: [rateA, rateB],
+                        backgroundColor: ['#667eea', '#764ba2'],
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return value + '%';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function renderTests() {
+            const list = document.getElementById('testsList');
+            if (tests.length === 0) {
+                list.innerHTML = '<p style="text-align: center; color: var(--text-secondary); padding: 2rem;">Aucun test enregistré</p>';
+                return;
+            }
+
+            const sortedTests = [...tests].reverse();
+            list.innerHTML = sortedTests.map(test => `
+                <div style="background: white; border: 1px solid var(--border); border-radius: var(--radius); padding: 1rem; margin-bottom: 0.75rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div style="flex: 1;">
+                            <h4 style="margin: 0 0 0.5rem 0; color: var(--primary);">${test.name}</h4>
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.5rem; font-size: 0.9rem;">
+                                <div><strong>A:</strong> ${test.convRateA.toFixed(2)}%</div>
+                                <div><strong>B:</strong> ${test.convRateB.toFixed(2)}%</div>
+                                <div><strong>Différence:</strong> <span style="color: ${test.difference > 0 ? '#4CAF50' : '#F44336'};">${(test.difference >= 0 ? '+' : '')}${test.difference.toFixed(2)}%</span></div>
+                                <div><strong>Confiance:</strong> ${test.confidence} ${test.isSignificant ? '✓' : '✗'}</div>
+                            </div>
+                        </div>
+                        <button class="btn btn-danger btn-sm" onclick="deleteTest(${test.id})">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        window.deleteTest = function(id) {
+            if (confirm('Supprimer ce test ?')) {
+                tests = tests.filter(t => t.id !== id);
+                saveTests();
+                renderTests();
+                showNotification('Test supprimé', 'success');
+            }
+        };
+
+        document.getElementById('exportBtn').addEventListener('click', function() {
+            if (tests.length === 0) {
+                showNotification('Aucune donnée à exporter', 'warning');
+                return;
+            }
+
+            const csv = [
+                ['Nom du test', 'Visiteurs A', 'Conversions A', 'Taux A (%)', 'Visiteurs B', 'Conversions B', 'Taux B (%)', 'Différence (%)', 'Amélioration (%)', 'Z-Score', 'Confiance', 'Significatif', 'Date'],
+                ...tests.map(t => [
+                    t.name,
+                    t.visitorsA,
+                    t.conversionsA,
+                    t.convRateA.toFixed(2),
+                    t.visitorsB,
+                    t.conversionsB,
+                    t.convRateB.toFixed(2),
+                    t.difference.toFixed(2),
+                    t.improvement.toFixed(2),
+                    t.zScore.toFixed(2),
+                    t.confidence,
+                    t.isSignificant ? 'Oui' : 'Non',
+                    new Date(t.date).toLocaleDateString('fr-FR')
+                ])
+            ].map(row => row.join(';')).join('\n');
+
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `ab-tests-${new Date().toISOString().split('T')[0]}.csv`;
+            link.click();
+            showNotification('Export CSV téléchargé !', 'success');
+        });
+
+        document.getElementById('clearBtn').addEventListener('click', function() {
+            if (confirm('Effacer toutes les données ? Cette action est irréversible.')) {
+                tests = [];
+                saveTests();
+                renderTests();
+                document.getElementById('historySection').style.display = 'none';
+                showNotification('Données effacées', 'success');
+            }
+        });
+
+        // Initialize
+        if (tests.length > 0) {
+            document.getElementById('historySection').style.display = 'block';
+            renderTests();
+        }
     </script>
 </body>
 </html>

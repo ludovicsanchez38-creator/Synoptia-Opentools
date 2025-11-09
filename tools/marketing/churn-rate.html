@@ -3,65 +3,310 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculateur Taux de Churn - Business Tools</title>
+    <title>Calculateur Taux de Désabonnement - Business Tools by Synoptia</title>
     <link rel="stylesheet" href="../../assets/css/main.css">
     <link rel="stylesheet" href="../../assets/css/tools.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <nav class="breadcrumb">
-        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> > 
-        <a href="../../index.html#tools">Marketing</a> > 
+        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> >
+        <a href="../../index.html#tools">Marketing</a> >
         <span>Calculateur Taux de Churn</span>
     </nav>
     <main class="tool-container">
         <header class="tool-header">
-            <h1><i class="fas fa-user-minus"></i> Calculateur Taux de Churn</h1>
-            <p class="tool-description">Outil marketing pour optimiser vos campagnes.</p>
+            <h1><i class="fas fa-user-minus"></i> Calculateur Taux de Désabonnement (Churn Rate)</h1>
+            <p class="tool-description">Analysez votre taux de désabonnement et identifiez les tendances de rétention client</p>
         </header>
+
         <section class="tool-input">
-            <form id="mainForm">
+            <h2><i class="fas fa-plus-circle"></i> Ajouter une période</h2>
+            <form id="churnForm">
                 <div class="input-grid">
                     <div class="form-group">
-                        <label for="input1" class="form-label">Valeur 1</label>
-                        <input type="number" id="input1" class="form-input" value="100" min="0" required>
+                        <label for="periodName" class="form-label">Période</label>
+                        <input type="text" id="periodName" class="form-input" placeholder="Ex: Janvier 2025" required>
                     </div>
                     <div class="form-group">
-                        <label for="input2" class="form-label">Valeur 2</label>
-                        <input type="number" id="input2" class="form-input" value="50" min="0" required>
+                        <label for="startClients" class="form-label">Clients en début de période</label>
+                        <input type="number" id="startClients" class="form-input" min="0" value="1000" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="lostClients" class="form-label">Clients perdus</label>
+                        <input type="number" id="lostClients" class="form-input" min="0" value="50" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="revenue" class="form-label">Revenu moyen par client (€)</label>
+                        <input type="number" id="revenue" class="form-input" min="0" step="0.01" value="100" required>
                     </div>
                 </div>
-                <button type="submit" class="btn btn-primary"><i class="fas fa-calculator"></i> Calculer</button>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-calculator"></i> Calculer et ajouter
+                </button>
             </form>
         </section>
+
         <section class="tool-output" id="results" style="display: none;">
+            <h2><i class="fas fa-chart-line"></i> Résultats</h2>
             <div class="results-grid">
                 <div class="result-item">
-                    <div class="result-label">Résultat</div>
-                    <div class="result-value highlight" id="result">-</div>
+                    <div class="result-label">Taux de Churn</div>
+                    <div class="result-value highlight" id="churnRate">-</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Taux de Rétention</div>
+                    <div class="result-value" id="retentionRate">-</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Clients restants</div>
+                    <div class="result-value" id="remainingClients">-</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Impact sur le revenu</div>
+                    <div class="result-value" id="revenueImpact">-</div>
                 </div>
             </div>
         </section>
+
+        <section style="background: white; padding: 2rem; border-radius: var(--radius-lg); margin: 2rem 0;" id="chartSection" style="display: none;">
+            <h2><i class="fas fa-chart-bar"></i> Évolution temporelle</h2>
+            <div style="position: relative; height: 350px;">
+                <canvas id="churnChart"></canvas>
+            </div>
+        </section>
+
+        <section class="tool-output" id="historySection" style="display: none;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                <h2><i class="fas fa-history"></i> Historique des périodes</h2>
+                <div>
+                    <button class="btn btn-success btn-sm" id="exportBtn">
+                        <i class="fas fa-file-csv"></i> Exporter CSV
+                    </button>
+                    <button class="btn btn-danger btn-sm" id="clearBtn">
+                        <i class="fas fa-trash"></i> Effacer
+                    </button>
+                </div>
+            </div>
+            <div id="periodsList"></div>
+        </section>
+
         <section class="tool-help">
-            <h3><i class="fas fa-info-circle"></i> Information</h3>
-            <p>Optimisez vos campagnes marketing avec cet outil.</p>
+            <h3><i class="fas fa-question-circle"></i> Comment utiliser cet outil</h3>
+            <p><strong>Le taux de churn (désabonnement)</strong> mesure le pourcentage de clients perdus sur une période donnée.</p>
+            <h4>Formules :</h4>
+            <ul>
+                <li><strong>Churn Rate</strong> = (Clients perdus / Clients début de période) × 100</li>
+                <li><strong>Taux de rétention</strong> = 100 - Churn Rate</li>
+                <li><strong>Impact revenu</strong> = Clients perdus × Revenu moyen par client</li>
+            </ul>
+            <h4>Interprétation :</h4>
+            <ul>
+                <li><strong>Churn < 5%</strong> : Excellente rétention</li>
+                <li><strong>Churn 5-10%</strong> : Bonne rétention</li>
+                <li><strong>Churn 10-20%</strong> : À améliorer</li>
+                <li><strong>Churn > 20%</strong> : Critique, actions urgentes nécessaires</li>
+            </ul>
         </section>
     </main>
-    <footer class="tool-footer"><a href="../../index.html"><i class="fas fa-arrow-left"></i> Retour</a></footer>
+    <footer class="tool-footer">
+        <p>Développé par <a href="mailto:ludo@synoptia.fr">ludo@synoptia.fr</a> - Synoptia</p>
+    </footer>
+
     <script src="../../assets/js/utils.js"></script>
     <script src="../../assets/js/main.js"></script>
     <script>
-        document.getElementById('mainForm').addEventListener('submit', function(e) {
+        let periods = JSON.parse(localStorage.getItem('churnPeriods')) || [];
+        let chart = null;
+
+        function savePeriods() {
+            localStorage.setItem('churnPeriods', JSON.stringify(periods));
+        }
+
+        document.getElementById('churnForm').addEventListener('submit', function(e) {
             e.preventDefault();
-            const val1 = parseFloat(document.getElementById('input1').value);
-            const val2 = parseFloat(document.getElementById('input2').value);
-            const result = val2 > 0 ? (val1 / val2) : 0;
-            document.getElementById('result').textContent = result.toFixed(2);
+
+            const periodName = document.getElementById('periodName').value;
+            const startClients = parseFloat(document.getElementById('startClients').value);
+            const lostClients = parseFloat(document.getElementById('lostClients').value);
+            const revenue = parseFloat(document.getElementById('revenue').value);
+
+            const churnRate = (lostClients / startClients) * 100;
+            const retentionRate = 100 - churnRate;
+            const remainingClients = startClients - lostClients;
+            const revenueImpact = lostClients * revenue;
+
+            const period = {
+                id: Date.now(),
+                name: periodName,
+                startClients,
+                lostClients,
+                revenue,
+                churnRate,
+                retentionRate,
+                remainingClients,
+                revenueImpact,
+                date: new Date().toISOString()
+            };
+
+            periods.push(period);
+            savePeriods();
+
+            // Display current results
+            document.getElementById('churnRate').textContent = churnRate.toFixed(2) + '%';
+            document.getElementById('retentionRate').textContent = retentionRate.toFixed(2) + '%';
+            document.getElementById('remainingClients').textContent = remainingClients.toLocaleString('fr-FR');
+            document.getElementById('revenueImpact').textContent = formatCurrency(revenueImpact);
+
             document.getElementById('results').style.display = 'block';
-            showNotification('Calcul effectué !', 'success');
+            document.getElementById('chartSection').style.display = 'block';
+            document.getElementById('historySection').style.display = 'block';
+
+            renderPeriods();
+            updateChart();
+
+            this.reset();
+            showNotification('Période ajoutée avec succès !', 'success');
         });
-        window.addEventListener('load', () => document.getElementById('mainForm').dispatchEvent(new Event('submit')));
+
+        function renderPeriods() {
+            const list = document.getElementById('periodsList');
+            if (periods.length === 0) {
+                list.innerHTML = '<p style="text-align: center; color: var(--text-secondary); padding: 2rem;">Aucune période enregistrée</p>';
+                return;
+            }
+
+            const sortedPeriods = [...periods].reverse();
+            list.innerHTML = sortedPeriods.map(period => `
+                <div style="background: white; border: 1px solid var(--border); border-radius: var(--radius); padding: 1rem; margin-bottom: 0.75rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div style="flex: 1;">
+                            <h4 style="margin: 0 0 0.5rem 0; color: var(--primary);">${period.name}</h4>
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.5rem; font-size: 0.9rem;">
+                                <div><strong>Churn:</strong> ${period.churnRate.toFixed(2)}%</div>
+                                <div><strong>Rétention:</strong> ${period.retentionRate.toFixed(2)}%</div>
+                                <div><strong>Clients perdus:</strong> ${period.lostClients}</div>
+                                <div><strong>Impact:</strong> ${formatCurrency(period.revenueImpact)}</div>
+                            </div>
+                        </div>
+                        <button class="btn btn-danger btn-sm" onclick="deletePeriod(${period.id})">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        window.deletePeriod = function(id) {
+            if (confirm('Supprimer cette période ?')) {
+                periods = periods.filter(p => p.id !== id);
+                savePeriods();
+                renderPeriods();
+                updateChart();
+                showNotification('Période supprimée', 'success');
+            }
+        };
+
+        function updateChart() {
+            const ctx = document.getElementById('churnChart').getContext('2d');
+
+            if (chart) {
+                chart.destroy();
+            }
+
+            chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: periods.map(p => p.name),
+                    datasets: [
+                        {
+                            label: 'Taux de Churn (%)',
+                            data: periods.map(p => p.churnRate),
+                            borderColor: '#FF6384',
+                            backgroundColor: 'rgba(255, 99, 132, 0.1)',
+                            tension: 0.4
+                        },
+                        {
+                            label: 'Taux de Rétention (%)',
+                            data: periods.map(p => p.retentionRate),
+                            borderColor: '#36A2EB',
+                            backgroundColor: 'rgba(54, 162, 235, 0.1)',
+                            tension: 0.4
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100,
+                            ticks: {
+                                callback: function(value) {
+                                    return value + '%';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        document.getElementById('exportBtn').addEventListener('click', function() {
+            if (periods.length === 0) {
+                showNotification('Aucune donnée à exporter', 'warning');
+                return;
+            }
+
+            const csv = [
+                ['Période', 'Clients début', 'Clients perdus', 'Clients restants', 'Churn Rate (%)', 'Taux Rétention (%)', 'Revenu moyen', 'Impact revenu (€)'],
+                ...periods.map(p => [
+                    p.name,
+                    p.startClients,
+                    p.lostClients,
+                    p.remainingClients,
+                    p.churnRate.toFixed(2),
+                    p.retentionRate.toFixed(2),
+                    p.revenue.toFixed(2),
+                    p.revenueImpact.toFixed(2)
+                ])
+            ].map(row => row.join(';')).join('\n');
+
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `churn-rate-${new Date().toISOString().split('T')[0]}.csv`;
+            link.click();
+            showNotification('Export CSV téléchargé !', 'success');
+        });
+
+        document.getElementById('clearBtn').addEventListener('click', function() {
+            if (confirm('Effacer toutes les données ? Cette action est irréversible.')) {
+                periods = [];
+                savePeriods();
+                renderPeriods();
+                if (chart) chart.destroy();
+                document.getElementById('chartSection').style.display = 'none';
+                document.getElementById('historySection').style.display = 'none';
+                showNotification('Données effacées', 'success');
+            }
+        });
+
+        // Initialize
+        if (periods.length > 0) {
+            document.getElementById('chartSection').style.display = 'block';
+            document.getElementById('historySection').style.display = 'block';
+            renderPeriods();
+            updateChart();
+        }
     </script>
 </body>
 </html>

@@ -3,57 +3,557 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Outil Business - Business Tools</title>
+    <title>Générateur de Contrats de Travail - Business Tools by Synoptia</title>
     <link rel="stylesheet" href="../../assets/css/main.css">
     <link rel="stylesheet" href="../../assets/css/tools.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .contract-preview {
+            background: white;
+            padding: 3rem;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            max-width: 900px;
+            margin: 2rem auto;
+            font-family: 'Times New Roman', serif;
+            line-height: 1.8;
+        }
+        .contract-preview h1 {
+            text-align: center;
+            text-transform: uppercase;
+            margin-bottom: 2rem;
+            font-size: 1.5rem;
+        }
+        .contract-preview h2 {
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+            text-decoration: underline;
+        }
+        .contract-preview p {
+            margin-bottom: 1rem;
+            text-align: justify;
+        }
+        .signature-section {
+            margin-top: 4rem;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+        .signature-box {
+            text-align: center;
+        }
+        .template-btn {
+            margin: 0.25rem;
+        }
+        @media print {
+            .no-print { display: none !important; }
+            .contract-preview {
+                box-shadow: none;
+                border: none;
+                max-width: 100%;
+            }
+        }
+        @media (max-width: 768px) {
+            .contract-preview {
+                padding: 1.5rem;
+                font-size: 0.9rem;
+            }
+            .signature-section {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 </head>
 <body>
-    <nav class="breadcrumb">
-        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> > 
-        <a href="../../index.html#tools">RH</a> > 
-        <span>Outil</span>
+    <nav class="breadcrumb no-print">
+        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> >
+        <a href="../../index.html#tools">RH</a> >
+        <span>Générateur de Contrats</span>
     </nav>
     <main class="tool-container">
-        <header class="tool-header">
-            <h1><i class="fas fa-tools"></i> Outil Business</h1>
-            <p class="tool-description">Outil professionnel pour optimiser votre activité.</p>
+        <header class="tool-header no-print">
+            <h1><i class="fas fa-file-contract"></i> Générateur de Contrats de Travail</h1>
+            <p class="tool-description">Créez des contrats de travail professionnels (CDI, CDD, Stage, Alternance) avec clauses standards.</p>
         </header>
-        <section class="tool-input">
-            <form id="mainForm">
-                <div class="form-group">
-                    <label for="input1" class="form-label">Donnée d'entrée</label>
-                    <input type="number" id="input1" class="form-input" value="100" min="0" required>
+
+        <section class="tool-input no-print">
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
+                    <h3><i class="fas fa-clipboard-list"></i> Informations du contrat</h3>
+                    <div>
+                        <button class="btn btn-sm btn-secondary template-btn" onclick="loadTemplate('cdi')">Template CDI</button>
+                        <button class="btn btn-sm btn-secondary template-btn" onclick="loadTemplate('cdd')">Template CDD</button>
+                        <button class="btn btn-sm btn-secondary template-btn" onclick="loadTemplate('stage')">Template Stage</button>
+                        <button class="btn btn-sm btn-secondary template-btn" onclick="loadTemplate('alternance')">Template Alternance</button>
+                    </div>
                 </div>
-                <button type="submit" class="btn btn-primary"><i class="fas fa-calculator"></i> Calculer</button>
-            </form>
-        </section>
-        <section class="tool-output" id="results" style="display: none;">
-            <div class="results-grid">
-                <div class="result-item">
-                    <div class="result-label">Résultat</div>
-                    <div class="result-value highlight" id="result">-</div>
-                </div>
+
+                <form id="contractForm">
+                    <!-- Type de contrat -->
+                    <div class="form-group">
+                        <label for="contractType" class="form-label">Type de contrat</label>
+                        <select id="contractType" class="form-select" required>
+                            <option value="CDI">CDI - Contrat à Durée Indéterminée</option>
+                            <option value="CDD">CDD - Contrat à Durée Déterminée</option>
+                            <option value="Stage">Stage</option>
+                            <option value="Alternance">Alternance (Apprentissage/Professionnalisation)</option>
+                        </select>
+                    </div>
+
+                    <!-- Employeur -->
+                    <h4 style="margin-top: 2rem;">Informations de l'employeur</h4>
+                    <div class="input-grid">
+                        <div class="form-group">
+                            <label for="companyName" class="form-label">Nom de l'entreprise</label>
+                            <input type="text" id="companyName" class="form-input" placeholder="Synoptia SARL" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="companyAddress" class="form-label">Adresse</label>
+                            <input type="text" id="companyAddress" class="form-input" placeholder="123 Rue de la République, 75001 Paris" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="companySiret" class="form-label">SIRET</label>
+                            <input type="text" id="companySiret" class="form-input" placeholder="123 456 789 00000" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="companyRepresentative" class="form-label">Représentant légal</label>
+                            <input type="text" id="companyRepresentative" class="form-input" placeholder="M./Mme Nom Prénom" required>
+                        </div>
+                    </div>
+
+                    <!-- Employé -->
+                    <h4 style="margin-top: 2rem;">Informations de l'employé(e)</h4>
+                    <div class="input-grid">
+                        <div class="form-group">
+                            <label for="employeeName" class="form-label">Nom complet</label>
+                            <input type="text" id="employeeName" class="form-input" placeholder="Nom Prénom" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="employeeAddress" class="form-label">Adresse</label>
+                            <input type="text" id="employeeAddress" class="form-input" placeholder="Adresse complète" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="employeeBirthDate" class="form-label">Date de naissance</label>
+                            <input type="date" id="employeeBirthDate" class="form-input" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="employeeSS" class="form-label">N° Sécurité Sociale</label>
+                            <input type="text" id="employeeSS" class="form-input" placeholder="1 23 45 67 890 123 45">
+                        </div>
+                    </div>
+
+                    <!-- Poste -->
+                    <h4 style="margin-top: 2rem;">Détails du poste</h4>
+                    <div class="input-grid">
+                        <div class="form-group">
+                            <label for="jobTitle" class="form-label">Intitulé du poste</label>
+                            <input type="text" id="jobTitle" class="form-input" placeholder="Développeur Web" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="jobCategory" class="form-label">Catégorie</label>
+                            <select id="jobCategory" class="form-select" required>
+                                <option value="Employé">Employé</option>
+                                <option value="Agent de maîtrise">Agent de maîtrise</option>
+                                <option value="Cadre">Cadre</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="workLocation" class="form-label">Lieu de travail</label>
+                            <input type="text" id="workLocation" class="form-input" placeholder="Paris" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="startDate" class="form-label">Date de début</label>
+                            <input type="date" id="startDate" class="form-input" required>
+                        </div>
+                    </div>
+
+                    <!-- Durée (pour CDD/Stage/Alternance) -->
+                    <div id="durationSection" style="display: none;">
+                        <div class="input-grid">
+                            <div class="form-group">
+                                <label for="endDate" class="form-label">Date de fin</label>
+                                <input type="date" id="endDate" class="form-input">
+                            </div>
+                            <div class="form-group">
+                                <label for="renewalOption" class="form-label">Possibilité de renouvellement</label>
+                                <select id="renewalOption" class="form-select">
+                                    <option value="Oui">Oui</option>
+                                    <option value="Non">Non</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Rémunération -->
+                    <h4 style="margin-top: 2rem;">Rémunération</h4>
+                    <div class="input-grid">
+                        <div class="form-group">
+                            <label for="salary" class="form-label">Salaire brut mensuel (€)</label>
+                            <input type="number" id="salary" class="form-input" placeholder="3000" min="0" step="0.01" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="workingHours" class="form-label">Durée hebdomadaire</label>
+                            <input type="number" id="workingHours" class="form-input" placeholder="35" min="1" max="48" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="trialPeriod" class="form-label">Période d'essai (mois)</label>
+                            <input type="number" id="trialPeriod" class="form-input" value="3" min="0" max="12">
+                        </div>
+                        <div class="form-group">
+                            <label for="paidLeave" class="form-label">Congés payés annuels (jours)</label>
+                            <input type="number" id="paidLeave" class="form-input" value="25" min="0">
+                        </div>
+                    </div>
+
+                    <div class="action-buttons" style="margin-top: 2rem;">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="fas fa-file-contract"></i> Générer le contrat
+                        </button>
+                        <button type="reset" class="btn btn-outline">
+                            <i class="fas fa-redo"></i> Réinitialiser
+                        </button>
+                    </div>
+                </form>
             </div>
         </section>
-        <section class="tool-help">
-            <h3><i class="fas fa-info-circle"></i> Aide</h3>
-            <p>Utilisez cet outil pour optimiser votre gestion d'entreprise.</p>
+
+        <section class="tool-output" id="results" style="display: none;">
+            <div class="action-buttons no-print" style="margin-bottom: 2rem;">
+                <button class="btn btn-accent" id="printBtn">
+                    <i class="fas fa-print"></i> Imprimer le contrat
+                </button>
+                <button class="btn btn-secondary" id="downloadBtn">
+                    <i class="fas fa-download"></i> Télécharger (PDF)
+                </button>
+                <button class="btn btn-outline" id="newContractBtn">
+                    <i class="fas fa-plus"></i> Nouveau contrat
+                </button>
+            </div>
+
+            <div class="contract-preview" id="contractPreview">
+                <!-- Le contrat sera généré ici -->
+            </div>
+        </section>
+
+        <section class="tool-help no-print">
+            <h3><i class="fas fa-question-circle"></i> Guide d'utilisation</h3>
+            <ol>
+                <li>Sélectionnez le <strong>type de contrat</strong> (CDI, CDD, Stage, Alternance)</li>
+                <li>Utilisez les <strong>templates pré-remplis</strong> pour gagner du temps (optionnel)</li>
+                <li>Complétez les informations de l'<strong>employeur</strong> et de l'<strong>employé</strong></li>
+                <li>Renseignez les <strong>détails du poste</strong> et la <strong>rémunération</strong></li>
+                <li>Cliquez sur <strong>"Générer le contrat"</strong> pour voir l'aperçu</li>
+                <li><strong>Imprimez</strong> ou <strong>téléchargez</strong> le document final</li>
+            </ol>
+
+            <h3><i class="fas fa-info-circle"></i> Important</h3>
+            <ul>
+                <li>Ce générateur produit un contrat standard. Consultez un avocat pour des situations spécifiques.</li>
+                <li>Vérifiez que le contrat respecte la convention collective applicable.</li>
+                <li>Les deux parties doivent signer le contrat en 2 exemplaires.</li>
+                <li>Conservez une copie du contrat signé dans le dossier du salarié.</li>
+            </ul>
         </section>
     </main>
-    <footer class="tool-footer"><a href="../../index.html"><i class="fas fa-arrow-left"></i> Retour</a></footer>
+
+    <footer class="tool-footer no-print">
+        <a href="../../index.html"><i class="fas fa-arrow-left"></i> Retour aux outils</a>
+        <span style="margin-left: auto;">Synoptia - <a href="mailto:ludo@synoptia.fr">ludo@synoptia.fr</a></span>
+    </footer>
+
     <script src="../../assets/js/utils.js"></script>
     <script src="../../assets/js/main.js"></script>
     <script>
-        document.getElementById('mainForm').addEventListener('submit', function(e) {
+        // Templates pré-remplis
+        const templates = {
+            cdi: {
+                contractType: 'CDI',
+                companyName: 'Synoptia SARL',
+                companyAddress: '123 Avenue des Champs-Élysées, 75008 Paris',
+                companySiret: '123 456 789 00000',
+                companyRepresentative: 'M. Ludovic Martin',
+                employeeName: '',
+                employeeAddress: '',
+                employeeBirthDate: '',
+                employeeSS: '',
+                jobTitle: 'Développeur Full-Stack',
+                jobCategory: 'Cadre',
+                workLocation: 'Paris',
+                startDate: '',
+                salary: '3500',
+                workingHours: '35',
+                trialPeriod: '3',
+                paidLeave: '25'
+            },
+            cdd: {
+                contractType: 'CDD',
+                companyName: 'Synoptia SARL',
+                companyAddress: '123 Avenue des Champs-Élysées, 75008 Paris',
+                companySiret: '123 456 789 00000',
+                companyRepresentative: 'M. Ludovic Martin',
+                employeeName: '',
+                employeeAddress: '',
+                employeeBirthDate: '',
+                employeeSS: '',
+                jobTitle: 'Assistant Commercial',
+                jobCategory: 'Employé',
+                workLocation: 'Paris',
+                startDate: '',
+                endDate: '',
+                salary: '2200',
+                workingHours: '35',
+                trialPeriod: '1',
+                paidLeave: '25',
+                renewalOption: 'Oui'
+            },
+            stage: {
+                contractType: 'Stage',
+                companyName: 'Synoptia SARL',
+                companyAddress: '123 Avenue des Champs-Élysées, 75008 Paris',
+                companySiret: '123 456 789 00000',
+                companyRepresentative: 'M. Ludovic Martin',
+                employeeName: '',
+                employeeAddress: '',
+                employeeBirthDate: '',
+                employeeSS: '',
+                jobTitle: 'Stagiaire Marketing Digital',
+                jobCategory: 'Employé',
+                workLocation: 'Paris',
+                startDate: '',
+                endDate: '',
+                salary: '600',
+                workingHours: '35',
+                trialPeriod: '0',
+                paidLeave: '0',
+                renewalOption: 'Non'
+            },
+            alternance: {
+                contractType: 'Alternance',
+                companyName: 'Synoptia SARL',
+                companyAddress: '123 Avenue des Champs-Élysées, 75008 Paris',
+                companySiret: '123 456 789 00000',
+                companyRepresentative: 'M. Ludovic Martin',
+                employeeName: '',
+                employeeAddress: '',
+                employeeBirthDate: '',
+                employeeSS: '',
+                jobTitle: 'Alternant Développeur Web',
+                jobCategory: 'Employé',
+                workLocation: 'Paris',
+                startDate: '',
+                endDate: '',
+                salary: '1200',
+                workingHours: '35',
+                trialPeriod: '0',
+                paidLeave: '25',
+                renewalOption: 'Non'
+            }
+        };
+
+        // Charger un template
+        window.loadTemplate = function(type) {
+            const template = templates[type];
+            Object.keys(template).forEach(key => {
+                const element = document.getElementById(key);
+                if (element) {
+                    element.value = template[key];
+                }
+            });
+            updateDurationSection();
+            showNotification(`Template ${type.toUpperCase()} chargé`, 'success');
+        };
+
+        // Afficher/masquer la section durée
+        function updateDurationSection() {
+            const contractType = document.getElementById('contractType').value;
+            const durationSection = document.getElementById('durationSection');
+            durationSection.style.display = ['CDD', 'Stage', 'Alternance'].includes(contractType) ? 'block' : 'none';
+        }
+
+        document.getElementById('contractType').addEventListener('change', updateDurationSection);
+
+        // Initialiser les dates
+        const today = new Date();
+        document.getElementById('startDate').valueAsDate = today;
+        const endDate = new Date(today);
+        endDate.setMonth(endDate.getMonth() + 6);
+        document.getElementById('endDate').valueAsDate = endDate;
+
+        // Générer le contrat
+        document.getElementById('contractForm').addEventListener('submit', function(e) {
             e.preventDefault();
-            const val = parseFloat(document.getElementById('input1').value);
-            document.getElementById('result').textContent = val.toFixed(2);
+
+            const data = {
+                contractType: document.getElementById('contractType').value,
+                companyName: document.getElementById('companyName').value,
+                companyAddress: document.getElementById('companyAddress').value,
+                companySiret: document.getElementById('companySiret').value,
+                companyRepresentative: document.getElementById('companyRepresentative').value,
+                employeeName: document.getElementById('employeeName').value,
+                employeeAddress: document.getElementById('employeeAddress').value,
+                employeeBirthDate: document.getElementById('employeeBirthDate').value,
+                employeeSS: document.getElementById('employeeSS').value,
+                jobTitle: document.getElementById('jobTitle').value,
+                jobCategory: document.getElementById('jobCategory').value,
+                workLocation: document.getElementById('workLocation').value,
+                startDate: document.getElementById('startDate').value,
+                endDate: document.getElementById('endDate').value,
+                salary: parseFloat(document.getElementById('salary').value),
+                workingHours: document.getElementById('workingHours').value,
+                trialPeriod: document.getElementById('trialPeriod').value,
+                paidLeave: document.getElementById('paidLeave').value,
+                renewalOption: document.getElementById('renewalOption').value
+            };
+
+            generateContract(data);
             document.getElementById('results').style.display = 'block';
-            showNotification('Opération réussie !', 'success');
+            scrollToElement('#results', 100);
+            showNotification('Contrat généré avec succès', 'success');
         });
-        window.addEventListener('load', () => document.getElementById('mainForm').dispatchEvent(new Event('submit')));
+
+        // Générer le contrat HTML
+        function generateContract(data) {
+            const preview = document.getElementById('contractPreview');
+
+            let durationClause = '';
+            if (['CDD', 'Stage', 'Alternance'].includes(data.contractType)) {
+                durationClause = `
+                    <h2>Article 2 - Durée du contrat</h2>
+                    <p>Le présent contrat est conclu pour une durée déterminée du <strong>${formatDateLong(data.startDate)}</strong> au <strong>${formatDateLong(data.endDate)}</strong>.</p>
+                    ${data.renewalOption === 'Oui' ? '<p>Le contrat pourra être renouvelé dans les conditions prévues par la loi.</p>' : '<p>Le contrat n\'est pas renouvelable.</p>'}
+                `;
+            } else {
+                durationClause = `
+                    <h2>Article 2 - Durée du contrat</h2>
+                    <p>Le présent contrat est conclu à durée indéterminée à compter du <strong>${formatDateLong(data.startDate)}</strong>.</p>
+                `;
+            }
+
+            let trialClause = '';
+            if (parseInt(data.trialPeriod) > 0) {
+                trialClause = `
+                    <h2>Article 3 - Période d'essai</h2>
+                    <p>Une période d'essai de <strong>${data.trialPeriod} mois</strong> est prévue. Pendant cette période, chacune des parties peut rompre le contrat librement, moyennant un préavis de :</p>
+                    <ul>
+                        <li>24 heures en deçà de 8 jours de présence</li>
+                        <li>48 heures entre 8 jours et 1 mois de présence</li>
+                        <li>2 semaines après 1 mois de présence</li>
+                        <li>1 mois après 3 mois de présence pour les cadres</li>
+                    </ul>
+                `;
+            }
+
+            preview.innerHTML = `
+                <h1>Contrat de Travail ${data.contractType}</h1>
+
+                <p style="text-align: center; margin-bottom: 3rem;">
+                    Entre les soussignés :<br>
+                    <strong>${data.companyName}</strong><br>
+                    Société au capital social, immatriculée au RCS sous le numéro SIRET <strong>${data.companySiret}</strong><br>
+                    Ayant son siège social : ${data.companyAddress}<br>
+                    Représentée par ${data.companyRepresentative}, agissant en qualité de représentant légal,
+                </p>
+
+                <p style="text-align: center; margin-bottom: 3rem;">
+                    D'une part,<br><br>
+                    Et :<br>
+                    <strong>${data.employeeName}</strong><br>
+                    Né(e) le ${formatDateLong(data.employeeBirthDate)}<br>
+                    Demeurant : ${data.employeeAddress}<br>
+                    ${data.employeeSS ? `N° Sécurité Sociale : ${data.employeeSS}` : ''}
+                </p>
+
+                <p style="text-align: center; margin-bottom: 3rem;">D'autre part,</p>
+
+                <p style="text-align: center; margin-bottom: 3rem;"><strong>Il a été convenu ce qui suit :</strong></p>
+
+                <h2>Article 1 - Fonction et qualification</h2>
+                <p>Le/La salarié(e) est engagé(e) en qualité de <strong>${data.jobTitle}</strong>, statut <strong>${data.jobCategory}</strong>, pour exercer les missions et responsabilités afférentes à cette fonction.</p>
+                <p>Le lieu de travail est fixé à <strong>${data.workLocation}</strong>. Le/La salarié(e) pourra être amené(e) à se déplacer ponctuellement pour les besoins du service.</p>
+
+                ${durationClause}
+
+                ${trialClause}
+
+                <h2>Article ${parseInt(data.trialPeriod) > 0 ? '4' : '3'} - Rémunération</h2>
+                <p>En contrepartie de son travail, le/la salarié(e) percevra une rémunération brute mensuelle de <strong>${formatCurrency(data.salary)}</strong>, versée par virement bancaire le dernier jour ouvré de chaque mois.</p>
+                <p>Cette rémunération est calculée sur la base d'un temps complet de <strong>${data.workingHours} heures</strong> hebdomadaires.</p>
+
+                <h2>Article ${parseInt(data.trialPeriod) > 0 ? '5' : '4'} - Durée du travail</h2>
+                <p>La durée hebdomadaire de travail est fixée à <strong>${data.workingHours} heures</strong>, réparties selon un planning établi par l'employeur.</p>
+                <p>Les heures supplémentaires éventuelles seront rémunérées ou récupérées conformément aux dispositions légales et conventionnelles en vigueur.</p>
+
+                <h2>Article ${parseInt(data.trialPeriod) > 0 ? '6' : '5'} - Congés payés</h2>
+                <p>Le/La salarié(e) bénéficie de <strong>${data.paidLeave} jours ouvrables</strong> de congés payés annuels, acquis selon les modalités légales et conventionnelles.</p>
+                <p>Les périodes de congés seront fixées en accord avec l'employeur, dans le respect des nécessités du service.</p>
+
+                <h2>Article ${parseInt(data.trialPeriod) > 0 ? '7' : '6'} - Obligations du salarié</h2>
+                <p>Le/La salarié(e) s'engage à :</p>
+                <ul>
+                    <li>Consacrer son activité professionnelle exclusivement à l'entreprise pendant ses heures de travail</li>
+                    <li>Respecter les directives de sa hiérarchie et le règlement intérieur de l'entreprise</li>
+                    <li>Observer une obligation de confidentialité sur les informations dont il/elle a connaissance</li>
+                    <li>Restituer l'ensemble des documents et matériels confiés en fin de contrat</li>
+                </ul>
+
+                <h2>Article ${parseInt(data.trialPeriod) > 0 ? '8' : '7'} - Clause de confidentialité</h2>
+                <p>Le/La salarié(e) s'engage à ne pas divulguer, pendant la durée du contrat et après sa cessation, les informations confidentielles dont il/elle aurait connaissance dans l'exercice de ses fonctions.</p>
+
+                <h2>Article ${parseInt(data.trialPeriod) > 0 ? '9' : '8'} - Convention collective</h2>
+                <p>Le présent contrat est soumis aux dispositions de la convention collective applicable dans l'entreprise.</p>
+
+                <h2>Article ${parseInt(data.trialPeriod) > 0 ? '10' : '9'} - Résiliation</h2>
+                <p>Le présent contrat pourra être résilié dans les conditions prévues par le Code du travail et la convention collective applicable.</p>
+
+                <div class="signature-section">
+                    <div class="signature-box">
+                        <p><strong>Fait à ${data.workLocation}</strong></p>
+                        <p><strong>Le ${formatDateLong(new Date().toISOString().split('T')[0])}</strong></p>
+                        <p style="margin-top: 3rem;">L'Employeur</p>
+                        <p>${data.companyRepresentative}</p>
+                        <p style="margin-top: 2rem; border-top: 1px solid #000; padding-top: 0.5rem;">Signature</p>
+                    </div>
+                    <div class="signature-box">
+                        <p><strong>Fait à ${data.workLocation}</strong></p>
+                        <p><strong>Le ${formatDateLong(new Date().toISOString().split('T')[0])}</strong></p>
+                        <p style="margin-top: 3rem;">Le/La Salarié(e)</p>
+                        <p>${data.employeeName}</p>
+                        <p style="margin-top: 2rem; border-top: 1px solid #000; padding-top: 0.5rem;">Signature (précédée de "Lu et approuvé")</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Format date longue
+        function formatDateLong(dateStr) {
+            const date = new Date(dateStr);
+            return date.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+        }
+
+        // Imprimer
+        document.getElementById('printBtn').addEventListener('click', function() {
+            window.print();
+        });
+
+        // Télécharger
+        document.getElementById('downloadBtn').addEventListener('click', function() {
+            showNotification('Utilisez Imprimer > Enregistrer en PDF', 'info');
+            window.print();
+        });
+
+        // Nouveau contrat
+        document.getElementById('newContractBtn').addEventListener('click', function() {
+            document.getElementById('results').style.display = 'none';
+            document.getElementById('contractForm').reset();
+            document.getElementById('startDate').valueAsDate = new Date();
+            const endDate = new Date();
+            endDate.setMonth(endDate.getMonth() + 6);
+            document.getElementById('endDate').valueAsDate = endDate;
+            scrollToElement('.tool-header', 100);
+            showNotification('Prêt pour un nouveau contrat', 'success');
+        });
     </script>
 </body>
 </html>

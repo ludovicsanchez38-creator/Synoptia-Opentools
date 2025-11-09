@@ -3,65 +3,402 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculateur de CPM - Business Tools</title>
+    <title>Calculateur CPM - Business Tools by Synoptia</title>
     <link rel="stylesheet" href="../../assets/css/main.css">
     <link rel="stylesheet" href="../../assets/css/tools.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .comparison-card {
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 1.5rem;
+            margin-top: 1.5rem;
+        }
+    </style>
 </head>
 <body>
     <nav class="breadcrumb">
-        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> > 
-        <a href="../../index.html#tools">Marketing</a> > 
-        <span>Calculateur de CPM</span>
+        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> >
+        <a href="../../index.html#tools">Marketing</a> >
+        <span>Calculateur CPM</span>
     </nav>
+
     <main class="tool-container">
         <header class="tool-header">
-            <h1><i class="fas fa-eye"></i> Calculateur de CPM</h1>
-            <p class="tool-description">Outil marketing pour optimiser vos campagnes.</p>
+            <h1><i class="fas fa-eye"></i> Calculateur CPM (Coût Pour Mille)</h1>
+            <p class="tool-description">Calculez le coût pour mille impressions et comparez CPC vs CPM pour optimiser vos campagnes.</p>
         </header>
+
         <section class="tool-input">
-            <form id="mainForm">
+            <h2>Données de campagne</h2>
+            <form id="cpmForm">
                 <div class="input-grid">
                     <div class="form-group">
-                        <label for="input1" class="form-label">Valeur 1</label>
-                        <input type="number" id="input1" class="form-input" value="100" min="0" required>
+                        <label for="campaignName" class="form-label"><i class="fas fa-tag"></i> Nom de la campagne</label>
+                        <input type="text" id="campaignName" class="form-input" placeholder="Ex: Facebook Ads - Notoriété" required>
                     </div>
                     <div class="form-group">
-                        <label for="input2" class="form-label">Valeur 2</label>
-                        <input type="number" id="input2" class="form-input" value="50" min="0" required>
+                        <label for="budget" class="form-label"><i class="fas fa-euro-sign"></i> Budget publicitaire (€)</label>
+                        <input type="number" id="budget" class="form-input" placeholder="Ex: 1000" min="0" step="0.01" value="1000" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="impressions" class="form-label"><i class="fas fa-chart-bar"></i> Impressions</label>
+                        <input type="number" id="impressions" class="form-input" placeholder="Ex: 100000" min="1" step="1" value="100000" required>
+                        <span class="form-help">Nombre de fois où l'annonce a été affichée</span>
+                    </div>
+                    <div class="form-group">
+                        <label for="clicks" class="form-label"><i class="fas fa-mouse-pointer"></i> Clics (optionnel)</label>
+                        <input type="number" id="clicks" class="form-input" placeholder="Ex: 1000" min="0" step="1" value="">
+                        <span class="form-help">Pour comparer CPM vs CPC</span>
                     </div>
                 </div>
-                <button type="submit" class="btn btn-primary"><i class="fas fa-calculator"></i> Calculer</button>
+                <div class="action-buttons">
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-calculator"></i> Calculer et sauvegarder</button>
+                </div>
             </form>
         </section>
+
         <section class="tool-output" id="results" style="display: none;">
+            <h2><i class="fas fa-chart-bar"></i> Résultats</h2>
             <div class="results-grid">
                 <div class="result-item">
-                    <div class="result-label">Résultat</div>
-                    <div class="result-value highlight" id="result">-</div>
+                    <div class="result-label">CPM</div>
+                    <div class="result-value highlight" id="cpm">-</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Impressions totales</div>
+                    <div class="result-value" id="totalImpressions">-</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Budget total</div>
+                    <div class="result-value" id="totalBudget">-</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Performance</div>
+                    <div class="result-value" id="performance">-</div>
+                </div>
+            </div>
+            <div class="alert" id="interpretation"></div>
+
+            <div class="comparison-card" id="cpcComparison" style="display: none;">
+                <h3><i class="fas fa-exchange-alt"></i> Comparaison CPM vs CPC</h3>
+                <div class="results-grid" style="margin-top: 1rem;">
+                    <div class="result-item">
+                        <div class="result-label">CPM</div>
+                        <div class="result-value" id="cpmDisplay">-</div>
+                    </div>
+                    <div class="result-item">
+                        <div class="result-label">CPC</div>
+                        <div class="result-value" id="cpcDisplay">-</div>
+                    </div>
+                    <div class="result-item">
+                        <div class="result-label">CTR</div>
+                        <div class="result-value" id="ctr">-</div>
+                    </div>
+                    <div class="result-item">
+                        <div class="result-label">Recommandation</div>
+                        <div class="result-value" id="recommendation">-</div>
+                    </div>
+                </div>
+                <div id="comparisonInterpretation" style="margin-top: 1rem;"></div>
+            </div>
+        </section>
+
+        <section class="tool-output">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                <h2><i class="fas fa-history"></i> Historique des campagnes</h2>
+                <div>
+                    <button type="button" class="btn btn-sm btn-secondary" id="exportBtn" style="margin-right: 0.5rem;">
+                        <i class="fas fa-download"></i> Exporter CSV
+                    </button>
+                    <button type="button" class="btn btn-sm btn-danger" id="clearBtn">
+                        <i class="fas fa-trash"></i> Effacer
+                    </button>
+                </div>
+            </div>
+            <div id="campaignsList"></div>
+            <div class="results-grid" style="margin-top: 1.5rem;" id="statsSection" style="display: none;">
+                <div class="result-item">
+                    <div class="result-label">Campagnes totales</div>
+                    <div class="result-value" id="totalCampaigns">0</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">CPM moyen</div>
+                    <div class="result-value highlight" id="avgCpm">0 €</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Budget total</div>
+                    <div class="result-value" id="totalSpent">0 €</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Impressions totales</div>
+                    <div class="result-value" id="totalImpressionsAll">0</div>
                 </div>
             </div>
         </section>
+
         <section class="tool-help">
-            <h3><i class="fas fa-info-circle"></i> Information</h3>
-            <p>Optimisez vos campagnes marketing avec cet outil.</p>
+            <h3><i class="fas fa-question-circle"></i> Comment utiliser cet outil ?</h3>
+            <ol>
+                <li>Entrez le <strong>nom de votre campagne</strong></li>
+                <li>Indiquez le <strong>budget publicitaire</strong> dépensé</li>
+                <li>Renseignez le nombre d'<strong>impressions</strong> générées</li>
+                <li>Ajoutez les <strong>clics</strong> pour comparer CPM vs CPC (optionnel)</li>
+                <li>Analysez votre <strong>CPM</strong> et le ROI estimé</li>
+            </ol>
+
+            <h3><i class="fas fa-calculator"></i> Formule</h3>
+            <code>CPM = (Budget / Impressions) × 1000
+
+Exemple: 1000€ pour 100 000 impressions
+CPM = (1000 / 100000) × 1000 = 10€
+
+CPC = Budget / Clics
+CTR = (Clics / Impressions) × 100</code>
+
+            <h3><i class="fas fa-lightbulb"></i> CPM vs CPC - Quand les utiliser ?</h3>
+            <ul>
+                <li><strong>Utilisez le CPM</strong> pour les campagnes de notoriété, branding, et awareness</li>
+                <li><strong>Utilisez le CPC</strong> pour les campagnes de performance, conversion, et trafic qualifié</li>
+                <li><strong>CPM moyen</strong> : 3€ - 10€ selon les plateformes (Facebook, Google Display, etc.)</li>
+                <li><strong>Un CTR élevé</strong> (>1%) rend le CPM plus intéressant que le CPC</li>
+            </ul>
         </section>
     </main>
-    <footer class="tool-footer"><a href="../../index.html"><i class="fas fa-arrow-left"></i> Retour</a></footer>
+
+    <footer class="tool-footer">
+        <a href="../../index.html"><i class="fas fa-arrow-left"></i> Retour aux outils</a>
+        <span style="margin-left: auto; color: var(--text-secondary);">Synoptia - ludo@synoptia.fr</span>
+    </footer>
+
     <script src="../../assets/js/utils.js"></script>
     <script src="../../assets/js/main.js"></script>
     <script>
-        document.getElementById('mainForm').addEventListener('submit', function(e) {
+        let campaigns = [];
+
+        function loadCampaigns() {
+            const stored = localStorage.getItem('cpmCampaigns');
+            if (stored) {
+                campaigns = JSON.parse(stored);
+            }
+            renderCampaigns();
+            updateStats();
+        }
+
+        function saveCampaigns() {
+            localStorage.setItem('cpmCampaigns', JSON.stringify(campaigns));
+        }
+
+        document.getElementById('cpmForm').addEventListener('submit', function(e) {
             e.preventDefault();
-            const val1 = parseFloat(document.getElementById('input1').value);
-            const val2 = parseFloat(document.getElementById('input2').value);
-            const result = val2 > 0 ? (val1 / val2) : 0;
-            document.getElementById('result').textContent = result.toFixed(2);
+
+            const campaignName = document.getElementById('campaignName').value.trim();
+            const budget = parseFloat(document.getElementById('budget').value);
+            const impressions = parseInt(document.getElementById('impressions').value);
+            const clicks = parseInt(document.getElementById('clicks').value) || 0;
+
+            if (impressions === 0) {
+                showNotification('Le nombre d\'impressions doit être supérieur à 0', 'error');
+                return;
+            }
+
+            const cpm = (budget / impressions) * 1000;
+            const cpc = clicks > 0 ? budget / clicks : 0;
+            const ctr = clicks > 0 ? (clicks / impressions) * 100 : 0;
+
+            // Display results
+            document.getElementById('cpm').textContent = formatCurrency(cpm);
+            document.getElementById('totalImpressions').textContent = impressions.toLocaleString('fr-FR');
+            document.getElementById('totalBudget').textContent = formatCurrency(budget);
+
+            // Performance interpretation
+            let performanceText = '';
+            let interpretation = '';
+            let alertClass = 'alert-info';
+
+            if (cpm <= 5) {
+                performanceText = 'Excellent ✓✓';
+                interpretation = `<strong>🚀 Excellent !</strong> Votre CPM (${formatCurrency(cpm)}) est très compétitif. Vous atteignez votre audience à moindre coût.`;
+                alertClass = 'alert-success';
+            } else if (cpm <= 10) {
+                performanceText = 'Bon ✓';
+                interpretation = `<strong>👍 Bon !</strong> Votre CPM (${formatCurrency(cpm)}) est dans la moyenne du marché.`;
+                alertClass = 'alert-success';
+            } else if (cpm <= 20) {
+                performanceText = 'Moyen ⚡';
+                interpretation = `<strong>⚡ Moyen</strong> : Votre CPM (${formatCurrency(cpm)}) est un peu élevé. Optimisez votre ciblage.`;
+                alertClass = 'alert-warning';
+            } else {
+                performanceText = 'Élevé ✗';
+                interpretation = `<strong>⚠️ Attention !</strong> Votre CPM (${formatCurrency(cpm)}) est très élevé. Revoyez votre stratégie.`;
+                alertClass = 'alert-danger';
+            }
+
+            document.getElementById('performance').textContent = performanceText;
+
+            const interpDiv = document.getElementById('interpretation');
+            interpDiv.className = `alert ${alertClass}`;
+            interpDiv.innerHTML = interpretation;
+
+            // CPC comparison
+            if (clicks > 0) {
+                document.getElementById('cpcComparison').style.display = 'block';
+                document.getElementById('cpmDisplay').textContent = formatCurrency(cpm);
+                document.getElementById('cpcDisplay').textContent = formatCurrency(cpc);
+                document.getElementById('ctr').textContent = ctr.toFixed(2) + '%';
+
+                let recommendation = '';
+                let compInterpretation = '';
+
+                if (ctr >= 2) {
+                    recommendation = 'CPM recommandé';
+                    compInterpretation = `<p style="color: var(--success);"><i class="fas fa-check-circle"></i> Avec un CTR de ${ctr.toFixed(2)}%, le <strong>CPM est plus avantageux</strong> que le CPC pour vous.</p>`;
+                } else if (ctr >= 1) {
+                    recommendation = 'CPM ou CPC';
+                    compInterpretation = `<p style="color: var(--primary);"><i class="fas fa-balance-scale"></i> CTR moyen (${ctr.toFixed(2)}%). <strong>CPM et CPC sont équivalents</strong>. Testez les deux.</p>`;
+                } else {
+                    recommendation = 'CPC recommandé';
+                    compInterpretation = `<p style="color: var(--warning);"><i class="fas fa-exclamation-triangle"></i> CTR faible (${ctr.toFixed(2)}%). Le <strong>CPC est plus avantageux</strong> pour optimiser vos coûts.</p>`;
+                }
+
+                document.getElementById('recommendation').textContent = recommendation;
+                document.getElementById('comparisonInterpretation').innerHTML = compInterpretation;
+            } else {
+                document.getElementById('cpcComparison').style.display = 'none';
+            }
+
+            // Save campaign
+            const campaign = {
+                name: campaignName,
+                budget: budget,
+                impressions: impressions,
+                clicks: clicks,
+                cpm: cpm,
+                cpc: cpc,
+                ctr: ctr,
+                date: new Date().toISOString()
+            };
+
+            campaigns.unshift(campaign);
+            saveCampaigns();
+            renderCampaigns();
+            updateStats();
+
             document.getElementById('results').style.display = 'block';
-            showNotification('Calcul effectué !', 'success');
+            scrollToElement('#results', 100);
+            showNotification('Campagne enregistrée !', 'success');
+
+            document.getElementById('campaignName').value = '';
         });
-        window.addEventListener('load', () => document.getElementById('mainForm').dispatchEvent(new Event('submit')));
+
+        function renderCampaigns() {
+            const container = document.getElementById('campaignsList');
+
+            if (campaigns.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 3rem 1rem; color: var(--text-secondary);">
+                        <i class="fas fa-eye" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.3;"></i>
+                        <p>Aucune campagne enregistrée</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = campaigns.map((campaign, index) => {
+                return `
+                    <div style="background: var(--white); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 1rem; margin-bottom: 0.75rem; display: flex; justify-content: space-between; align-items: center;">
+                        <div style="flex: 1;">
+                            <div style="font-weight: 600; margin-bottom: 0.25rem;">${campaign.name}</div>
+                            <div style="font-size: 0.9rem; color: var(--text-secondary);">
+                                <i class="fas fa-calendar"></i> ${formatDateShort(campaign.date)} |
+                                <i class="fas fa-euro-sign"></i> ${formatCurrency(campaign.budget)} |
+                                ${campaign.impressions.toLocaleString('fr-FR')} impressions
+                                ${campaign.clicks > 0 ? ` | ${campaign.clicks} clics | CTR: ${campaign.ctr.toFixed(2)}%` : ''}
+                            </div>
+                        </div>
+                        <div style="display: flex; align-items: center;">
+                            <div style="font-weight: 700; color: var(--primary); font-size: 1.1rem; margin-right: 1rem;">
+                                ${formatCurrency(campaign.cpm)}
+                            </div>
+                            <button class="btn btn-sm btn-danger" onclick="deleteCampaign(${index})">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        window.deleteCampaign = function(index) {
+            if (confirm('Supprimer cette campagne ?')) {
+                campaigns.splice(index, 1);
+                saveCampaigns();
+                renderCampaigns();
+                updateStats();
+                showNotification('Campagne supprimée', 'success');
+            }
+        };
+
+        function updateStats() {
+            if (campaigns.length === 0) {
+                document.getElementById('statsSection').style.display = 'none';
+                return;
+            }
+
+            document.getElementById('statsSection').style.display = 'grid';
+
+            const totalBudget = campaigns.reduce((sum, c) => sum + c.budget, 0);
+            const totalImpressions = campaigns.reduce((sum, c) => sum + c.impressions, 0);
+            const avgCpm = (totalBudget / totalImpressions) * 1000;
+
+            document.getElementById('totalCampaigns').textContent = campaigns.length;
+            document.getElementById('avgCpm').textContent = formatCurrency(avgCpm);
+            document.getElementById('totalSpent').textContent = formatCurrency(totalBudget);
+            document.getElementById('totalImpressionsAll').textContent = totalImpressions.toLocaleString('fr-FR');
+        }
+
+        document.getElementById('exportBtn').addEventListener('click', function() {
+            if (campaigns.length === 0) {
+                showNotification('Aucune campagne à exporter', 'error');
+                return;
+            }
+
+            const csv = [
+                ['Campagne', 'Date', 'Budget (€)', 'Impressions', 'Clics', 'CPM (€)', 'CPC (€)', 'CTR (%)'],
+                ...campaigns.map(c => [
+                    c.name,
+                    formatDateShort(c.date),
+                    c.budget.toFixed(2),
+                    c.impressions,
+                    c.clicks,
+                    c.cpm.toFixed(2),
+                    c.cpc.toFixed(2),
+                    c.ctr.toFixed(2)
+                ])
+            ].map(row => row.join(';')).join('\n');
+
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `cpm-campaigns-${new Date().toISOString().split('T')[0]}.csv`;
+            link.click();
+
+            showNotification('Export CSV réussi !', 'success');
+        });
+
+        document.getElementById('clearBtn').addEventListener('click', function() {
+            if (confirm('Effacer toutes les campagnes ? Cette action est irréversible.')) {
+                campaigns = [];
+                saveCampaigns();
+                renderCampaigns();
+                updateStats();
+                showNotification('Toutes les campagnes ont été effacées', 'success');
+            }
+        });
+
+        loadCampaigns();
     </script>
 </body>
 </html>

@@ -3,65 +3,418 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculateur CAC - Business Tools</title>
+    <title>Calculateur CAC (Coût d'Acquisition Client) - Business Tools by Synoptia</title>
     <link rel="stylesheet" href="../../assets/css/main.css">
     <link rel="stylesheet" href="../../assets/css/tools.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <nav class="breadcrumb">
-        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> > 
-        <a href="../../index.html#tools">Marketing</a> > 
+        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> >
+        <a href="../../index.html#tools">Marketing</a> >
         <span>Calculateur CAC</span>
     </nav>
     <main class="tool-container">
         <header class="tool-header">
-            <h1><i class="fas fa-user-plus"></i> Calculateur CAC</h1>
-            <p class="tool-description">Outil marketing pour optimiser vos campagnes.</p>
+            <h1><i class="fas fa-user-plus"></i> Calculateur CAC (Coût d'Acquisition Client)</h1>
+            <p class="tool-description">Calculez votre coût d'acquisition client et analysez la rentabilité</p>
         </header>
+
         <section class="tool-input">
-            <form id="mainForm">
+            <h2><i class="fas fa-plus-circle"></i> Calculer le CAC</h2>
+            <form id="cacForm">
                 <div class="input-grid">
                     <div class="form-group">
-                        <label for="input1" class="form-label">Valeur 1</label>
-                        <input type="number" id="input1" class="form-input" value="100" min="0" required>
+                        <label for="periodName" class="form-label">Période</label>
+                        <input type="text" id="periodName" class="form-input" placeholder="Ex: Q1 2025" required>
                     </div>
                     <div class="form-group">
-                        <label for="input2" class="form-label">Valeur 2</label>
-                        <input type="number" id="input2" class="form-input" value="50" min="0" required>
+                        <label for="marketingCosts" class="form-label">Coûts marketing (€)</label>
+                        <input type="number" id="marketingCosts" class="form-input" min="0" step="0.01" value="10000" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="salesCosts" class="form-label">Coûts de ventes (€)</label>
+                        <input type="number" id="salesCosts" class="form-input" min="0" step="0.01" value="5000" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="newCustomers" class="form-label">Nombre de nouveaux clients</label>
+                        <input type="number" id="newCustomers" class="form-input" min="1" value="100" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="ltv" class="form-label">LTV - Lifetime Value (€) <small>(optionnel)</small></label>
+                        <input type="number" id="ltv" class="form-input" min="0" step="0.01" value="600" placeholder="0">
+                    </div>
+                    <div class="form-group">
+                        <label for="avgRevenue" class="form-label">Revenu moyen par client/mois (€) <small>(optionnel)</small></label>
+                        <input type="number" id="avgRevenue" class="form-input" min="0" step="0.01" value="50" placeholder="0">
                     </div>
                 </div>
-                <button type="submit" class="btn btn-primary"><i class="fas fa-calculator"></i> Calculer</button>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-calculator"></i> Calculer et ajouter
+                </button>
             </form>
         </section>
+
         <section class="tool-output" id="results" style="display: none;">
+            <h2><i class="fas fa-chart-line"></i> Résultats</h2>
             <div class="results-grid">
                 <div class="result-item">
-                    <div class="result-label">Résultat</div>
-                    <div class="result-value highlight" id="result">-</div>
+                    <div class="result-label">CAC (Coût d'Acquisition)</div>
+                    <div class="result-value highlight" id="cac">-</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Coûts totaux</div>
+                    <div class="result-value" id="totalCosts">-</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Ratio LTV/CAC</div>
+                    <div class="result-value" id="ltvCacRatio">-</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Payback Period</div>
+                    <div class="result-value" id="paybackPeriod">-</div>
                 </div>
             </div>
+
+            <div id="analysis" style="margin-top: 1.5rem; padding: 1rem; background: var(--bg-secondary); border-radius: var(--radius); border-left: 4px solid var(--primary);">
+                <h3 style="margin: 0 0 0.5rem 0;"><i class="fas fa-lightbulb"></i> Analyse et recommandations</h3>
+                <div id="analysisList"></div>
+            </div>
         </section>
+
+        <section style="background: white; padding: 2rem; border-radius: var(--radius-lg); margin: 2rem 0;" id="chartSection" style="display: none;">
+            <h2><i class="fas fa-chart-bar"></i> CAC vs LTV</h2>
+            <div style="position: relative; height: 350px;">
+                <canvas id="cacChart"></canvas>
+            </div>
+        </section>
+
+        <section class="tool-output" id="historySection" style="display: none;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                <h2><i class="fas fa-history"></i> Historique des périodes</h2>
+                <div>
+                    <button class="btn btn-success btn-sm" id="exportBtn">
+                        <i class="fas fa-file-csv"></i> Exporter CSV
+                    </button>
+                    <button class="btn btn-danger btn-sm" id="clearBtn">
+                        <i class="fas fa-trash"></i> Effacer
+                    </button>
+                </div>
+            </div>
+            <div id="periodsList"></div>
+        </section>
+
         <section class="tool-help">
-            <h3><i class="fas fa-info-circle"></i> Information</h3>
-            <p>Optimisez vos campagnes marketing avec cet outil.</p>
+            <h3><i class="fas fa-question-circle"></i> Comment utiliser cet outil</h3>
+            <p><strong>Le CAC (Customer Acquisition Cost)</strong> représente le coût total pour acquérir un nouveau client.</p>
+            <h4>Formules :</h4>
+            <ul>
+                <li><strong>CAC</strong> = (Coûts Marketing + Coûts de Ventes) / Nombre de nouveaux clients</li>
+                <li><strong>Ratio LTV/CAC</strong> = LTV / CAC (idéal : 3:1 à 5:1)</li>
+                <li><strong>Payback Period</strong> = CAC / Revenu mensuel moyen (en mois)</li>
+            </ul>
+            <h4>Interprétation :</h4>
+            <ul>
+                <li><strong>CAC faible</strong> : Bonne efficacité marketing, mais vérifiez la qualité des clients</li>
+                <li><strong>CAC élevé</strong> : Peut être acceptable si le LTV est proportionnellement élevé</li>
+                <li><strong>Ratio LTV/CAC < 3</strong> : Problématique, rentabilité faible</li>
+                <li><strong>Ratio LTV/CAC > 5</strong> : Excellent, opportunité d'investir plus en acquisition</li>
+                <li><strong>Payback < 12 mois</strong> : Excellent, récupération rapide de l'investissement</li>
+            </ul>
+            <h4>Optimisation :</h4>
+            <ul>
+                <li>Optimisez vos canaux marketing les plus performants</li>
+                <li>Améliorez le taux de conversion de vos campagnes</li>
+                <li>Automatisez les processus de vente pour réduire les coûts</li>
+                <li>Ciblez mieux vos audiences pour réduire le gaspillage</li>
+                <li>Investissez dans le marketing de contenu et le SEO (CAC plus faible à long terme)</li>
+            </ul>
         </section>
     </main>
-    <footer class="tool-footer"><a href="../../index.html"><i class="fas fa-arrow-left"></i> Retour</a></footer>
+    <footer class="tool-footer">
+        <p>Développé par <a href="mailto:ludo@synoptia.fr">ludo@synoptia.fr</a> - Synoptia</p>
+    </footer>
+
     <script src="../../assets/js/utils.js"></script>
     <script src="../../assets/js/main.js"></script>
     <script>
-        document.getElementById('mainForm').addEventListener('submit', function(e) {
+        let periods = JSON.parse(localStorage.getItem('cacPeriods')) || [];
+        let chart = null;
+
+        function savePeriods() {
+            localStorage.setItem('cacPeriods', JSON.stringify(periods));
+        }
+
+        function getAnalysis(cac, ltv, ltvCacRatio, paybackMonths) {
+            const analysis = [];
+
+            // CAC Analysis
+            if (cac < 50) {
+                analysis.push('💰 CAC très faible : Excellente efficacité d\'acquisition');
+            } else if (cac < 150) {
+                analysis.push('✅ CAC raisonnable pour la plupart des business models');
+            } else if (cac < 300) {
+                analysis.push('⚠️ CAC modéré : Assurez-vous que le LTV est suffisant');
+            } else {
+                analysis.push('🚨 CAC élevé : Nécessite un LTV très élevé pour être rentable');
+            }
+
+            // LTV/CAC Ratio Analysis
+            if (ltv > 0) {
+                if (ltvCacRatio < 1) {
+                    analysis.push('🚨 CRITIQUE : Vous perdez de l\'argent sur chaque client !');
+                    analysis.push('🎯 Action immédiate : Réduisez drastiquement le CAC ou augmentez le LTV');
+                } else if (ltvCacRatio < 3) {
+                    analysis.push('⚠️ Ratio LTV/CAC insuffisant (< 3:1)');
+                    analysis.push('📈 Objectif : Atteindre minimum 3:1 pour une rentabilité saine');
+                    analysis.push('💡 Optimisez vos canaux d\'acquisition ou augmentez la rétention');
+                } else if (ltvCacRatio <= 5) {
+                    analysis.push('🎉 Ratio LTV/CAC idéal (3:1 à 5:1) !');
+                    analysis.push('✅ Équilibre parfait entre acquisition et rentabilité');
+                    analysis.push('📊 Continuez à surveiller ces métriques mensuellement');
+                } else {
+                    analysis.push('🌟 Ratio LTV/CAC exceptionnel (> 5:1) !');
+                    analysis.push('🚀 Opportunité : Vous pouvez investir plus en acquisition');
+                    analysis.push('💎 Explorez de nouveaux canaux même s\'ils sont plus coûteux');
+                }
+            } else {
+                analysis.push('💡 Ajoutez votre LTV pour une analyse complète du ratio LTV/CAC');
+            }
+
+            // Payback Period Analysis
+            if (paybackMonths > 0) {
+                if (paybackMonths <= 6) {
+                    analysis.push('⚡ Payback ultra-rapide (≤ 6 mois) : Excellent pour le cash-flow');
+                } else if (paybackMonths <= 12) {
+                    analysis.push('✅ Bon payback period (≤ 12 mois) : Récupération raisonnable');
+                } else if (paybackMonths <= 24) {
+                    analysis.push('⚠️ Payback modéré (12-24 mois) : Surveillez la trésorerie');
+                } else {
+                    analysis.push('🚨 Payback long (> 24 mois) : Risque élevé pour le cash-flow');
+                    analysis.push('💡 Envisagez des stratégies pour accélérer les revenus initiaux');
+                }
+            }
+
+            return analysis;
+        }
+
+        document.getElementById('cacForm').addEventListener('submit', function(e) {
             e.preventDefault();
-            const val1 = parseFloat(document.getElementById('input1').value);
-            const val2 = parseFloat(document.getElementById('input2').value);
-            const result = val2 > 0 ? (val1 / val2) : 0;
-            document.getElementById('result').textContent = result.toFixed(2);
+
+            const periodName = document.getElementById('periodName').value;
+            const marketingCosts = parseFloat(document.getElementById('marketingCosts').value);
+            const salesCosts = parseFloat(document.getElementById('salesCosts').value);
+            const newCustomers = parseInt(document.getElementById('newCustomers').value);
+            const ltv = parseFloat(document.getElementById('ltv').value) || 0;
+            const avgRevenue = parseFloat(document.getElementById('avgRevenue').value) || 0;
+
+            if (newCustomers <= 0) {
+                showNotification('Le nombre de clients doit être supérieur à 0', 'error');
+                return;
+            }
+
+            // Calculations
+            const totalCosts = marketingCosts + salesCosts;
+            const cac = totalCosts / newCustomers;
+            const ltvCacRatio = ltv > 0 ? ltv / cac : 0;
+            const paybackMonths = avgRevenue > 0 ? cac / avgRevenue : 0;
+
+            const period = {
+                id: Date.now(),
+                name: periodName,
+                marketingCosts,
+                salesCosts,
+                totalCosts,
+                newCustomers,
+                ltv,
+                avgRevenue,
+                cac,
+                ltvCacRatio,
+                paybackMonths,
+                date: new Date().toISOString()
+            };
+
+            periods.push(period);
+            savePeriods();
+
+            // Display current results
+            document.getElementById('cac').textContent = formatCurrency(cac);
+            document.getElementById('totalCosts').textContent = formatCurrency(totalCosts);
+            document.getElementById('ltvCacRatio').textContent = ltv > 0 ? ltvCacRatio.toFixed(2) + ':1' : 'N/A';
+            document.getElementById('paybackPeriod').textContent = paybackMonths > 0 ? paybackMonths.toFixed(1) + ' mois' : 'N/A';
+
+            // Display analysis
+            const analysis = getAnalysis(cac, ltv, ltvCacRatio, paybackMonths);
+            document.getElementById('analysisList').innerHTML = analysis.map(a =>
+                `<p style="margin: 0.5rem 0;">${a}</p>`
+            ).join('');
+
             document.getElementById('results').style.display = 'block';
-            showNotification('Calcul effectué !', 'success');
+            document.getElementById('chartSection').style.display = 'block';
+            document.getElementById('historySection').style.display = 'block';
+
+            renderPeriods();
+            updateChart(cac, ltv, periodName);
+
+            this.reset();
+            showNotification('Période ajoutée avec succès !', 'success');
         });
-        window.addEventListener('load', () => document.getElementById('mainForm').dispatchEvent(new Event('submit')));
+
+        function renderPeriods() {
+            const list = document.getElementById('periodsList');
+            if (periods.length === 0) {
+                list.innerHTML = '<p style="text-align: center; color: var(--text-secondary); padding: 2rem;">Aucune période enregistrée</p>';
+                return;
+            }
+
+            const sortedPeriods = [...periods].reverse();
+            list.innerHTML = sortedPeriods.map(period => `
+                <div style="background: white; border: 1px solid var(--border); border-radius: var(--radius); padding: 1rem; margin-bottom: 0.75rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div style="flex: 1;">
+                            <h4 style="margin: 0 0 0.5rem 0; color: var(--primary);">${period.name}</h4>
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.5rem; font-size: 0.9rem;">
+                                <div><strong>CAC:</strong> ${formatCurrency(period.cac)}</div>
+                                <div><strong>Clients:</strong> ${period.newCustomers}</div>
+                                <div><strong>Coûts totaux:</strong> ${formatCurrency(period.totalCosts)}</div>
+                                <div><strong>LTV:</strong> ${period.ltv > 0 ? formatCurrency(period.ltv) : 'N/A'}</div>
+                                <div><strong>Ratio:</strong> ${period.ltv > 0 ? period.ltvCacRatio.toFixed(2) + ':1' : 'N/A'}</div>
+                                <div><strong>Payback:</strong> ${period.paybackMonths > 0 ? period.paybackMonths.toFixed(1) + ' mois' : 'N/A'}</div>
+                            </div>
+                        </div>
+                        <button class="btn btn-danger btn-sm" onclick="deletePeriod(${period.id})">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        window.deletePeriod = function(id) {
+            if (confirm('Supprimer cette période ?')) {
+                periods = periods.filter(p => p.id !== id);
+                savePeriods();
+                renderPeriods();
+
+                if (periods.length === 0) {
+                    document.getElementById('chartSection').style.display = 'none';
+                    document.getElementById('historySection').style.display = 'none';
+                    document.getElementById('results').style.display = 'none';
+                }
+
+                showNotification('Période supprimée', 'success');
+            }
+        };
+
+        function updateChart(cac, ltv, label) {
+            const ctx = document.getElementById('cacChart').getContext('2d');
+
+            if (chart) {
+                chart.destroy();
+            }
+
+            const data = ltv > 0 ? [cac, ltv] : [cac];
+            const labels = ltv > 0 ? ['CAC', 'LTV'] : ['CAC'];
+            const colors = ltv > 0 ?
+                ['rgba(255, 99, 132, 0.6)', 'rgba(75, 192, 192, 0.6)'] :
+                ['rgba(255, 99, 132, 0.6)'];
+            const borderColors = ltv > 0 ?
+                ['rgba(255, 99, 132, 1)', 'rgba(75, 192, 192, 1)'] :
+                ['rgba(255, 99, 132, 1)'];
+
+            chart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: label,
+                        data: data,
+                        backgroundColor: colors,
+                        borderColor: borderColors,
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': ' + formatCurrency(context.parsed.y);
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return formatCurrency(value);
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        document.getElementById('exportBtn').addEventListener('click', function() {
+            if (periods.length === 0) {
+                showNotification('Aucune donnée à exporter', 'warning');
+                return;
+            }
+
+            const csv = [
+                ['Période', 'Coûts Marketing (€)', 'Coûts Ventes (€)', 'Coûts Totaux (€)', 'Nouveaux Clients', 'CAC (€)', 'LTV (€)', 'Ratio LTV/CAC', 'Revenu mois (€)', 'Payback (mois)', 'Date'],
+                ...periods.map(p => [
+                    p.name,
+                    p.marketingCosts.toFixed(2),
+                    p.salesCosts.toFixed(2),
+                    p.totalCosts.toFixed(2),
+                    p.newCustomers,
+                    p.cac.toFixed(2),
+                    p.ltv.toFixed(2),
+                    p.ltv > 0 ? p.ltvCacRatio.toFixed(2) : 'N/A',
+                    p.avgRevenue.toFixed(2),
+                    p.paybackMonths > 0 ? p.paybackMonths.toFixed(1) : 'N/A',
+                    new Date(p.date).toLocaleDateString('fr-FR')
+                ])
+            ].map(row => row.join(';')).join('\n');
+
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `cac-calculator-${new Date().toISOString().split('T')[0]}.csv`;
+            link.click();
+            showNotification('Export CSV téléchargé !', 'success');
+        });
+
+        document.getElementById('clearBtn').addEventListener('click', function() {
+            if (confirm('Effacer toutes les données ? Cette action est irréversible.')) {
+                periods = [];
+                savePeriods();
+                renderPeriods();
+                if (chart) chart.destroy();
+                document.getElementById('chartSection').style.display = 'none';
+                document.getElementById('historySection').style.display = 'none';
+                document.getElementById('results').style.display = 'none';
+                showNotification('Données effacées', 'success');
+            }
+        });
+
+        // Initialize
+        if (periods.length > 0) {
+            document.getElementById('historySection').style.display = 'block';
+            renderPeriods();
+        }
     </script>
 </body>
 </html>

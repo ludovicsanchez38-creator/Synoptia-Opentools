@@ -3,65 +3,458 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simulateur de Budget Pub - Business Tools</title>
+    <title>Planificateur Budget Publicitaire - Business Tools by Synoptia</title>
     <link rel="stylesheet" href="../../assets/css/main.css">
     <link rel="stylesheet" href="../../assets/css/tools.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <nav class="breadcrumb">
-        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> > 
-        <a href="../../index.html#tools">Marketing</a> > 
-        <span>Simulateur de Budget Pub</span>
+        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> >
+        <a href="../../index.html#tools">Marketing</a> >
+        <span>Planificateur Budget Publicitaire</span>
     </nav>
     <main class="tool-container">
         <header class="tool-header">
-            <h1><i class="fas fa-money-bill-wave"></i> Simulateur de Budget Pub</h1>
-            <p class="tool-description">Outil marketing pour optimiser vos campagnes.</p>
+            <h1><i class="fas fa-money-bill-wave"></i> Planificateur Budget Publicitaire</h1>
+            <p class="tool-description">Répartissez votre budget publicitaire entre différents canaux et estimez les résultats</p>
         </header>
+
         <section class="tool-input">
-            <form id="mainForm">
-                <div class="input-grid">
-                    <div class="form-group">
-                        <label for="input1" class="form-label">Valeur 1</label>
-                        <input type="number" id="input1" class="form-input" value="100" min="0" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="input2" class="form-label">Valeur 2</label>
-                        <input type="number" id="input2" class="form-input" value="50" min="0" required>
+            <h2><i class="fas fa-plus-circle"></i> Configurer le budget</h2>
+            <form id="budgetForm">
+                <div class="form-group">
+                    <label for="campaignName" class="form-label">Nom de la campagne</label>
+                    <input type="text" id="campaignName" class="form-input" placeholder="Ex: Campagne Q1 2025" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="totalBudget" class="form-label">Budget total (€)</label>
+                    <input type="number" id="totalBudget" class="form-input" min="0" step="0.01" value="10000" required>
+                </div>
+
+                <h3 style="margin: 2rem 0 1rem 0;">Répartition par canal</h3>
+
+                <div id="channelsContainer">
+                    <div class="channel-item" style="background: white; border: 1px solid var(--border); border-radius: var(--radius); padding: 1rem; margin-bottom: 1rem;">
+                        <div class="input-grid">
+                            <div class="form-group">
+                                <label class="form-label">Canal</label>
+                                <select class="form-input channel-select" required>
+                                    <option value="Google Ads">Google Ads</option>
+                                    <option value="Facebook Ads">Facebook Ads</option>
+                                    <option value="Instagram Ads">Instagram Ads</option>
+                                    <option value="LinkedIn Ads">LinkedIn Ads</option>
+                                    <option value="TikTok Ads">TikTok Ads</option>
+                                    <option value="Twitter Ads">Twitter Ads</option>
+                                    <option value="Display">Display/Bannières</option>
+                                    <option value="YouTube Ads">YouTube Ads</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Pourcentage (%)</label>
+                                <input type="number" class="form-input channel-percent" min="0" max="100" step="0.1" value="25" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">CPC/CPM estimé (€)</label>
+                                <input type="number" class="form-input channel-cost" min="0" step="0.01" value="2" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Type</label>
+                                <select class="form-input channel-type" required>
+                                    <option value="CPC">CPC (Coût par clic)</option>
+                                    <option value="CPM">CPM (Coût pour mille)</option>
+                                </select>
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-danger btn-sm" onclick="removeChannel(this)" style="margin-top: 0.5rem;">
+                            <i class="fas fa-trash"></i> Retirer
+                        </button>
                     </div>
                 </div>
-                <button type="submit" class="btn btn-primary"><i class="fas fa-calculator"></i> Calculer</button>
+
+                <button type="button" class="btn btn-secondary" id="addChannelBtn" style="margin-bottom: 1rem;">
+                    <i class="fas fa-plus"></i> Ajouter un canal
+                </button>
+
+                <div style="margin-top: 1.5rem;">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-calculator"></i> Calculer la répartition
+                    </button>
+                </div>
             </form>
         </section>
+
         <section class="tool-output" id="results" style="display: none;">
-            <div class="results-grid">
-                <div class="result-item">
-                    <div class="result-label">Résultat</div>
-                    <div class="result-value highlight" id="result">-</div>
+            <h2><i class="fas fa-chart-pie"></i> Résultats</h2>
+            <div id="allocationTable"></div>
+
+            <div style="background: white; border-radius: var(--radius-lg); padding: 2rem; margin: 2rem 0;">
+                <h3><i class="fas fa-chart-pie"></i> Répartition visuelle</h3>
+                <div style="position: relative; height: 350px;">
+                    <canvas id="budgetChart"></canvas>
                 </div>
             </div>
+
+            <div class="results-grid" id="totalsGrid"></div>
         </section>
+
+        <section class="tool-output" id="historySection" style="display: none;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                <h2><i class="fas fa-history"></i> Campagnes sauvegardées</h2>
+                <div>
+                    <button class="btn btn-success btn-sm" id="exportBtn">
+                        <i class="fas fa-file-csv"></i> Exporter CSV
+                    </button>
+                    <button class="btn btn-danger btn-sm" id="clearBtn">
+                        <i class="fas fa-trash"></i> Effacer
+                    </button>
+                </div>
+            </div>
+            <div id="campaignsList"></div>
+        </section>
+
         <section class="tool-help">
-            <h3><i class="fas fa-info-circle"></i> Information</h3>
-            <p>Optimisez vos campagnes marketing avec cet outil.</p>
+            <h3><i class="fas fa-question-circle"></i> Comment utiliser cet outil</h3>
+            <h4>Configuration :</h4>
+            <ul>
+                <li>Entrez votre budget total et le nom de la campagne</li>
+                <li>Ajoutez des canaux publicitaires (Google, Facebook, LinkedIn, etc.)</li>
+                <li>Définissez le pourcentage du budget pour chaque canal</li>
+                <li>Indiquez le CPC (coût par clic) ou CPM (coût pour mille impressions) estimé</li>
+            </ul>
+            <h4>Métriques calculées :</h4>
+            <ul>
+                <li><strong>Montant alloué</strong> = Budget total × Pourcentage</li>
+                <li><strong>Clics estimés (CPC)</strong> = Montant alloué / CPC</li>
+                <li><strong>Impressions estimées (CPM)</strong> = (Montant alloué / CPM) × 1000</li>
+            </ul>
+            <h4>CPC/CPM moyens par plateforme :</h4>
+            <ul>
+                <li><strong>Google Ads :</strong> CPC 1-3€, CPM 2-5€</li>
+                <li><strong>Facebook/Instagram :</strong> CPC 0.5-2€, CPM 5-10€</li>
+                <li><strong>LinkedIn :</strong> CPC 3-8€, CPM 6-12€</li>
+                <li><strong>TikTok :</strong> CPC 0.5-1.5€, CPM 4-8€</li>
+            </ul>
         </section>
     </main>
-    <footer class="tool-footer"><a href="../../index.html"><i class="fas fa-arrow-left"></i> Retour</a></footer>
+    <footer class="tool-footer">
+        <p>Développé par <a href="mailto:ludo@synoptia.fr">ludo@synoptia.fr</a> - Synoptia</p>
+    </footer>
+
     <script src="../../assets/js/utils.js"></script>
     <script src="../../assets/js/main.js"></script>
     <script>
-        document.getElementById('mainForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const val1 = parseFloat(document.getElementById('input1').value);
-            const val2 = parseFloat(document.getElementById('input2').value);
-            const result = val2 > 0 ? (val1 / val2) : 0;
-            document.getElementById('result').textContent = result.toFixed(2);
-            document.getElementById('results').style.display = 'block';
-            showNotification('Calcul effectué !', 'success');
+        let campaigns = JSON.parse(localStorage.getItem('adBudgetCampaigns')) || [];
+        let chart = null;
+
+        function saveCampaigns() {
+            localStorage.setItem('adBudgetCampaigns', JSON.stringify(campaigns));
+        }
+
+        document.getElementById('addChannelBtn').addEventListener('click', function() {
+            const container = document.getElementById('channelsContainer');
+            const newChannel = document.createElement('div');
+            newChannel.className = 'channel-item';
+            newChannel.style.cssText = 'background: white; border: 1px solid var(--border); border-radius: var(--radius); padding: 1rem; margin-bottom: 1rem;';
+            newChannel.innerHTML = `
+                <div class="input-grid">
+                    <div class="form-group">
+                        <label class="form-label">Canal</label>
+                        <select class="form-input channel-select" required>
+                            <option value="Google Ads">Google Ads</option>
+                            <option value="Facebook Ads">Facebook Ads</option>
+                            <option value="Instagram Ads">Instagram Ads</option>
+                            <option value="LinkedIn Ads">LinkedIn Ads</option>
+                            <option value="TikTok Ads">TikTok Ads</option>
+                            <option value="Twitter Ads">Twitter Ads</option>
+                            <option value="Display">Display/Bannières</option>
+                            <option value="YouTube Ads">YouTube Ads</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Pourcentage (%)</label>
+                        <input type="number" class="form-input channel-percent" min="0" max="100" step="0.1" value="25" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">CPC/CPM estimé (€)</label>
+                        <input type="number" class="form-input channel-cost" min="0" step="0.01" value="2" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Type</label>
+                        <select class="form-input channel-type" required>
+                            <option value="CPC">CPC (Coût par clic)</option>
+                            <option value="CPM">CPM (Coût pour mille)</option>
+                        </select>
+                    </div>
+                </div>
+                <button type="button" class="btn btn-danger btn-sm" onclick="removeChannel(this)" style="margin-top: 0.5rem;">
+                    <i class="fas fa-trash"></i> Retirer
+                </button>
+            `;
+            container.appendChild(newChannel);
         });
-        window.addEventListener('load', () => document.getElementById('mainForm').dispatchEvent(new Event('submit')));
+
+        window.removeChannel = function(btn) {
+            const channelItems = document.querySelectorAll('.channel-item');
+            if (channelItems.length > 1) {
+                btn.closest('.channel-item').remove();
+            } else {
+                showNotification('Vous devez garder au moins un canal', 'warning');
+            }
+        };
+
+        document.getElementById('budgetForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const campaignName = document.getElementById('campaignName').value;
+            const totalBudget = parseFloat(document.getElementById('totalBudget').value);
+
+            const channels = [];
+            const channelItems = document.querySelectorAll('.channel-item');
+
+            let totalPercent = 0;
+            channelItems.forEach(item => {
+                const channel = item.querySelector('.channel-select').value;
+                const percent = parseFloat(item.querySelector('.channel-percent').value);
+                const cost = parseFloat(item.querySelector('.channel-cost').value);
+                const type = item.querySelector('.channel-type').value;
+
+                totalPercent += percent;
+
+                const amount = (totalBudget * percent) / 100;
+                let metric, metricValue;
+
+                if (type === 'CPC') {
+                    metric = 'Clics estimés';
+                    metricValue = amount / cost;
+                } else {
+                    metric = 'Impressions estimées';
+                    metricValue = (amount / cost) * 1000;
+                }
+
+                channels.push({
+                    channel,
+                    percent,
+                    cost,
+                    type,
+                    amount,
+                    metric,
+                    metricValue
+                });
+            });
+
+            if (Math.abs(totalPercent - 100) > 0.01) {
+                showNotification(`La somme des pourcentages est ${totalPercent.toFixed(1)}% (doit être 100%)`, 'warning');
+                return;
+            }
+
+            const campaign = {
+                id: Date.now(),
+                name: campaignName,
+                totalBudget,
+                channels,
+                date: new Date().toISOString()
+            };
+
+            campaigns.push(campaign);
+            saveCampaigns();
+
+            // Display allocation table
+            const tableHTML = `
+                <div style="overflow-x: auto;">
+                    <table style="width: 100%; border-collapse: collapse; background: white;">
+                        <thead style="background: var(--primary); color: white;">
+                            <tr>
+                                <th style="padding: 1rem; text-align: left;">Canal</th>
+                                <th style="padding: 1rem; text-align: center;">%</th>
+                                <th style="padding: 1rem; text-align: right;">Montant</th>
+                                <th style="padding: 1rem; text-align: center;">Type</th>
+                                <th style="padding: 1rem; text-align: right;">Coût</th>
+                                <th style="padding: 1rem; text-align: right;">Prévision</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${channels.map(ch => `
+                                <tr style="border-bottom: 1px solid var(--border);">
+                                    <td style="padding: 0.75rem; font-weight: 600;">${ch.channel}</td>
+                                    <td style="padding: 0.75rem; text-align: center;">${ch.percent}%</td>
+                                    <td style="padding: 0.75rem; text-align: right; font-weight: 700; color: var(--primary);">${formatCurrency(ch.amount)}</td>
+                                    <td style="padding: 0.75rem; text-align: center;">${ch.type}</td>
+                                    <td style="padding: 0.75rem; text-align: right;">${formatCurrency(ch.cost)}</td>
+                                    <td style="padding: 0.75rem; text-align: right;">${ch.metricValue.toLocaleString('fr-FR', {maximumFractionDigits: 0})} ${ch.type === 'CPC' ? 'clics' : 'impressions'}</td>
+                                </tr>
+                            `).join('')}
+                            <tr style="background: var(--light); font-weight: 700;">
+                                <td style="padding: 1rem;">TOTAL</td>
+                                <td style="padding: 1rem; text-align: center;">100%</td>
+                                <td style="padding: 1rem; text-align: right; color: var(--primary);">${formatCurrency(totalBudget)}</td>
+                                <td colspan="3"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            `;
+            document.getElementById('allocationTable').innerHTML = tableHTML;
+
+            // Update totals grid
+            const totalClicks = channels.filter(c => c.type === 'CPC').reduce((sum, c) => sum + c.metricValue, 0);
+            const totalImpressions = channels.filter(c => c.type === 'CPM').reduce((sum, c) => sum + c.metricValue, 0);
+
+            document.getElementById('totalsGrid').innerHTML = `
+                <div class="result-item">
+                    <div class="result-label">Budget total</div>
+                    <div class="result-value highlight">${formatCurrency(totalBudget)}</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Canaux actifs</div>
+                    <div class="result-value">${channels.length}</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Total clics estimés</div>
+                    <div class="result-value">${totalClicks.toLocaleString('fr-FR', {maximumFractionDigits: 0})}</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Total impressions estimées</div>
+                    <div class="result-value">${totalImpressions.toLocaleString('fr-FR', {maximumFractionDigits: 0})}</div>
+                </div>
+            `;
+
+            // Update chart
+            updateChart(channels);
+
+            document.getElementById('results').style.display = 'block';
+            document.getElementById('historySection').style.display = 'block';
+            renderCampaigns();
+
+            showNotification('Budget calculé avec succès !', 'success');
+        });
+
+        function updateChart(channels) {
+            const ctx = document.getElementById('budgetChart').getContext('2d');
+
+            if (chart) {
+                chart.destroy();
+            }
+
+            const colors = ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40', '#FF6384', '#C9CBCF'];
+
+            chart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: channels.map(c => c.channel),
+                    datasets: [{
+                        data: channels.map(c => c.amount),
+                        backgroundColor: colors.slice(0, channels.length),
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const channel = channels[context.dataIndex];
+                                    return `${channel.channel}: ${formatCurrency(channel.amount)} (${channel.percent}%)`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function renderCampaigns() {
+            const list = document.getElementById('campaignsList');
+            if (campaigns.length === 0) {
+                list.innerHTML = '<p style="text-align: center; color: var(--text-secondary); padding: 2rem;">Aucune campagne sauvegardée</p>';
+                return;
+            }
+
+            const sortedCampaigns = [...campaigns].reverse();
+            list.innerHTML = sortedCampaigns.map(campaign => `
+                <div style="background: white; border: 1px solid var(--border); border-radius: var(--radius); padding: 1rem; margin-bottom: 0.75rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div style="flex: 1;">
+                            <h4 style="margin: 0 0 0.5rem 0; color: var(--primary);">${campaign.name}</h4>
+                            <div style="font-size: 0.9rem;">
+                                <strong>Budget:</strong> ${formatCurrency(campaign.totalBudget)} |
+                                <strong>Canaux:</strong> ${campaign.channels.length} |
+                                <strong>Date:</strong> ${new Date(campaign.date).toLocaleDateString('fr-FR')}
+                            </div>
+                        </div>
+                        <button class="btn btn-danger btn-sm" onclick="deleteCampaign(${campaign.id})">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        window.deleteCampaign = function(id) {
+            if (confirm('Supprimer cette campagne ?')) {
+                campaigns = campaigns.filter(c => c.id !== id);
+                saveCampaigns();
+                renderCampaigns();
+                showNotification('Campagne supprimée', 'success');
+            }
+        };
+
+        document.getElementById('exportBtn').addEventListener('click', function() {
+            if (campaigns.length === 0) {
+                showNotification('Aucune donnée à exporter', 'warning');
+                return;
+            }
+
+            const rows = [['Campagne', 'Budget total', 'Canal', 'Pourcentage', 'Montant', 'Type', 'Coût', 'Prévision', 'Date']];
+
+            campaigns.forEach(campaign => {
+                campaign.channels.forEach(channel => {
+                    rows.push([
+                        campaign.name,
+                        campaign.totalBudget.toFixed(2),
+                        channel.channel,
+                        channel.percent,
+                        channel.amount.toFixed(2),
+                        channel.type,
+                        channel.cost.toFixed(2),
+                        channel.metricValue.toFixed(0),
+                        new Date(campaign.date).toLocaleDateString('fr-FR')
+                    ]);
+                });
+            });
+
+            const csv = rows.map(row => row.join(';')).join('\n');
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `budget-publicitaire-${new Date().toISOString().split('T')[0]}.csv`;
+            link.click();
+            showNotification('Export CSV téléchargé !', 'success');
+        });
+
+        document.getElementById('clearBtn').addEventListener('click', function() {
+            if (confirm('Effacer toutes les données ? Cette action est irréversible.')) {
+                campaigns = [];
+                saveCampaigns();
+                renderCampaigns();
+                document.getElementById('historySection').style.display = 'none';
+                showNotification('Données effacées', 'success');
+            }
+        });
+
+        // Initialize
+        if (campaigns.length > 0) {
+            document.getElementById('historySection').style.display = 'block';
+            renderCampaigns();
+        }
     </script>
 </body>
 </html>

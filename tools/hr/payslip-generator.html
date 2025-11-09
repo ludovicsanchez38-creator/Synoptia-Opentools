@@ -3,57 +3,239 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Outil Business - Business Tools</title>
+    <title>Générateur Bulletin de Paie - Business Tools by Synoptia</title>
     <link rel="stylesheet" href="../../assets/css/main.css">
     <link rel="stylesheet" href="../../assets/css/tools.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        @media print {
+            .tool-input, .action-buttons, nav, footer, .tool-help { display: none !important; }
+            .tool-output { display: block !important; }
+            #payslipPreview { box-shadow: none !important; border: none !important; }
+        }
+    </style>
 </head>
 <body>
     <nav class="breadcrumb">
-        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> > 
-        <a href="../../index.html#tools">RH</a> > 
-        <span>Outil</span>
+        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> >
+        <a href="../../index.html#tools">RH</a> >
+        <span>Bulletin de Paie</span>
     </nav>
     <main class="tool-container">
         <header class="tool-header">
-            <h1><i class="fas fa-tools"></i> Outil Business</h1>
-            <p class="tool-description">Outil professionnel pour optimiser votre activité.</p>
+            <h1><i class="fas fa-file-alt"></i> Générateur de Bulletin de Paie</h1>
+            <p class="tool-description">Générez des bulletins de paie professionnels conformes à la législation française avec calcul automatique des charges.</p>
         </header>
+
         <section class="tool-input">
-            <form id="mainForm">
-                <div class="form-group">
-                    <label for="input1" class="form-label">Donnée d'entrée</label>
-                    <input type="number" id="input1" class="form-input" value="100" min="0" required>
+            <h2>Informations du bulletin</h2>
+            <form id="payslipForm">
+                <div class="card" style="margin-bottom: 2rem;">
+                    <h3>Entreprise</h3>
+                    <div class="input-grid">
+                        <div class="form-group">
+                            <label for="companyName" class="form-label">Raison sociale</label>
+                            <input type="text" id="companyName" class="form-input" value="Synoptia" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="companyAddress" class="form-label">Adresse</label>
+                            <input type="text" id="companyAddress" class="form-input" placeholder="123 Rue Example, 75001 Paris" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="companySiret" class="form-label">SIRET</label>
+                            <input type="text" id="companySiret" class="form-input" placeholder="123 456 789 00000" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="companyNaf" class="form-label">Code NAF</label>
+                            <input type="text" id="companyNaf" class="form-input" placeholder="6202A">
+                        </div>
+                    </div>
                 </div>
-                <button type="submit" class="btn btn-primary"><i class="fas fa-calculator"></i> Calculer</button>
+
+                <div class="card" style="margin-bottom: 2rem;">
+                    <h3>Employé</h3>
+                    <div class="input-grid">
+                        <div class="form-group">
+                            <label for="employeeName" class="form-label">Nom Prénom</label>
+                            <input type="text" id="employeeName" class="form-input" placeholder="Jean Dupont" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="employeeNumber" class="form-label">Matricule</label>
+                            <input type="text" id="employeeNumber" class="form-input" placeholder="EMP-001" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="employeeJob" class="form-label">Emploi</label>
+                            <input type="text" id="employeeJob" class="form-input" placeholder="Développeur" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="employeeStatus" class="form-label">Statut</label>
+                            <select id="employeeStatus" class="form-select">
+                                <option value="non-cadre">Non-cadre</option>
+                                <option value="cadre">Cadre</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="employeeSS" class="form-label">N° Sécurité sociale</label>
+                            <input type="text" id="employeeSS" class="form-input" placeholder="1 85 03 75 123 456 78">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card" style="margin-bottom: 2rem;">
+                    <h3>Période et rémunération</h3>
+                    <div class="input-grid">
+                        <div class="form-group">
+                            <label for="payPeriod" class="form-label">Période</label>
+                            <input type="month" id="payPeriod" class="form-input" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="baseSalary" class="form-label">Salaire de base (€)</label>
+                            <input type="number" id="baseSalary" class="form-input" value="3000" min="0" step="0.01" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="workingHours" class="form-label">Heures travaillées</label>
+                            <input type="number" id="workingHours" class="form-input" value="151.67" step="0.01" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="overtimeHours" class="form-label">Heures supplémentaires</label>
+                            <input type="number" id="overtimeHours" class="form-input" value="0" min="0" step="0.01">
+                        </div>
+                        <div class="form-group">
+                            <label for="bonus" class="form-label">Primes (€)</label>
+                            <input type="number" id="bonus" class="form-input" value="0" min="0" step="0.01">
+                        </div>
+                        <div class="form-group">
+                            <label for="mealVouchers" class="form-label">Tickets restaurant (part salariale €)</label>
+                            <input type="number" id="mealVouchers" class="form-input" value="0" min="0" step="0.01">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="action-buttons">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-file-invoice"></i> Générer le bulletin
+                    </button>
+                    <button type="button" class="btn btn-secondary" id="saveBtn">
+                        <i class="fas fa-save"></i> Sauvegarder
+                    </button>
+                    <button type="reset" class="btn btn-outline">
+                        <i class="fas fa-redo"></i> Réinitialiser
+                    </button>
+                </div>
             </form>
         </section>
+
         <section class="tool-output" id="results" style="display: none;">
-            <div class="results-grid">
-                <div class="result-item">
-                    <div class="result-label">Résultat</div>
-                    <div class="result-value highlight" id="result">-</div>
-                </div>
+            <h2><i class="fas fa-file-alt"></i> Bulletin de paie</h2>
+
+            <div id="payslipPreview" style="background: white; padding: 2rem; border: 1px solid var(--border); border-radius: var(--radius-lg); max-width: 900px; margin: 0 auto; font-size: 0.9rem;">
+                <!-- Le bulletin sera généré ici -->
+            </div>
+
+            <div class="action-buttons" style="margin-top: 2rem;">
+                <button class="btn btn-accent" id="printBtn">
+                    <i class="fas fa-print"></i> Imprimer / PDF
+                </button>
+                <button class="btn btn-outline" id="newPayslipBtn">
+                    <i class="fas fa-plus"></i> Nouveau bulletin
+                </button>
             </div>
         </section>
+
         <section class="tool-help">
-            <h3><i class="fas fa-info-circle"></i> Aide</h3>
-            <p>Utilisez cet outil pour optimiser votre gestion d'entreprise.</p>
+            <h3><i class="fas fa-question-circle"></i> Comment utiliser ce générateur ?</h3>
+            <ol>
+                <li>Remplissez les <strong>informations de l'entreprise</strong></li>
+                <li>Ajoutez les <strong>données de l'employé</strong></li>
+                <li>Indiquez la <strong>période et la rémunération</strong></li>
+                <li>Cliquez sur <strong>"Générer"</strong> pour créer le bulletin</li>
+                <li>Imprimez ou sauvegardez en PDF</li>
+            </ol>
+
+            <h3><i class="fas fa-lightbulb"></i> Informations</h3>
+            <ul>
+                <li>Les charges sont calculées automatiquement selon la législation 2024-2025</li>
+                <li>Les heures supplémentaires sont majorées à 25%</li>
+                <li>Le bulletin est conforme aux mentions légales obligatoires</li>
+                <li>Utilisez "Imprimer > Enregistrer en PDF" pour sauvegarder</li>
+            </ul>
         </section>
     </main>
-    <footer class="tool-footer"><a href="../../index.html"><i class="fas fa-arrow-left"></i> Retour</a></footer>
+
+    <footer class="tool-footer">
+        <div style="text-align: center; padding: 1rem;">
+            <a href="../../index.html"><i class="fas fa-arrow-left"></i> Retour aux outils</a>
+            <p style="margin-top: 1rem; color: var(--gray); font-size: 0.875rem;">
+                Business Tools by Synoptia - Contact: <a href="mailto:ludo@synoptia.fr">ludo@synoptia.fr</a>
+            </p>
+        </div>
+    </footer>
+
     <script src="../../assets/js/utils.js"></script>
     <script src="../../assets/js/main.js"></script>
     <script>
-        document.getElementById('mainForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const val = parseFloat(document.getElementById('input1').value);
-            document.getElementById('result').textContent = val.toFixed(2);
+        const PLAFOND_SS = 3864;
+
+        // Taux de charges (voir les 2 outils précédents pour les taux complets - ici version simplifiée pour le bulletin)
+        const EMPLOYEE_RATES = { oldAgeCapped: 6.90, oldAgeUncapped: 0.40, retirementT1: 3.15, retirementT2Cadre: 8.64, csgDeductible: 6.80, csgNonDeductible: 2.40, crds: 0.50 };
+        const EMPLOYER_RATES = { healthInsurance: 13.00, oldAgeCapped: 8.55, oldAgeUncapped: 1.90, familyAllowances: 3.45, accident: 1.5, unemployment: 4.05, fnal: 0.50, csa: 0.30, ags: 0.15, retirementT1: 4.72, retirementT2Cadre: 12.95 };
+
+        function saveToLocalStorage() {
+            const data = { companyName: document.getElementById('companyName').value, companyAddress: document.getElementById('companyAddress').value, companySiret: document.getElementById('companySiret').value, companyNaf: document.getElementById('companyNaf').value, employeeName: document.getElementById('employeeName').value, employeeNumber: document.getElementById('employeeNumber').value, employeeJob: document.getElementById('employeeJob').value, employeeStatus: document.getElementById('employeeStatus').value, employeeSS: document.getElementById('employeeSS').value, baseSalary: document.getElementById('baseSalary').value, workingHours: document.getElementById('workingHours').value };
+            localStorage.setItem('payslipData', JSON.stringify(data));
+            showNotification('Données sauvegardées !', 'success');
+        }
+
+        function loadFromLocalStorage() {
+            const data = localStorage.getItem('payslipData');
+            if (data) { const parsed = JSON.parse(data); Object.keys(parsed).forEach(key => { const element = document.getElementById(key); if (element) element.value = parsed[key]; }); }
+        }
+
+        function calculatePayslip() {
+            const baseSalary = parseFloat(document.getElementById('baseSalary').value) || 0;
+            const overtimeHours = parseFloat(document.getElementById('overtimeHours').value) || 0;
+            const bonus = parseFloat(document.getElementById('bonus').value) || 0;
+            const workingHours = parseFloat(document.getElementById('workingHours').value) || 151.67;
+            const status = document.getElementById('employeeStatus').value;
+            const mealVouchers = parseFloat(document.getElementById('mealVouchers').value) || 0;
+
+            const hourlyRate = baseSalary / workingHours;
+            const overtimePay = overtimeHours * hourlyRate * 1.25;
+            const grossSalary = baseSalary + overtimePay + bonus;
+
+            const tranche1 = Math.min(grossSalary, PLAFOND_SS);
+            const tranche2 = status === 'cadre' ? Math.max(0, grossSalary - PLAFOND_SS) : 0;
+            const csgBase = grossSalary * 0.9825;
+
+            const employeeCharges = { oldAgeCapped: tranche1 * (EMPLOYEE_RATES.oldAgeCapped / 100), oldAgeUncapped: grossSalary * (EMPLOYEE_RATES.oldAgeUncapped / 100), retirementT1: tranche1 * (EMPLOYEE_RATES.retirementT1 / 100), retirementT2: status === 'cadre' ? tranche2 * (EMPLOYEE_RATES.retirementT2Cadre / 100) : 0, csgDeductible: csgBase * (EMPLOYEE_RATES.csgDeductible / 100), csgNonDeductible: csgBase * (EMPLOYEE_RATES.csgNonDeductible / 100), crds: csgBase * (EMPLOYEE_RATES.crds / 100), mealVouchers: mealVouchers };
+            const totalEmployeeCharges = Object.values(employeeCharges).reduce((sum, val) => sum + val, 0);
+
+            const employerCharges = { healthInsurance: grossSalary * (EMPLOYER_RATES.healthInsurance / 100), oldAgeCapped: tranche1 * (EMPLOYER_RATES.oldAgeCapped / 100), oldAgeUncapped: grossSalary * (EMPLOYER_RATES.oldAgeUncapped / 100), familyAllowances: grossSalary * (EMPLOYER_RATES.familyAllowances / 100), accident: grossSalary * (EMPLOYER_RATES.accident / 100), unemployment: grossSalary * (EMPLOYER_RATES.unemployment / 100), fnal: grossSalary * (EMPLOYER_RATES.fnal / 100), csa: grossSalary * (EMPLOYER_RATES.csa / 100), ags: grossSalary * (EMPLOYER_RATES.ags / 100), retirementT1: tranche1 * (EMPLOYER_RATES.retirementT1 / 100), retirementT2: status === 'cadre' ? tranche2 * (EMPLOYER_RATES.retirementT2Cadre / 100) : 0 };
+            const totalEmployerCharges = Object.values(employerCharges).reduce((sum, val) => sum + val, 0);
+
+            const netSalary = grossSalary - totalEmployeeCharges;
+            const netTaxable = netSalary + employeeCharges.csgNonDeductible + employeeCharges.crds;
+
+            return { baseSalary, overtimeHours, overtimePay, bonus, grossSalary, employeeCharges, totalEmployeeCharges, employerCharges, totalEmployerCharges, netSalary, netTaxable, status, hourlyRate };
+        }
+
+        function generatePayslip(calc) {
+            const period = new Date(document.getElementById('payPeriod').value);
+            const periodStr = period.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
+            const preview = document.getElementById('payslipPreview');
+
+            preview.innerHTML = `<div style="border-bottom: 3px solid var(--primary); padding-bottom: 1rem; margin-bottom: 1.5rem;"><div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;"><div><h2 style="color: var(--primary); margin: 0;">${document.getElementById('companyName').value}</h2><p style="margin: 0.5rem 0 0 0;">${document.getElementById('companyAddress').value}</p><p style="margin: 0.25rem 0;">SIRET: ${document.getElementById('companySiret').value}</p>${document.getElementById('companyNaf').value ? `<p style="margin: 0.25rem 0;">NAF: ${document.getElementById('companyNaf').value}</p>` : ''}</div><div style="text-align: right;"><h3 style="margin: 0; font-size: 1.5rem;">BULLETIN DE PAIE</h3><p style="margin: 0.5rem 0 0 0; font-weight: 600;">${periodStr}</p></div></div></div><div style="background: var(--light); padding: 1rem; margin-bottom: 1.5rem; border-radius: 4px;"><div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;"><div><p style="margin: 0.25rem 0;"><strong>Employé:</strong> ${document.getElementById('employeeName').value}</p><p style="margin: 0.25rem 0;"><strong>Matricule:</strong> ${document.getElementById('employeeNumber').value}</p><p style="margin: 0.25rem 0;"><strong>Emploi:</strong> ${document.getElementById('employeeJob').value}</p></div><div><p style="margin: 0.25rem 0;"><strong>Statut:</strong> ${calc.status === 'cadre' ? 'Cadre' : 'Non-cadre'}</p><p style="margin: 0.25rem 0;"><strong>N° SS:</strong> ${document.getElementById('employeeSS').value || 'N/A'}</p></div></div></div><table style="width: 100%; border-collapse: collapse; margin-bottom: 1.5rem; font-size: 0.85rem;"><thead><tr style="background: var(--primary); color: white;"><th style="padding: 0.75rem; text-align: left; border: 1px solid var(--border);">Libellé</th><th style="padding: 0.75rem; text-align: center; border: 1px solid var(--border);">Base</th><th style="padding: 0.75rem; text-align: center; border: 1px solid var(--border);">Taux sal.</th><th style="padding: 0.75rem; text-align: right; border: 1px solid var(--border);">Cotis. sal.</th><th style="padding: 0.75rem; text-align: center; border: 1px solid var(--border);">Taux patr.</th><th style="padding: 0.75rem; text-align: right; border: 1px solid var(--border);">Cotis. patr.</th></tr></thead><tbody><tr style="background: #f0f0f0; font-weight: 600;"><td colspan="6" style="padding: 0.5rem; border: 1px solid var(--border);">RÉMUNÉRATION</td></tr><tr><td style="padding: 0.5rem; border: 1px solid var(--border);">Salaire de base</td><td style="padding: 0.5rem; text-align: center; border: 1px solid var(--border);">${document.getElementById('workingHours').value}h</td><td style="padding: 0.5rem; border: 1px solid var(--border);"></td><td style="padding: 0.5rem; text-align: right; border: 1px solid var(--border);">${formatCurrency(calc.baseSalary)}</td><td style="padding: 0.5rem; border: 1px solid var(--border);"></td><td style="padding: 0.5rem; border: 1px solid var(--border);"></td></tr>${calc.overtimeHours > 0 ? `<tr><td style="padding: 0.5rem; border: 1px solid var(--border);">Heures sup. (25%)</td><td style="padding: 0.5rem; text-align: center; border: 1px solid var(--border);">${calc.overtimeHours}h</td><td style="padding: 0.5rem; border: 1px solid var(--border);"></td><td style="padding: 0.5rem; text-align: right; border: 1px solid var(--border);">${formatCurrency(calc.overtimePay)}</td><td style="padding: 0.5rem; border: 1px solid var(--border);"></td><td style="padding: 0.5rem; border: 1px solid var(--border);"></td></tr>` : ''}${calc.bonus > 0 ? `<tr><td style="padding: 0.5rem; border: 1px solid var(--border);">Primes</td><td style="padding: 0.5rem; border: 1px solid var(--border);"></td><td style="padding: 0.5rem; border: 1px solid var(--border);"></td><td style="padding: 0.5rem; text-align: right; border: 1px solid var(--border);">${formatCurrency(calc.bonus)}</td><td style="padding: 0.5rem; border: 1px solid var(--border);"></td><td style="padding: 0.5rem; border: 1px solid var(--border);"></td></tr>` : ''}<tr style="background: #f0f0f0; font-weight: 600;"><td colspan="6" style="padding: 0.5rem; border: 1px solid var(--border);">COTISATIONS</td></tr><tr><td style="padding: 0.5rem; border: 1px solid var(--border);">Santé</td><td style="padding: 0.5rem; text-align: center; border: 1px solid var(--border);">${formatCurrency(calc.grossSalary)}</td><td style="padding: 0.5rem; text-align: center; border: 1px solid var(--border);">-</td><td style="padding: 0.5rem; text-align: right; border: 1px solid var(--border);">-</td><td style="padding: 0.5rem; text-align: center; border: 1px solid var(--border);">13%</td><td style="padding: 0.5rem; text-align: right; border: 1px solid var(--border);">${formatCurrency(calc.employerCharges.healthInsurance)}</td></tr><tr><td style="padding: 0.5rem; border: 1px solid var(--border);">Retraite</td><td style="padding: 0.5rem; text-align: center; border: 1px solid var(--border);">${formatCurrency(calc.grossSalary)}</td><td style="padding: 0.5rem; text-align: center; border: 1px solid var(--border);">10.45%</td><td style="padding: 0.5rem; text-align: right; border: 1px solid var(--border);">${formatCurrency(calc.employeeCharges.oldAgeCapped + calc.employeeCharges.oldAgeUncapped + calc.employeeCharges.retirementT1 + calc.employeeCharges.retirementT2)}</td><td style="padding: 0.5rem; text-align: center; border: 1px solid var(--border);">15.22%</td><td style="padding: 0.5rem; text-align: right; border: 1px solid var(--border);">${formatCurrency(calc.employerCharges.oldAgeCapped + calc.employerCharges.oldAgeUncapped + calc.employerCharges.retirementT1 + calc.employerCharges.retirementT2)}</td></tr><tr><td style="padding: 0.5rem; border: 1px solid var(--border);">Famille / Chômage</td><td style="padding: 0.5rem; text-align: center; border: 1px solid var(--border);">${formatCurrency(calc.grossSalary)}</td><td style="padding: 0.5rem; text-align: center; border: 1px solid var(--border);">-</td><td style="padding: 0.5rem; text-align: right; border: 1px solid var(--border);">-</td><td style="padding: 0.5rem; text-align: center; border: 1px solid var(--border);">7.5%</td><td style="padding: 0.5rem; text-align: right; border: 1px solid var(--border);">${formatCurrency(calc.employerCharges.familyAllowances + calc.employerCharges.unemployment)}</td></tr><tr><td style="padding: 0.5rem; border: 1px solid var(--border);">Autres cotisations</td><td style="padding: 0.5rem; text-align: center; border: 1px solid var(--border);">${formatCurrency(calc.grossSalary)}</td><td style="padding: 0.5rem; text-align: center; border: 1px solid var(--border);">-</td><td style="padding: 0.5rem; text-align: right; border: 1px solid var(--border);">-</td><td style="padding: 0.5rem; text-align: center; border: 1px solid var(--border);">2.45%</td><td style="padding: 0.5rem; text-align: right; border: 1px solid var(--border);">${formatCurrency(calc.employerCharges.accident + calc.employerCharges.fnal + calc.employerCharges.csa + calc.employerCharges.ags)}</td></tr><tr><td style="padding: 0.5rem; border: 1px solid var(--border);">CSG/CRDS</td><td style="padding: 0.5rem; text-align: center; border: 1px solid var(--border);">${formatCurrency(calc.grossSalary * 0.9825)}</td><td style="padding: 0.5rem; text-align: center; border: 1px solid var(--border);">9.7%</td><td style="padding: 0.5rem; text-align: right; border: 1px solid var(--border);">${formatCurrency(calc.employeeCharges.csgDeductible + calc.employeeCharges.csgNonDeductible + calc.employeeCharges.crds)}</td><td style="padding: 0.5rem; border: 1px solid var(--border);"></td><td style="padding: 0.5rem; border: 1px solid var(--border);"></td></tr>${calc.employeeCharges.mealVouchers > 0 ? `<tr><td style="padding: 0.5rem; border: 1px solid var(--border);">Tickets restaurant</td><td style="padding: 0.5rem; border: 1px solid var(--border);"></td><td style="padding: 0.5rem; border: 1px solid var(--border);"></td><td style="padding: 0.5rem; text-align: right; border: 1px solid var(--border);">${formatCurrency(calc.employeeCharges.mealVouchers)}</td><td style="padding: 0.5rem; border: 1px solid var(--border);"></td><td style="padding: 0.5rem; border: 1px solid var(--border);"></td></tr>` : ''}</tbody></table><div style="background: var(--light); padding: 1.5rem; border-radius: 4px;"><div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.5rem; text-align: center;"><div><p style="margin: 0; font-size: 0.9rem; color: var(--gray);">Brut</p><p style="margin: 0.25rem 0 0 0; font-size: 1.5rem; font-weight: 700; color: var(--primary);">${formatCurrency(calc.grossSalary)}</p></div><div><p style="margin: 0; font-size: 0.9rem; color: var(--gray);">Cotisations</p><p style="margin: 0.25rem 0 0 0; font-size: 1.5rem; font-weight: 700; color: #e74c3c;">- ${formatCurrency(calc.totalEmployeeCharges)}</p></div><div><p style="margin: 0; font-size: 0.9rem; color: var(--gray);">Net à payer</p><p style="margin: 0.25rem 0 0 0; font-size: 1.75rem; font-weight: 700; color: #27ae60;">${formatCurrency(calc.netSalary)}</p></div></div><div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border); text-align: center;"><p style="margin: 0; font-size: 0.85rem;"><strong>Net imposable :</strong> ${formatCurrency(calc.netTaxable)}</p><p style="margin: 0.25rem 0 0 0; font-size: 0.85rem;"><strong>Coût total employeur :</strong> ${formatCurrency(calc.grossSalary + calc.totalEmployerCharges)}</p></div></div><div style="margin-top: 1.5rem; font-size: 0.75rem; color: var(--gray); line-height: 1.4;"><p style="margin: 0.25rem 0;">Plafond SS: ${formatCurrency(PLAFOND_SS)} • Bulletin conforme au décret n°2016-190 • Conservation sans limitation • Généré par Synoptia Business Tools</p></div>`;
+
             document.getElementById('results').style.display = 'block';
-            showNotification('Opération réussie !', 'success');
-        });
-        window.addEventListener('load', () => document.getElementById('mainForm').dispatchEvent(new Event('submit')));
+            scrollToElement('#results', 100);
+        }
+
+        document.getElementById('payslipForm').addEventListener('submit', function(e) { e.preventDefault(); const calc = calculatePayslip(); generatePayslip(calc); showNotification('Bulletin généré !', 'success'); });
+        document.getElementById('saveBtn').addEventListener('click', saveToLocalStorage);
+        document.getElementById('printBtn').addEventListener('click', function() { window.print(); });
+        document.getElementById('newPayslipBtn').addEventListener('click', function() { document.getElementById('results').style.display = 'none'; scrollToElement('.tool-header', 100); });
+        window.addEventListener('load', function() { loadFromLocalStorage(); const today = new Date(); document.getElementById('payPeriod').value = today.toISOString().slice(0, 7); });
     </script>
 </body>
 </html>

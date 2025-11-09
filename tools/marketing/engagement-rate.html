@@ -3,65 +3,381 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculateur Taux d'Engagement - Business Tools</title>
+    <title>Calculateur Taux d'Engagement - Business Tools by Synoptia</title>
     <link rel="stylesheet" href="../../assets/css/main.css">
     <link rel="stylesheet" href="../../assets/css/tools.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <nav class="breadcrumb">
-        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> > 
-        <a href="../../index.html#tools">Marketing</a> > 
+        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> >
+        <a href="../../index.html#tools">Marketing</a> >
         <span>Calculateur Taux d'Engagement</span>
     </nav>
     <main class="tool-container">
         <header class="tool-header">
             <h1><i class="fas fa-heart"></i> Calculateur Taux d'Engagement</h1>
-            <p class="tool-description">Outil marketing pour optimiser vos campagnes.</p>
+            <p class="tool-description">Mesurez l'engagement de votre audience sur les réseaux sociaux</p>
         </header>
+
         <section class="tool-input">
-            <form id="mainForm">
+            <h2><i class="fas fa-plus-circle"></i> Ajouter une analyse</h2>
+            <form id="engagementForm">
                 <div class="input-grid">
                     <div class="form-group">
-                        <label for="input1" class="form-label">Valeur 1</label>
-                        <input type="number" id="input1" class="form-input" value="100" min="0" required>
+                        <label for="postName" class="form-label">Nom du post/campagne</label>
+                        <input type="text" id="postName" class="form-input" placeholder="Ex: Post Instagram 15/01" required>
                     </div>
                     <div class="form-group">
-                        <label for="input2" class="form-label">Valeur 2</label>
-                        <input type="number" id="input2" class="form-input" value="50" min="0" required>
+                        <label for="platform" class="form-label">Plateforme</label>
+                        <select id="platform" class="form-input" required>
+                            <option value="">Sélectionner...</option>
+                            <option value="Instagram">Instagram</option>
+                            <option value="Facebook">Facebook</option>
+                            <option value="LinkedIn">LinkedIn</option>
+                            <option value="TikTok">TikTok</option>
+                            <option value="Twitter">Twitter/X</option>
+                            <option value="YouTube">YouTube</option>
+                        </select>
                     </div>
                 </div>
-                <button type="submit" class="btn btn-primary"><i class="fas fa-calculator"></i> Calculer</button>
+                <div class="input-grid">
+                    <div class="form-group">
+                        <label for="followers" class="form-label">Nombre de followers/reach</label>
+                        <input type="number" id="followers" class="form-input" min="0" value="10000" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="likes" class="form-label">Likes/J'aime</label>
+                        <input type="number" id="likes" class="form-input" min="0" value="500" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="comments" class="form-label">Commentaires</label>
+                        <input type="number" id="comments" class="form-input" min="0" value="50" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="shares" class="form-label">Partages</label>
+                        <input type="number" id="shares" class="form-input" min="0" value="25" required>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-calculator"></i> Calculer et ajouter
+                </button>
             </form>
         </section>
+
         <section class="tool-output" id="results" style="display: none;">
+            <h2><i class="fas fa-chart-line"></i> Résultats</h2>
             <div class="results-grid">
                 <div class="result-item">
-                    <div class="result-label">Résultat</div>
-                    <div class="result-value highlight" id="result">-</div>
+                    <div class="result-label">Taux d'Engagement</div>
+                    <div class="result-value highlight" id="engagementRate">-</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Total Interactions</div>
+                    <div class="result-value" id="totalInteractions">-</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Benchmark Industrie</div>
+                    <div class="result-value" id="benchmark">-</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Performance</div>
+                    <div class="result-value" id="performance">-</div>
                 </div>
             </div>
         </section>
+
+        <section style="background: white; padding: 2rem; border-radius: var(--radius-lg); margin: 2rem 0;" id="chartSection" style="display: none;">
+            <h2><i class="fas fa-chart-bar"></i> Comparaison par plateforme</h2>
+            <div style="position: relative; height: 350px;">
+                <canvas id="engagementChart"></canvas>
+            </div>
+        </section>
+
+        <section class="tool-output" id="historySection" style="display: none;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                <h2><i class="fas fa-history"></i> Historique des analyses</h2>
+                <div>
+                    <button class="btn btn-success btn-sm" id="exportBtn">
+                        <i class="fas fa-file-csv"></i> Exporter CSV
+                    </button>
+                    <button class="btn btn-danger btn-sm" id="clearBtn">
+                        <i class="fas fa-trash"></i> Effacer
+                    </button>
+                </div>
+            </div>
+            <div id="analysesList"></div>
+        </section>
+
         <section class="tool-help">
-            <h3><i class="fas fa-info-circle"></i> Information</h3>
-            <p>Optimisez vos campagnes marketing avec cet outil.</p>
+            <h3><i class="fas fa-question-circle"></i> Comment utiliser cet outil</h3>
+            <p><strong>Le taux d'engagement</strong> mesure l'interaction de votre audience avec votre contenu.</p>
+            <h4>Formule :</h4>
+            <ul>
+                <li><strong>Engagement Rate</strong> = (Total Interactions / Followers) × 100</li>
+                <li><strong>Total Interactions</strong> = Likes + Commentaires + Partages</li>
+            </ul>
+            <h4>Benchmarks moyens par plateforme :</h4>
+            <ul>
+                <li><strong>Instagram :</strong> 1-3% (Bon), 3-6% (Très bon), >6% (Excellent)</li>
+                <li><strong>Facebook :</strong> 0.5-1% (Bon), 1-2% (Très bon), >2% (Excellent)</li>
+                <li><strong>LinkedIn :</strong> 2-4% (Bon), 4-6% (Très bon), >6% (Excellent)</li>
+                <li><strong>TikTok :</strong> 5-10% (Bon), 10-15% (Très bon), >15% (Excellent)</li>
+                <li><strong>Twitter :</strong> 0.5-1% (Bon), 1-2% (Très bon), >2% (Excellent)</li>
+                <li><strong>YouTube :</strong> 3-5% (Bon), 5-8% (Très bon), >8% (Excellent)</li>
+            </ul>
         </section>
     </main>
-    <footer class="tool-footer"><a href="../../index.html"><i class="fas fa-arrow-left"></i> Retour</a></footer>
+    <footer class="tool-footer">
+        <p>Développé par <a href="mailto:ludo@synoptia.fr">ludo@synoptia.fr</a> - Synoptia</p>
+    </footer>
+
     <script src="../../assets/js/utils.js"></script>
     <script src="../../assets/js/main.js"></script>
     <script>
-        document.getElementById('mainForm').addEventListener('submit', function(e) {
+        let analyses = JSON.parse(localStorage.getItem('engagementAnalyses')) || [];
+        let chart = null;
+
+        const platformBenchmarks = {
+            Instagram: { low: 1, medium: 3, high: 6 },
+            Facebook: { low: 0.5, medium: 1, high: 2 },
+            LinkedIn: { low: 2, medium: 4, high: 6 },
+            TikTok: { low: 5, medium: 10, high: 15 },
+            'Twitter': { low: 0.5, medium: 1, high: 2 },
+            YouTube: { low: 3, medium: 5, high: 8 }
+        };
+
+        const platformIcons = {
+            Instagram: 'fab fa-instagram',
+            Facebook: 'fab fa-facebook',
+            LinkedIn: 'fab fa-linkedin',
+            TikTok: 'fab fa-tiktok',
+            'Twitter': 'fab fa-twitter',
+            YouTube: 'fab fa-youtube'
+        };
+
+        function saveAnalyses() {
+            localStorage.setItem('engagementAnalyses', JSON.stringify(analyses));
+        }
+
+        function getPerformanceLevel(rate, platform) {
+            const bench = platformBenchmarks[platform];
+            if (rate >= bench.high) return { level: 'Excellent', color: '#4CAF50' };
+            if (rate >= bench.medium) return { level: 'Très bon', color: '#2196F3' };
+            if (rate >= bench.low) return { level: 'Bon', color: '#FF9800' };
+            return { level: 'À améliorer', color: '#F44336' };
+        }
+
+        document.getElementById('engagementForm').addEventListener('submit', function(e) {
             e.preventDefault();
-            const val1 = parseFloat(document.getElementById('input1').value);
-            const val2 = parseFloat(document.getElementById('input2').value);
-            const result = val2 > 0 ? (val1 / val2) : 0;
-            document.getElementById('result').textContent = result.toFixed(2);
+
+            const postName = document.getElementById('postName').value;
+            const platform = document.getElementById('platform').value;
+            const followers = parseFloat(document.getElementById('followers').value);
+            const likes = parseFloat(document.getElementById('likes').value);
+            const comments = parseFloat(document.getElementById('comments').value);
+            const shares = parseFloat(document.getElementById('shares').value);
+
+            const totalInteractions = likes + comments + shares;
+            const engagementRate = (totalInteractions / followers) * 100;
+            const performance = getPerformanceLevel(engagementRate, platform);
+            const benchmark = platformBenchmarks[platform];
+
+            const analysis = {
+                id: Date.now(),
+                postName,
+                platform,
+                followers,
+                likes,
+                comments,
+                shares,
+                totalInteractions,
+                engagementRate,
+                performance: performance.level,
+                date: new Date().toISOString()
+            };
+
+            analyses.push(analysis);
+            saveAnalyses();
+
+            // Display current results
+            document.getElementById('engagementRate').textContent = engagementRate.toFixed(2) + '%';
+            document.getElementById('engagementRate').style.color = performance.color;
+            document.getElementById('totalInteractions').textContent = totalInteractions.toLocaleString('fr-FR');
+            document.getElementById('benchmark').textContent = `${benchmark.low}-${benchmark.high}%`;
+            document.getElementById('performance').textContent = performance.level;
+            document.getElementById('performance').style.color = performance.color;
+
             document.getElementById('results').style.display = 'block';
-            showNotification('Calcul effectué !', 'success');
+            document.getElementById('chartSection').style.display = 'block';
+            document.getElementById('historySection').style.display = 'block';
+
+            renderAnalyses();
+            updateChart();
+
+            this.reset();
+            showNotification('Analyse ajoutée avec succès !', 'success');
         });
-        window.addEventListener('load', () => document.getElementById('mainForm').dispatchEvent(new Event('submit')));
+
+        function renderAnalyses() {
+            const list = document.getElementById('analysesList');
+            if (analyses.length === 0) {
+                list.innerHTML = '<p style="text-align: center; color: var(--text-secondary); padding: 2rem;">Aucune analyse enregistrée</p>';
+                return;
+            }
+
+            const sortedAnalyses = [...analyses].reverse();
+            list.innerHTML = sortedAnalyses.map(analysis => {
+                const perf = getPerformanceLevel(analysis.engagementRate, analysis.platform);
+                return `
+                    <div style="background: white; border: 1px solid var(--border); border-radius: var(--radius); padding: 1rem; margin-bottom: 0.75rem;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div style="flex: 1;">
+                                <h4 style="margin: 0 0 0.5rem 0; color: var(--primary);">
+                                    <i class="${platformIcons[analysis.platform]}"></i> ${analysis.postName}
+                                </h4>
+                                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.5rem; font-size: 0.9rem;">
+                                    <div><strong>Plateforme:</strong> ${analysis.platform}</div>
+                                    <div><strong>Engagement:</strong> <span style="color: ${perf.color}; font-weight: 700;">${analysis.engagementRate.toFixed(2)}%</span></div>
+                                    <div><strong>Interactions:</strong> ${analysis.totalInteractions.toLocaleString('fr-FR')}</div>
+                                    <div><strong>Performance:</strong> <span style="color: ${perf.color};">${perf.level}</span></div>
+                                </div>
+                            </div>
+                            <button class="btn btn-danger btn-sm" onclick="deleteAnalysis(${analysis.id})">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        window.deleteAnalysis = function(id) {
+            if (confirm('Supprimer cette analyse ?')) {
+                analyses = analyses.filter(a => a.id !== id);
+                saveAnalyses();
+                renderAnalyses();
+                updateChart();
+                showNotification('Analyse supprimée', 'success');
+            }
+        };
+
+        function updateChart() {
+            const ctx = document.getElementById('engagementChart').getContext('2d');
+
+            // Group by platform
+            const platformData = {};
+            analyses.forEach(analysis => {
+                if (!platformData[analysis.platform]) {
+                    platformData[analysis.platform] = [];
+                }
+                platformData[analysis.platform].push(analysis.engagementRate);
+            });
+
+            // Calculate average per platform
+            const platforms = Object.keys(platformData);
+            const avgRates = platforms.map(platform => {
+                const rates = platformData[platform];
+                return rates.reduce((sum, rate) => sum + rate, 0) / rates.length;
+            });
+
+            if (chart) {
+                chart.destroy();
+            }
+
+            chart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: platforms,
+                    datasets: [{
+                        label: 'Taux d\'engagement moyen (%)',
+                        data: avgRates,
+                        backgroundColor: [
+                            '#E1306C', '#1877F2', '#0A66C2', '#000000', '#1DA1F2', '#FF0000'
+                        ],
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return 'Engagement: ' + context.parsed.y.toFixed(2) + '%';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return value + '%';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        document.getElementById('exportBtn').addEventListener('click', function() {
+            if (analyses.length === 0) {
+                showNotification('Aucune donnée à exporter', 'warning');
+                return;
+            }
+
+            const csv = [
+                ['Post/Campagne', 'Plateforme', 'Followers', 'Likes', 'Commentaires', 'Partages', 'Total Interactions', 'Taux Engagement (%)', 'Performance', 'Date'],
+                ...analyses.map(a => [
+                    a.postName,
+                    a.platform,
+                    a.followers,
+                    a.likes,
+                    a.comments,
+                    a.shares,
+                    a.totalInteractions,
+                    a.engagementRate.toFixed(2),
+                    a.performance,
+                    new Date(a.date).toLocaleDateString('fr-FR')
+                ])
+            ].map(row => row.join(';')).join('\n');
+
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `engagement-rate-${new Date().toISOString().split('T')[0]}.csv`;
+            link.click();
+            showNotification('Export CSV téléchargé !', 'success');
+        });
+
+        document.getElementById('clearBtn').addEventListener('click', function() {
+            if (confirm('Effacer toutes les données ? Cette action est irréversible.')) {
+                analyses = [];
+                saveAnalyses();
+                renderAnalyses();
+                if (chart) chart.destroy();
+                document.getElementById('chartSection').style.display = 'none';
+                document.getElementById('historySection').style.display = 'none';
+                showNotification('Données effacées', 'success');
+            }
+        });
+
+        // Initialize
+        if (analyses.length > 0) {
+            document.getElementById('chartSection').style.display = 'block';
+            document.getElementById('historySection').style.display = 'block';
+            renderAnalyses();
+            updateChart();
+        }
     </script>
 </body>
 </html>

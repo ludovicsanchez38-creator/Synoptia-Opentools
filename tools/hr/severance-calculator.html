@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Outil Business - Business Tools</title>
+    <title>Calculateur Indemnités Licenciement - Business Tools by Synoptia</title>
     <link rel="stylesheet" href="../../assets/css/main.css">
     <link rel="stylesheet" href="../../assets/css/tools.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -11,49 +11,341 @@
 </head>
 <body>
     <nav class="breadcrumb">
-        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> > 
-        <a href="../../index.html#tools">RH</a> > 
-        <span>Outil</span>
+        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> >
+        <a href="../../index.html#tools">RH</a> >
+        <span>Indemnités Licenciement</span>
     </nav>
     <main class="tool-container">
         <header class="tool-header">
-            <h1><i class="fas fa-tools"></i> Outil Business</h1>
-            <p class="tool-description">Outil professionnel pour optimiser votre activité.</p>
+            <h1><i class="fas fa-calculator"></i> Calculateur d'Indemnités de Licenciement</h1>
+            <p class="tool-description">Calculez les indemnités légales de licenciement selon la législation française 2024-2025.</p>
         </header>
+
         <section class="tool-input">
-            <form id="mainForm">
-                <div class="form-group">
-                    <label for="input1" class="form-label">Donnée d'entrée</label>
-                    <input type="number" id="input1" class="form-input" value="100" min="0" required>
+            <h2>Informations de l'employé</h2>
+            <form id="severanceForm">
+                <div class="card" style="margin-bottom: 2rem;">
+                    <h3>Données de base</h3>
+                    <div class="input-grid">
+                        <div class="form-group">
+                            <label for="employeeName" class="form-label">Nom de l'employé</label>
+                            <input type="text" id="employeeName" class="form-input" placeholder="Jean Dupont">
+                        </div>
+                        <div class="form-group">
+                            <label for="hireDate" class="form-label">Date d'embauche</label>
+                            <input type="date" id="hireDate" class="form-input" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="endDate" class="form-label">Date de fin de contrat</label>
+                            <input type="date" id="endDate" class="form-input" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="dismissalType" class="form-label">Type de licenciement</label>
+                            <select id="dismissalType" class="form-select">
+                                <option value="economic">Licenciement économique</option>
+                                <option value="personal">Licenciement pour motif personnel</option>
+                                <option value="serious">Faute grave/lourde (pas d'indemnité)</option>
+                            </select>
+                        </div>
+                    </div>
                 </div>
-                <button type="submit" class="btn btn-primary"><i class="fas fa-calculator"></i> Calculer</button>
+
+                <div class="card" style="margin-bottom: 2rem;">
+                    <h3>Rémunération de référence</h3>
+                    <div class="input-grid">
+                        <div class="form-group">
+                            <label for="last12Months" class="form-label">Salaires bruts 12 derniers mois (€)</label>
+                            <input type="number" id="last12Months" class="form-input" value="36000" min="0" step="0.01" required>
+                            <small class="form-hint">Total sur 12 mois</small>
+                        </div>
+                        <div class="form-group">
+                            <label for="last3Months" class="form-label">Salaires bruts 3 derniers mois (€)</label>
+                            <input type="number" id="last3Months" class="form-input" value="9000" min="0" step="0.01" required>
+                            <small class="form-hint">Total sur 3 mois</small>
+                        </div>
+                        <div class="form-group">
+                            <label for="bonuses" class="form-label">Primes et bonus annuels (€)</label>
+                            <input type="number" id="bonuses" class="form-input" value="0" min="0" step="0.01">
+                            <small class="form-hint">Optionnel</small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card" style="margin-bottom: 2rem;">
+                    <h3>Paramètres spécifiques</h3>
+                    <div class="input-grid">
+                        <div class="form-group">
+                            <label for="isExecutive" class="form-label">Statut cadre</label>
+                            <select id="isExecutive" class="form-select">
+                                <option value="false">Non-cadre</option>
+                                <option value="true">Cadre</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="disability" class="form-label">Handicap reconnu</label>
+                            <select id="disability" class="form-select">
+                                <option value="false">Non</option>
+                                <option value="true">Oui (indemnité doublée)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="over50" class="form-label">Âge > 50 ans</label>
+                            <select id="over50" class="form-select">
+                                <option value="false">Non</option>
+                                <option value="true">Oui (+ 2 mois ancienneté)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="action-buttons">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-calculator"></i> Calculer les indemnités
+                    </button>
+                    <button type="button" class="btn btn-secondary" id="saveBtn">
+                        <i class="fas fa-save"></i> Sauvegarder
+                    </button>
+                    <button type="reset" class="btn btn-outline">
+                        <i class="fas fa-redo"></i> Réinitialiser
+                    </button>
+                </div>
             </form>
         </section>
+
         <section class="tool-output" id="results" style="display: none;">
-            <div class="results-grid">
+            <h2><i class="fas fa-file-invoice-dollar"></i> Résultats du calcul</h2>
+
+            <div class="results-grid" style="margin-bottom: 2rem;">
                 <div class="result-item">
-                    <div class="result-label">Résultat</div>
-                    <div class="result-value highlight" id="result">-</div>
+                    <div class="result-label">Ancienneté</div>
+                    <div class="result-value" id="seniorityDisplay">-</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Salaire de référence</div>
+                    <div class="result-value" id="refSalaryDisplay">-</div>
+                </div>
+                <div class="result-item highlight">
+                    <div class="result-label">Indemnité légale</div>
+                    <div class="result-value" id="legalIndemnity">-</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Type de licenciement</div>
+                    <div class="result-value" id="dismissalTypeDisplay">-</div>
                 </div>
             </div>
+
+            <div class="card" style="margin-bottom: 2rem;">
+                <h3>Détail du calcul</h3>
+                <div id="calculationDetail"></div>
+            </div>
+
+            <div class="card">
+                <h3>Synthèse et informations</h3>
+                <div id="summaryDetail"></div>
+            </div>
+
+            <div class="action-buttons" style="margin-top: 2rem;">
+                <button class="btn btn-accent" id="exportCsvBtn">
+                    <i class="fas fa-file-csv"></i> Exporter CSV
+                </button>
+                <button class="btn btn-secondary" id="printBtn">
+                    <i class="fas fa-print"></i> Imprimer
+                </button>
+            </div>
         </section>
+
         <section class="tool-help">
-            <h3><i class="fas fa-info-circle"></i> Aide</h3>
-            <p>Utilisez cet outil pour optimiser votre gestion d'entreprise.</p>
+            <h3><i class="fas fa-question-circle"></i> Comment utiliser ce calculateur ?</h3>
+            <ol>
+                <li>Renseignez les <strong>dates d'embauche et de fin</strong> de contrat</li>
+                <li>Sélectionnez le <strong>type de licenciement</strong></li>
+                <li>Indiquez les <strong>salaires de référence</strong> (12 et 3 derniers mois)</li>
+                <li>Précisez les <strong>paramètres spécifiques</strong> (cadre, handicap, âge)</li>
+                <li>Cliquez sur <strong>"Calculer"</strong> pour obtenir l'indemnité légale</li>
+            </ol>
+
+            <h3><i class="fas fa-lightbulb"></i> Règles légales 2024-2025</h3>
+            <ul>
+                <li><strong>Condition :</strong> Minimum 8 mois d'ancienneté (depuis sept. 2017)</li>
+                <li><strong>Ancienneté ≤ 10 ans :</strong> 1/4 de mois de salaire par année</li>
+                <li><strong>Ancienneté > 10 ans :</strong> 1/4 pour les 10 premières années + 1/3 au-delà</li>
+                <li><strong>Salaire de référence :</strong> Le plus favorable entre moyenne 12 mois et moyenne 3 mois</li>
+                <li><strong>Licenciement économique :</strong> Peut bénéficier d'indemnités conventionnelles supérieures</li>
+                <li><strong>Faute grave/lourde :</strong> Aucune indemnité légale de licenciement</li>
+                <li><strong>Handicap :</strong> Indemnité doublée (Code du travail)</li>
+            </ul>
         </section>
     </main>
-    <footer class="tool-footer"><a href="../../index.html"><i class="fas fa-arrow-left"></i> Retour</a></footer>
+
+    <footer class="tool-footer">
+        <div style="text-align: center; padding: 1rem;">
+            <a href="../../index.html"><i class="fas fa-arrow-left"></i> Retour aux outils</a>
+            <p style="margin-top: 1rem; color: var(--gray); font-size: 0.875rem;">
+                Business Tools by Synoptia - Contact: <a href="mailto:ludo@synoptia.fr">ludo@synoptia.fr</a>
+            </p>
+        </div>
+    </footer>
+
     <script src="../../assets/js/utils.js"></script>
     <script src="../../assets/js/main.js"></script>
     <script>
-        document.getElementById('mainForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const val = parseFloat(document.getElementById('input1').value);
-            document.getElementById('result').textContent = val.toFixed(2);
+        // LocalStorage
+        function saveToLocalStorage() {
+            const data = { employeeName: document.getElementById('employeeName').value, hireDate: document.getElementById('hireDate').value, endDate: document.getElementById('endDate').value, dismissalType: document.getElementById('dismissalType').value, last12Months: document.getElementById('last12Months').value, last3Months: document.getElementById('last3Months').value, bonuses: document.getElementById('bonuses').value, isExecutive: document.getElementById('isExecutive').value, disability: document.getElementById('disability').value, over50: document.getElementById('over50').value };
+            localStorage.setItem('severanceCalcData', JSON.stringify(data));
+            showNotification('Données sauvegardées !', 'success');
+        }
+
+        function loadFromLocalStorage() {
+            const data = localStorage.getItem('severanceCalcData');
+            if (data) { const parsed = JSON.parse(data); Object.keys(parsed).forEach(key => { const el = document.getElementById(key); if (el) el.value = parsed[key]; }); }
+        }
+
+        // Calcul ancienneté en années
+        function calculateSeniority(hireDate, endDate, over50) {
+            const start = new Date(hireDate);
+            const end = new Date(endDate);
+            const diffTime = Math.abs(end - start);
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            let years = diffDays / 365.25;
+
+            // Bonus 2 mois pour les + de 50 ans dans certaines conventions
+            if (over50 === 'true') {
+                years += 2/12;
+            }
+
+            return years;
+        }
+
+        // Calcul indemnité de licenciement
+        function calculateSeverance() {
+            const hireDate = document.getElementById('hireDate').value;
+            const endDate = document.getElementById('endDate').value;
+            const dismissalType = document.getElementById('dismissalType').value;
+            const last12Months = parseFloat(document.getElementById('last12Months').value) || 0;
+            const last3Months = parseFloat(document.getElementById('last3Months').value) || 0;
+            const bonuses = parseFloat(document.getElementById('bonuses').value) || 0;
+            const disability = document.getElementById('disability').value;
+            const over50 = document.getElementById('over50').value;
+
+            // Calcul ancienneté
+            const seniority = calculateSeniority(hireDate, endDate, over50);
+            const seniorityMonths = seniority * 12;
+
+            // Vérification minimum 8 mois
+            if (seniorityMonths < 8) {
+                return { eligible: false, seniority, seniorityMonths, message: "Ancienneté insuffisante (minimum 8 mois requis)" };
+            }
+
+            // Faute grave = pas d'indemnité
+            if (dismissalType === 'serious') {
+                return { eligible: false, seniority, seniorityMonths, dismissalType, message: "En cas de faute grave ou lourde, aucune indemnité légale de licenciement n'est due." };
+            }
+
+            // Salaire de référence (le plus favorable)
+            const avg12 = (last12Months + bonuses) / 12;
+            const avg3 = last3Months / 3;
+            const refSalary = Math.max(avg12, avg3);
+
+            // Calcul indemnité légale
+            // - 1/4 de mois par année pour les 10 premières années
+            // - 1/3 de mois par année au-delà de 10 ans
+            let indemnity = 0;
+
+            if (seniority <= 10) {
+                indemnity = (seniority * refSalary) / 4;
+            } else {
+                const first10 = (10 * refSalary) / 4;
+                const beyond10 = ((seniority - 10) * refSalary) / 3;
+                indemnity = first10 + beyond10;
+            }
+
+            // Doublement si handicap
+            if (disability === 'true') {
+                indemnity *= 2;
+            }
+
+            return { eligible: true, seniority, seniorityMonths, refSalary, avg12, avg3, indemnity, last12Months, last3Months, bonuses, dismissalType, disability, over50 };
+        }
+
+        // Afficher résultats
+        function displayResults(result) {
+            if (!result.eligible) {
+                document.getElementById('seniorityDisplay').textContent = result.seniority.toFixed(2) + ' ans';
+                document.getElementById('refSalaryDisplay').textContent = 'N/A';
+                document.getElementById('legalIndemnity').textContent = '0 €';
+                document.getElementById('dismissalTypeDisplay').textContent = result.dismissalType === 'serious' ? 'Faute grave' : 'Standard';
+
+                document.getElementById('calculationDetail').innerHTML = `<div style="padding: 2rem; text-align: center; background: #fff3cd; border-radius: var(--radius-md);"><i class="fas fa-exclamation-triangle" style="font-size: 3rem; color: #856404; margin-bottom: 1rem;"></i><p style="font-size: 1.25rem; font-weight: 600; margin: 0; color: #856404;">${result.message}</p></div>`;
+                document.getElementById('summaryDetail').innerHTML = '';
+            } else {
+                const dismissalLabels = { economic: 'Licenciement économique', personal: 'Licenciement personnel', serious: 'Faute grave' };
+
+                document.getElementById('seniorityDisplay').textContent = result.seniority.toFixed(2) + ' ans';
+                document.getElementById('refSalaryDisplay').textContent = formatCurrency(result.refSalary);
+                document.getElementById('legalIndemnity').textContent = formatCurrency(result.indemnity);
+                document.getElementById('dismissalTypeDisplay').textContent = dismissalLabels[result.dismissalType];
+
+                const first10Years = Math.min(result.seniority, 10);
+                const beyond10Years = Math.max(0, result.seniority - 10);
+                const first10Amount = (first10Years * result.refSalary) / 4;
+                const beyond10Amount = (beyond10Years * result.refSalary) / 3;
+
+                document.getElementById('calculationDetail').innerHTML = `<table style="width: 100%; border-collapse: collapse;"><tr style="border-bottom: 2px solid var(--border); background: var(--light);"><th colspan="2" style="padding: 0.75rem; text-align: left;">Salaire de référence</th></tr><tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.5rem;">Moyenne 12 derniers mois</td><td style="padding: 0.5rem; text-align: right;">${formatCurrency(result.avg12)}</td></tr><tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.5rem;">Moyenne 3 derniers mois</td><td style="padding: 0.5rem; text-align: right;">${formatCurrency(result.avg3)}</td></tr><tr style="background: var(--light); font-weight: 600;"><td style="padding: 0.75rem;">Salaire de référence retenu</td><td style="padding: 0.75rem; text-align: right;">${formatCurrency(result.refSalary)}</td></tr></table><table style="width: 100%; border-collapse: collapse; margin-top: 1.5rem;"><tr style="border-bottom: 2px solid var(--border); background: var(--light);"><th colspan="3" style="padding: 0.75rem; text-align: left;">Calcul de l'indemnité</th></tr><tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.5rem;">10 premières années</td><td style="padding: 0.5rem; text-align: right;">${first10Years.toFixed(2)} ans × 1/4</td><td style="padding: 0.5rem; text-align: right; font-weight: 600;">${formatCurrency(first10Amount)}</td></tr>${beyond10Years > 0 ? `<tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.5rem;">Au-delà de 10 ans</td><td style="padding: 0.5rem; text-align: right;">${beyond10Years.toFixed(2)} ans × 1/3</td><td style="padding: 0.5rem; text-align: right; font-weight: 600;">${formatCurrency(beyond10Amount)}</td></tr>` : ''}${result.disability === 'true' ? `<tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.5rem;" colspan="2">Doublement (handicap reconnu)</td><td style="padding: 0.5rem; text-align: right; font-weight: 600;">× 2</td></tr>` : ''}<tr style="background: var(--primary); color: white; font-weight: 700;"><td style="padding: 1rem;" colspan="2">INDEMNITÉ LÉGALE TOTALE</td><td style="padding: 1rem; text-align: right;">${formatCurrency(result.indemnity)}</td></tr></table>`;
+
+                document.getElementById('summaryDetail').innerHTML = `<div style="padding: 1.5rem; background: var(--light); border-radius: var(--radius-md);"><h4 style="margin: 0 0 1rem 0;">Informations importantes</h4><ul style="margin: 0; padding-left: 1.5rem;"><li style="margin-bottom: 0.5rem;">Cette indemnité est <strong>exonérée de cotisations sociales</strong> dans la limite de 2 PASS (soit environ ${formatCurrency(92736)} en 2025)</li><li style="margin-bottom: 0.5rem;">Elle est également <strong>exonérée d'impôt sur le revenu</strong> dans certaines limites</li><li style="margin-bottom: 0.5rem;">Le montant calculé est l'<strong>indemnité légale minimale</strong></li><li style="margin-bottom: 0.5rem;">La convention collective peut prévoir des montants <strong>plus favorables</strong></li>${result.dismissalType === 'economic' ? `<li style="margin-bottom: 0.5rem;">En licenciement économique, des <strong>indemnités supplémentaires</strong> peuvent s'appliquer selon la taille de l'entreprise</li>` : ''}<li>Consultez votre convention collective et un avocat spécialisé pour un calcul précis</li></ul></div>`;
+            }
+
             document.getElementById('results').style.display = 'block';
-            showNotification('Opération réussie !', 'success');
+            scrollToElement('#results', 100);
+        }
+
+        // Export CSV
+        function exportToCSV(result) {
+            const name = document.getElementById('employeeName').value || 'Employé';
+            let csv = `Calculateur Indemnités de Licenciement - Synoptia\n\nEmployé,${name}\n`;
+            csv += `Date embauche,${document.getElementById('hireDate').value}\nDate fin contrat,${document.getElementById('endDate').value}\n`;
+            csv += `Ancienneté (années),${result.seniority.toFixed(2)}\n\n`;
+
+            if (result.eligible) {
+                csv += `Salaire de référence\nMoyenne 12 mois,${result.avg12.toFixed(2)}\nMoyenne 3 mois,${result.avg3.toFixed(2)}\nSalaire retenu,${result.refSalary.toFixed(2)}\n\n`;
+                csv += `Indemnité légale,${result.indemnity.toFixed(2)}\n`;
+            } else {
+                csv += `Statut,${result.message}\nIndemnité,0\n`;
+            }
+
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `indemnite-licenciement-${name.replace(/\s+/g, '-')}-${Date.now()}.csv`;
+            link.click();
+            showNotification('Export CSV réussi !', 'success');
+        }
+
+        // Event Listeners
+        let lastResult = null;
+
+        document.getElementById('severanceForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            lastResult = calculateSeverance();
+            displayResults(lastResult);
+            showNotification('Calcul effectué !', 'success');
         });
-        window.addEventListener('load', () => document.getElementById('mainForm').dispatchEvent(new Event('submit')));
+
+        document.getElementById('saveBtn').addEventListener('click', saveToLocalStorage);
+        document.getElementById('exportCsvBtn').addEventListener('click', function() { if (lastResult) exportToCSV(lastResult); });
+        document.getElementById('printBtn').addEventListener('click', function() { window.print(); });
+
+        // Initialisation
+        window.addEventListener('load', function() {
+            loadFromLocalStorage();
+            // Dates par défaut
+            const today = new Date();
+            document.getElementById('endDate').valueAsDate = today;
+            const hireDate = new Date(today);
+            hireDate.setFullYear(hireDate.getFullYear() - 5);
+            document.getElementById('hireDate').valueAsDate = hireDate;
+        });
     </script>
 </body>
 </html>
