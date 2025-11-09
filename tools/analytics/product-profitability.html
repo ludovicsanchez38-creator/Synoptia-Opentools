@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Outil Business - Business Tools</title>
+    <title>Analyse Rentabilité Produit - Business Tools</title>
     <link rel="stylesheet" href="../../assets/css/main.css">
     <link rel="stylesheet" href="../../assets/css/tools.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -11,49 +11,161 @@
 </head>
 <body>
     <nav class="breadcrumb">
-        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> > 
-        <a href="../../index.html#tools">Analyse</a> > 
-        <span>Outil</span>
+        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> >
+        <a href="../../index.html#tools">Analytics</a> >
+        <span>Rentabilité Produit</span>
     </nav>
     <main class="tool-container">
         <header class="tool-header">
-            <h1><i class="fas fa-tools"></i> Outil Business</h1>
-            <p class="tool-description">Outil professionnel pour optimiser votre activité.</p>
+            <h1><i class="fas fa-box-open"></i> Analyse de Rentabilité Produit</h1>
+            <p class="tool-description">Analysez la rentabilité de chaque produit ou service.</p>
         </header>
+
         <section class="tool-input">
-            <form id="mainForm">
-                <div class="form-group">
-                    <label for="input1" class="form-label">Donnée d'entrée</label>
-                    <input type="number" id="input1" class="form-input" value="100" min="0" required>
+            <div style="margin-bottom: 1.5rem;">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem;">
+                    <div class="form-group">
+                        <label class="form-label">Nom du produit</label>
+                        <input type="text" id="productName" class="form-input" value="Produit A">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Prix vente (€)</label>
+                        <input type="number" id="price" class="form-input" value="100" min="0" step="0.01">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Coût unitaire (€)</label>
+                        <input type="number" id="cost" class="form-input" value="40" min="0" step="0.01">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Unités vendues</label>
+                        <input type="number" id="units" class="form-input" value="100" min="0">
+                    </div>
+                    <button class="btn btn-primary" id="addBtn" style="align-self:end;">
+                        <i class="fas fa-plus"></i> Ajouter
+                    </button>
                 </div>
-                <button type="submit" class="btn btn-primary"><i class="fas fa-calculator"></i> Calculer</button>
-            </form>
+            </div>
+
+            <button class="btn btn-secondary" id="clearBtn">
+                <i class="fas fa-trash"></i> Effacer tout
+            </button>
         </section>
-        <section class="tool-output" id="results" style="display: none;">
-            <div class="results-grid">
-                <div class="result-item">
-                    <div class="result-label">Résultat</div>
-                    <div class="result-value highlight" id="result">-</div>
+
+        <section class="tool-output">
+            <h3>📦 Liste des produits</h3>
+            <div id="productList"></div>
+
+            <div style="margin-top: 2rem;">
+                <h3>📊 Résumé global</h3>
+                <div class="results-grid">
+                    <div class="result-item">
+                        <div class="result-label">CA total</div>
+                        <div class="result-value highlight" id="totalRevenue">0 €</div>
+                    </div>
+                    <div class="result-item">
+                        <div class="result-label">Marge totale</div>
+                        <div class="result-value success" id="totalMargin">0 €</div>
+                    </div>
+                    <div class="result-item">
+                        <div class="result-label">Taux de marge</div>
+                        <div class="result-value" id="marginRate">0%</div>
+                    </div>
                 </div>
             </div>
         </section>
+
         <section class="tool-help">
-            <h3><i class="fas fa-info-circle"></i> Aide</h3>
-            <p>Utilisez cet outil pour optimiser votre gestion d'entreprise.</p>
+            <h3><i class="fas fa-info-circle"></i> Formules</h3>
+            <ul>
+                <li><strong>Marge unitaire</strong> = Prix de vente - Coût unitaire</li>
+                <li><strong>Marge totale</strong> = Marge unitaire × Unités vendues</li>
+                <li><strong>Taux de marge</strong> = (Marge / CA) × 100</li>
+                <li><strong>Contribution au CA</strong> = (CA produit / CA total) × 100</li>
+            </ul>
         </section>
     </main>
-    <footer class="tool-footer"><a href="../../index.html"><i class="fas fa-arrow-left"></i> Retour</a></footer>
+    <footer class="tool-footer">
+        <a href="../../index.html"><i class="fas fa-arrow-left"></i> Retour</a>
+    </footer>
     <script src="../../assets/js/utils.js"></script>
     <script src="../../assets/js/main.js"></script>
     <script>
-        document.getElementById('mainForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const val = parseFloat(document.getElementById('input1').value);
-            document.getElementById('result').textContent = val.toFixed(2);
-            document.getElementById('results').style.display = 'block';
-            showNotification('Opération réussie !', 'success');
+        let products = JSON.parse(localStorage.getItem('products_profitability') || '[]');
+
+        document.getElementById('addBtn').addEventListener('click', function() {
+            const name = document.getElementById('productName').value.trim() || 'Produit';
+            const price = parseFloat(document.getElementById('price').value) || 0;
+            const cost = parseFloat(document.getElementById('cost').value) || 0;
+            const units = parseFloat(document.getElementById('units').value) || 0;
+
+            products.push({ id: Date.now(), name: name, price: price, cost: cost, units: units });
+            localStorage.setItem('products_profitability', JSON.stringify(products));
+            render();
+            showNotification('Produit ajouté !', 'success');
         });
-        window.addEventListener('load', () => document.getElementById('mainForm').dispatchEvent(new Event('submit')));
+
+        document.getElementById('clearBtn').addEventListener('click', function() {
+            if (confirm('Effacer tous les produits ?')) {
+                products = [];
+                localStorage.setItem('products_profitability', JSON.stringify(products));
+                render();
+            }
+        });
+
+        function render() {
+            const container = document.getElementById('productList');
+            
+            if (products.length === 0) {
+                container.innerHTML = '<p style="text-align:center;color:#999;">Aucun produit ajouté</p>';
+                document.getElementById('totalRevenue').textContent = '0 €';
+                document.getElementById('totalMargin').textContent = '0 €';
+                document.getElementById('marginRate').textContent = '0%';
+                return;
+            }
+
+            let totalRev = 0;
+            let totalMarg = 0;
+
+            const html = products.map(function(p) {
+                const revenue = p.price * p.units;
+                const margin = (p.price - p.cost) * p.units;
+                const marginPct = p.price > 0 ? ((p.price - p.cost) / p.price) * 100 : 0;
+                
+                totalRev += revenue;
+                totalMarg += margin;
+
+                const marginColor = marginPct > 40 ? '#4caf50' : marginPct > 20 ? '#ff9800' : '#ff6b6b';
+
+                return '<div style="padding:1rem;background:white;border-radius:var(--radius);margin-bottom:1rem;box-shadow:0 1px 3px rgba(0,0,0,0.1);">' +
+                    '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.5rem;">' +
+                    '<strong style="font-size:1.1em;">' + p.name + '</strong>' +
+                    '<button onclick="deleteProduct(' + p.id + ')" style="padding:0.3rem 0.8rem;border:none;background:#ff6b6b;color:white;border-radius:var(--radius);cursor:pointer;">' +
+                    '<i class="fas fa-trash"></i></button></div>' +
+                    '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:0.5rem;font-size:0.9em;color:#666;">' +
+                    '<div>Prix: ' + formatCurrency(p.price) + '</div>' +
+                    '<div>Coût: ' + formatCurrency(p.cost) + '</div>' +
+                    '<div>Unités: ' + p.units + '</div>' +
+                    '<div>CA: ' + formatCurrency(revenue) + '</div>' +
+                    '<div>Marge: ' + formatCurrency(margin) + '</div>' +
+                    '<div style="color:' + marginColor + ';font-weight:700;">Taux: ' + marginPct.toFixed(1) + '%</div>' +
+                    '</div></div>';
+            }).join('');
+
+            container.innerHTML = html;
+
+            const globalMarginRate = totalRev > 0 ? (totalMarg / totalRev) * 100 : 0;
+            document.getElementById('totalRevenue').textContent = formatCurrency(totalRev);
+            document.getElementById('totalMargin').textContent = formatCurrency(totalMarg);
+            document.getElementById('marginRate').textContent = globalMarginRate.toFixed(1) + '%';
+        }
+
+        window.deleteProduct = function(id) {
+            products = products.filter(function(p) { return p.id !== id; });
+            localStorage.setItem('products_profitability', JSON.stringify(products));
+            render();
+        };
+
+        render();
     </script>
 </body>
 </html>

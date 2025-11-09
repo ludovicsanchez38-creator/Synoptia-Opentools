@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Outil Business - Business Tools</title>
+    <title>Valorisation Entreprise - Business Tools</title>
     <link rel="stylesheet" href="../../assets/css/main.css">
     <link rel="stylesheet" href="../../assets/css/tools.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -11,49 +11,166 @@
 </head>
 <body>
     <nav class="breadcrumb">
-        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> > 
-        <a href="../../index.html#tools">Analyse</a> > 
-        <span>Outil</span>
+        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> >
+        <a href="../../index.html#tools">Analytics</a> >
+        <span>Valorisation</span>
     </nav>
     <main class="tool-container">
         <header class="tool-header">
-            <h1><i class="fas fa-tools"></i> Outil Business</h1>
-            <p class="tool-description">Outil professionnel pour optimiser votre activité.</p>
+            <h1><i class="fas fa-gem"></i> Valorisation d'Entreprise</h1>
+            <p class="tool-description">Estimez la valeur de votre entreprise selon plusieurs méthodes.</p>
         </header>
+
         <section class="tool-input">
-            <form id="mainForm">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin: 1.5rem 0;">
                 <div class="form-group">
-                    <label for="input1" class="form-label">Donnée d'entrée</label>
-                    <input type="number" id="input1" class="form-input" value="100" min="0" required>
+                    <label class="form-label">CA annuel (€)</label>
+                    <input type="number" id="revenue" class="form-input" value="1000000" min="0">
                 </div>
-                <button type="submit" class="btn btn-primary"><i class="fas fa-calculator"></i> Calculer</button>
-            </form>
-        </section>
-        <section class="tool-output" id="results" style="display: none;">
-            <div class="results-grid">
-                <div class="result-item">
-                    <div class="result-label">Résultat</div>
-                    <div class="result-value highlight" id="result">-</div>
+                <div class="form-group">
+                    <label class="form-label">EBITDA (€)</label>
+                    <input type="number" id="ebitda" class="form-input" value="200000" min="0">
+                    <span class="form-help">Résultat avant impôts</span>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Résultat net (€)</label>
+                    <input type="number" id="netIncome" class="form-input" value="150000" min="0">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Actifs nets (€)</label>
+                    <input type="number" id="assets" class="form-input" value="500000" min="0">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Secteur</label>
+                    <select id="sector" class="form-input">
+                        <option value="tech">Tech / SaaS</option>
+                        <option value="retail">Commerce</option>
+                        <option value="service">Services</option>
+                        <option value="industrial">Industrie</option>
+                    </select>
                 </div>
             </div>
+
+            <button class="btn btn-primary" id="calculateBtn">
+                <i class="fas fa-calculator"></i> Estimer la valeur
+            </button>
         </section>
+
+        <section class="tool-output">
+            <h3>💎 Valorisation par méthode</h3>
+            <div class="results-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
+                <div class="result-item">
+                    <div class="result-label">Multiple CA</div>
+                    <div class="result-value" id="revenueMultiple">-</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Multiple EBITDA</div>
+                    <div class="result-value highlight" id="ebitdaMultiple">-</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Multiple résultat</div>
+                    <div class="result-value" id="netMultiple">-</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Actif net</div>
+                    <div class="result-value success" id="assetValue">-</div>
+                </div>
+            </div>
+
+            <div style="margin-top: 1.5rem; padding: 1rem; background: white; border-radius: var(--radius);">
+                <h3>📊 Fourchette de valorisation</h3>
+                <div id="range" style="line-height: 2;"></div>
+            </div>
+
+            <div style="margin-top: 1.5rem; padding: 1rem; background: #e8f5e9; border-left: 4px solid #4caf50; border-radius: var(--radius);">
+                <h3 style="margin-top:0;">💡 Recommandations</h3>
+                <div id="recommendations"></div>
+            </div>
+        </section>
+
         <section class="tool-help">
-            <h3><i class="fas fa-info-circle"></i> Aide</h3>
-            <p>Utilisez cet outil pour optimiser votre gestion d'entreprise.</p>
+            <h3><i class="fas fa-info-circle"></i> Méthodes de valorisation</h3>
+            <ul>
+                <li><strong>Multiple CA</strong> : CA × Coefficient sectoriel (0.5-3×)</li>
+                <li><strong>Multiple EBITDA</strong> : EBITDA × 5-10 selon secteur</li>
+                <li><strong>Multiple résultat</strong> : Résultat net × 8-15</li>
+                <li><strong>Actif net</strong> : Valeur comptable des actifs</li>
+            </ul>
         </section>
     </main>
-    <footer class="tool-footer"><a href="../../index.html"><i class="fas fa-arrow-left"></i> Retour</a></footer>
+    <footer class="tool-footer">
+        <a href="../../index.html"><i class="fas fa-arrow-left"></i> Retour</a>
+    </footer>
     <script src="../../assets/js/utils.js"></script>
     <script src="../../assets/js/main.js"></script>
     <script>
-        document.getElementById('mainForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const val = parseFloat(document.getElementById('input1').value);
-            document.getElementById('result').textContent = val.toFixed(2);
-            document.getElementById('results').style.display = 'block';
-            showNotification('Opération réussie !', 'success');
+        const multiples = {
+            tech: { revenue: 2.5, ebitda: 10, net: 15 },
+            retail: { revenue: 0.5, ebitda: 6, net: 8 },
+            service: { revenue: 1.0, ebitda: 7, net: 10 },
+            industrial: { revenue: 0.8, ebitda: 8, net: 12 }
+        };
+
+        document.getElementById('calculateBtn').addEventListener('click', function() {
+            const revenue = parseFloat(document.getElementById('revenue').value) || 0;
+            const ebitda = parseFloat(document.getElementById('ebitda').value) || 0;
+            const netIncome = parseFloat(document.getElementById('netIncome').value) || 0;
+            const assets = parseFloat(document.getElementById('assets').value) || 0;
+            const sector = document.getElementById('sector').value;
+
+            const mult = multiples[sector];
+            
+            const valRevenue = revenue * mult.revenue;
+            const valEbitda = ebitda * mult.ebitda;
+            const valNet = netIncome * mult.net;
+            const valAssets = assets;
+
+            document.getElementById('revenueMultiple').textContent = formatCurrency(valRevenue);
+            document.getElementById('ebitdaMultiple').textContent = formatCurrency(valEbitda);
+            document.getElementById('netMultiple').textContent = formatCurrency(valNet);
+            document.getElementById('assetValue').textContent = formatCurrency(valAssets);
+
+            const values = [valRevenue, valEbitda, valNet, valAssets].filter(function(v) { return v > 0; });
+            const minVal = Math.min.apply(null, values);
+            const maxVal = Math.max.apply(null, values);
+            const avgVal = values.reduce(function(sum, v) { return sum + v; }, 0) / values.length;
+
+            const rangeHtml = '<div style="margin-top:1rem;">' +
+                '<div style="display:flex;justify-content:space-between;margin-bottom:0.5rem;">' +
+                '<div><strong>Minimum :</strong> ' + formatCurrency(minVal) + '</div>' +
+                '<div><strong>Maximum :</strong> ' + formatCurrency(maxVal) + '</div></div>' +
+                '<div style="text-align:center;font-size:1.2em;margin:1rem 0;padding:1rem;background:#f5f5f5;border-radius:var(--radius);">' +
+                '<strong>Valorisation moyenne : ' + formatCurrency(avgVal) + '</strong></div>' +
+                '<div style="font-size:0.9em;color:#666;margin-top:1rem;">Multiples appliqués pour le secteur ' + sector + ' :</div>' +
+                '<div style="font-size:0.9em;color:#666;">CA ×' + mult.revenue + ' | EBITDA ×' + mult.ebitda + ' | Résultat ×' + mult.net + '</div></div>';
+
+            document.getElementById('range').innerHTML = rangeHtml;
+
+            let recs = [];
+            recs.push('📌 La valorisation varie selon la méthode : privilégiez l\'EBITDA pour une vision opérationnelle');
+            
+            if (valEbitda > valRevenue * 2) {
+                recs.push('✅ Forte rentabilité : votre EBITDA est excellent');
+            }
+            
+            if (sector === 'tech') {
+                recs.push('💡 Tech/SaaS : la croissance et l\'ARR sont des facteurs clés de valorisation');
+            }
+            
+            recs.push('⚠️ Cette estimation est indicative : une valorisation professionnelle est recommandée');
+            recs.push('💼 Pour une levée de fonds ou cession, faites appel à un expert-comptable ou M&A advisor');
+
+            document.getElementById('recommendations').innerHTML = recs.map(function(r) { return '<div>• ' + r + '</div>'; }).join('');
+            showNotification('Valorisation estimée !', 'success');
         });
-        window.addEventListener('load', () => document.getElementById('mainForm').dispatchEvent(new Event('submit')));
+
+        ['revenue', 'ebitda', 'netIncome', 'assets', 'sector'].forEach(function(id) {
+            document.getElementById(id).addEventListener('input', function() {
+                document.getElementById('calculateBtn').click();
+            });
+        });
+
+        document.getElementById('calculateBtn').click();
     </script>
 </body>
 </html>

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Outil Business - Business Tools</title>
+    <title>Tableau de Bord KPI - Business Tools</title>
     <link rel="stylesheet" href="../../assets/css/main.css">
     <link rel="stylesheet" href="../../assets/css/tools.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -11,49 +11,147 @@
 </head>
 <body>
     <nav class="breadcrumb">
-        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> > 
-        <a href="../../index.html#tools">Analyse</a> > 
-        <span>Outil</span>
+        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> >
+        <a href="../../index.html#tools">Analytics</a> >
+        <span>Tableau de Bord KPI</span>
     </nav>
     <main class="tool-container">
         <header class="tool-header">
-            <h1><i class="fas fa-tools"></i> Outil Business</h1>
-            <p class="tool-description">Outil professionnel pour optimiser votre activité.</p>
+            <h1><i class="fas fa-chart-line"></i> Tableau de Bord KPI</h1>
+            <p class="tool-description">Suivez vos indicateurs clés de performance en un coup d'œil.</p>
         </header>
+
         <section class="tool-input">
-            <form id="mainForm">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin: 1.5rem 0;">
                 <div class="form-group">
-                    <label for="input1" class="form-label">Donnée d'entrée</label>
-                    <input type="number" id="input1" class="form-input" value="100" min="0" required>
+                    <label class="form-label">Chiffre d'affaires (€)</label>
+                    <input type="number" id="revenue" class="form-input" value="100000" min="0">
                 </div>
-                <button type="submit" class="btn btn-primary"><i class="fas fa-calculator"></i> Calculer</button>
-            </form>
-        </section>
-        <section class="tool-output" id="results" style="display: none;">
-            <div class="results-grid">
-                <div class="result-item">
-                    <div class="result-label">Résultat</div>
-                    <div class="result-value highlight" id="result">-</div>
+                <div class="form-group">
+                    <label class="form-label">Coûts totaux (€)</label>
+                    <input type="number" id="costs" class="form-input" value="60000" min="0">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Clients actifs</label>
+                    <input type="number" id="customers" class="form-input" value="250" min="0">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Visiteurs site</label>
+                    <input type="number" id="visitors" class="form-input" value="5000" min="0">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Conversions</label>
+                    <input type="number" id="conversions" class="form-input" value="150" min="0">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Budget marketing (€)</label>
+                    <input type="number" id="marketingBudget" class="form-input" value="10000" min="0">
                 </div>
             </div>
+            <button class="btn btn-primary" id="calculateBtn">
+                <i class="fas fa-sync"></i> Actualiser les KPI
+            </button>
         </section>
+
+        <section class="tool-output">
+            <h3 style="margin-bottom: 1rem;">📊 Indicateurs Clés</h3>
+            <div class="results-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
+                <div class="result-item">
+                    <div class="result-label">Marge brute</div>
+                    <div class="result-value highlight" id="margin">-</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Taux de marge</div>
+                    <div class="result-value" id="marginRate">-</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">CA par client</div>
+                    <div class="result-value success" id="revenuePerCustomer">-</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Taux conversion</div>
+                    <div class="result-value" id="conversionRate">-</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">CAC</div>
+                    <div class="result-value" id="cac">-</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">ROAS</div>
+                    <div class="result-value highlight" id="roas">-</div>
+                </div>
+            </div>
+
+            <div style="margin-top: 2rem; padding: 1rem; background: white; border-radius: var(--radius);">
+                <h3>📈 Analyse</h3>
+                <div id="analysis" style="line-height: 2;"></div>
+            </div>
+        </section>
+
         <section class="tool-help">
-            <h3><i class="fas fa-info-circle"></i> Aide</h3>
-            <p>Utilisez cet outil pour optimiser votre gestion d'entreprise.</p>
+            <h3><i class="fas fa-info-circle"></i> KPI suivis</h3>
+            <ul>
+                <li><strong>Marge brute</strong> : CA - Coûts</li>
+                <li><strong>Taux de marge</strong> : (Marge / CA) × 100</li>
+                <li><strong>CA par client</strong> : CA / Nombre de clients</li>
+                <li><strong>Taux de conversion</strong> : (Conversions / Visiteurs) × 100</li>
+                <li><strong>CAC</strong> : Budget marketing / Conversions</li>
+                <li><strong>ROAS</strong> : CA / Budget marketing</li>
+            </ul>
         </section>
     </main>
-    <footer class="tool-footer"><a href="../../index.html"><i class="fas fa-arrow-left"></i> Retour</a></footer>
+    <footer class="tool-footer">
+        <a href="../../index.html"><i class="fas fa-arrow-left"></i> Retour</a>
+    </footer>
     <script src="../../assets/js/utils.js"></script>
     <script src="../../assets/js/main.js"></script>
     <script>
-        document.getElementById('mainForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const val = parseFloat(document.getElementById('input1').value);
-            document.getElementById('result').textContent = val.toFixed(2);
-            document.getElementById('results').style.display = 'block';
-            showNotification('Opération réussie !', 'success');
+        document.getElementById('calculateBtn').addEventListener('click', function() {
+            const revenue = parseFloat(document.getElementById('revenue').value) || 0;
+            const costs = parseFloat(document.getElementById('costs').value) || 0;
+            const customers = parseFloat(document.getElementById('customers').value) || 1;
+            const visitors = parseFloat(document.getElementById('visitors').value) || 1;
+            const conversions = parseFloat(document.getElementById('conversions').value) || 0;
+            const marketing = parseFloat(document.getElementById('marketingBudget').value) || 1;
+
+            const margin = revenue - costs;
+            const marginRate = revenue > 0 ? (margin / revenue) * 100 : 0;
+            const revPerCustomer = revenue / customers;
+            const convRate = (conversions / visitors) * 100;
+            const cac = marketing / (conversions || 1);
+            const roas = revenue / marketing;
+
+            document.getElementById('margin').textContent = formatCurrency(margin);
+            document.getElementById('marginRate').textContent = marginRate.toFixed(1) + '%';
+            document.getElementById('revenuePerCustomer').textContent = formatCurrency(revPerCustomer);
+            document.getElementById('conversionRate').textContent = convRate.toFixed(2) + '%';
+            document.getElementById('cac').textContent = formatCurrency(cac);
+            document.getElementById('roas').textContent = roas.toFixed(2) + 'x';
+
+            let insights = [];
+            if (marginRate < 20) insights.push('⚠️ Marge faible : optimisez vos coûts');
+            else if (marginRate > 40) insights.push('✅ Excellente marge bénéficiaire');
+            
+            if (convRate < 2) insights.push('⚠️ Taux de conversion faible : optimisez votre tunnel');
+            else if (convRate > 5) insights.push('✅ Excellent taux de conversion');
+            
+            if (roas < 2) insights.push('⚠️ ROAS faible : revoyez votre stratégie marketing');
+            else if (roas > 4) insights.push('✅ ROAS performant');
+            
+            if (cac > revPerCustomer * 0.3) insights.push('⚠️ CAC élevé par rapport au CA/client');
+            else insights.push('✅ CAC maîtrisé');
+
+            document.getElementById('analysis').innerHTML = insights.map(function(i) { return '<div>' + i + '</div>'; }).join('');
+            showNotification('KPI actualisés !', 'success');
         });
-        window.addEventListener('load', () => document.getElementById('mainForm').dispatchEvent(new Event('submit')));
+
+        ['revenue', 'costs', 'customers', 'visitors', 'conversions', 'marketingBudget'].forEach(function(id) {
+            document.getElementById(id).addEventListener('input', function() {
+                document.getElementById('calculateBtn').click();
+            });
+        });
+
+        document.getElementById('calculateBtn').click();
     </script>
 </body>
 </html>

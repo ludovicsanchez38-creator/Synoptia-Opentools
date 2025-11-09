@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Outil Business - Business Tools</title>
+    <title>Calculateur Part de Marché - Business Tools</title>
     <link rel="stylesheet" href="../../assets/css/main.css">
     <link rel="stylesheet" href="../../assets/css/tools.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -11,49 +11,163 @@
 </head>
 <body>
     <nav class="breadcrumb">
-        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> > 
-        <a href="../../index.html#tools">Analyse</a> > 
-        <span>Outil</span>
+        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> >
+        <a href="../../index.html#tools">Analytics</a> >
+        <span>Part de Marché</span>
     </nav>
     <main class="tool-container">
         <header class="tool-header">
-            <h1><i class="fas fa-tools"></i> Outil Business</h1>
-            <p class="tool-description">Outil professionnel pour optimiser votre activité.</p>
+            <h1><i class="fas fa-chart-pie"></i> Calculateur de Part de Marché</h1>
+            <p class="tool-description">Calculez votre part de marché et celle de vos concurrents.</p>
         </header>
+
         <section class="tool-input">
-            <form id="mainForm">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; margin: 1.5rem 0;">
                 <div class="form-group">
-                    <label for="input1" class="form-label">Donnée d'entrée</label>
-                    <input type="number" id="input1" class="form-input" value="100" min="0" required>
+                    <label class="form-label">Votre CA (€)</label>
+                    <input type="number" id="yourRevenue" class="form-input" value="5000000" min="0">
+                    <span class="form-help">Votre chiffre d'affaires</span>
                 </div>
-                <button type="submit" class="btn btn-primary"><i class="fas fa-calculator"></i> Calculer</button>
-            </form>
-        </section>
-        <section class="tool-output" id="results" style="display: none;">
-            <div class="results-grid">
-                <div class="result-item">
-                    <div class="result-label">Résultat</div>
-                    <div class="result-value highlight" id="result">-</div>
+                <div class="form-group">
+                    <label class="form-label">Marché total (€)</label>
+                    <input type="number" id="totalMarket" class="form-input" value="50000000" min="0">
+                    <span class="form-help">Taille totale du marché</span>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">CA concurrent 1 (€)</label>
+                    <input type="number" id="competitor1" class="form-input" value="8000000" min="0">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">CA concurrent 2 (€)</label>
+                    <input type="number" id="competitor2" class="form-input" value="6000000" min="0">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">CA concurrent 3 (€)</label>
+                    <input type="number" id="competitor3" class="form-input" value="4000000" min="0">
                 </div>
             </div>
+
+            <button class="btn btn-primary" id="calculateBtn">
+                <i class="fas fa-calculator"></i> Calculer
+            </button>
         </section>
+
+        <section class="tool-output">
+            <div class="results-grid">
+                <div class="result-item">
+                    <div class="result-label">Votre part de marché</div>
+                    <div class="result-value highlight" id="yourShare">-</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Position</div>
+                    <div class="result-value success" id="position">-</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Leader du marché</div>
+                    <div class="result-value" id="leader">-</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Écart avec leader</div>
+                    <div class="result-value" id="gap">-</div>
+                </div>
+            </div>
+
+            <div style="margin-top: 1.5rem; padding: 1rem; background: white; border-radius: var(--radius);">
+                <h3>Répartition du marché</h3>
+                <div id="breakdown"></div>
+            </div>
+
+            <div style="margin-top: 1.5rem; padding: 1rem; background: #fff9e6; border-left: 4px solid #ffc107; border-radius: var(--radius);">
+                <h3 style="margin-top:0;">💡 Analyse stratégique</h3>
+                <div id="strategy"></div>
+            </div>
+        </section>
+
         <section class="tool-help">
-            <h3><i class="fas fa-info-circle"></i> Aide</h3>
-            <p>Utilisez cet outil pour optimiser votre gestion d'entreprise.</p>
+            <h3><i class="fas fa-info-circle"></i> Formule</h3>
+            <p><strong>Part de marché (%) = (Votre CA / Marché total) × 100</strong></p>
+            <ul>
+                <li>Leader : > 40% du marché</li>
+                <li>Challenger : 20-40% du marché</li>
+                <li>Suiveur : 10-20% du marché</li>
+                <li>Niche : < 10% du marché</li>
+            </ul>
         </section>
     </main>
-    <footer class="tool-footer"><a href="../../index.html"><i class="fas fa-arrow-left"></i> Retour</a></footer>
+    <footer class="tool-footer">
+        <a href="../../index.html"><i class="fas fa-arrow-left"></i> Retour</a>
+    </footer>
     <script src="../../assets/js/utils.js"></script>
     <script src="../../assets/js/main.js"></script>
     <script>
-        document.getElementById('mainForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const val = parseFloat(document.getElementById('input1').value);
-            document.getElementById('result').textContent = val.toFixed(2);
-            document.getElementById('results').style.display = 'block';
-            showNotification('Opération réussie !', 'success');
+        document.getElementById('calculateBtn').addEventListener('click', function() {
+            const yourRev = parseFloat(document.getElementById('yourRevenue').value) || 0;
+            const market = parseFloat(document.getElementById('totalMarket').value) || 1;
+            const comp1 = parseFloat(document.getElementById('competitor1').value) || 0;
+            const comp2 = parseFloat(document.getElementById('competitor2').value) || 0;
+            const comp3 = parseFloat(document.getElementById('competitor3').value) || 0;
+
+            const yourShare = (yourRev / market) * 100;
+            
+            const competitors = [
+                { name: 'Vous', revenue: yourRev, share: yourShare },
+                { name: 'Concurrent 1', revenue: comp1, share: (comp1 / market) * 100 },
+                { name: 'Concurrent 2', revenue: comp2, share: (comp2 / market) * 100 },
+                { name: 'Concurrent 3', revenue: comp3, share: (comp3 / market) * 100 }
+            ].sort(function(a, b) { return b.revenue - a.revenue; });
+
+            const yourPosition = competitors.findIndex(function(c) { return c.name === 'Vous'; }) + 1;
+            const leader = competitors[0];
+            const gap = yourRev > 0 ? ((leader.revenue - yourRev) / yourRev) * 100 : 0;
+
+            document.getElementById('yourShare').textContent = yourShare.toFixed(2) + '%';
+            document.getElementById('position').textContent = yourPosition + 'e';
+            document.getElementById('leader').textContent = leader.name + ' (' + leader.share.toFixed(1) + '%)';
+            document.getElementById('gap').textContent = gap > 0 ? '+' + gap.toFixed(1) + '%' : '-';
+
+            const breakdown = '<div style="margin-top:1rem;">' +
+                competitors.map(function(c, i) {
+                    const color = c.name === 'Vous' ? '#2196f3' : '#999';
+                    const barWidth = c.share;
+                    return '<div style="margin-bottom:1rem;">' +
+                        '<div style="display:flex;justify-content:space-between;margin-bottom:0.3rem;">' +
+                        '<strong style="color:' + color + ';">' + (i + 1) + '. ' + c.name + '</strong>' +
+                        '<span>' + c.share.toFixed(1) + '% (' + formatCurrency(c.revenue) + ')</span></div>' +
+                        '<div style="width:100%;height:24px;background:#e0e0e0;border-radius:4px;overflow:hidden;">' +
+                        '<div style="width:' + barWidth + '%;height:100%;background:' + color + ';"></div></div></div>';
+                }).join('') +
+                '</div>';
+
+            document.getElementById('breakdown').innerHTML = breakdown;
+
+            let strat = [];
+            if (yourShare < 10) {
+                strat.push('🎯 Position de niche : concentrez-vous sur un segment spécifique');
+                strat.push('📈 Objectif : atteindre 10% pour devenir un suiveur crédible');
+            } else if (yourShare < 20) {
+                strat.push('🏃 Position de suiveur : cherchez à vous différencier');
+                strat.push('💡 Opportunité : identifiez les niches délaissées par le leader');
+            } else if (yourShare < 40) {
+                strat.push('⚔️ Position de challenger : vous pouvez contester le leadership');
+                strat.push('🎯 Stratégie : attaquez frontalement ou via innovation');
+            } else {
+                strat.push('👑 Position de leader : défendez votre position');
+                strat.push('✅ Maintenez votre avance par l\'innovation continue');
+            }
+
+            if (yourPosition === 1) strat.push('🏆 Vous êtes le leader du marché !');
+            
+            document.getElementById('strategy').innerHTML = strat.map(function(s) { return '<div>• ' + s + '</div>'; }).join('');
+            showNotification('Part de marché calculée !', 'success');
         });
-        window.addEventListener('load', () => document.getElementById('mainForm').dispatchEvent(new Event('submit')));
+
+        ['yourRevenue', 'totalMarket', 'competitor1', 'competitor2', 'competitor3'].forEach(function(id) {
+            document.getElementById(id).addEventListener('input', function() {
+                document.getElementById('calculateBtn').click();
+            });
+        });
+
+        document.getElementById('calculateBtn').click();
     </script>
 </body>
 </html>

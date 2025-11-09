@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Outil Business - Business Tools</title>
+    <title>Analyseur de Trésorerie - Business Tools</title>
     <link rel="stylesheet" href="../../assets/css/main.css">
     <link rel="stylesheet" href="../../assets/css/tools.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -11,49 +11,163 @@
 </head>
 <body>
     <nav class="breadcrumb">
-        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> > 
-        <a href="../../index.html#tools">Analyse</a> > 
-        <span>Outil</span>
+        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> >
+        <a href="../../index.html#tools">Analytics</a> >
+        <span>Analyseur de Trésorerie</span>
     </nav>
     <main class="tool-container">
         <header class="tool-header">
-            <h1><i class="fas fa-tools"></i> Outil Business</h1>
-            <p class="tool-description">Outil professionnel pour optimiser votre activité.</p>
+            <h1><i class="fas fa-money-bill-wave"></i> Analyseur de Trésorerie</h1>
+            <p class="tool-description">Analysez votre cash-flow et prévoyez votre trésorerie.</p>
         </header>
+
         <section class="tool-input">
-            <form id="mainForm">
+            <h3>Encaissements mensuels</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin: 1rem 0;">
                 <div class="form-group">
-                    <label for="input1" class="form-label">Donnée d'entrée</label>
-                    <input type="number" id="input1" class="form-input" value="100" min="0" required>
+                    <label class="form-label">Ventes (€)</label>
+                    <input type="number" id="sales" class="form-input" value="50000" min="0">
                 </div>
-                <button type="submit" class="btn btn-primary"><i class="fas fa-calculator"></i> Calculer</button>
-            </form>
-        </section>
-        <section class="tool-output" id="results" style="display: none;">
-            <div class="results-grid">
-                <div class="result-item">
-                    <div class="result-label">Résultat</div>
-                    <div class="result-value highlight" id="result">-</div>
+                <div class="form-group">
+                    <label class="form-label">Autres recettes (€)</label>
+                    <input type="number" id="otherIncome" class="form-input" value="5000" min="0">
                 </div>
             </div>
+
+            <h3>Décaissements mensuels</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin: 1rem 0;">
+                <div class="form-group">
+                    <label class="form-label">Achats (€)</label>
+                    <input type="number" id="purchases" class="form-input" value="20000" min="0">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Salaires (€)</label>
+                    <input type="number" id="salaries" class="form-input" value="15000" min="0">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Loyer (€)</label>
+                    <input type="number" id="rent" class="form-input" value="3000" min="0">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Autres charges (€)</label>
+                    <input type="number" id="otherExpenses" class="form-input" value="5000" min="0">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Trésorerie initiale (€)</label>
+                <input type="number" id="initialCash" class="form-input" value="30000" min="0">
+            </div>
+
+            <button class="btn btn-primary" id="calculateBtn">
+                <i class="fas fa-calculator"></i> Analyser
+            </button>
         </section>
+
+        <section class="tool-output">
+            <div class="results-grid">
+                <div class="result-item">
+                    <div class="result-label">Cash-flow mensuel</div>
+                    <div class="result-value highlight" id="cashFlow">-</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Trésorerie finale</div>
+                    <div class="result-value" id="finalCash">-</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Taux de couverture</div>
+                    <div class="result-value success" id="coverageRatio">-</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Autonomie (mois)</div>
+                    <div class="result-value" id="runway">-</div>
+                </div>
+            </div>
+
+            <div style="margin-top: 1.5rem; padding: 1rem; background: white; border-radius: var(--radius);">
+                <h3>Détail</h3>
+                <div id="details" style="line-height: 2;"></div>
+            </div>
+
+            <div style="margin-top: 1.5rem; padding: 1rem; background: #e3f2fd; border-left: 4px solid #2196f3; border-radius: var(--radius);">
+                <h3 style="margin-top:0;">💡 Recommandations</h3>
+                <div id="recommendations"></div>
+            </div>
+        </section>
+
         <section class="tool-help">
-            <h3><i class="fas fa-info-circle"></i> Aide</h3>
-            <p>Utilisez cet outil pour optimiser votre gestion d'entreprise.</p>
+            <h3><i class="fas fa-info-circle"></i> Formules</h3>
+            <ul>
+                <li><strong>Cash-flow</strong> = Encaissements - Décaissements</li>
+                <li><strong>Trésorerie finale</strong> = Trésorerie initiale + Cash-flow</li>
+                <li><strong>Taux de couverture</strong> = Encaissements / Décaissements</li>
+                <li><strong>Autonomie</strong> = Trésorerie / Décaissements mensuels</li>
+            </ul>
         </section>
     </main>
-    <footer class="tool-footer"><a href="../../index.html"><i class="fas fa-arrow-left"></i> Retour</a></footer>
+    <footer class="tool-footer">
+        <a href="../../index.html"><i class="fas fa-arrow-left"></i> Retour</a>
+    </footer>
     <script src="../../assets/js/utils.js"></script>
     <script src="../../assets/js/main.js"></script>
     <script>
-        document.getElementById('mainForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const val = parseFloat(document.getElementById('input1').value);
-            document.getElementById('result').textContent = val.toFixed(2);
-            document.getElementById('results').style.display = 'block';
-            showNotification('Opération réussie !', 'success');
+        document.getElementById('calculateBtn').addEventListener('click', function() {
+            const sales = parseFloat(document.getElementById('sales').value) || 0;
+            const otherIncome = parseFloat(document.getElementById('otherIncome').value) || 0;
+            const purchases = parseFloat(document.getElementById('purchases').value) || 0;
+            const salaries = parseFloat(document.getElementById('salaries').value) || 0;
+            const rent = parseFloat(document.getElementById('rent').value) || 0;
+            const otherExpenses = parseFloat(document.getElementById('otherExpenses').value) || 0;
+            const initialCash = parseFloat(document.getElementById('initialCash').value) || 0;
+
+            const totalIncome = sales + otherIncome;
+            const totalExpenses = purchases + salaries + rent + otherExpenses;
+            const cashFlow = totalIncome - totalExpenses;
+            const finalCash = initialCash + cashFlow;
+            const coverageRatio = totalExpenses > 0 ? totalIncome / totalExpenses : 0;
+            const runway = totalExpenses > 0 ? finalCash / totalExpenses : 0;
+
+            document.getElementById('cashFlow').textContent = formatCurrency(cashFlow);
+            document.getElementById('finalCash').textContent = formatCurrency(finalCash);
+            document.getElementById('coverageRatio').textContent = coverageRatio.toFixed(2);
+            document.getElementById('runway').textContent = runway.toFixed(1) + ' mois';
+
+            const details = '<div><strong>Encaissements :</strong></div>' +
+                '<div>Ventes : ' + formatCurrency(sales) + '</div>' +
+                '<div>Autres recettes : ' + formatCurrency(otherIncome) + '</div>' +
+                '<div><strong>Total encaissements : ' + formatCurrency(totalIncome) + '</strong></div>' +
+                '<br><div><strong>Décaissements :</strong></div>' +
+                '<div>Achats : ' + formatCurrency(purchases) + '</div>' +
+                '<div>Salaires : ' + formatCurrency(salaries) + '</div>' +
+                '<div>Loyer : ' + formatCurrency(rent) + '</div>' +
+                '<div>Autres charges : ' + formatCurrency(otherExpenses) + '</div>' +
+                '<div><strong>Total décaissements : ' + formatCurrency(totalExpenses) + '</strong></div>' +
+                '<br><div style="font-weight:700;font-size:1.1em;">Cash-flow mensuel : ' + formatCurrency(cashFlow) + '</div>';
+
+            document.getElementById('details').innerHTML = details;
+
+            let recs = [];
+            if (cashFlow < 0) recs.push('⚠️ Cash-flow négatif : réduisez vos charges ou augmentez vos ventes');
+            else recs.push('✅ Cash-flow positif');
+            
+            if (runway < 3) recs.push('🔴 Autonomie critique : moins de 3 mois de trésorerie');
+            else if (runway < 6) recs.push('⚠️ Autonomie moyenne : visez 6+ mois de trésorerie');
+            else recs.push('✅ Bonne autonomie financière');
+            
+            if (coverageRatio < 1) recs.push('⚠️ Vos dépenses dépassent vos recettes');
+            else if (coverageRatio > 1.3) recs.push('✅ Bon ratio de couverture');
+
+            document.getElementById('recommendations').innerHTML = recs.map(function(r) { return '<div>• ' + r + '</div>'; }).join('');
+            showNotification('Analyse terminée !', 'success');
         });
-        window.addEventListener('load', () => document.getElementById('mainForm').dispatchEvent(new Event('submit')));
+
+        ['sales', 'otherIncome', 'purchases', 'salaries', 'rent', 'otherExpenses', 'initialCash'].forEach(function(id) {
+            document.getElementById(id).addEventListener('input', function() {
+                document.getElementById('calculateBtn').click();
+            });
+        });
+
+        document.getElementById('calculateBtn').click();
     </script>
 </body>
 </html>
