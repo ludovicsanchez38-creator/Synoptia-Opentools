@@ -3,49 +3,260 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculateur d'Heures Sup - Business Tools</title>
+    <title>Calculateur d'Heures Supplémentaires - Business Tools</title>
     <link rel="stylesheet" href="../../assets/css/main.css">
     <link rel="stylesheet" href="../../assets/css/tools.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .input-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin: 1.5rem 0;
+        }
+        .hours-breakdown {
+            margin: 2rem 0;
+            padding: 1.5rem;
+            background: linear-gradient(135deg, rgba(255,107,107,0.1), rgba(255,193,7,0.1));
+            border-radius: var(--radius-lg);
+        }
+        .breakdown-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+        .breakdown-row:last-child {
+            border-bottom: none;
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+        .breakdown-label {
+            color: var(--primary);
+            font-weight: 600;
+        }
+        .breakdown-value {
+            color: var(--accent);
+            font-weight: 700;
+        }
+        .premium-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            background: var(--accent);
+            color: white;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-left: 0.5rem;
+        }
+        .warning-box {
+            padding: 1rem;
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            border-radius: var(--radius);
+            margin: 1rem 0;
+        }
+        .warning-box i {
+            color: #f57c00;
+            margin-right: 0.5rem;
+        }
+        .projection-card {
+            padding: 1.5rem;
+            background: white;
+            border: 2px solid var(--border);
+            border-radius: var(--radius-lg);
+            margin: 1rem 0;
+        }
+        .projection-card h3 {
+            margin-bottom: 1rem;
+            color: var(--primary);
+        }
+        .projection-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+    </style>
 </head>
 <body>
     <nav class="breadcrumb">
-        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> > 
-        <a href="../../index.html#tools">Temps</a> > 
-        <span>Calculateur d'Heures Sup</span>
+        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> >
+        <a href="../../index.html#tools">Temps</a> >
+        <span>Calculateur d'Heures Supplémentaires</span>
     </nav>
     <main class="tool-container">
         <header class="tool-header">
-            <h1><i class="fas fa-user-clock"></i> Calculateur d'Heures Sup</h1>
-            <p class="tool-description">Calcul prime heures supplémentaires</p>
+            <h1><i class="fas fa-user-clock"></i> Calculateur d'Heures Supplémentaires</h1>
+            <p class="tool-description">Calculez vos heures supplémentaires et majorations selon la législation française.</p>
         </header>
+
         <section class="tool-input">
-            <h2>Configuration</h2>
-            <form id="mainForm">
+            <h2><i class="fas fa-calculator"></i> Paramètres</h2>
+
+            <div class="input-grid">
                 <div class="form-group">
-                    <label for="input1" class="form-label">
-                        <i class="fas fa-clock"></i> Durée ou information
-                    </label>
-                    <input type="text" id="input1" class="form-input" placeholder="Entrez les informations" required>
+                    <label class="form-label">Taux horaire brut (€/h)</label>
+                    <input type="number" id="hourlyRate" class="form-input" value="15" min="0" step="0.5">
+                    <span class="form-help">Votre salaire horaire de base</span>
                 </div>
-                <button type="submit" class="btn btn-primary">
-                    <i class="fas fa-play"></i> Démarrer/Calculer
-                </button>
-            </form>
-        </section>
-        <section class="tool-output" id="results" style="display: none;">
-            <h2><i class="fas fa-check-circle"></i> Résultat</h2>
-            <div class="results-grid">
-                <div class="result-item">
-                    <div class="result-label">Temps total</div>
-                    <div class="result-value highlight" id="totalTime">00:00:00</div>
+                <div class="form-group">
+                    <label class="form-label">Heures hebdomadaires contractuelles</label>
+                    <input type="number" id="contractHours" class="form-input" value="35" min="0" max="80" step="0.5">
+                    <span class="form-help">Durée légale : 35h en France</span>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Heures réellement travaillées</label>
+                    <input type="number" id="workedHours" class="form-input" value="40" min="0" max="100" step="0.5">
+                    <span class="form-help">Total heures effectuées cette semaine</span>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Régime heures sup</label>
+                    <select id="overtimeRegime" class="form-input">
+                        <option value="standard">Standard (25% puis 50%)</option>
+                        <option value="low">Réduit (10% puis 25%)</option>
+                        <option value="high">Majoré (50% toutes heures)</option>
+                    </select>
+                    <span class="form-help">Selon convention collective</span>
                 </div>
             </div>
+
+            <button class="btn btn-primary" id="calculateBtn">
+                <i class="fas fa-calculator"></i> Calculer les heures sup
+            </button>
         </section>
+
+        <section class="tool-output">
+            <h2><i class="fas fa-chart-bar"></i> Résultats</h2>
+
+            <div class="results-grid">
+                <div class="result-item">
+                    <div class="result-label">Heures normales</div>
+                    <div class="result-value" id="normalHours">-</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Heures supplémentaires</div>
+                    <div class="result-value highlight" id="overtimeHours">-</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Salaire total brut</div>
+                    <div class="result-value success" id="totalSalary">-</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Prime heures sup</div>
+                    <div class="result-value" id="overtimePremium">-</div>
+                </div>
+            </div>
+
+            <div id="warningSection" style="display: none;">
+                <div class="warning-box">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <strong>Attention :</strong> <span id="warningMessage"></span>
+                </div>
+            </div>
+
+            <div class="hours-breakdown" id="breakdownSection" style="display: none;">
+                <h3><i class="fas fa-list-ul"></i> Détail de la rémunération</h3>
+                <div class="breakdown-row">
+                    <div class="breakdown-label">
+                        <span id="normalHoursDetail">35h</span> × <span id="normalRateDetail">15€</span>
+                    </div>
+                    <div class="breakdown-value" id="normalPay">525€</div>
+                </div>
+                <div id="overtime25Section" style="display: none;">
+                    <div class="breakdown-row">
+                        <div class="breakdown-label">
+                            <span id="overtime25Detail">8h</span> × <span id="rate25Detail">18.75€</span>
+                            <span class="premium-badge">+25%</span>
+                        </div>
+                        <div class="breakdown-value" id="overtime25Pay">150€</div>
+                    </div>
+                </div>
+                <div id="overtime50Section" style="display: none;">
+                    <div class="breakdown-row">
+                        <div class="breakdown-label">
+                            <span id="overtime50Detail">2h</span> × <span id="rate50Detail">22.50€</span>
+                            <span class="premium-badge">+50%</span>
+                        </div>
+                        <div class="breakdown-value" id="overtime50Pay">45€</div>
+                    </div>
+                </div>
+                <div class="breakdown-row">
+                    <div class="breakdown-label">TOTAL BRUT HEBDOMADAIRE</div>
+                    <div class="breakdown-value" id="totalBreakdownPay">720€</div>
+                </div>
+            </div>
+
+            <div class="projection-card" id="projectionSection" style="display: none;">
+                <h3><i class="fas fa-calendar-alt"></i> Projections</h3>
+                <div class="projection-row">
+                    <span>Salaire mensuel (4.33 semaines)</span>
+                    <strong id="monthlySalary">-</strong>
+                </div>
+                <div class="projection-row">
+                    <span>Salaire annuel (52 semaines)</span>
+                    <strong id="annualSalary">-</strong>
+                </div>
+                <div class="projection-row">
+                    <span>Total heures sup/mois</span>
+                    <strong id="monthlyOvertime">-</strong>
+                </div>
+                <div class="projection-row">
+                    <span>Total heures sup/an</span>
+                    <strong id="annualOvertime">-</strong>
+                </div>
+            </div>
+
+            <div class="action-buttons" style="margin-top: 2rem;">
+                <button class="btn btn-accent" id="exportBtn">
+                    <i class="fas fa-download"></i> Exporter le calcul
+                </button>
+            </div>
+        </section>
+
         <section class="tool-help">
-            <h3><i class="fas fa-question-circle"></i> Utilisation</h3>
-            <p>Cet outil vous aide à gérer et optimiser votre temps de travail.</p>
+            <h3><i class="fas fa-info-circle"></i> Comment utiliser ?</h3>
+            <ol>
+                <li>Entrez votre <strong>taux horaire brut</strong> habituel</li>
+                <li>Indiquez vos <strong>heures contractuelles</strong> (généralement 35h)</li>
+                <li>Saisissez les <strong>heures réellement travaillées</strong> cette semaine</li>
+                <li>Sélectionnez le <strong>régime de majoration</strong> selon votre convention</li>
+                <li>Cliquez sur <strong>Calculer</strong> pour voir le détail</li>
+            </ol>
+
+            <h3><i class="fas fa-gavel"></i> Législation française</h3>
+            <ul>
+                <li><strong>Heures supplémentaires</strong> : Au-delà de 35h/semaine (ou durée légale)</li>
+                <li><strong>Majoration standard</strong> :
+                    <ul>
+                        <li>+25% pour les 8 premières heures (de la 36e à la 43e heure)</li>
+                        <li>+50% au-delà de 8 heures sup (à partir de la 44e heure)</li>
+                    </ul>
+                </li>
+                <li><strong>Contingent annuel</strong> : 220 heures sup maximum (sauf accord)</li>
+                <li><strong>Limite journalière</strong> : 10h/jour maximum</li>
+                <li><strong>Limite hebdomadaire</strong> : 48h max (ou 44h en moyenne sur 12 semaines)</li>
+            </ul>
+
+            <h3><i class="fas fa-lightbulb"></i> Conseils pratiques</h3>
+            <ul>
+                <li><strong>Repos compensateur</strong> : Les heures sup peuvent être payées OU récupérées</li>
+                <li><strong>Défiscalisation</strong> : Les heures sup bénéficient d'une exonération fiscale et sociale (dans certaines limites)</li>
+                <li><strong>Refus possible</strong> : L'employé peut refuser les heures sup au-delà du contingent</li>
+                <li><strong>Accord d'entreprise</strong> : Les taux peuvent varier selon convention collective</li>
+                <li><strong>Temps partiel</strong> : Les heures complémentaires ont leurs propres règles</li>
+            </ul>
+
+            <h3><i class="fas fa-exclamation-triangle"></i> Points d'attention</h3>
+            <ul>
+                <li><strong>Limite 48h</strong> : Ne pas dépasser 48h/semaine (dérogation exceptionnelle à 60h)</li>
+                <li><strong>Repos quotidien</strong> : 11h consécutives minimum entre 2 journées</li>
+                <li><strong>Repos hebdomadaire</strong> : 35h consécutives (24h + 11h)</li>
+                <li><strong>Conventions spéciales</strong> : Certains secteurs ont des régimes spécifiques</li>
+                <li><strong>Calcul net</strong> : Les montants affichés sont en BRUT (charges à déduire)</li>
+            </ul>
         </section>
     </main>
     <footer class="tool-footer">
@@ -54,10 +265,143 @@
     <script src="../../assets/js/utils.js"></script>
     <script src="../../assets/js/main.js"></script>
     <script>
-        document.getElementById('mainForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            document.getElementById('results').style.display = 'block';
+        document.getElementById('calculateBtn').addEventListener('click', () => {
+            const hourlyRate = parseFloat(document.getElementById('hourlyRate').value) || 0;
+            const contractHours = parseFloat(document.getElementById('contractHours').value) || 35;
+            const workedHours = parseFloat(document.getElementById('workedHours').value) || 0;
+            const regime = document.getElementById('overtimeRegime').value;
+
+            // Determine overtime premiums based on regime
+            let premium1, premium2;
+            switch(regime) {
+                case 'low':
+                    premium1 = 0.10;
+                    premium2 = 0.25;
+                    break;
+                case 'high':
+                    premium1 = 0.50;
+                    premium2 = 0.50;
+                    break;
+                default: // standard
+                    premium1 = 0.25;
+                    premium2 = 0.50;
+            }
+
+            // Calculate overtime hours
+            const overtimeTotal = Math.max(0, workedHours - contractHours);
+            const overtime25 = Math.min(overtimeTotal, 8);
+            const overtime50 = Math.max(0, overtimeTotal - 8);
+            const normalHours = Math.min(workedHours, contractHours);
+
+            // Calculate pay
+            const normalPay = normalHours * hourlyRate;
+            const overtime25Pay = overtime25 * hourlyRate * (1 + premium1);
+            const overtime50Pay = overtime50 * hourlyRate * (1 + premium2);
+            const totalSalary = normalPay + overtime25Pay + overtime50Pay;
+            const overtimePremium = (overtime25 * hourlyRate * premium1) + (overtime50 * hourlyRate * premium2);
+
+            // Display main results
+            document.getElementById('normalHours').textContent = normalHours.toFixed(1) + 'h';
+            document.getElementById('overtimeHours').textContent = overtimeTotal.toFixed(1) + 'h';
+            document.getElementById('totalSalary').textContent = totalSalary.toFixed(2) + ' €';
+            document.getElementById('overtimePremium').textContent = overtimePremium.toFixed(2) + ' €';
+
+            // Breakdown
+            document.getElementById('normalHoursDetail').textContent = normalHours.toFixed(1) + 'h';
+            document.getElementById('normalRateDetail').textContent = hourlyRate.toFixed(2) + '€';
+            document.getElementById('normalPay').textContent = normalPay.toFixed(2) + '€';
+
+            if (overtime25 > 0) {
+                document.getElementById('overtime25Section').style.display = 'block';
+                document.getElementById('overtime25Detail').textContent = overtime25.toFixed(1) + 'h';
+                document.getElementById('rate25Detail').textContent = (hourlyRate * (1 + premium1)).toFixed(2) + '€';
+                document.getElementById('overtime25Pay').textContent = overtime25Pay.toFixed(2) + '€';
+            } else {
+                document.getElementById('overtime25Section').style.display = 'none';
+            }
+
+            if (overtime50 > 0) {
+                document.getElementById('overtime50Section').style.display = 'block';
+                document.getElementById('overtime50Detail').textContent = overtime50.toFixed(1) + 'h';
+                document.getElementById('rate50Detail').textContent = (hourlyRate * (1 + premium2)).toFixed(2) + '€';
+                document.getElementById('overtime50Pay').textContent = overtime50Pay.toFixed(2) + '€';
+            } else {
+                document.getElementById('overtime50Section').style.display = 'none';
+            }
+
+            document.getElementById('totalBreakdownPay').textContent = totalSalary.toFixed(2) + '€';
+            document.getElementById('breakdownSection').style.display = 'block';
+
+            // Projections
+            const monthlySalary = totalSalary * 4.33;
+            const annualSalary = totalSalary * 52;
+            const monthlyOvertime = overtimeTotal * 4.33;
+            const annualOvertime = overtimeTotal * 52;
+
+            document.getElementById('monthlySalary').textContent = monthlySalary.toFixed(2) + ' € brut';
+            document.getElementById('annualSalary').textContent = annualSalary.toFixed(2) + ' € brut';
+            document.getElementById('monthlyOvertime').textContent = monthlyOvertime.toFixed(1) + 'h';
+            document.getElementById('annualOvertime').textContent = annualOvertime.toFixed(1) + 'h';
+            document.getElementById('projectionSection').style.display = 'block';
+
+            // Warnings
+            let warnings = [];
+            if (workedHours > 48) {
+                warnings.push('Dépassement de la limite légale de 48h/semaine !');
+            } else if (workedHours > 44) {
+                warnings.push('Attention : proche de la limite moyenne de 44h sur 12 semaines.');
+            }
+
+            if (annualOvertime > 220) {
+                warnings.push(`Dépassement du contingent annuel (${annualOvertime.toFixed(0)}h > 220h) !`);
+            }
+
+            if (warnings.length > 0) {
+                document.getElementById('warningMessage').innerHTML = warnings.join('<br>');
+                document.getElementById('warningSection').style.display = 'block';
+            } else {
+                document.getElementById('warningSection').style.display = 'none';
+            }
+
             showNotification('Calcul effectué !', 'success');
+        });
+
+        document.getElementById('exportBtn').addEventListener('click', () => {
+            const hourlyRate = parseFloat(document.getElementById('hourlyRate').value) || 0;
+            const contractHours = parseFloat(document.getElementById('contractHours').value) || 35;
+            const workedHours = parseFloat(document.getElementById('workedHours').value) || 0;
+            const regime = document.getElementById('overtimeRegime').value;
+
+            const csv = `Calculateur Heures Supplémentaires\n` +
+                `Date,${new Date().toLocaleDateString('fr-FR')}\n\n` +
+                `Paramètres\n` +
+                `Taux horaire brut,${hourlyRate.toFixed(2)} €\n` +
+                `Heures contractuelles,${contractHours}h\n` +
+                `Heures travaillées,${workedHours}h\n` +
+                `Régime,${regime}\n\n` +
+                `Résultats\n` +
+                `Heures normales,${document.getElementById('normalHours').textContent}\n` +
+                `Heures supplémentaires,${document.getElementById('overtimeHours').textContent}\n` +
+                `Salaire total brut,${document.getElementById('totalSalary').textContent}\n` +
+                `Prime heures sup,${document.getElementById('overtimePremium').textContent}\n\n` +
+                `Projections\n` +
+                `Mensuel,${document.getElementById('monthlySalary').textContent}\n` +
+                `Annuel,${document.getElementById('annualSalary').textContent}\n`;
+
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `heures_sup_${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+            showNotification('Export CSV réussi !', 'success');
+        });
+
+        // Auto-calculate on input change
+        ['hourlyRate', 'contractHours', 'workedHours', 'overtimeRegime'].forEach(id => {
+            document.getElementById(id).addEventListener('change', () => {
+                document.getElementById('calculateBtn').click();
+            });
         });
     </script>
 </body>

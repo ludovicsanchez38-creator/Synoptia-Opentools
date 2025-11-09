@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Suivi des Jalons Projet - Business Tools</title>
+    <title>Suivi des Jalons - Business Tools</title>
     <link rel="stylesheet" href="../../assets/css/main.css">
     <link rel="stylesheet" href="../../assets/css/tools.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -11,41 +11,57 @@
 </head>
 <body>
     <nav class="breadcrumb">
-        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> > 
-        <a href="../../index.html#tools">Temps</a> > 
-        <span>Suivi des Jalons Projet</span>
+        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> >
+        <a href="../../index.html#tools">Temps</a> >
+        <span>Suivi des Jalons</span>
     </nav>
     <main class="tool-container">
         <header class="tool-header">
-            <h1><i class="fas fa-flag-checkered"></i> Suivi des Jalons Projet</h1>
-            <p class="tool-description">Dashboard d'avancement</p>
+            <h1><i class="fas fa-flag-checkered"></i> Suivi des Jalons</h1>
+            <p class="tool-description">Suivez l'avancement des étapes clés de votre projet.</p>
         </header>
+
         <section class="tool-input">
-            <h2>Configuration</h2>
-            <form id="mainForm">
-                <div class="form-group">
-                    <label for="input1" class="form-label">
-                        <i class="fas fa-clock"></i> Durée ou information
-                    </label>
-                    <input type="text" id="input1" class="form-input" placeholder="Entrez les informations" required>
-                </div>
-                <button type="submit" class="btn btn-primary">
-                    <i class="fas fa-play"></i> Démarrer/Calculer
+            <div style="display: flex; gap: 1rem; margin-bottom: 1.5rem;">
+                <input type="text" id="milestoneName" class="form-input" placeholder="Nom du jalon" style="flex: 1;">
+                <input type="date" id="milestoneDate" class="form-input">
+                <button class="btn btn-primary" id="addBtn">
+                    <i class="fas fa-plus"></i> Ajouter
                 </button>
-            </form>
+            </div>
+
+            <div id="milestoneList"></div>
         </section>
-        <section class="tool-output" id="results" style="display: none;">
-            <h2><i class="fas fa-check-circle"></i> Résultat</h2>
+
+        <section class="tool-output">
             <div class="results-grid">
                 <div class="result-item">
-                    <div class="result-label">Temps total</div>
-                    <div class="result-value highlight" id="totalTime">00:00:00</div>
+                    <div class="result-label">Jalons totaux</div>
+                    <div class="result-value" id="totalMilestones">0</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Complétés</div>
+                    <div class="result-value success" id="completedMilestones">0</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">En cours</div>
+                    <div class="result-value highlight" id="pendingMilestones">0</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Progression</div>
+                    <div class="result-value" id="progress">0%</div>
                 </div>
             </div>
         </section>
+
         <section class="tool-help">
-            <h3><i class="fas fa-question-circle"></i> Utilisation</h3>
-            <p>Cet outil vous aide à gérer et optimiser votre temps de travail.</p>
+            <h3><i class="fas fa-info-circle"></i> Comment utiliser ?</h3>
+            <ol>
+                <li>Entrez le nom du jalon (ex: "Livraison version 1.0")</li>
+                <li>Sélectionnez la date cible</li>
+                <li>Cliquez sur <strong>Ajouter</strong></li>
+                <li>Marquez les jalons comme terminés en cliquant sur ✓</li>
+            </ol>
         </section>
     </main>
     <footer class="tool-footer">
@@ -54,11 +70,73 @@
     <script src="../../assets/js/utils.js"></script>
     <script src="../../assets/js/main.js"></script>
     <script>
-        document.getElementById('mainForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            document.getElementById('results').style.display = 'block';
-            showNotification('Calcul effectué !', 'success');
+        let milestones = JSON.parse(localStorage.getItem('milestones') || '[]');
+
+        document.getElementById('addBtn').addEventListener('click', () => {
+            const name = document.getElementById('milestoneName').value.trim();
+            const date = document.getElementById('milestoneDate').value;
+
+            if (name && date) {
+                milestones.push({ id: Date.now(), name, date, completed: false });
+                localStorage.setItem('milestones', JSON.stringify(milestones));
+                document.getElementById('milestoneName').value = '';
+                document.getElementById('milestoneDate').value = '';
+                render();
+                showNotification('Jalon ajouté !', 'success');
+            }
         });
+
+        function render() {
+            const container = document.getElementById('milestoneList');
+            const total = milestones.length;
+            const completed = milestones.filter(m => m.completed).length;
+            const pending = total - completed;
+            const progress = total > 0 ? Math.round((completed / total) * 100) : 0;
+
+            document.getElementById('totalMilestones').textContent = total;
+            document.getElementById('completedMilestones').textContent = completed;
+            document.getElementById('pendingMilestones').textContent = pending;
+            document.getElementById('progress').textContent = progress + '%';
+
+            if (milestones.length === 0) {
+                container.innerHTML = '<p style="text-align:center;color:#999">Aucun jalon. Ajoutez-en un !</p>';
+                return;
+            }
+
+            container.innerHTML = milestones.map(m => `
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:1rem;background:white;border:2px solid ${m.completed ? '#4caf50' : 'var(--border)'};border-radius:var(--radius);margin-bottom:0.5rem;">
+                    <div style="flex:1;${m.completed ? 'text-decoration:line-through;opacity:0.6;' : ''}">
+                        <strong>${m.name}</strong><br>
+                        <small style="color:#666;">📅 ${new Date(m.date).toLocaleDateString('fr-FR')}</small>
+                    </div>
+                    <div style="display:flex;gap:0.5rem;">
+                        <button onclick="toggle(${m.id})" style="padding:0.5rem;border:none;background:${m.completed ? '#4caf50' : '#ffc107'};color:white;border-radius:var(--radius);cursor:pointer;">
+                            <i class="fas fa-check"></i>
+                        </button>
+                        <button onclick="deleteMilestone(${m.id})" style="padding:0.5rem;border:none;background:#ff6b6b;color:white;border-radius:var(--radius);cursor:pointer;">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        window.toggle = function(id) {
+            const m = milestones.find(x => x.id === id);
+            if (m) {
+                m.completed = !m.completed;
+                localStorage.setItem('milestones', JSON.stringify(milestones));
+                render();
+            }
+        };
+
+        window.deleteMilestone = function(id) {
+            milestones = milestones.filter(x => x.id !== id);
+            localStorage.setItem('milestones', JSON.stringify(milestones));
+            render();
+        };
+
+        render();
     </script>
 </body>
 </html>

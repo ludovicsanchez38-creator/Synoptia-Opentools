@@ -11,41 +11,76 @@
 </head>
 <body>
     <nav class="breadcrumb">
-        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> > 
-        <a href="../../index.html#tools">Temps</a> > 
+        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> >
+        <a href="../../index.html#tools">Temps</a> >
         <span>Calculateur de Charge de Travail</span>
     </nav>
     <main class="tool-container">
         <header class="tool-header">
             <h1><i class="fas fa-weight"></i> Calculateur de Charge de Travail</h1>
-            <p class="tool-description">Évaluer la capacité par période</p>
+            <p class="tool-description">Évaluez la capacité de travail disponible vs la charge planifiée.</p>
         </header>
+
         <section class="tool-input">
-            <h2>Configuration</h2>
-            <form id="mainForm">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; margin: 1.5rem 0;">
                 <div class="form-group">
-                    <label for="input1" class="form-label">
-                        <i class="fas fa-clock"></i> Durée ou information
-                    </label>
-                    <input type="text" id="input1" class="form-input" placeholder="Entrez les informations" required>
+                    <label class="form-label">Capacité hebdomadaire (h)</label>
+                    <input type="number" id="capacity" class="form-input" value="35" min="0" step="1">
+                    <span class="form-help">Heures disponibles par semaine</span>
                 </div>
-                <button type="submit" class="btn btn-primary">
-                    <i class="fas fa-play"></i> Démarrer/Calculer
-                </button>
-            </form>
+                <div class="form-group">
+                    <label class="form-label">Charge planifiée (h)</label>
+                    <input type="number" id="workload" class="form-input" value="40" min="0" step="1">
+                    <span class="form-help">Heures de travail assignées</span>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Nombre de personnes</label>
+                    <input type="number" id="teamSize" class="form-input" value="1" min="1">
+                    <span class="form-help">Taille de l'équipe</span>
+                </div>
+            </div>
+
+            <button class="btn btn-primary" id="calculateBtn">
+                <i class="fas fa-calculator"></i> Calculer la charge
+            </button>
         </section>
-        <section class="tool-output" id="results" style="display: none;">
-            <h2><i class="fas fa-check-circle"></i> Résultat</h2>
+
+        <section class="tool-output">
             <div class="results-grid">
                 <div class="result-item">
-                    <div class="result-label">Temps total</div>
-                    <div class="result-value highlight" id="totalTime">00:00:00</div>
+                    <div class="result-label">Capacité totale</div>
+                    <div class="result-value" id="totalCapacity">-</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Taux d'utilisation</div>
+                    <div class="result-value highlight" id="utilizationRate">-</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Surplus / Déficit</div>
+                    <div class="result-value" id="balance">-</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Statut</div>
+                    <div class="result-value success" id="status">-</div>
                 </div>
             </div>
         </section>
+
         <section class="tool-help">
-            <h3><i class="fas fa-question-circle"></i> Utilisation</h3>
-            <p>Cet outil vous aide à gérer et optimiser votre temps de travail.</p>
+            <h3><i class="fas fa-info-circle"></i> Comment utiliser ?</h3>
+            <ol>
+                <li>Indiquez la <strong>capacité hebdomadaire</strong> par personne</li>
+                <li>Entrez la <strong>charge de travail</strong> planifiée</li>
+                <li>Précisez la <strong>taille de l'équipe</strong></li>
+                <li>Obtenez le taux d'utilisation et le surplus/déficit</li>
+            </ol>
+
+            <h3><i class="fas fa-lightbulb"></i> Conseils</h3>
+            <ul>
+                <li><strong>80-90%</strong> : Taux d'utilisation optimal</li>
+                <li><strong>&gt;100%</strong> : Surcharge, risque de burnout</li>
+                <li><strong>&lt;70%</strong> : Sous-charge, capacité disponible</li>
+            </ul>
         </section>
     </main>
     <footer class="tool-footer">
@@ -54,10 +89,33 @@
     <script src="../../assets/js/utils.js"></script>
     <script src="../../assets/js/main.js"></script>
     <script>
-        document.getElementById('mainForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            document.getElementById('results').style.display = 'block';
-            showNotification('Calcul effectué !', 'success');
+        document.getElementById('calculateBtn').addEventListener('click', () => {
+            const capacity = parseFloat(document.getElementById('capacity').value) || 0;
+            const workload = parseFloat(document.getElementById('workload').value) || 0;
+            const teamSize = parseInt(document.getElementById('teamSize').value) || 1;
+
+            const totalCapacity = capacity * teamSize;
+            const utilizationRate = totalCapacity > 0 ? (workload / totalCapacity * 100) : 0;
+            const balance = totalCapacity - workload;
+
+            document.getElementById('totalCapacity').textContent = totalCapacity.toFixed(1) + 'h';
+            document.getElementById('utilizationRate').textContent = utilizationRate.toFixed(0) + '%';
+            document.getElementById('balance').textContent = (balance >= 0 ? '+' : '') + balance.toFixed(1) + 'h';
+
+            let status = '';
+            if (utilizationRate > 100) status = 'Surcharge ⚠️';
+            else if (utilizationRate >= 80) status = 'Optimal ✅';
+            else if (utilizationRate >= 60) status = 'Normal 👍';
+            else status = 'Sous-utilisé 📊';
+
+            document.getElementById('status').textContent = status;
+            showNotification('Charge calculée !', 'success');
+        });
+
+        ['capacity', 'workload', 'teamSize'].forEach(id => {
+            document.getElementById(id).addEventListener('input', () => {
+                document.getElementById('calculateBtn').click();
+            });
         });
     </script>
 </body>

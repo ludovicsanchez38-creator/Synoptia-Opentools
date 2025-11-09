@@ -11,41 +11,45 @@
 </head>
 <body>
     <nav class="breadcrumb">
-        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> > 
-        <a href="../../index.html#tools">Temps</a> > 
+        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> >
+        <a href="../../index.html#tools">Temps</a> >
         <span>Diagramme de Gantt</span>
     </nav>
     <main class="tool-container">
         <header class="tool-header">
             <h1><i class="fas fa-project-diagram"></i> Diagramme de Gantt</h1>
-            <p class="tool-description">Timeline projet multi-tâche visuelle</p>
+            <p class="tool-description">Visualisez la timeline de votre projet avec des barres de progression.</p>
         </header>
+
         <section class="tool-input">
-            <h2>Configuration</h2>
-            <form id="mainForm">
-                <div class="form-group">
-                    <label for="input1" class="form-label">
-                        <i class="fas fa-clock"></i> Durée ou information
-                    </label>
-                    <input type="text" id="input1" class="form-input" placeholder="Entrez les informations" required>
-                </div>
-                <button type="submit" class="btn btn-primary">
-                    <i class="fas fa-play"></i> Démarrer/Calculer
+            <div style="display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 0.5rem; margin-bottom: 1rem;">
+                <input type="text" id="taskName" class="form-input" placeholder="Nom de la tâche">
+                <input type="date" id="startDate" class="form-input">
+                <input type="date" id="endDate" class="form-input">
+                <button class="btn btn-primary" id="addTaskBtn">
+                    <i class="fas fa-plus"></i> Ajouter
                 </button>
-            </form>
-        </section>
-        <section class="tool-output" id="results" style="display: none;">
-            <h2><i class="fas fa-check-circle"></i> Résultat</h2>
-            <div class="results-grid">
-                <div class="result-item">
-                    <div class="result-label">Temps total</div>
-                    <div class="result-value highlight" id="totalTime">00:00:00</div>
-                </div>
             </div>
+
+            <div id="ganttContainer" style="background:white;padding:1.5rem;border-radius:var(--radius);margin-top:1.5rem;"></div>
         </section>
+
         <section class="tool-help">
-            <h3><i class="fas fa-question-circle"></i> Utilisation</h3>
-            <p>Cet outil vous aide à gérer et optimiser votre temps de travail.</p>
+            <h3><i class="fas fa-info-circle"></i> Comment utiliser ?</h3>
+            <ol>
+                <li>Entrez le <strong>nom de la tâche</strong></li>
+                <li>Sélectionnez la <strong>date de début</strong></li>
+                <li>Sélectionnez la <strong>date de fin</strong></li>
+                <li>Cliquez sur <strong>Ajouter</strong></li>
+                <li>Les tâches s'affichent sous forme de barres</li>
+            </ol>
+
+            <h3><i class="fas fa-lightbulb"></i> Conseils</h3>
+            <ul>
+                <li>Ordonnez les tâches par séquence logique</li>
+                <li>Identifiez les dépendances entre tâches</li>
+                <li>Ajoutez des marges pour les imprévus</li>
+            </ul>
         </section>
     </main>
     <footer class="tool-footer">
@@ -54,11 +58,64 @@
     <script src="../../assets/js/utils.js"></script>
     <script src="../../assets/js/main.js"></script>
     <script>
-        document.getElementById('mainForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            document.getElementById('results').style.display = 'block';
-            showNotification('Calcul effectué !', 'success');
+        let tasks = JSON.parse(localStorage.getItem('ganttTasks') || '[]');
+
+        document.getElementById('addTaskBtn').addEventListener('click', () => {
+            const name = document.getElementById('taskName').value.trim();
+            const start = document.getElementById('startDate').value;
+            const end = document.getElementById('endDate').value;
+
+            if (name && start && end && new Date(end) >= new Date(start)) {
+                tasks.push({ id: Date.now(), name, start, end });
+                localStorage.setItem('ganttTasks', JSON.stringify(tasks));
+                document.getElementById('taskName').value = '';
+                render();
+                showNotification('Tâche ajoutée !', 'success');
+            } else {
+                showNotification('Vérifiez les dates', 'error');
+            }
         });
+
+        function render() {
+            const container = document.getElementById('ganttContainer');
+
+            if (tasks.length === 0) {
+                container.innerHTML = '<p style="text-align:center;color:#999">Aucune tâche. Ajoutez-en une pour voir le diagramme.</p>';
+                return;
+            }
+
+            const allDates = tasks.flatMap(t => [new Date(t.start), new Date(t.end)]);
+            const minDate = new Date(Math.min(...allDates));
+            const maxDate = new Date(Math.max(...allDates));
+            const totalDays = Math.ceil((maxDate - minDate) / (1000 * 60 * 60 * 24)) + 1;
+
+            container.innerHTML = tasks.map(task => {
+                const taskStart = new Date(task.start);
+                const taskEnd = new Date(task.end);
+                const daysSinceStart = Math.ceil((taskStart - minDate) / (1000 * 60 * 60 * 24));
+                const duration = Math.ceil((taskEnd - taskStart) / (1000 * 60 * 60 * 24)) + 1;
+
+                const leftPercent = (daysSinceStart / totalDays) * 100;
+                const widthPercent = (duration / totalDays) * 100;
+
+                return `
+                    <div style="margin-bottom:1.5rem;">
+                        <div style="font-weight:700;margin-bottom:0.5rem;">${task.name}</div>
+                        <div style="background:#f0f0f0;height:30px;position:relative;border-radius:var(--radius);">
+                            <div style="position:absolute;left:${leftPercent}%;width:${widthPercent}%;height:100%;background:linear-gradient(135deg,var(--primary),var(--accent));border-radius:var(--radius);display:flex;align-items:center;justify-content:center;color:white;font-size:0.85rem;font-weight:600;">
+                                ${duration}j
+                            </div>
+                        </div>
+                        <div style="display:flex;justify-content:space-between;font-size:0.85rem;color:#666;margin-top:0.25rem;">
+                            <span>${taskStart.toLocaleDateString('fr-FR')}</span>
+                            <span>${taskEnd.toLocaleDateString('fr-FR')}</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        render();
     </script>
 </body>
 </html>

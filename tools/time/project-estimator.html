@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Estimateur de Temps Projet - Business Tools</title>
+    <title>Estimateur de Projet - Business Tools</title>
     <link rel="stylesheet" href="../../assets/css/main.css">
     <link rel="stylesheet" href="../../assets/css/tools.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -11,41 +11,73 @@
 </head>
 <body>
     <nav class="breadcrumb">
-        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> > 
-        <a href="../../index.html#tools">Temps</a> > 
-        <span>Estimateur de Temps Projet</span>
+        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> >
+        <a href="../../index.html#tools">Temps</a> >
+        <span>Estimateur de Projet</span>
     </nav>
     <main class="tool-container">
         <header class="tool-header">
-            <h1><i class="fas fa-hourglass-half"></i> Estimateur de Temps Projet</h1>
-            <p class="tool-description">Prévision automatique durée totale</p>
+            <h1><i class="fas fa-hourglass-half"></i> Estimateur de Projet</h1>
+            <p class="tool-description">Estimation 3-points pour prédire la durée réaliste d'un projet.</p>
         </header>
+
         <section class="tool-input">
-            <h2>Configuration</h2>
-            <form id="mainForm">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin: 1.5rem 0;">
                 <div class="form-group">
-                    <label for="input1" class="form-label">
-                        <i class="fas fa-clock"></i> Durée ou information
-                    </label>
-                    <input type="text" id="input1" class="form-input" placeholder="Entrez les informations" required>
+                    <label class="form-label">Estimation optimiste (h)</label>
+                    <input type="number" id="optimistic" class="form-input" value="20" min="0" step="1">
+                    <span class="form-help">Meilleur scénario</span>
                 </div>
-                <button type="submit" class="btn btn-primary">
-                    <i class="fas fa-play"></i> Démarrer/Calculer
-                </button>
-            </form>
+                <div class="form-group">
+                    <label class="form-label">Estimation probable (h)</label>
+                    <input type="number" id="mostLikely" class="form-input" value="40" min="0" step="1">
+                    <span class="form-help">Scénario réaliste</span>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Estimation pessimiste (h)</label>
+                    <input type="number" id="pessimistic" class="form-input" value="60" min="0" step="1">
+                    <span class="form-help">Pire scénario</span>
+                </div>
+            </div>
+
+            <button class="btn btn-primary" id="calculateBtn">
+                <i class="fas fa-calculator"></i> Calculer l'estimation PERT
+            </button>
         </section>
-        <section class="tool-output" id="results" style="display: none;">
-            <h2><i class="fas fa-check-circle"></i> Résultat</h2>
+
+        <section class="tool-output">
             <div class="results-grid">
                 <div class="result-item">
-                    <div class="result-label">Temps total</div>
-                    <div class="result-value highlight" id="totalTime">00:00:00</div>
+                    <div class="result-label">Estimation PERT</div>
+                    <div class="result-value highlight" id="pertEstimate">-</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Fourchette (95%)</div>
+                    <div class="result-value" id="range">-</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Jours (8h/j)</div>
+                    <div class="result-value success" id="days">-</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Écart-type</div>
+                    <div class="result-value" id="stdDev">-</div>
                 </div>
             </div>
         </section>
+
         <section class="tool-help">
-            <h3><i class="fas fa-question-circle"></i> Utilisation</h3>
-            <p>Cet outil vous aide à gérer et optimiser votre temps de travail.</p>
+            <h3><i class="fas fa-info-circle"></i> Méthode PERT</h3>
+            <p>La méthode PERT (Program Evaluation and Review Technique) utilise la formule :</p>
+            <p><strong>Estimation = (Optimiste + 4×Probable + Pessimiste) / 6</strong></p>
+
+            <h3><i class="fas fa-lightbulb"></i> Conseils</h3>
+            <ul>
+                <li><strong>Optimiste</strong> : Tout se passe parfaitement</li>
+                <li><strong>Probable</strong> : Scénario réaliste avec imprévus normaux</li>
+                <li><strong>Pessimiste</strong> : Difficultés majeures</li>
+                <li>Ajoutez 20-30% de marge pour les imprévus</li>
+            </ul>
         </section>
     </main>
     <footer class="tool-footer">
@@ -54,10 +86,29 @@
     <script src="../../assets/js/utils.js"></script>
     <script src="../../assets/js/main.js"></script>
     <script>
-        document.getElementById('mainForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            document.getElementById('results').style.display = 'block';
-            showNotification('Calcul effectué !', 'success');
+        document.getElementById('calculateBtn').addEventListener('click', () => {
+            const opt = parseFloat(document.getElementById('optimistic').value) || 0;
+            const likely = parseFloat(document.getElementById('mostLikely').value) || 0;
+            const pess = parseFloat(document.getElementById('pessimistic').value) || 0;
+
+            const pertEstimate = (opt + 4 * likely + pess) / 6;
+            const stdDev = (pess - opt) / 6;
+            const lowerBound = pertEstimate - 2 * stdDev;
+            const upperBound = pertEstimate + 2 * stdDev;
+            const days = pertEstimate / 8;
+
+            document.getElementById('pertEstimate').textContent = pertEstimate.toFixed(1) + 'h';
+            document.getElementById('range').textContent = lowerBound.toFixed(1) + 'h - ' + upperBound.toFixed(1) + 'h';
+            document.getElementById('days').textContent = days.toFixed(1) + ' jours';
+            document.getElementById('stdDev').textContent = stdDev.toFixed(1) + 'h';
+
+            showNotification('Estimation calculée !', 'success');
+        });
+
+        ['optimistic', 'mostLikely', 'pessimistic'].forEach(id => {
+            document.getElementById(id).addEventListener('input', () => {
+                document.getElementById('calculateBtn').click();
+            });
         });
     </script>
 </body>

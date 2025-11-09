@@ -11,41 +11,72 @@
 </head>
 <body>
     <nav class="breadcrumb">
-        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> > 
-        <a href="../../index.html#tools">Temps</a> > 
+        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> >
+        <a href="../../index.html#tools">Temps</a> >
         <span>Calendrier de Disponibilité</span>
     </nav>
     <main class="tool-container">
         <header class="tool-header">
             <h1><i class="fas fa-calendar-check"></i> Calendrier de Disponibilité</h1>
-            <p class="tool-description">DESC_PLACEHOLDER</p>
+            <p class="tool-description">Gérez vos disponibilités et absences pour faciliter la planification.</p>
         </header>
+
         <section class="tool-input">
-            <h2>Configuration</h2>
-            <form id="mainForm">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
                 <div class="form-group">
-                    <label for="input1" class="form-label">
-                        <i class="fas fa-clock"></i> Durée ou information
-                    </label>
-                    <input type="text" id="input1" class="form-input" placeholder="Entrez les informations" required>
+                    <label class="form-label">Date début</label>
+                    <input type="date" id="startDate" class="form-input">
                 </div>
-                <button type="submit" class="btn btn-primary">
-                    <i class="fas fa-play"></i> Démarrer/Calculer
+                <div class="form-group">
+                    <label class="form-label">Date fin</label>
+                    <input type="date" id="endDate" class="form-input">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Statut</label>
+                    <select id="status" class="form-input">
+                        <option value="available">✅ Disponible</option>
+                        <option value="busy">🔴 Occupé</option>
+                        <option value="vacation">🏖️ Congés</option>
+                        <option value="remote">🏠 Télétravail</option>
+                    </select>
+                </div>
+                <button class="btn btn-primary" id="addBtn" style="align-self:end;">
+                    <i class="fas fa-plus"></i> Ajouter
                 </button>
-            </form>
+            </div>
+
+            <div id="periodList"></div>
         </section>
-        <section class="tool-output" id="results" style="display: none;">
-            <h2><i class="fas fa-check-circle"></i> Résultat</h2>
+
+        <section class="tool-output">
             <div class="results-grid">
                 <div class="result-item">
-                    <div class="result-label">Temps total</div>
-                    <div class="result-value highlight" id="totalTime">00:00:00</div>
+                    <div class="result-label">Jours disponibles</div>
+                    <div class="result-value success" id="availableDays">0</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Jours occupés</div>
+                    <div class="result-value highlight" id="busyDays">0</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Jours de congés</div>
+                    <div class="result-value" id="vacationDays">0</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Taux disponibilité</div>
+                    <div class="result-value" id="availabilityRate">-</div>
                 </div>
             </div>
         </section>
+
         <section class="tool-help">
-            <h3><i class="fas fa-question-circle"></i> Utilisation</h3>
-            <p>Cet outil vous aide à gérer et optimiser votre temps de travail.</p>
+            <h3><i class="fas fa-info-circle"></i> Comment utiliser ?</h3>
+            <ol>
+                <li>Sélectionnez une <strong>période</strong> (début et fin)</li>
+                <li>Choisissez votre <strong>statut</strong> (disponible, occupé, congés, etc.)</li>
+                <li>Cliquez sur <strong>Ajouter</strong></li>
+                <li>Visualisez vos disponibilités sur la période</li>
+            </ol>
         </section>
     </main>
     <footer class="tool-footer">
@@ -54,11 +85,81 @@
     <script src="../../assets/js/utils.js"></script>
     <script src="../../assets/js/main.js"></script>
     <script>
-        document.getElementById('mainForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            document.getElementById('results').style.display = 'block';
-            showNotification('Calcul effectué !', 'success');
+        let periods = JSON.parse(localStorage.getItem('availability') || '[]');
+
+        document.getElementById('addBtn').addEventListener('click', () => {
+            const start = document.getElementById('startDate').value;
+            const end = document.getElementById('endDate').value;
+            const status = document.getElementById('status').value;
+
+            if (start && end && new Date(end) >= new Date(start)) {
+                periods.push({ id: Date.now(), start, end, status });
+                localStorage.setItem('availability', JSON.stringify(periods));
+                render();
+                showNotification('Période ajoutée !', 'success');
+            }
         });
+
+        function render() {
+            const container = document.getElementById('periodList');
+            let availableDays = 0, busyDays = 0, vacationDays = 0;
+
+            periods.forEach(p => {
+                const days = Math.ceil((new Date(p.end) - new Date(p.start)) / (1000 * 60 * 60 * 24)) + 1;
+                if (p.status === 'available' || p.status === 'remote') availableDays += days;
+                else if (p.status === 'busy') busyDays += days;
+                else if (p.status === 'vacation') vacationDays += days;
+            });
+
+            const totalDays = availableDays + busyDays + vacationDays;
+            const rate = totalDays > 0 ? Math.round((availableDays / totalDays) * 100) : 0;
+
+            document.getElementById('availableDays').textContent = availableDays;
+            document.getElementById('busyDays').textContent = busyDays;
+            document.getElementById('vacationDays').textContent = vacationDays;
+            document.getElementById('availabilityRate').textContent = rate + '%';
+
+            if (periods.length === 0) {
+                container.innerHTML = '<p style="text-align:center;color:#999">Aucune période définie</p>';
+                return;
+            }
+
+            const statusColors = {
+                available: '#4caf50',
+                busy: '#ff6b6b',
+                vacation: '#ffc107',
+                remote: '#2196f3'
+            };
+
+            const statusLabels = {
+                available: '✅ Disponible',
+                busy: '🔴 Occupé',
+                vacation: '🏖️ Congés',
+                remote: '🏠 Télétravail'
+            };
+
+            container.innerHTML = periods.map(p => `
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:1rem;background:white;border-left:4px solid ${statusColors[p.status]};border-radius:var(--radius);margin-bottom:0.5rem;">
+                    <div>
+                        <strong>${statusLabels[p.status]}</strong><br>
+                        <small style="color:#666;">
+                            ${new Date(p.start).toLocaleDateString('fr-FR')} → ${new Date(p.end).toLocaleDateString('fr-FR')}
+                        </small>
+                    </div>
+                    <button onclick="deletePeriod(${p.id})" style="padding:0.5rem;border:none;background:#ff6b6b;color:white;border-radius:var(--radius);cursor:pointer;">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        window.deletePeriod = function(id) {
+            periods = periods.filter(p => p.id !== id);
+            localStorage.setItem('availability', JSON.stringify(periods));
+            render();
+        };
+
+        render();
     </script>
 </body>
 </html>

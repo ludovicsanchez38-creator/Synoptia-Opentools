@@ -8,44 +8,202 @@
     <link rel="stylesheet" href="../../assets/css/tools.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .week-selector {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+        .week-nav {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: var(--radius);
+            cursor: pointer;
+            font-weight: 600;
+        }
+        .week-display {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+        .timesheet-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 2rem 0;
+            background: white;
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+        }
+        .timesheet-table th {
+            background: var(--primary);
+            color: white;
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+        }
+        .timesheet-table td {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+        .timesheet-table tr:last-child td {
+            border-bottom: none;
+        }
+        .timesheet-table tr:hover {
+            background: #f8f9fa;
+        }
+        .hours-input {
+            width: 80px;
+            padding: 0.5rem;
+            border: 2px solid var(--border);
+            border-radius: var(--radius);
+            text-align: center;
+            font-weight: 600;
+        }
+        .hours-input:focus {
+            border-color: var(--accent);
+            outline: none;
+        }
+        .day-total {
+            font-weight: 700;
+            color: var(--accent);
+        }
+        .project-row {
+            background: #f8f9fa;
+        }
+        .total-row {
+            background: linear-gradient(135deg, rgba(255,107,107,0.1), rgba(255,193,7,0.1));
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+        .project-input {
+            width: 100%;
+            padding: 0.5rem;
+            border: 2px solid var(--border);
+            border-radius: var(--radius);
+        }
+    </style>
 </head>
 <body>
     <nav class="breadcrumb">
-        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> > 
-        <a href="../../index.html#tools">Temps</a> > 
+        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> >
+        <a href="../../index.html#tools">Temps</a> >
         <span>Timesheet Hebdomadaire</span>
     </nav>
     <main class="tool-container">
         <header class="tool-header">
             <h1><i class="fas fa-calendar-week"></i> Timesheet Hebdomadaire</h1>
-            <p class="tool-description">DESC_PLACEHOLDER</p>
+            <p class="tool-description">Suivez vos heures travaillées par projet sur une semaine complète avec export CSV.</p>
         </header>
+
         <section class="tool-input">
-            <h2>Configuration</h2>
-            <form id="mainForm">
-                <div class="form-group">
-                    <label for="input1" class="form-label">
-                        <i class="fas fa-clock"></i> Durée ou information
-                    </label>
-                    <input type="text" id="input1" class="form-input" placeholder="Entrez les informations" required>
-                </div>
-                <button type="submit" class="btn btn-primary">
-                    <i class="fas fa-play"></i> Démarrer/Calculer
+            <div class="week-selector">
+                <button class="week-nav" id="prevWeek"><i class="fas fa-chevron-left"></i> Semaine précédente</button>
+                <div class="week-display" id="weekDisplay">-</div>
+                <button class="week-nav" id="nextWeek">Semaine suivante <i class="fas fa-chevron-right"></i></button>
+            </div>
+
+            <div style="margin: 1.5rem 0;">
+                <button class="btn btn-outline" id="addProjectBtn">
+                    <i class="fas fa-plus"></i> Ajouter un projet
                 </button>
-            </form>
+            </div>
+
+            <table class="timesheet-table">
+                <thead>
+                    <tr>
+                        <th>Projet</th>
+                        <th>Lun</th>
+                        <th>Mar</th>
+                        <th>Mer</th>
+                        <th>Jeu</th>
+                        <th>Ven</th>
+                        <th>Sam</th>
+                        <th>Dim</th>
+                        <th>Total</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="timesheetBody">
+                    <!-- Rows will be added dynamically -->
+                </tbody>
+                <tfoot>
+                    <tr class="total-row">
+                        <td>Total journalier</td>
+                        <td class="day-total" id="total-0">0h</td>
+                        <td class="day-total" id="total-1">0h</td>
+                        <td class="day-total" id="total-2">0h</td>
+                        <td class="day-total" id="total-3">0h</td>
+                        <td class="day-total" id="total-4">0h</td>
+                        <td class="day-total" id="total-5">0h</td>
+                        <td class="day-total" id="total-6">0h</td>
+                        <td class="day-total" id="weekTotal">0h</td>
+                        <td></td>
+                    </tr>
+                </tfoot>
+            </table>
         </section>
-        <section class="tool-output" id="results" style="display: none;">
-            <h2><i class="fas fa-check-circle"></i> Résultat</h2>
+
+        <section class="tool-output">
             <div class="results-grid">
                 <div class="result-item">
-                    <div class="result-label">Temps total</div>
-                    <div class="result-value highlight" id="totalTime">00:00:00</div>
+                    <div class="result-label">Total semaine</div>
+                    <div class="result-value highlight" id="totalHours">0h00</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Moyenne / jour</div>
+                    <div class="result-value" id="avgPerDay">0h00</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Projets actifs</div>
+                    <div class="result-value success" id="projectCount">0</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Jours travaillés</div>
+                    <div class="result-value" id="daysWorked">0</div>
                 </div>
             </div>
+
+            <div class="action-buttons" style="margin-top: 2rem;">
+                <button class="btn btn-primary" id="saveBtn">
+                    <i class="fas fa-save"></i> Sauvegarder
+                </button>
+                <button class="btn btn-accent" id="exportBtn">
+                    <i class="fas fa-download"></i> Exporter CSV
+                </button>
+                <button class="btn btn-outline" id="clearBtn">
+                    <i class="fas fa-trash"></i> Effacer la semaine
+                </button>
+            </div>
         </section>
+
         <section class="tool-help">
-            <h3><i class="fas fa-question-circle"></i> Utilisation</h3>
-            <p>Cet outil vous aide à gérer et optimiser votre temps de travail.</p>
+            <h3><i class="fas fa-info-circle"></i> Comment utiliser ?</h3>
+            <ol>
+                <li>Ajoutez vos projets avec le bouton <strong>"Ajouter un projet"</strong></li>
+                <li>Entrez vos heures pour chaque jour (format décimal : 7.5 pour 7h30)</li>
+                <li>Les totaux se calculent automatiquement</li>
+                <li>Naviguez entre les semaines avec les flèches</li>
+                <li>Sauvegardez ou exportez en CSV pour archivage</li>
+            </ol>
+
+            <h3><i class="fas fa-lightbulb"></i> Conseils</h3>
+            <ul>
+                <li><strong>Format heures</strong> : Utilisez le format décimal (8.5 = 8h30, 7.75 = 7h45)</li>
+                <li><strong>Sauvegarde auto</strong> : Vos données sont sauvegardées dans le navigateur</li>
+                <li><strong>Semaine type</strong> : 35-40h pour un temps plein</li>
+                <li><strong>Export régulier</strong> : Exportez chaque fin de mois pour facturation/paie</li>
+            </ul>
+
+            <h3><i class="fas fa-clock"></i> Durée légale du travail (France)</h3>
+            <ul>
+                <li><strong>Hebdomadaire</strong> : 35h (temps plein), 39h avec heures sup</li>
+                <li><strong>Journalier</strong> : 10h maximum (sauf dérogations)</li>
+                <li><strong>Heures sup</strong> : Au-delà de 35h/semaine (+25% ou +50%)</li>
+            </ul>
         </section>
     </main>
     <footer class="tool-footer">
@@ -54,11 +212,199 @@
     <script src="../../assets/js/utils.js"></script>
     <script src="../../assets/js/main.js"></script>
     <script>
-        document.getElementById('mainForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            document.getElementById('results').style.display = 'block';
-            showNotification('Calcul effectué !', 'success');
+        let currentWeekStart = getMonday(new Date());
+        let projects = [];
+
+        function getMonday(d) {
+            d = new Date(d);
+            const day = d.getDay();
+            const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+            return new Date(d.setDate(diff));
+        }
+
+        function getWeekKey(weekStart) {
+            return weekStart.toISOString().split('T')[0];
+        }
+
+        function updateWeekDisplay() {
+            const weekEnd = new Date(currentWeekStart);
+            weekEnd.setDate(weekEnd.getDate() + 6);
+
+            const options = { day: '2-digit', month: '2-digit', year: 'numeric' };
+            const start = currentWeekStart.toLocaleDateString('fr-FR', options);
+            const end = weekEnd.toLocaleDateString('fr-FR', options);
+
+            document.getElementById('weekDisplay').textContent = `${start} - ${end}`;
+        }
+
+        document.getElementById('prevWeek').addEventListener('click', () => {
+            currentWeekStart.setDate(currentWeekStart.getDate() - 7);
+            updateWeekDisplay();
+            loadWeek();
         });
+
+        document.getElementById('nextWeek').addEventListener('click', () => {
+            currentWeekStart.setDate(currentWeekStart.getDate() + 7);
+            updateWeekDisplay();
+            loadWeek();
+        });
+
+        document.getElementById('addProjectBtn').addEventListener('click', () => {
+            const projectName = prompt('Nom du projet :');
+            if (projectName && projectName.trim()) {
+                projects.push({
+                    id: Date.now(),
+                    name: projectName.trim(),
+                    hours: [0, 0, 0, 0, 0, 0, 0]
+                });
+                renderTimesheet();
+                calculateTotals();
+            }
+        });
+
+        function renderTimesheet() {
+            const tbody = document.getElementById('timesheetBody');
+            tbody.innerHTML = '';
+
+            projects.forEach((project, index) => {
+                const tr = document.createElement('tr');
+                tr.className = 'project-row';
+
+                let html = `<td><input type="text" class="project-input" value="${project.name}" data-index="${index}" /></td>`;
+
+                for (let day = 0; day < 7; day++) {
+                    html += `<td><input type="number" class="hours-input" value="${project.hours[day] || 0}" step="0.25" min="0" data-project="${index}" data-day="${day}" /></td>`;
+                }
+
+                const projectTotal = project.hours.reduce((a, b) => a + b, 0);
+                html += `<td class="day-total">${projectTotal.toFixed(2)}h</td>`;
+                html += `<td><button class="btn btn-outline" style="padding: 0.5rem;" onclick="deleteProject(${index})"><i class="fas fa-trash"></i></button></td>`;
+
+                tr.innerHTML = html;
+                tbody.appendChild(tr);
+            });
+
+            // Event listeners
+            document.querySelectorAll('.hours-input').forEach(input => {
+                input.addEventListener('input', handleHoursInput);
+            });
+
+            document.querySelectorAll('.project-input').forEach(input => {
+                input.addEventListener('change', function() {
+                    const index = parseInt(this.dataset.index);
+                    projects[index].name = this.value;
+                });
+            });
+        }
+
+        function handleHoursInput(e) {
+            const projectIndex = parseInt(e.target.dataset.project);
+            const dayIndex = parseInt(e.target.dataset.day);
+            const value = parseFloat(e.target.value) || 0;
+
+            projects[projectIndex].hours[dayIndex] = value;
+            calculateTotals();
+        }
+
+        function calculateTotals() {
+            const dayTotals = [0, 0, 0, 0, 0, 0, 0];
+            let weekTotal = 0;
+
+            projects.forEach(project => {
+                project.hours.forEach((hours, day) => {
+                    dayTotals[day] += hours;
+                    weekTotal += hours;
+                });
+
+                // Update project row total
+                const projectTotal = project.hours.reduce((a, b) => a + b, 0);
+                const row = document.querySelector(`input[data-project="${projects.indexOf(project)}"][data-day="0"]`)?.closest('tr');
+                if (row) {
+                    row.querySelector('.day-total').textContent = projectTotal.toFixed(2) + 'h';
+                }
+            });
+
+            // Update footer totals
+            dayTotals.forEach((total, index) => {
+                document.getElementById(`total-${index}`).textContent = total.toFixed(2) + 'h';
+            });
+            document.getElementById('weekTotal').textContent = weekTotal.toFixed(2) + 'h';
+
+            // Update summary
+            const hours = Math.floor(weekTotal);
+            const minutes = Math.round((weekTotal - hours) * 60);
+            document.getElementById('totalHours').textContent = `${hours}h${minutes.toString().padStart(2, '0')}`;
+
+            const daysWorked = dayTotals.filter(d => d > 0).length;
+            const avgHours = daysWorked > 0 ? weekTotal / daysWorked : 0;
+            const avgH = Math.floor(avgHours);
+            const avgM = Math.round((avgHours - avgH) * 60);
+            document.getElementById('avgPerDay').textContent = `${avgH}h${avgM.toString().padStart(2, '0')}`;
+
+            document.getElementById('projectCount').textContent = projects.length;
+            document.getElementById('daysWorked').textContent = daysWorked;
+        }
+
+        window.deleteProject = function(index) {
+            if (confirm('Supprimer ce projet ?')) {
+                projects.splice(index, 1);
+                renderTimesheet();
+                calculateTotals();
+            }
+        };
+
+        document.getElementById('saveBtn').addEventListener('click', () => {
+            const weekKey = getWeekKey(currentWeekStart);
+            const data = JSON.parse(localStorage.getItem('timesheets') || '{}');
+            data[weekKey] = projects;
+            localStorage.setItem('timesheets', JSON.stringify(data));
+            showNotification('Timesheet sauvegardé !', 'success');
+        });
+
+        document.getElementById('exportBtn').addEventListener('click', () => {
+            const weekKey = getWeekKey(currentWeekStart);
+            let csv = 'Projet,Lundi,Mardi,Mercredi,Jeudi,Vendredi,Samedi,Dimanche,Total\n';
+
+            projects.forEach(project => {
+                const total = project.hours.reduce((a, b) => a + b, 0);
+                csv += `"${project.name}",${project.hours.join(',')},${total.toFixed(2)}\n`;
+            });
+
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `timesheet_${weekKey}.csv`;
+            a.click();
+            showNotification('Export CSV réussi !', 'success');
+        });
+
+        document.getElementById('clearBtn').addEventListener('click', () => {
+            if (confirm('Effacer toutes les heures de cette semaine ?')) {
+                projects.forEach(p => p.hours = [0, 0, 0, 0, 0, 0, 0]);
+                renderTimesheet();
+                calculateTotals();
+                showNotification('Semaine effacée', 'info');
+            }
+        });
+
+        function loadWeek() {
+            const weekKey = getWeekKey(currentWeekStart);
+            const data = JSON.parse(localStorage.getItem('timesheets') || '{}');
+
+            if (data[weekKey]) {
+                projects = data[weekKey];
+            } else {
+                projects = [];
+            }
+
+            renderTimesheet();
+            calculateTotals();
+        }
+
+        // Initialize
+        updateWeekDisplay();
+        loadWeek();
     </script>
 </body>
 </html>

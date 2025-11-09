@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Outil Business - Business Tools</title>
+    <title>Calculateur de Congés - Business Tools</title>
     <link rel="stylesheet" href="../../assets/css/main.css">
     <link rel="stylesheet" href="../../assets/css/tools.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -11,49 +11,167 @@
 </head>
 <body>
     <nav class="breadcrumb">
-        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> > 
-        <a href="../../index.html#tools">RH</a> > 
-        <span>Outil</span>
+        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> >
+        <a href="../../index.html#tools">RH</a> >
+        <span>Calculateur de Congés</span>
     </nav>
     <main class="tool-container">
         <header class="tool-header">
-            <h1><i class="fas fa-tools"></i> Outil Business</h1>
-            <p class="tool-description">Outil professionnel pour optimiser votre activité.</p>
+            <h1><i class="fas fa-umbrella-beach"></i> Calculateur de Congés Payés</h1>
+            <p class="tool-description">Calculez les droits à congés selon le Code du Travail français.</p>
         </header>
+
         <section class="tool-input">
-            <form id="mainForm">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; margin: 1.5rem 0;">
                 <div class="form-group">
-                    <label for="input1" class="form-label">Donnée d'entrée</label>
-                    <input type="number" id="input1" class="form-input" value="100" min="0" required>
+                    <label class="form-label">Date d'embauche</label>
+                    <input type="date" id="hireDate" class="form-input">
+                    <span class="form-help">Début du contrat</span>
                 </div>
-                <button type="submit" class="btn btn-primary"><i class="fas fa-calculator"></i> Calculer</button>
-            </form>
-        </section>
-        <section class="tool-output" id="results" style="display: none;">
-            <div class="results-grid">
-                <div class="result-item">
-                    <div class="result-label">Résultat</div>
-                    <div class="result-value highlight" id="result">-</div>
+                <div class="form-group">
+                    <label class="form-label">Date de calcul</label>
+                    <input type="date" id="calcDate" class="form-input">
+                    <span class="form-help">Date de référence</span>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Jours travaillés/semaine</label>
+                    <input type="number" id="workDays" class="form-input" value="5" min="1" max="6" step="0.5">
+                    <span class="form-help">Généralement 5 jours</span>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Congés déjà pris</label>
+                    <input type="number" id="takenDays" class="form-input" value="0" min="0" step="0.5">
+                    <span class="form-help">Jours ouvrés utilisés</span>
                 </div>
             </div>
+
+            <button class="btn btn-primary" id="calculateBtn">
+                <i class="fas fa-calculator"></i> Calculer les droits
+            </button>
         </section>
+
+        <section class="tool-output">
+            <div class="results-grid">
+                <div class="result-item">
+                    <div class="result-label">Jours acquis</div>
+                    <div class="result-value highlight" id="acquiredDays">-</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Jours pris</div>
+                    <div class="result-value" id="takenDisplay">-</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Solde disponible</div>
+                    <div class="result-value success" id="remainingDays">-</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Ancienneté</div>
+                    <div class="result-value" id="seniority">-</div>
+                </div>
+            </div>
+
+            <div style="margin-top: 1.5rem; padding: 1rem; background: white; border-radius: var(--radius);">
+                <h3 style="margin-bottom: 1rem;">Détail du calcul</h3>
+                <div id="detailCalc" style="color: #666; line-height: 1.8;"></div>
+            </div>
+        </section>
+
         <section class="tool-help">
-            <h3><i class="fas fa-info-circle"></i> Aide</h3>
-            <p>Utilisez cet outil pour optimiser votre gestion d'entreprise.</p>
+            <h3><i class="fas fa-info-circle"></i> Règles françaises</h3>
+            <ul>
+                <li><strong>Acquisition</strong> : 2.5 jours ouvrables par mois travaillé</li>
+                <li><strong>Total annuel</strong> : 30 jours ouvrables (5 semaines) pour une année complète</li>
+                <li><strong>Période de référence</strong> : Du 1er juin au 31 mai de l'année suivante</li>
+                <li><strong>Calcul prorata</strong> : Pour les temps partiels et nouveaux embauchés</li>
+                <li><strong>Jours ouvrables</strong> : Tous les jours sauf dimanches et jours fériés chômés</li>
+            </ul>
+
+            <h3><i class="fas fa-lightbulb"></i> Bon à savoir</h3>
+            <ul>
+                <li>Les congés doivent être pris dans l'année de référence</li>
+                <li>Report possible sous conditions (accord employeur ou circonstances exceptionnelles)</li>
+                <li>L'employeur fixe la période de prise des congés (généralement été)</li>
+                <li>Congés payés = maintien de la rémunération habituelle</li>
+            </ul>
         </section>
     </main>
-    <footer class="tool-footer"><a href="../../index.html"><i class="fas fa-arrow-left"></i> Retour</a></footer>
+    <footer class="tool-footer">
+        <a href="../../index.html"><i class="fas fa-arrow-left"></i> Retour</a>
+    </footer>
     <script src="../../assets/js/utils.js"></script>
     <script src="../../assets/js/main.js"></script>
     <script>
-        document.getElementById('mainForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const val = parseFloat(document.getElementById('input1').value);
-            document.getElementById('result').textContent = val.toFixed(2);
-            document.getElementById('results').style.display = 'block';
-            showNotification('Opération réussie !', 'success');
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('calcDate').value = today;
+
+        document.getElementById('calculateBtn').addEventListener('click', () => {
+            const hireDate = new Date(document.getElementById('hireDate').value);
+            const calcDate = new Date(document.getElementById('calcDate').value);
+            const workDays = parseFloat(document.getElementById('workDays').value) || 5;
+            const takenDays = parseFloat(document.getElementById('takenDays').value) || 0;
+
+            if (!hireDate || !calcDate || calcDate < hireDate) {
+                showNotification('Vérifiez les dates', 'error');
+                return;
+            }
+
+            // Calculate months worked
+            const monthsDiff = (calcDate.getFullYear() - hireDate.getFullYear()) * 12
+                             + (calcDate.getMonth() - hireDate.getMonth());
+            const daysDiff = calcDate.getDate() - hireDate.getDate();
+            const totalMonths = monthsDiff + (daysDiff >= 0 ? 0 : -1);
+            const partialMonth = daysDiff >= 0 ? daysDiff / 30 : 0;
+
+            // French law: 2.5 days per month (30 days/year = 2.5 days/month)
+            const daysPerMonth = 2.5;
+            const acquiredDays = (totalMonths + partialMonth) * daysPerMonth;
+
+            // Adjust for part-time (if not 5 days/week)
+            const adjustedAcquired = acquiredDays * (workDays / 5);
+
+            const remainingDays = adjustedAcquired - takenDays;
+
+            // Calculate seniority
+            const years = Math.floor(totalMonths / 12);
+            const months = totalMonths % 12;
+            const seniorityText = years > 0
+                ? `${years} an${years > 1 ? 's' : ''} ${months > 0 ? `et ${months} mois` : ''}`
+                : `${months} mois`;
+
+            // Display results
+            document.getElementById('acquiredDays').textContent = adjustedAcquired.toFixed(1) + ' j';
+            document.getElementById('takenDisplay').textContent = takenDays.toFixed(1) + ' j';
+            document.getElementById('remainingDays').textContent = remainingDays.toFixed(1) + ' j';
+            document.getElementById('remainingDays').style.color = remainingDays < 0 ? '#ff6b6b' : '#4caf50';
+            document.getElementById('seniority').textContent = seniorityText;
+
+            // Detail calculation
+            let detail = `
+                <div style="display: grid; gap: 0.5rem;">
+                    <div>📅 Période travaillée : <strong>${totalMonths} mois complets</strong></div>
+                    <div>📊 Acquisition mensuelle : <strong>${daysPerMonth} jours/mois</strong></div>
+                    ${workDays !== 5 ? `<div>⏱️ Prorata temps partiel : <strong>${workDays}/5 jours</strong></div>` : ''}
+                    <div>✅ Total acquis : <strong>${(totalMonths * daysPerMonth).toFixed(1)} jours</strong></div>
+                    ${workDays !== 5 ? `<div>🔄 Ajusté : <strong>${adjustedAcquired.toFixed(1)} jours</strong></div>` : ''}
+                    <div>➖ Congés pris : <strong>${takenDays} jours</strong></div>
+                    <div style="padding-top: 0.5rem; border-top: 2px solid var(--border); margin-top: 0.5rem;">
+                        💼 <strong>Solde restant : ${remainingDays.toFixed(1)} jours</strong>
+                    </div>
+                </div>
+            `;
+            document.getElementById('detailCalc').innerHTML = detail;
+
+            showNotification('Calcul effectué !', 'success');
         });
-        window.addEventListener('load', () => document.getElementById('mainForm').dispatchEvent(new Event('submit')));
+
+        // Auto-calculate on input
+        ['hireDate', 'calcDate', 'workDays', 'takenDays'].forEach(id => {
+            document.getElementById(id).addEventListener('input', () => {
+                if (document.getElementById('hireDate').value && document.getElementById('calcDate').value) {
+                    document.getElementById('calculateBtn').click();
+                }
+            });
+        });
     </script>
 </body>
 </html>

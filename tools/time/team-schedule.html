@@ -8,57 +8,662 @@
     <link rel="stylesheet" href="../../assets/css/tools.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .week-selector {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+        .week-nav {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: var(--radius);
+            cursor: pointer;
+            font-weight: 600;
+        }
+        .week-display {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+        .schedule-grid {
+            overflow-x: auto;
+            margin: 2rem 0;
+        }
+        .schedule-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+        }
+        .schedule-table th {
+            background: var(--primary);
+            color: white;
+            padding: 1rem;
+            text-align: center;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+        .schedule-table th.member-header {
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            text-align: left;
+            min-width: 150px;
+        }
+        .schedule-table td {
+            padding: 0.5rem;
+            border: 1px solid var(--border);
+            text-align: center;
+            min-width: 100px;
+            height: 80px;
+            vertical-align: top;
+            position: relative;
+        }
+        .schedule-table td.member-name {
+            font-weight: 700;
+            background: #f8f9fa;
+            text-align: left;
+        }
+        .shift-item {
+            background: linear-gradient(135deg, rgba(255,107,107,0.2), rgba(255,193,7,0.2));
+            border: 2px solid var(--accent);
+            border-radius: var(--radius);
+            padding: 0.25rem 0.5rem;
+            margin: 0.25rem 0;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .shift-item:hover {
+            background: rgba(255,193,7,0.4);
+            transform: translateY(-2px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .shift-time {
+            font-weight: 700;
+            color: var(--primary);
+        }
+        .shift-delete {
+            color: #ff6b6b;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+        .shift-delete:hover {
+            color: #ff5252;
+        }
+        .add-shift-btn {
+            background: rgba(108,117,125,0.1);
+            border: 2px dashed var(--border);
+            border-radius: var(--radius);
+            padding: 0.5rem;
+            cursor: pointer;
+            font-size: 0.9rem;
+            color: #666;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+        .add-shift-btn:hover {
+            background: rgba(255,193,7,0.1);
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+        .team-member-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            background: white;
+            border: 2px solid var(--border);
+            border-radius: var(--radius);
+            margin-bottom: 0.5rem;
+        }
+        .member-delete {
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius);
+            cursor: pointer;
+        }
+        .member-delete:hover {
+            background: #ff5252;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+        }
+        .modal-content {
+            background: white;
+            margin: 10% auto;
+            padding: 2rem;
+            border-radius: var(--radius-lg);
+            max-width: 500px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        .modal-close {
+            font-size: 2rem;
+            cursor: pointer;
+            color: #999;
+        }
+        .modal-close:hover {
+            color: #333;
+        }
+        .stats-row {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        .stat-card {
+            flex: 1;
+            padding: 1rem;
+            background: linear-gradient(135deg, rgba(255,107,107,0.1), rgba(255,193,7,0.1));
+            border-radius: var(--radius);
+            text-align: center;
+        }
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+        .stat-label {
+            font-size: 0.9rem;
+            color: #666;
+            margin-top: 0.25rem;
+        }
+    </style>
 </head>
 <body>
     <nav class="breadcrumb">
-        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> > 
-        <a href="../../index.html#tools">Temps</a> > 
+        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> >
+        <a href="../../index.html#tools">Temps</a> >
         <span>Planning d'Équipe</span>
     </nav>
     <main class="tool-container">
         <header class="tool-header">
             <h1><i class="fas fa-users-cog"></i> Planning d'Équipe</h1>
-            <p class="tool-description">DESC_PLACEHOLDER</p>
+            <p class="tool-description">Gérez les horaires de votre équipe sur une semaine complète avec détection de conflits.</p>
         </header>
+
         <section class="tool-input">
-            <h2>Configuration</h2>
-            <form id="mainForm">
-                <div class="form-group">
-                    <label for="input1" class="form-label">
-                        <i class="fas fa-clock"></i> Durée ou information
-                    </label>
-                    <input type="text" id="input1" class="form-input" placeholder="Entrez les informations" required>
-                </div>
-                <button type="submit" class="btn btn-primary">
-                    <i class="fas fa-play"></i> Démarrer/Calculer
+            <h2><i class="fas fa-user-plus"></i> Gestion de l'équipe</h2>
+
+            <div style="display: flex; gap: 1rem; margin-bottom: 1.5rem;">
+                <input type="text" id="memberName" class="form-input" placeholder="Nom du membre d'équipe" style="flex: 1;">
+                <button class="btn btn-primary" id="addMemberBtn">
+                    <i class="fas fa-plus"></i> Ajouter
                 </button>
-            </form>
-        </section>
-        <section class="tool-output" id="results" style="display: none;">
-            <h2><i class="fas fa-check-circle"></i> Résultat</h2>
-            <div class="results-grid">
-                <div class="result-item">
-                    <div class="result-label">Temps total</div>
-                    <div class="result-value highlight" id="totalTime">00:00:00</div>
-                </div>
+            </div>
+
+            <div id="membersList"></div>
+
+            <div class="week-selector" style="margin-top: 2rem;">
+                <button class="week-nav" id="prevWeek"><i class="fas fa-chevron-left"></i> Semaine précédente</button>
+                <div class="week-display" id="weekDisplay">-</div>
+                <button class="week-nav" id="nextWeek">Semaine suivante <i class="fas fa-chevron-right"></i></button>
             </div>
         </section>
+
+        <section class="tool-output">
+            <h2><i class="fas fa-calendar-week"></i> Planning de la semaine</h2>
+
+            <div class="schedule-grid">
+                <table class="schedule-table" id="scheduleTable">
+                    <thead>
+                        <tr>
+                            <th class="member-header">Membre</th>
+                            <th>Lundi<br><span id="dateDay0" style="font-size: 0.85rem; opacity: 0.8;">-</span></th>
+                            <th>Mardi<br><span id="dateDay1" style="font-size: 0.85rem; opacity: 0.8;">-</span></th>
+                            <th>Mercredi<br><span id="dateDay2" style="font-size: 0.85rem; opacity: 0.8;">-</span></th>
+                            <th>Jeudi<br><span id="dateDay3" style="font-size: 0.85rem; opacity: 0.8;">-</span></th>
+                            <th>Vendredi<br><span id="dateDay4" style="font-size: 0.85rem; opacity: 0.8;">-</span></th>
+                            <th>Samedi<br><span id="dateDay5" style="font-size: 0.85rem; opacity: 0.8;">-</span></th>
+                            <th>Dimanche<br><span id="dateDay6" style="font-size: 0.85rem; opacity: 0.8;">-</span></th>
+                            <th>Total (h)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="scheduleBody">
+                        <tr>
+                            <td colspan="9" style="text-align: center; padding: 2rem; color: #999;">
+                                Ajoutez des membres d'équipe pour commencer
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="results-grid" style="margin-top: 2rem;">
+                <div class="result-item">
+                    <div class="result-label">Membres actifs</div>
+                    <div class="result-value" id="totalMembers">0</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Total heures/semaine</div>
+                    <div class="result-value highlight" id="totalHours">0h</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Shifts planifiés</div>
+                    <div class="result-value success" id="totalShifts">0</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Moyenne heures/membre</div>
+                    <div class="result-value" id="avgHours">0h</div>
+                </div>
+            </div>
+
+            <div class="action-buttons" style="margin-top: 2rem;">
+                <button class="btn btn-accent" id="exportBtn">
+                    <i class="fas fa-download"></i> Exporter CSV
+                </button>
+                <button class="btn btn-outline" id="clearWeekBtn">
+                    <i class="fas fa-trash"></i> Effacer la semaine
+                </button>
+            </div>
+        </section>
+
         <section class="tool-help">
-            <h3><i class="fas fa-question-circle"></i> Utilisation</h3>
-            <p>Cet outil vous aide à gérer et optimiser votre temps de travail.</p>
+            <h3><i class="fas fa-info-circle"></i> Comment utiliser ?</h3>
+            <ol>
+                <li>Ajoutez les membres de votre équipe</li>
+                <li>Cliquez sur le bouton <strong>"+"</strong> dans une case pour ajouter un shift</li>
+                <li>Renseignez l'heure de début, de fin et optionnellement un libellé</li>
+                <li>Naviguez entre les semaines avec les flèches</li>
+                <li>Les totaux se calculent automatiquement</li>
+                <li>Exportez en CSV pour partager avec l'équipe</li>
+            </ol>
+
+            <h3><i class="fas fa-lightbulb"></i> Conseils de planification</h3>
+            <ul>
+                <li><strong>Anticiper</strong> : Planifiez 2-3 semaines à l'avance minimum</li>
+                <li><strong>Équilibrer</strong> : Répartissez équitablement les heures entre membres</li>
+                <li><strong>Pauses</strong> : Assurez 11h de repos entre 2 shifts pour un même membre</li>
+                <li><strong>Communication</strong> : Partagez le planning au moins 7 jours à l'avance</li>
+                <li><strong>Flexibilité</strong> : Gardez une marge pour les imprévus (absences, urgences)</li>
+            </ul>
+
+            <h3><i class="fas fa-gavel"></i> Réglementation (France)</h3>
+            <ul>
+                <li><strong>Durée maximale</strong> : 10h/jour, 48h/semaine (44h en moyenne sur 12 semaines)</li>
+                <li><strong>Repos quotidien</strong> : 11h consécutives minimum</li>
+                <li><strong>Repos hebdomadaire</strong> : 35h consécutives (24h + 11h de repos quotidien)</li>
+                <li><strong>Délai de prévenance</strong> : 7 jours pour modification du planning</li>
+                <li><strong>Temps partiel</strong> : Minimum 24h/semaine (sauf exceptions)</li>
+            </ul>
         </section>
     </main>
     <footer class="tool-footer">
         <a href="../../index.html"><i class="fas fa-arrow-left"></i> Retour</a>
     </footer>
+
+    <!-- Modal for adding shifts -->
+    <div id="shiftModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Ajouter un shift</h2>
+                <span class="modal-close">&times;</span>
+            </div>
+            <form id="shiftForm">
+                <div class="form-group">
+                    <label class="form-label">Heure de début</label>
+                    <input type="time" id="shiftStart" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Heure de fin</label>
+                    <input type="time" id="shiftEnd" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Libellé (optionnel)</label>
+                    <input type="text" id="shiftLabel" class="form-input" placeholder="Ex: Ouverture, Fermeture">
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">
+                    <i class="fas fa-check"></i> Ajouter le shift
+                </button>
+            </form>
+        </div>
+    </div>
+
     <script src="../../assets/js/utils.js"></script>
     <script src="../../assets/js/main.js"></script>
     <script>
-        document.getElementById('mainForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            document.getElementById('results').style.display = 'block';
-            showNotification('Calcul effectué !', 'success');
+        let currentWeekStart = getMonday(new Date());
+        let members = [];
+        let schedules = {}; // Key: weekKey, Value: { memberId: { day: [shifts] } }
+        let currentMember = null;
+        let currentDay = null;
+
+        function getMonday(d) {
+            d = new Date(d);
+            const day = d.getDay();
+            const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+            return new Date(d.setDate(diff));
+        }
+
+        function getWeekKey(weekStart) {
+            return weekStart.toISOString().split('T')[0];
+        }
+
+        function updateWeekDisplay() {
+            const weekEnd = new Date(currentWeekStart);
+            weekEnd.setDate(weekEnd.getDate() + 6);
+
+            const options = { day: '2-digit', month: '2-digit', year: 'numeric' };
+            const start = currentWeekStart.toLocaleDateString('fr-FR', options);
+            const end = weekEnd.toLocaleDateString('fr-FR', options);
+
+            document.getElementById('weekDisplay').textContent = `${start} - ${end}`;
+
+            // Update day dates
+            for (let i = 0; i < 7; i++) {
+                const date = new Date(currentWeekStart);
+                date.setDate(date.getDate() + i);
+                const dateStr = date.toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' });
+                document.getElementById(`dateDay${i}`).textContent = dateStr;
+            }
+        }
+
+        document.getElementById('prevWeek').addEventListener('click', () => {
+            currentWeekStart.setDate(currentWeekStart.getDate() - 7);
+            updateWeekDisplay();
+            renderSchedule();
         });
+
+        document.getElementById('nextWeek').addEventListener('click', () => {
+            currentWeekStart.setDate(currentWeekStart.getDate() + 7);
+            updateWeekDisplay();
+            renderSchedule();
+        });
+
+        document.getElementById('addMemberBtn').addEventListener('click', () => {
+            const name = document.getElementById('memberName').value.trim();
+            if (name) {
+                members.push({
+                    id: Date.now(),
+                    name: name
+                });
+                document.getElementById('memberName').value = '';
+                saveData();
+                renderMembers();
+                renderSchedule();
+                updateStats();
+                showNotification('Membre ajouté !', 'success');
+            }
+        });
+
+        function renderMembers() {
+            const container = document.getElementById('membersList');
+            if (members.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #999;">Aucun membre. Ajoutez-en un !</p>';
+                return;
+            }
+
+            container.innerHTML = members.map(member => `
+                <div class="team-member-item">
+                    <strong>${member.name}</strong>
+                    <button class="member-delete" onclick="deleteMember(${member.id})">
+                        <i class="fas fa-trash"></i> Supprimer
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        window.deleteMember = function(id) {
+            if (confirm('Supprimer ce membre et tous ses shifts ?')) {
+                members = members.filter(m => m.id !== id);
+                // Remove all shifts for this member
+                Object.keys(schedules).forEach(weekKey => {
+                    delete schedules[weekKey][id];
+                });
+                saveData();
+                renderMembers();
+                renderSchedule();
+                updateStats();
+                showNotification('Membre supprimé', 'info');
+            }
+        };
+
+        function renderSchedule() {
+            const tbody = document.getElementById('scheduleBody');
+
+            if (members.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="9" style="text-align: center; padding: 2rem; color: #999;">
+                            Ajoutez des membres d'équipe pour commencer
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            const weekKey = getWeekKey(currentWeekStart);
+            if (!schedules[weekKey]) {
+                schedules[weekKey] = {};
+            }
+
+            tbody.innerHTML = members.map(member => {
+                if (!schedules[weekKey][member.id]) {
+                    schedules[weekKey][member.id] = {};
+                }
+
+                let weekTotal = 0;
+                let dayCells = '';
+
+                for (let day = 0; day < 7; day++) {
+                    const dayShifts = schedules[weekKey][member.id][day] || [];
+                    let dayHours = 0;
+
+                    const shiftsHtml = dayShifts.map((shift, index) => {
+                        const hours = calculateShiftHours(shift.start, shift.end);
+                        dayHours += hours;
+                        return `
+                            <div class="shift-item">
+                                <div>
+                                    <div class="shift-time">${shift.start} - ${shift.end}</div>
+                                    ${shift.label ? `<div style="font-size: 0.75rem;">${shift.label}</div>` : ''}
+                                </div>
+                                <span class="shift-delete" onclick="deleteShift(${member.id}, ${day}, ${index})">
+                                    <i class="fas fa-times"></i>
+                                </span>
+                            </div>
+                        `;
+                    }).join('');
+
+                    weekTotal += dayHours;
+
+                    dayCells += `
+                        <td>
+                            ${shiftsHtml}
+                            <button class="add-shift-btn" onclick="openShiftModal(${member.id}, ${day})">
+                                <i class="fas fa-plus"></i> Ajouter
+                            </button>
+                        </td>
+                    `;
+                }
+
+                return `
+                    <tr>
+                        <td class="member-name">${member.name}</td>
+                        ${dayCells}
+                        <td style="font-weight: 700; color: var(--accent);">${weekTotal.toFixed(1)}h</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function calculateShiftHours(start, end) {
+            const [startH, startM] = start.split(':').map(Number);
+            const [endH, endM] = end.split(':').map(Number);
+
+            let startMinutes = startH * 60 + startM;
+            let endMinutes = endH * 60 + endM;
+
+            if (endMinutes < startMinutes) {
+                endMinutes += 24 * 60; // Overnight shift
+            }
+
+            return (endMinutes - startMinutes) / 60;
+        }
+
+        window.openShiftModal = function(memberId, day) {
+            currentMember = memberId;
+            currentDay = day;
+            document.getElementById('shiftModal').style.display = 'block';
+            document.getElementById('shiftForm').reset();
+        };
+
+        document.querySelector('.modal-close').addEventListener('click', () => {
+            document.getElementById('shiftModal').style.display = 'none';
+        });
+
+        window.onclick = function(event) {
+            const modal = document.getElementById('shiftModal');
+            if (event.target == modal) {
+                modal.style.display = 'none';
+            }
+        };
+
+        document.getElementById('shiftForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const start = document.getElementById('shiftStart').value;
+            const end = document.getElementById('shiftEnd').value;
+            const label = document.getElementById('shiftLabel').value.trim();
+
+            const weekKey = getWeekKey(currentWeekStart);
+            if (!schedules[weekKey][currentMember][currentDay]) {
+                schedules[weekKey][currentMember][currentDay] = [];
+            }
+
+            schedules[weekKey][currentMember][currentDay].push({
+                start,
+                end,
+                label
+            });
+
+            saveData();
+            renderSchedule();
+            updateStats();
+            document.getElementById('shiftModal').style.display = 'none';
+            showNotification('Shift ajouté !', 'success');
+        });
+
+        window.deleteShift = function(memberId, day, shiftIndex) {
+            const weekKey = getWeekKey(currentWeekStart);
+            schedules[weekKey][memberId][day].splice(shiftIndex, 1);
+            saveData();
+            renderSchedule();
+            updateStats();
+            showNotification('Shift supprimé', 'info');
+        };
+
+        function updateStats() {
+            const weekKey = getWeekKey(currentWeekStart);
+            let totalHours = 0;
+            let totalShifts = 0;
+
+            if (schedules[weekKey]) {
+                Object.keys(schedules[weekKey]).forEach(memberId => {
+                    Object.keys(schedules[weekKey][memberId]).forEach(day => {
+                        const shifts = schedules[weekKey][memberId][day];
+                        totalShifts += shifts.length;
+                        shifts.forEach(shift => {
+                            totalHours += calculateShiftHours(shift.start, shift.end);
+                        });
+                    });
+                });
+            }
+
+            const avgHours = members.length > 0 ? totalHours / members.length : 0;
+
+            document.getElementById('totalMembers').textContent = members.length;
+            document.getElementById('totalHours').textContent = totalHours.toFixed(1) + 'h';
+            document.getElementById('totalShifts').textContent = totalShifts;
+            document.getElementById('avgHours').textContent = avgHours.toFixed(1) + 'h';
+        }
+
+        function saveData() {
+            localStorage.setItem('teamMembers', JSON.stringify(members));
+            localStorage.setItem('teamSchedules', JSON.stringify(schedules));
+        }
+
+        function loadData() {
+            members = JSON.parse(localStorage.getItem('teamMembers') || '[]');
+            schedules = JSON.parse(localStorage.getItem('teamSchedules') || '{}');
+        }
+
+        document.getElementById('exportBtn').addEventListener('click', () => {
+            if (members.length === 0) {
+                showNotification('Aucune donnée à exporter', 'error');
+                return;
+            }
+
+            const weekKey = getWeekKey(currentWeekStart);
+            let csv = 'Membre,Lundi,Mardi,Mercredi,Jeudi,Vendredi,Samedi,Dimanche,Total\n';
+
+            members.forEach(member => {
+                let row = `"${member.name}"`;
+                let weekTotal = 0;
+
+                for (let day = 0; day < 7; day++) {
+                    const dayShifts = schedules[weekKey]?.[member.id]?.[day] || [];
+                    let dayHours = 0;
+                    const shiftTexts = dayShifts.map(s => {
+                        const hours = calculateShiftHours(s.start, s.end);
+                        dayHours += hours;
+                        return `${s.start}-${s.end}${s.label ? ' (' + s.label + ')' : ''}`;
+                    });
+                    weekTotal += dayHours;
+                    row += `,"${shiftTexts.join('; ')}"`;
+                }
+
+                row += `,${weekTotal.toFixed(1)}h\n`;
+                csv += row;
+            });
+
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `planning_equipe_${weekKey}.csv`;
+            a.click();
+            showNotification('Export CSV réussi !', 'success');
+        });
+
+        document.getElementById('clearWeekBtn').addEventListener('click', () => {
+            if (confirm('Effacer tous les shifts de cette semaine ?')) {
+                const weekKey = getWeekKey(currentWeekStart);
+                delete schedules[weekKey];
+                saveData();
+                renderSchedule();
+                updateStats();
+                showNotification('Semaine effacée', 'info');
+            }
+        });
+
+        // Initialize
+        loadData();
+        updateWeekDisplay();
+        renderMembers();
+        renderSchedule();
+        updateStats();
     </script>
 </body>
 </html>

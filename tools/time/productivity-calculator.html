@@ -8,44 +8,130 @@
     <link rel="stylesheet" href="../../assets/css/tools.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .productivity-gauge {
+            width: 200px;
+            height: 200px;
+            margin: 2rem auto;
+            border-radius: 50%;
+            background: conic-gradient(
+                var(--accent) 0deg,
+                var(--accent) var(--score-deg),
+                #e0e0e0 var(--score-deg),
+                #e0e0e0 360deg
+            );
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        .gauge-inner {
+            width: 150px;
+            height: 150px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .gauge-value {
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+        .gauge-label {
+            font-size: 0.9rem;
+            color: #666;
+        }
+    </style>
 </head>
 <body>
     <nav class="breadcrumb">
-        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> > 
-        <a href="../../index.html#tools">Temps</a> > 
+        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> >
+        <a href="../../index.html#tools">Temps</a> >
         <span>Calculateur de Productivité</span>
     </nav>
     <main class="tool-container">
         <header class="tool-header">
             <h1><i class="fas fa-chart-area"></i> Calculateur de Productivité</h1>
-            <p class="tool-description">Analyse efficacité vs temps passé</p>
+            <p class="tool-description">Mesurez votre productivité et efficacité au travail.</p>
         </header>
+
         <section class="tool-input">
-            <h2>Configuration</h2>
-            <form id="mainForm">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; margin: 1.5rem 0;">
                 <div class="form-group">
-                    <label for="input1" class="form-label">
-                        <i class="fas fa-clock"></i> Durée ou information
-                    </label>
-                    <input type="text" id="input1" class="form-input" placeholder="Entrez les informations" required>
+                    <label class="form-label">Heures travaillées</label>
+                    <input type="number" id="hoursWorked" class="form-input" value="8" min="0" step="0.5">
+                    <span class="form-help">Temps total au travail</span>
                 </div>
-                <button type="submit" class="btn btn-primary">
-                    <i class="fas fa-play"></i> Démarrer/Calculer
-                </button>
-            </form>
+                <div class="form-group">
+                    <label class="form-label">Heures productives</label>
+                    <input type="number" id="productiveHours" class="form-input" value="6" min="0" step="0.5">
+                    <span class="form-help">Temps de travail concentré</span>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Tâches complétées</label>
+                    <input type="number" id="tasksCompleted" class="form-input" value="5" min="0">
+                    <span class="form-help">Nombre de tâches finies</span>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Tâches planifiées</label>
+                    <input type="number" id="tasksPlanned" class="form-input" value="7" min="0">
+                    <span class="form-help">Tâches prévues au départ</span>
+                </div>
+            </div>
+
+            <button class="btn btn-primary" id="calculateBtn">
+                <i class="fas fa-calculator"></i> Calculer la productivité
+            </button>
         </section>
-        <section class="tool-output" id="results" style="display: none;">
-            <h2><i class="fas fa-check-circle"></i> Résultat</h2>
+
+        <section class="tool-output">
+            <div class="productivity-gauge" id="productivityGauge" style="--score-deg: 0deg;">
+                <div class="gauge-inner">
+                    <div class="gauge-value" id="productivityScore">0%</div>
+                    <div class="gauge-label">Productivité</div>
+                </div>
+            </div>
+
             <div class="results-grid">
                 <div class="result-item">
-                    <div class="result-label">Temps total</div>
-                    <div class="result-value highlight" id="totalTime">00:00:00</div>
+                    <div class="result-label">Efficacité temporelle</div>
+                    <div class="result-value highlight" id="timeEfficiency">-</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Taux de complétion</div>
+                    <div class="result-value success" id="completionRate">-</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Tâches par heure</div>
+                    <div class="result-value" id="tasksPerHour">-</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Score productivité</div>
+                    <div class="result-value" id="productivityLevel">-</div>
                 </div>
             </div>
         </section>
+
         <section class="tool-help">
-            <h3><i class="fas fa-question-circle"></i> Utilisation</h3>
-            <p>Cet outil vous aide à gérer et optimiser votre temps de travail.</p>
+            <h3><i class="fas fa-info-circle"></i> Comment utiliser ?</h3>
+            <ol>
+                <li>Notez vos <strong>heures travaillées</strong> totales</li>
+                <li>Estimez les <strong>heures productives</strong> (travail concentré)</li>
+                <li>Comptez les <strong>tâches complétées</strong> aujourd'hui</li>
+                <li>Indiquez combien vous en aviez <strong>planifié</strong></li>
+                <li>Obtenez votre score de productivité sur 100</li>
+            </ol>
+
+            <h3><i class="fas fa-lightbulb"></i> Conseils</h3>
+            <ul>
+                <li><strong>Deep Work</strong> : 4-6h de travail concentré/jour est excellent</li>
+                <li><strong>Pauses</strong> : Prendre des pauses augmente la productivité</li>
+                <li><strong>Priorités</strong> : Mieux vaut 3 tâches importantes que 10 mineures</li>
+                <li><strong>Distractions</strong> : Bloquez notifications pendant le travail concentré</li>
+            </ul>
         </section>
     </main>
     <footer class="tool-footer">
@@ -54,10 +140,42 @@
     <script src="../../assets/js/utils.js"></script>
     <script src="../../assets/js/main.js"></script>
     <script>
-        document.getElementById('mainForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            document.getElementById('results').style.display = 'block';
-            showNotification('Calcul effectué !', 'success');
+        document.getElementById('calculateBtn').addEventListener('click', () => {
+            const hoursWorked = parseFloat(document.getElementById('hoursWorked').value) || 0;
+            const productiveHours = parseFloat(document.getElementById('productiveHours').value) || 0;
+            const tasksCompleted = parseInt(document.getElementById('tasksCompleted').value) || 0;
+            const tasksPlanned = parseInt(document.getElementById('tasksPlanned').value) || 0;
+
+            const timeEfficiency = hoursWorked > 0 ? (productiveHours / hoursWorked * 100) : 0;
+            const completionRate = tasksPlanned > 0 ? (tasksCompleted / tasksPlanned * 100) : 0;
+            const tasksPerHour = productiveHours > 0 ? (tasksCompleted / productiveHours) : 0;
+
+            const productivityScore = (timeEfficiency + completionRate) / 2;
+
+            document.getElementById('timeEfficiency').textContent = timeEfficiency.toFixed(0) + '%';
+            document.getElementById('completionRate').textContent = completionRate.toFixed(0) + '%';
+            document.getElementById('tasksPerHour').textContent = tasksPerHour.toFixed(2);
+
+            let level = '';
+            if (productivityScore >= 80) level = 'Excellent 🌟';
+            else if (productivityScore >= 60) level = 'Bon 👍';
+            else if (productivityScore >= 40) level = 'Moyen 👌';
+            else level = 'À améliorer 📈';
+
+            document.getElementById('productivityLevel').textContent = level;
+            document.getElementById('productivityScore').textContent = Math.round(productivityScore) + '%';
+
+            const scoreDeg = (productivityScore / 100) * 360;
+            document.getElementById('productivityGauge').style.setProperty('--score-deg', scoreDeg + 'deg');
+
+            showNotification('Productivité calculée !', 'success');
+        });
+
+        // Auto-calculate on input
+        ['hoursWorked', 'productiveHours', 'tasksCompleted', 'tasksPlanned'].forEach(id => {
+            document.getElementById(id).addEventListener('input', () => {
+                document.getElementById('calculateBtn').click();
+            });
         });
     </script>
 </body>

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Outil Business - Business Tools</title>
+    <title>Générateur de Contrat - Business Tools</title>
     <link rel="stylesheet" href="../../assets/css/main.css">
     <link rel="stylesheet" href="../../assets/css/tools.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -11,49 +11,175 @@
 </head>
 <body>
     <nav class="breadcrumb">
-        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> > 
-        <a href="../../index.html#tools">RH</a> > 
-        <span>Outil</span>
+        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> >
+        <a href="../../index.html#tools">RH</a> >
+        <span>Générateur de Contrat</span>
     </nav>
     <main class="tool-container">
         <header class="tool-header">
-            <h1><i class="fas fa-tools"></i> Outil Business</h1>
-            <p class="tool-description">Outil professionnel pour optimiser votre activité.</p>
+            <h1><i class="fas fa-file-contract"></i> Générateur de Contrat de Travail</h1>
+            <p class="tool-description">Créez un modèle de contrat de travail simplifié.</p>
         </header>
+
         <section class="tool-input">
-            <form id="mainForm">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1.5rem 0;">
                 <div class="form-group">
-                    <label for="input1" class="form-label">Donnée d'entrée</label>
-                    <input type="number" id="input1" class="form-input" value="100" min="0" required>
+                    <label class="form-label">Nom de l'employé</label>
+                    <input type="text" id="employeeName" class="form-input" placeholder="Jean Dupont">
                 </div>
-                <button type="submit" class="btn btn-primary"><i class="fas fa-calculator"></i> Calculer</button>
-            </form>
-        </section>
-        <section class="tool-output" id="results" style="display: none;">
-            <div class="results-grid">
-                <div class="result-item">
-                    <div class="result-label">Résultat</div>
-                    <div class="result-value highlight" id="result">-</div>
+                <div class="form-group">
+                    <label class="form-label">Nom de l'entreprise</label>
+                    <input type="text" id="companyName" class="form-input" placeholder="SARL MonEntreprise">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Poste</label>
+                    <input type="text" id="position" class="form-input" placeholder="Développeur Web">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Type de contrat</label>
+                    <select id="contractType" class="form-input">
+                        <option value="CDI">CDI</option>
+                        <option value="CDD">CDD</option>
+                        <option value="Stage">Stage</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Date de début</label>
+                    <input type="date" id="startDate" class="form-input">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Salaire brut mensuel (€)</label>
+                    <input type="number" id="salary" class="form-input" value="3000" min="0" step="100">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Durée hebdomadaire (heures)</label>
+                    <input type="number" id="weeklyHours" class="form-input" value="35" min="1" max="48">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Lieu de travail</label>
+                    <input type="text" id="location" class="form-input" placeholder="Paris">
                 </div>
             </div>
+
+            <button class="btn btn-primary" id="generateBtn">
+                <i class="fas fa-file-alt"></i> Générer le contrat
+            </button>
         </section>
+
+        <section class="tool-output">
+            <div id="contract" style="background:white;padding:2rem;border-radius:var(--radius);margin-top:1.5rem;line-height:1.8;"></div>
+        </section>
+
         <section class="tool-help">
-            <h3><i class="fas fa-info-circle"></i> Aide</h3>
-            <p>Utilisez cet outil pour optimiser votre gestion d'entreprise.</p>
+            <h3><i class="fas fa-info-circle"></i> Important</h3>
+            <p>Ce modèle est simplifié et à titre indicatif uniquement. Un contrat de travail officiel doit:</p>
+            <ul>
+                <li>Respecter les dispositions légales du Code du Travail</li>
+                <li>Être conforme à la convention collective applicable</li>
+                <li>Inclure toutes les mentions légales obligatoires</li>
+                <li>Être validé par un juriste ou expert RH</li>
+            </ul>
         </section>
     </main>
-    <footer class="tool-footer"><a href="../../index.html"><i class="fas fa-arrow-left"></i> Retour</a></footer>
+    <footer class="tool-footer">
+        <a href="../../index.html"><i class="fas fa-arrow-left"></i> Retour</a>
+    </footer>
     <script src="../../assets/js/utils.js"></script>
     <script src="../../assets/js/main.js"></script>
     <script>
-        document.getElementById('mainForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const val = parseFloat(document.getElementById('input1').value);
-            document.getElementById('result').textContent = val.toFixed(2);
-            document.getElementById('results').style.display = 'block';
-            showNotification('Opération réussie !', 'success');
+        document.getElementById('generateBtn').addEventListener('click', () => {
+            const employeeName = document.getElementById('employeeName').value.trim();
+            const companyName = document.getElementById('companyName').value.trim();
+            const position = document.getElementById('position').value.trim();
+            const contractType = document.getElementById('contractType').value;
+            const startDate = document.getElementById('startDate').value;
+            const salary = parseFloat(document.getElementById('salary').value) || 0;
+            const weeklyHours = parseFloat(document.getElementById('weeklyHours').value) || 35;
+            const location = document.getElementById('location').value.trim();
+
+            const contract = `
+                <div style="text-align:center;margin-bottom:2rem;">
+                    <h2 style="margin:0;">CONTRAT DE TRAVAIL</h2>
+                    <h3 style="margin-top:0.5rem;color:#666;">${contractType}</h3>
+                </div>
+
+                <p style="margin-bottom:1.5rem;">
+                    Entre les soussignés,
+                </p>
+
+                <div style="margin-bottom:1.5rem;padding-left:1rem;">
+                    <p><strong>${companyName || '[NOM DE L\'ENTREPRISE]'}</strong><br>
+                    Ci-après dénommée « l'Employeur »</p>
+                </div>
+
+                <p style="margin-bottom:1.5rem;">Et,</p>
+
+                <div style="margin-bottom:1.5rem;padding-left:1rem;">
+                    <p><strong>${employeeName || '[NOM DE L\'EMPLOYÉ]'}</strong><br>
+                    Ci-après dénommé « le Salarié »</p>
+                </div>
+
+                <p style="margin-bottom:1.5rem;">Il a été convenu ce qui suit :</p>
+
+                <h3 style="margin-top:2rem;">ARTICLE 1 - ENGAGEMENT</h3>
+                <p>Le Salarié est engagé en qualité de <strong>${position || '[POSTE]'}</strong> à compter du <strong>${startDate ? new Date(startDate).toLocaleDateString('fr-FR') : '[DATE]'}</strong>.</p>
+
+                <h3 style="margin-top:1.5rem;">ARTICLE 2 - DURÉE DU TRAVAIL</h3>
+                <p>La durée du travail est fixée à <strong>${weeklyHours} heures</strong> par semaine.</p>
+
+                <h3 style="margin-top:1.5rem;">ARTICLE 3 - RÉMUNÉRATION</h3>
+                <p>En contrepartie de son travail, le Salarié percevra une rémunération brute mensuelle de <strong>${formatCurrency(salary)}</strong>, payable mensuellement.</p>
+
+                <h3 style="margin-top:1.5rem;">ARTICLE 4 - LIEU DE TRAVAIL</h3>
+                <p>Le Salarié exercera ses fonctions à <strong>${location || '[LIEU]'}</strong>.</p>
+
+                <h3 style="margin-top:1.5rem;">ARTICLE 5 - CONGÉS PAYÉS</h3>
+                <p>Le Salarié bénéficiera des congés payés conformément aux dispositions légales en vigueur, soit 2,5 jours ouvrables par mois de travail effectif.</p>
+
+                <h3 style="margin-top:1.5rem;">ARTICLE 6 - PÉRIODE D'ESSAI</h3>
+                <p>Le présent contrat est conclu sous réserve d'une période d'essai conforme aux dispositions légales et conventionnelles.</p>
+
+                <div style="margin-top:3rem;display:grid;grid-template-columns:1fr 1fr;gap:2rem;">
+                    <div>
+                        <p>Fait en deux exemplaires</p>
+                        <p>À ${location || '_________'}, le ${new Date().toLocaleDateString('fr-FR')}</p>
+                        <p style="margin-top:2rem;border-top:1px solid #000;padding-top:0.5rem;display:inline-block;">
+                            Signature de l'Employeur
+                        </p>
+                    </div>
+                    <div>
+                        <p>&nbsp;</p>
+                        <p>&nbsp;</p>
+                        <p style="margin-top:2rem;border-top:1px solid #000;padding-top:0.5rem;display:inline-block;">
+                            Signature du Salarié<br>
+                            Précédée de la mention<br>
+                            "Lu et approuvé"
+                        </p>
+                    </div>
+                </div>
+
+                <div style="font-size:0.85rem;color:#666;text-align:center;margin-top:3rem;padding-top:1rem;border-top:2px solid var(--border);">
+                    <strong>DOCUMENT SIMPLIFIÉ À TITRE INDICATIF</strong><br>
+                    Ce modèle ne constitue pas un contrat légal complet. Consultez un juriste ou expert RH pour un contrat conforme.
+                </div>
+            `;
+
+            document.getElementById('contract').innerHTML = contract;
+            showNotification('Contrat généré !', 'success');
         });
-        window.addEventListener('load', () => document.getElementById('mainForm').dispatchEvent(new Event('submit')));
+
+        ['employeeName', 'companyName', 'position', 'contractType', 'startDate', 'salary', 'weeklyHours', 'location'].forEach(id => {
+            document.getElementById(id).addEventListener('input', () => {
+                if (document.getElementById('employeeName').value.trim() && document.getElementById('companyName').value.trim()) {
+                    document.getElementById('generateBtn').click();
+                }
+            });
+            document.getElementById(id).addEventListener('change', () => {
+                if (document.getElementById('employeeName').value.trim() && document.getElementById('companyName').value.trim()) {
+                    document.getElementById('generateBtn').click();
+                }
+            });
+        });
     </script>
 </body>
 </html>

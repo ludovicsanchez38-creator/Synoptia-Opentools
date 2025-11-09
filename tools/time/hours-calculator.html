@@ -3,49 +3,265 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculateur d'Heures de Travail - Business Tools</title>
+    <title>Calculateur d'Heures - Business Tools</title>
     <link rel="stylesheet" href="../../assets/css/main.css">
     <link rel="stylesheet" href="../../assets/css/tools.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .time-input-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin: 1.5rem 0;
+        }
+        .time-field {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        .time-field label {
+            font-weight: 600;
+            color: var(--primary);
+        }
+        .time-input {
+            padding: 0.75rem;
+            border: 2px solid var(--border);
+            border-radius: var(--radius);
+            font-size: 1rem;
+            font-weight: 600;
+        }
+        .time-input:focus {
+            border-color: var(--accent);
+            outline: none;
+        }
+        .calculation-mode {
+            display: flex;
+            gap: 1rem;
+            margin: 1.5rem 0;
+            flex-wrap: wrap;
+        }
+        .mode-btn {
+            flex: 1;
+            min-width: 150px;
+            padding: 1rem;
+            border: 2px solid var(--border);
+            background: white;
+            border-radius: var(--radius);
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .mode-btn:hover {
+            border-color: var(--accent);
+            background: rgba(255,193,7,0.1);
+        }
+        .mode-btn.active {
+            border-color: var(--accent);
+            background: var(--accent);
+            color: white;
+        }
+        .history-list {
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 1rem;
+        }
+        .history-item {
+            padding: 1rem;
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            margin-bottom: 0.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .history-item:hover {
+            background: #f8f9fa;
+        }
+        .history-time {
+            font-weight: 600;
+            color: var(--accent);
+        }
+        .delete-btn {
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius);
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+        .delete-btn:hover {
+            background: #ff5252;
+        }
+    </style>
 </head>
 <body>
     <nav class="breadcrumb">
-        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> > 
-        <a href="../../index.html#tools">Temps</a> > 
-        <span>Calculateur d'Heures de Travail</span>
+        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> >
+        <a href="../../index.html#tools">Temps</a> >
+        <span>Calculateur d'Heures</span>
     </nav>
     <main class="tool-container">
         <header class="tool-header">
-            <h1><i class="fas fa-business-time"></i> Calculateur d'Heures de Travail</h1>
-            <p class="tool-description">Compte exact d'heures effectuées</p>
+            <h1><i class="fas fa-clock"></i> Calculateur d'Heures</h1>
+            <p class="tool-description">Calculez précisément la durée entre deux horaires, ajoutez ou soustrayez des heures, gérez les pauses.</p>
         </header>
+
         <section class="tool-input">
-            <h2>Configuration</h2>
-            <form id="mainForm">
-                <div class="form-group">
-                    <label for="input1" class="form-label">
-                        <i class="fas fa-clock"></i> Durée ou information
-                    </label>
-                    <input type="text" id="input1" class="form-input" placeholder="Entrez les informations" required>
-                </div>
-                <button type="submit" class="btn btn-primary">
-                    <i class="fas fa-play"></i> Démarrer/Calculer
+            <div class="calculation-mode">
+                <button class="mode-btn active" data-mode="duration" id="modeDuration">
+                    <i class="fas fa-hourglass-half"></i> Durée entre deux heures
                 </button>
-            </form>
-        </section>
-        <section class="tool-output" id="results" style="display: none;">
-            <h2><i class="fas fa-check-circle"></i> Résultat</h2>
-            <div class="results-grid">
-                <div class="result-item">
-                    <div class="result-label">Temps total</div>
-                    <div class="result-value highlight" id="totalTime">00:00:00</div>
+                <button class="mode-btn" data-mode="add" id="modeAdd">
+                    <i class="fas fa-plus"></i> Ajouter des heures
+                </button>
+                <button class="mode-btn" data-mode="subtract" id="modeSubtract">
+                    <i class="fas fa-minus"></i> Soustraire des heures
+                </button>
+            </div>
+
+            <!-- Duration Mode -->
+            <div id="durationMode" class="mode-content">
+                <div class="time-input-group">
+                    <div class="time-field">
+                        <label for="startTime">Heure de début</label>
+                        <input type="time" id="startTime" class="time-input" value="09:00">
+                        <span class="form-help">Format 24h (ex: 09:00)</span>
+                    </div>
+                    <div class="time-field">
+                        <label for="endTime">Heure de fin</label>
+                        <input type="time" id="endTime" class="time-input" value="17:30">
+                        <span class="form-help">Format 24h (ex: 17:30)</span>
+                    </div>
+                    <div class="time-field">
+                        <label for="breakTime">Pause (minutes)</label>
+                        <input type="number" id="breakTime" class="time-input" value="60" min="0" step="15">
+                        <span class="form-help">Ex: 60 min pour 1h de pause</span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="dailyLimit">
+                        <input type="checkbox" id="dailyLimit" style="margin-right: 0.5rem;">
+                        Signaler si dépassement 10h/jour (limite légale France)
+                    </label>
                 </div>
             </div>
+
+            <!-- Add Mode -->
+            <div id="addMode" class="mode-content" style="display: none;">
+                <div class="time-input-group">
+                    <div class="time-field">
+                        <label for="baseTime">Heure de base</label>
+                        <input type="time" id="baseTime" class="time-input" value="09:00">
+                        <span class="form-help">Heure de départ</span>
+                    </div>
+                    <div class="time-field">
+                        <label for="addHours">Heures à ajouter</label>
+                        <input type="number" id="addHours" class="time-input" value="8" min="0" step="0.25">
+                        <span class="form-help">Format décimal (8.5 = 8h30)</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Subtract Mode -->
+            <div id="subtractMode" class="mode-content" style="display: none;">
+                <div class="time-input-group">
+                    <div class="time-field">
+                        <label for="baseTime2">Heure de base</label>
+                        <input type="time" id="baseTime2" class="time-input" value="17:30">
+                        <span class="form-help">Heure de départ</span>
+                    </div>
+                    <div class="time-field">
+                        <label for="subtractHours">Heures à soustraire</label>
+                        <input type="number" id="subtractHours" class="time-input" value="2" min="0" step="0.25">
+                        <span class="form-help">Format décimal (2.5 = 2h30)</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="action-buttons" style="margin-top: 1.5rem;">
+                <button class="btn btn-primary" id="calculateBtn">
+                    <i class="fas fa-calculator"></i> Calculer
+                </button>
+                <button class="btn btn-outline" id="resetBtn">
+                    <i class="fas fa-redo"></i> Réinitialiser
+                </button>
+            </div>
         </section>
+
+        <section class="tool-output">
+            <h2><i class="fas fa-chart-bar"></i> Résultat</h2>
+            <div class="results-grid">
+                <div class="result-item">
+                    <div class="result-label">Durée totale</div>
+                    <div class="result-value highlight" id="totalDuration">-</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Format décimal</div>
+                    <div class="result-value" id="decimalFormat">-</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Format HH:MM</div>
+                    <div class="result-value" id="hhmmFormat">-</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Minutes totales</div>
+                    <div class="result-value success" id="totalMinutes">-</div>
+                </div>
+            </div>
+
+            <div id="overtimeAlert" style="display: none; margin-top: 1rem; padding: 1rem; background: #fff3cd; border: 2px solid #ffc107; border-radius: var(--radius);">
+                <strong><i class="fas fa-exclamation-triangle"></i> Attention !</strong>
+                <span id="overtimeMessage"></span>
+            </div>
+
+            <div style="margin-top: 2rem;">
+                <h3><i class="fas fa-history"></i> Historique des calculs</h3>
+                <div class="history-list" id="historyList">
+                    <p style="text-align: center; color: #999;">Aucun calcul récent</p>
+                </div>
+            </div>
+
+            <div class="action-buttons" style="margin-top: 1.5rem;">
+                <button class="btn btn-accent" id="exportBtn">
+                    <i class="fas fa-download"></i> Exporter l'historique (CSV)
+                </button>
+                <button class="btn btn-outline" id="clearHistoryBtn">
+                    <i class="fas fa-trash"></i> Effacer l'historique
+                </button>
+            </div>
+        </section>
+
         <section class="tool-help">
-            <h3><i class="fas fa-question-circle"></i> Utilisation</h3>
-            <p>Cet outil vous aide à gérer et optimiser votre temps de travail.</p>
+            <h3><i class="fas fa-info-circle"></i> Comment utiliser ?</h3>
+            <ol>
+                <li>Choisissez le mode de calcul (durée, addition ou soustraction)</li>
+                <li><strong>Mode Durée</strong> : Entrez l'heure de début, de fin et la pause</li>
+                <li><strong>Mode Addition</strong> : Ajoutez des heures à une heure de base</li>
+                <li><strong>Mode Soustraction</strong> : Retranchez des heures d'une heure de base</li>
+                <li>Cliquez sur <strong>"Calculer"</strong> pour voir le résultat</li>
+                <li>L'historique se sauvegarde automatiquement</li>
+            </ol>
+
+            <h3><i class="fas fa-lightbulb"></i> Conseils</h3>
+            <ul>
+                <li><strong>Format horaire</strong> : Utilisez le format 24h (17:30 et non 5:30 PM)</li>
+                <li><strong>Format décimal</strong> : Utile pour la paie (8.5h = 8h30)</li>
+                <li><strong>Pauses obligatoires</strong> : En France, 20 min obligatoires après 6h de travail</li>
+                <li><strong>Limite journalière</strong> : 10h maximum par jour (loi française)</li>
+                <li><strong>Export CSV</strong> : Pour archiver vos calculs ou importer dans Excel</li>
+            </ul>
+
+            <h3><i class="fas fa-gavel"></i> Réglementation (France)</h3>
+            <ul>
+                <li><strong>Durée maximale</strong> : 10h/jour (12h avec dérogations)</li>
+                <li><strong>Pause obligatoire</strong> : 20 min après 6h de travail consécutif</li>
+                <li><strong>Repos quotidien</strong> : 11h consécutives minimum</li>
+                <li><strong>Heures supplémentaires</strong> : Au-delà de 35h/semaine</li>
+                <li><strong>Majoration</strong> : +25% pour les 8 premières heures sup, +50% au-delà</li>
+            </ul>
         </section>
     </main>
     <footer class="tool-footer">
@@ -54,11 +270,267 @@
     <script src="../../assets/js/utils.js"></script>
     <script src="../../assets/js/main.js"></script>
     <script>
-        document.getElementById('mainForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            document.getElementById('results').style.display = 'block';
-            showNotification('Calcul effectué !', 'success');
+        let currentMode = 'duration';
+        let history = JSON.parse(localStorage.getItem('hoursHistory') || '[]');
+
+        // Mode switching
+        document.querySelectorAll('.mode-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+
+                currentMode = this.dataset.mode;
+
+                document.getElementById('durationMode').style.display = currentMode === 'duration' ? 'block' : 'none';
+                document.getElementById('addMode').style.display = currentMode === 'add' ? 'block' : 'none';
+                document.getElementById('subtractMode').style.display = currentMode === 'subtract' ? 'block' : 'none';
+            });
         });
+
+        function timeToMinutes(timeString) {
+            const [hours, minutes] = timeString.split(':').map(Number);
+            return hours * 60 + minutes;
+        }
+
+        function minutesToTime(minutes) {
+            const hours = Math.floor(minutes / 60);
+            const mins = Math.floor(minutes % 60);
+            return `${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}`;
+        }
+
+        function minutesToDecimal(minutes) {
+            return (minutes / 60).toFixed(2);
+        }
+
+        function formatDuration(minutes) {
+            const hours = Math.floor(minutes / 60);
+            const mins = Math.floor(minutes % 60);
+            return `${hours}h${mins.toString().padStart(2, '0')}`;
+        }
+
+        function calculateDuration() {
+            const start = document.getElementById('startTime').value;
+            const end = document.getElementById('endTime').value;
+            const breakMinutes = parseInt(document.getElementById('breakTime').value) || 0;
+            const checkLimit = document.getElementById('dailyLimit').checked;
+
+            if (!start || !end) {
+                showNotification('Veuillez remplir tous les champs', 'error');
+                return;
+            }
+
+            let startMinutes = timeToMinutes(start);
+            let endMinutes = timeToMinutes(end);
+
+            // Handle overnight shifts
+            if (endMinutes < startMinutes) {
+                endMinutes += 24 * 60; // Add 24 hours
+            }
+
+            const totalMinutes = endMinutes - startMinutes - breakMinutes;
+
+            if (totalMinutes < 0) {
+                showNotification('La durée calculée est négative. Vérifiez vos heures.', 'error');
+                return;
+            }
+
+            displayResults(totalMinutes);
+
+            // Check legal limit
+            if (checkLimit && totalMinutes > 600) { // 10 hours
+                const overtime = totalMinutes - 600;
+                document.getElementById('overtimeAlert').style.display = 'block';
+                document.getElementById('overtimeMessage').textContent =
+                    `Dépassement de ${formatDuration(overtime)} au-delà de la limite légale de 10h/jour.`;
+            } else {
+                document.getElementById('overtimeAlert').style.display = 'none';
+            }
+
+            // Add to history
+            addToHistory({
+                mode: 'Durée',
+                details: `${start} → ${end} (pause: ${breakMinutes} min)`,
+                result: formatDuration(totalMinutes),
+                timestamp: new Date().toLocaleString('fr-FR')
+            });
+        }
+
+        function calculateAddition() {
+            const baseTime = document.getElementById('baseTime').value;
+            const hoursToAdd = parseFloat(document.getElementById('addHours').value) || 0;
+
+            if (!baseTime) {
+                showNotification('Veuillez remplir l\'heure de base', 'error');
+                return;
+            }
+
+            const baseMinutes = timeToMinutes(baseTime);
+            const minutesToAdd = hoursToAdd * 60;
+            const resultMinutes = baseMinutes + minutesToAdd;
+
+            // Handle overflow past midnight
+            const finalMinutes = resultMinutes % (24 * 60);
+            const days = Math.floor(resultMinutes / (24 * 60));
+
+            const resultTime = minutesToTime(finalMinutes);
+            let resultText = resultTime;
+            if (days > 0) {
+                resultText += ` (+${days} jour${days > 1 ? 's' : ''})`;
+            }
+
+            document.getElementById('totalDuration').textContent = resultText;
+            document.getElementById('decimalFormat').textContent = minutesToDecimal(minutesToAdd) + 'h';
+            document.getElementById('hhmmFormat').textContent = formatDuration(minutesToAdd);
+            document.getElementById('totalMinutes').textContent = Math.round(minutesToAdd) + ' min';
+            document.getElementById('overtimeAlert').style.display = 'none';
+
+            addToHistory({
+                mode: 'Addition',
+                details: `${baseTime} + ${hoursToAdd}h`,
+                result: resultText,
+                timestamp: new Date().toLocaleString('fr-FR')
+            });
+        }
+
+        function calculateSubtraction() {
+            const baseTime = document.getElementById('baseTime2').value;
+            const hoursToSubtract = parseFloat(document.getElementById('subtractHours').value) || 0;
+
+            if (!baseTime) {
+                showNotification('Veuillez remplir l\'heure de base', 'error');
+                return;
+            }
+
+            const baseMinutes = timeToMinutes(baseTime);
+            const minutesToSubtract = hoursToSubtract * 60;
+            let resultMinutes = baseMinutes - minutesToSubtract;
+
+            // Handle going before midnight
+            const days = Math.floor(Math.abs(resultMinutes) / (24 * 60));
+            if (resultMinutes < 0) {
+                resultMinutes = (24 * 60) + (resultMinutes % (24 * 60));
+            }
+
+            const resultTime = minutesToTime(resultMinutes);
+            let resultText = resultTime;
+            if (baseMinutes - minutesToSubtract < 0 && days > 0) {
+                resultText += ` (-${days} jour${days > 1 ? 's' : ''})`;
+            }
+
+            document.getElementById('totalDuration').textContent = resultText;
+            document.getElementById('decimalFormat').textContent = minutesToDecimal(minutesToSubtract) + 'h';
+            document.getElementById('hhmmFormat').textContent = formatDuration(minutesToSubtract);
+            document.getElementById('totalMinutes').textContent = Math.round(minutesToSubtract) + ' min';
+            document.getElementById('overtimeAlert').style.display = 'none';
+
+            addToHistory({
+                mode: 'Soustraction',
+                details: `${baseTime} - ${hoursToSubtract}h`,
+                result: resultText,
+                timestamp: new Date().toLocaleString('fr-FR')
+            });
+        }
+
+        function displayResults(totalMinutes) {
+            document.getElementById('totalDuration').textContent = formatDuration(totalMinutes);
+            document.getElementById('decimalFormat').textContent = minutesToDecimal(totalMinutes) + 'h';
+            document.getElementById('hhmmFormat').textContent = minutesToTime(totalMinutes);
+            document.getElementById('totalMinutes').textContent = Math.round(totalMinutes) + ' min';
+        }
+
+        function addToHistory(item) {
+            history.unshift(item);
+            if (history.length > 50) history.pop(); // Keep last 50
+            localStorage.setItem('hoursHistory', JSON.stringify(history));
+            renderHistory();
+        }
+
+        function renderHistory() {
+            const container = document.getElementById('historyList');
+
+            if (history.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #999;">Aucun calcul récent</p>';
+                return;
+            }
+
+            container.innerHTML = history.map((item, index) => `
+                <div class="history-item">
+                    <div>
+                        <strong>${item.mode}</strong>: ${item.details}<br>
+                        <span class="history-time">Résultat: ${item.result}</span><br>
+                        <small style="color: #999;">${item.timestamp}</small>
+                    </div>
+                    <button class="delete-btn" onclick="deleteHistoryItem(${index})">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        window.deleteHistoryItem = function(index) {
+            history.splice(index, 1);
+            localStorage.setItem('hoursHistory', JSON.stringify(history));
+            renderHistory();
+            showNotification('Élément supprimé', 'info');
+        };
+
+        document.getElementById('calculateBtn').addEventListener('click', () => {
+            if (currentMode === 'duration') {
+                calculateDuration();
+            } else if (currentMode === 'add') {
+                calculateAddition();
+            } else if (currentMode === 'subtract') {
+                calculateSubtraction();
+            }
+        });
+
+        document.getElementById('resetBtn').addEventListener('click', () => {
+            document.getElementById('startTime').value = '09:00';
+            document.getElementById('endTime').value = '17:30';
+            document.getElementById('breakTime').value = '60';
+            document.getElementById('baseTime').value = '09:00';
+            document.getElementById('addHours').value = '8';
+            document.getElementById('baseTime2').value = '17:30';
+            document.getElementById('subtractHours').value = '2';
+            document.getElementById('totalDuration').textContent = '-';
+            document.getElementById('decimalFormat').textContent = '-';
+            document.getElementById('hhmmFormat').textContent = '-';
+            document.getElementById('totalMinutes').textContent = '-';
+            document.getElementById('overtimeAlert').style.display = 'none';
+            showNotification('Formulaire réinitialisé', 'info');
+        });
+
+        document.getElementById('exportBtn').addEventListener('click', () => {
+            if (history.length === 0) {
+                showNotification('Aucun historique à exporter', 'error');
+                return;
+            }
+
+            let csv = 'Mode,Détails,Résultat,Date et heure\n';
+            history.forEach(item => {
+                csv += `"${item.mode}","${item.details}","${item.result}","${item.timestamp}"\n`;
+            });
+
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `historique_heures_${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+            showNotification('Export CSV réussi !', 'success');
+        });
+
+        document.getElementById('clearHistoryBtn').addEventListener('click', () => {
+            if (confirm('Effacer tout l\'historique ?')) {
+                history = [];
+                localStorage.removeItem('hoursHistory');
+                renderHistory();
+                showNotification('Historique effacé', 'info');
+            }
+        });
+
+        // Initialize
+        renderHistory();
     </script>
 </body>
 </html>
