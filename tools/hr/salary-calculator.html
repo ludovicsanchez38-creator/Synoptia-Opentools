@@ -3,57 +3,340 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Outil Business - Business Tools</title>
+    <title>Calculateur Salaire Net (France) - Business Tools</title>
     <link rel="stylesheet" href="../../assets/css/main.css">
     <link rel="stylesheet" href="../../assets/css/tools.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .breakdown-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+            background: white;
+            border-radius: var(--radius-md);
+            overflow: hidden;
+        }
+        .breakdown-table th,
+        .breakdown-table td {
+            padding: 0.75rem 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+        .breakdown-table th {
+            background: var(--primary-light);
+            color: var(--primary);
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+        }
+        .breakdown-table tbody tr:hover {
+            background: var(--light);
+        }
+        .breakdown-table .total-row {
+            background: var(--primary);
+            color: white;
+            font-weight: 700;
+        }
+        .breakdown-table .total-row td {
+            border: none;
+        }
+        .charge-label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .charge-rate {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+        .toggle-group {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        .toggle-btn {
+            padding: 0.5rem 1rem;
+            border: 2px solid var(--border);
+            background: white;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+        .toggle-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+        .toggle-btn:hover {
+            border-color: var(--primary);
+        }
+    </style>
 </head>
 <body>
     <nav class="breadcrumb">
-        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> > 
-        <a href="../../index.html#tools">RH</a> > 
-        <span>Outil</span>
+        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> >
+        <a href="../../index.html#tools">RH</a> >
+        <span>Calculateur Salaire Net</span>
     </nav>
     <main class="tool-container">
         <header class="tool-header">
-            <h1><i class="fas fa-tools"></i> Outil Business</h1>
-            <p class="tool-description">Outil professionnel pour optimiser votre activité.</p>
+            <h1><i class="fas fa-euro-sign"></i> Calculateur Salaire Net (France)</h1>
+            <p class="tool-description">Calculez votre salaire net à partir du brut avec les taux de charges sociales français 2024</p>
         </header>
+
         <section class="tool-input">
-            <form id="mainForm">
+            <form id="salaryForm">
                 <div class="form-group">
-                    <label for="input1" class="form-label">Donnée d'entrée</label>
-                    <input type="number" id="input1" class="form-input" value="100" min="0" required>
+                    <label for="grossSalary" class="form-label">
+                        <i class="fas fa-money-bill-wave"></i> Salaire brut mensuel (€)
+                    </label>
+                    <input type="number" id="grossSalary" class="form-input" value="3000" min="0" step="0.01" required>
                 </div>
-                <button type="submit" class="btn btn-primary"><i class="fas fa-calculator"></i> Calculer</button>
+
+                <div class="form-group">
+                    <label class="form-label"><i class="fas fa-user-tie"></i> Statut</label>
+                    <div class="toggle-group">
+                        <button type="button" class="toggle-btn active" data-status="non-cadre">Non-cadre</button>
+                        <button type="button" class="toggle-btn" data-status="cadre">Cadre</button>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label"><i class="fas fa-building"></i> Secteur</label>
+                    <div class="toggle-group">
+                        <button type="button" class="toggle-btn active" data-sector="prive">Privé</button>
+                        <button type="button" class="toggle-btn" data-sector="public">Public</button>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-lg">
+                    <i class="fas fa-calculator"></i> Calculer le salaire net
+                </button>
             </form>
         </section>
+
         <section class="tool-output" id="results" style="display: none;">
             <div class="results-grid">
                 <div class="result-item">
-                    <div class="result-label">Résultat</div>
-                    <div class="result-value highlight" id="result">-</div>
+                    <div class="result-label">Salaire brut mensuel</div>
+                    <div class="result-value" id="displayGross">-</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Salaire net avant impôt</div>
+                    <div class="result-value highlight" id="displayNetBeforeTax">-</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Salaire brut annuel</div>
+                    <div class="result-value" id="displayGrossAnnual">-</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Salaire net annuel</div>
+                    <div class="result-value highlight" id="displayNetAnnual">-</div>
                 </div>
             </div>
+
+            <h3 style="margin-top: 2rem;"><i class="fas fa-list"></i> Détail des charges sociales</h3>
+            <table class="breakdown-table" id="chargesTable">
+                <thead>
+                    <tr>
+                        <th>Charge</th>
+                        <th style="text-align: right;">Salarié</th>
+                        <th style="text-align: right;">Employeur</th>
+                    </tr>
+                </thead>
+                <tbody id="chargesBody">
+                </tbody>
+            </table>
+
+            <div class="alert alert-info" style="margin-top: 1rem;">
+                <strong><i class="fas fa-info-circle"></i> Note :</strong> Ce calcul est une estimation basée sur les taux moyens 2024.
+                Les taux réels peuvent varier selon votre convention collective, votre entreprise, et votre situation personnelle.
+                Le prélèvement à la source de l'impôt sur le revenu n'est pas inclus dans ce calcul.
+            </div>
         </section>
+
         <section class="tool-help">
-            <h3><i class="fas fa-info-circle"></i> Aide</h3>
-            <p>Utilisez cet outil pour optimiser votre gestion d'entreprise.</p>
+            <h3><i class="fas fa-question-circle"></i> Les charges sociales en France</h3>
+            <p>Le salaire net est obtenu en déduisant les cotisations sociales salariales du salaire brut :</p>
+            <ul>
+                <li><strong>Sécurité sociale :</strong> Maladie, maternité, invalidité, décès</li>
+                <li><strong>Assurance chômage :</strong> Contributions pour le financement de l'assurance chômage</li>
+                <li><strong>Retraite :</strong> Retraite de base et complémentaire (AGIRC-ARRCO pour les cadres)</li>
+                <li><strong>CSG/CRDS :</strong> Contribution sociale généralisée et contribution au remboursement de la dette sociale</li>
+                <li><strong>Autres :</strong> Formation professionnelle, prévoyance, etc.</li>
+            </ul>
+            <p><strong>Taux global moyen :</strong></p>
+            <ul>
+                <li>Non-cadre : environ 22-23% de charges salariales</li>
+                <li>Cadre : environ 25% de charges salariales</li>
+            </ul>
         </section>
     </main>
-    <footer class="tool-footer"><a href="../../index.html"><i class="fas fa-arrow-left"></i> Retour</a></footer>
+    <footer class="tool-footer">
+        <a href="../../index.html"><i class="fas fa-arrow-left"></i> Retour</a>
+    </footer>
+
     <script src="../../assets/js/utils.js"></script>
     <script src="../../assets/js/main.js"></script>
     <script>
-        document.getElementById('mainForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const val = parseFloat(document.getElementById('input1').value);
-            document.getElementById('result').textContent = val.toFixed(2);
-            document.getElementById('results').style.display = 'block';
-            showNotification('Opération réussie !', 'success');
+        // State
+        let selectedStatus = 'non-cadre';
+        let selectedSector = 'prive';
+
+        // Charges sociales 2024 (taux approximatifs)
+        const chargesData = {
+            'prive': {
+                'non-cadre': {
+                    'Sécurité sociale (maladie)': { employee: 0.0075, employer: 0.13 },
+                    'Assurance vieillesse (base)': { employee: 0.069, employer: 0.0855 },
+                    'Allocations familiales': { employee: 0, employer: 0.035 },
+                    'Accident du travail': { employee: 0, employer: 0.01 },
+                    'Retraite complémentaire': { employee: 0.0387, employer: 0.0581 },
+                    'APEC': { employee: 0, employer: 0 },
+                    'Assurance chômage': { employee: 0, employer: 0.0405 },
+                    'AGS': { employee: 0, employer: 0.0015 },
+                    'Formation professionnelle': { employee: 0, employer: 0.01 },
+                    'CSG déductible': { employee: 0.068, employer: 0 },
+                    'CSG/CRDS non déductible': { employee: 0.029, employer: 0 }
+                },
+                'cadre': {
+                    'Sécurité sociale (maladie)': { employee: 0.0075, employer: 0.13 },
+                    'Assurance vieillesse (base)': { employee: 0.069, employer: 0.0855 },
+                    'Allocations familiales': { employee: 0, employer: 0.035 },
+                    'Accident du travail': { employee: 0, employer: 0.01 },
+                    'Retraite complémentaire': { employee: 0.0787, employer: 0.1181 },
+                    'APEC': { employee: 0.00024, employer: 0.00036 },
+                    'Assurance chômage': { employee: 0, employer: 0.0405 },
+                    'AGS': { employee: 0, employer: 0.0015 },
+                    'Formation professionnelle': { employee: 0, employer: 0.01 },
+                    'CSG déductible': { employee: 0.068, employer: 0 },
+                    'CSG/CRDS non déductible': { employee: 0.029, employer: 0 }
+                }
+            },
+            'public': {
+                'non-cadre': {
+                    'Retraite de base': { employee: 0.1128, employer: 0.746 },
+                    'Pension civile': { employee: 0, employer: 0 },
+                    'RAFP': { employee: 0.05, employer: 0.05 },
+                    'Sécurité sociale (maladie)': { employee: 0.0075, employer: 0.13 },
+                    'Allocations familiales': { employee: 0, employer: 0.035 },
+                    'Contribution solidarité': { employee: 0.01, employer: 0 },
+                    'CSG déductible': { employee: 0.068, employer: 0 },
+                    'CSG/CRDS non déductible': { employee: 0.029, employer: 0 }
+                },
+                'cadre': {
+                    'Retraite de base': { employee: 0.1128, employer: 0.746 },
+                    'Pension civile': { employee: 0, employer: 0 },
+                    'RAFP': { employee: 0.05, employer: 0.05 },
+                    'Sécurité sociale (maladie)': { employee: 0.0075, employer: 0.13 },
+                    'Allocations familiales': { employee: 0, employer: 0.035 },
+                    'Contribution solidarité': { employee: 0.01, employer: 0 },
+                    'CSG déductible': { employee: 0.068, employer: 0 },
+                    'CSG/CRDS non déductible': { employee: 0.029, employer: 0 }
+                }
+            }
+        };
+
+        // Toggle buttons
+        document.querySelectorAll('.toggle-btn').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                const status = this.dataset.status;
+                const sector = this.dataset.sector;
+
+                if (status) {
+                    document.querySelectorAll('[data-status]').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    selectedStatus = status;
+                } else if (sector) {
+                    document.querySelectorAll('[data-sector]').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    selectedSector = sector;
+                }
+            });
         });
-        window.addEventListener('load', () => document.getElementById('mainForm').dispatchEvent(new Event('submit')));
+
+        // Calculate salary
+        document.getElementById('salaryForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const grossSalary = parseFloat(document.getElementById('grossSalary').value);
+            const charges = chargesData[selectedSector][selectedStatus];
+
+            // Calculate CSG/CRDS base (98.25% of gross for CSG)
+            const csgBase = grossSalary * 0.9825;
+
+            // Calculate employee charges
+            let totalEmployeeCharges = 0;
+            let totalEmployerCharges = 0;
+            const chargesDetails = [];
+
+            for (const [label, rates] of Object.entries(charges)) {
+                let employeeAmount, employerAmount;
+
+                // CSG/CRDS calculated on special base
+                if (label.includes('CSG')) {
+                    employeeAmount = csgBase * rates.employee;
+                    employerAmount = 0;
+                } else {
+                    employeeAmount = grossSalary * rates.employee;
+                    employerAmount = grossSalary * rates.employer;
+                }
+
+                totalEmployeeCharges += employeeAmount;
+                totalEmployerCharges += employerAmount;
+
+                chargesDetails.push({
+                    label,
+                    employeeRate: rates.employee,
+                    employerRate: rates.employer,
+                    employeeAmount,
+                    employerAmount
+                });
+            }
+
+            // Calculate net salary
+            const netBeforeTax = grossSalary - totalEmployeeCharges;
+            const grossAnnual = grossSalary * 12;
+            const netAnnual = netBeforeTax * 12;
+
+            // Display results
+            document.getElementById('displayGross').textContent = formatCurrency(grossSalary);
+            document.getElementById('displayNetBeforeTax').textContent = formatCurrency(netBeforeTax);
+            document.getElementById('displayGrossAnnual').textContent = formatCurrency(grossAnnual);
+            document.getElementById('displayNetAnnual').textContent = formatCurrency(netAnnual);
+
+            // Display charges breakdown
+            const tbody = document.getElementById('chargesBody');
+            tbody.innerHTML = chargesDetails.map(charge => `
+                <tr>
+                    <td>
+                        <div class="charge-label">
+                            ${charge.label}
+                            <span class="charge-rate">(${formatPercentage(charge.employeeRate * 100)} / ${formatPercentage(charge.employerRate * 100)})</span>
+                        </div>
+                    </td>
+                    <td style="text-align: right;">${formatCurrency(charge.employeeAmount)}</td>
+                    <td style="text-align: right;">${formatCurrency(charge.employerAmount)}</td>
+                </tr>
+            `).join('') + `
+                <tr class="total-row">
+                    <td><strong>TOTAL</strong></td>
+                    <td style="text-align: right;"><strong>${formatCurrency(totalEmployeeCharges)}</strong></td>
+                    <td style="text-align: right;"><strong>${formatCurrency(totalEmployerCharges)}</strong></td>
+                </tr>
+            `;
+
+            document.getElementById('results').style.display = 'block';
+            showNotification('Salaire calculé !', 'success');
+        });
+
+        // Auto-calculate on load
+        window.addEventListener('load', () => {
+            document.getElementById('salaryForm').dispatchEvent(new Event('submit'));
+        });
     </script>
 </body>
 </html>

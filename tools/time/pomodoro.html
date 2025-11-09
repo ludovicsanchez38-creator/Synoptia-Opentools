@@ -8,57 +8,495 @@
     <link rel="stylesheet" href="../../assets/css/tools.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .pomodoro-timer {
+            position: relative;
+            width: 300px;
+            height: 300px;
+            margin: 2rem auto;
+        }
+        .timer-circle {
+            width: 100%;
+            height: 100%;
+            transform: rotate(-90deg);
+        }
+        .timer-bg {
+            fill: none;
+            stroke: var(--border);
+            stroke-width: 10;
+        }
+        .timer-progress {
+            fill: none;
+            stroke: var(--primary);
+            stroke-width: 10;
+            stroke-linecap: round;
+            transition: stroke-dashoffset 1s linear;
+        }
+        .timer-progress.work {
+            stroke: var(--primary);
+        }
+        .timer-progress.break {
+            stroke: var(--success);
+        }
+        .timer-progress.long-break {
+            stroke: var(--accent);
+        }
+        .timer-display {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+        }
+        .timer-time {
+            font-size: 3.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            font-family: 'Courier New', monospace;
+            line-height: 1;
+        }
+        .timer-label {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            margin-top: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        .timer-controls {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin: 2rem 0;
+            flex-wrap: wrap;
+        }
+        .session-counter {
+            text-align: center;
+            margin: 1rem 0;
+            font-size: 1.1rem;
+        }
+        .pomodoro-badge {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            line-height: 30px;
+            text-align: center;
+            border-radius: 50%;
+            margin: 0 0.25rem;
+            font-weight: 600;
+        }
+        .pomodoro-badge.completed {
+            background: var(--primary);
+            color: white;
+        }
+        .pomodoro-badge.current {
+            background: var(--accent);
+            color: white;
+        }
+        .pomodoro-badge.pending {
+            background: var(--light);
+            color: var(--text-secondary);
+        }
+        .settings-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+    </style>
 </head>
 <body>
     <nav class="breadcrumb">
-        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> > 
-        <a href="../../index.html#tools">Temps</a> > 
+        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> >
+        <a href="../../index.html#tools">Temps</a> >
         <span>Minuteur Pomodoro</span>
     </nav>
     <main class="tool-container">
         <header class="tool-header">
             <h1><i class="fas fa-clock"></i> Minuteur Pomodoro</h1>
-            <p class="tool-description">Gestion du temps par plages réglables</p>
+            <p class="tool-description">Gérez votre temps avec la technique Pomodoro - 25 min de travail, 5 min de pause</p>
         </header>
+
+        <!-- Settings Section -->
         <section class="tool-input">
-            <h2>Configuration</h2>
-            <form id="mainForm">
+            <h2><i class="fas fa-cog"></i> Configuration</h2>
+            <div class="settings-grid">
                 <div class="form-group">
-                    <label for="input1" class="form-label">
-                        <i class="fas fa-clock"></i> Durée ou information
+                    <label for="workDuration" class="form-label">
+                        <i class="fas fa-briefcase"></i> Durée travail (min)
                     </label>
-                    <input type="text" id="input1" class="form-input" placeholder="Entrez les informations" required>
+                    <input type="number" id="workDuration" class="form-input" value="25" min="1" max="60">
                 </div>
-                <button type="submit" class="btn btn-primary">
-                    <i class="fas fa-play"></i> Démarrer/Calculer
-                </button>
-            </form>
+                <div class="form-group">
+                    <label for="breakDuration" class="form-label">
+                        <i class="fas fa-coffee"></i> Durée pause (min)
+                    </label>
+                    <input type="number" id="breakDuration" class="form-input" value="5" min="1" max="30">
+                </div>
+                <div class="form-group">
+                    <label for="longBreakDuration" class="form-label">
+                        <i class="fas fa-mug-hot"></i> Longue pause (min)
+                    </label>
+                    <input type="number" id="longBreakDuration" class="form-input" value="15" min="1" max="60">
+                </div>
+                <div class="form-group">
+                    <label for="sessionsBeforeLongBreak" class="form-label">
+                        <i class="fas fa-repeat"></i> Sessions avant longue pause
+                    </label>
+                    <input type="number" id="sessionsBeforeLongBreak" class="form-input" value="4" min="1" max="10">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">
+                    <input type="checkbox" id="autoStart" style="margin-right: 0.5rem;">
+                    Démarrer automatiquement la session suivante
+                </label>
+            </div>
         </section>
-        <section class="tool-output" id="results" style="display: none;">
-            <h2><i class="fas fa-check-circle"></i> Résultat</h2>
-            <div class="results-grid">
+
+        <!-- Timer Display -->
+        <section class="tool-output">
+            <div class="pomodoro-timer">
+                <svg class="timer-circle" viewBox="0 0 300 300">
+                    <circle class="timer-bg" cx="150" cy="150" r="140" />
+                    <circle class="timer-progress work" cx="150" cy="150" r="140"
+                            id="progressCircle"
+                            stroke-dasharray="879.65"
+                            stroke-dashoffset="0" />
+                </svg>
+                <div class="timer-display">
+                    <div class="timer-time" id="timerTime">25:00</div>
+                    <div class="timer-label" id="timerLabel">Travail</div>
+                </div>
+            </div>
+
+            <div class="timer-controls">
+                <button type="button" class="btn btn-success btn-lg" id="startBtn">
+                    <i class="fas fa-play"></i> Démarrer
+                </button>
+                <button type="button" class="btn btn-warning btn-lg" id="pauseBtn" style="display: none;">
+                    <i class="fas fa-pause"></i> Pause
+                </button>
+                <button type="button" class="btn btn-primary btn-lg" id="resumeBtn" style="display: none;">
+                    <i class="fas fa-play"></i> Reprendre
+                </button>
+                <button type="button" class="btn btn-danger" id="resetBtn">
+                    <i class="fas fa-redo"></i> Recommencer
+                </button>
+                <button type="button" class="btn btn-secondary" id="skipBtn">
+                    <i class="fas fa-forward"></i> Suivant
+                </button>
+            </div>
+
+            <div class="session-counter">
+                <strong>Sessions complétées :</strong>
+                <div id="sessionBadges" style="margin-top: 0.5rem;"></div>
+            </div>
+
+            <div class="results-grid" style="margin-top: 1.5rem;">
                 <div class="result-item">
-                    <div class="result-label">Temps total</div>
-                    <div class="result-value highlight" id="totalTime">00:00:00</div>
+                    <div class="result-label">Sessions aujourd'hui</div>
+                    <div class="result-value highlight" id="todaySessions">0</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Temps de travail total</div>
+                    <div class="result-value" id="totalWorkTime">0h 0m</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Session en cours</div>
+                    <div class="result-value" id="currentSessionNum">1</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Prochaine pause</div>
+                    <div class="result-value" id="nextBreakType">Courte</div>
                 </div>
             </div>
         </section>
+
         <section class="tool-help">
-            <h3><i class="fas fa-question-circle"></i> Utilisation</h3>
-            <p>Cet outil vous aide à gérer et optimiser votre temps de travail.</p>
+            <h3><i class="fas fa-question-circle"></i> La technique Pomodoro</h3>
+            <p>La technique Pomodoro améliore la productivité en divisant le travail en intervalles de temps :</p>
+            <ul>
+                <li><strong>1.</strong> Travaillez pendant 25 minutes avec concentration totale</li>
+                <li><strong>2.</strong> Prenez une pause de 5 minutes</li>
+                <li><strong>3.</strong> Répétez 4 fois</li>
+                <li><strong>4.</strong> Après 4 sessions, prenez une longue pause de 15-30 minutes</li>
+            </ul>
+            <p><strong>Conseils :</strong> Éliminez les distractions, notez les interruptions, et respectez strictement les pauses pour maximiser l'efficacité.</p>
         </section>
     </main>
     <footer class="tool-footer">
         <a href="../../index.html"><i class="fas fa-arrow-left"></i> Retour</a>
     </footer>
+
     <script src="../../assets/js/utils.js"></script>
     <script src="../../assets/js/main.js"></script>
     <script>
-        document.getElementById('mainForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            document.getElementById('results').style.display = 'block';
-            showNotification('Calcul effectué !', 'success');
+        // Timer state
+        let timerInterval = null;
+        let remainingSeconds = 0;
+        let totalSeconds = 0;
+        let isRunning = false;
+        let isPaused = false;
+        let currentMode = 'work'; // 'work', 'break', 'longBreak'
+        let completedSessions = 0;
+        let todayStats = { sessions: 0, workTime: 0 };
+
+        // Audio notification (beep)
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+
+        function playBeep() {
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+
+            oscillator.frequency.value = 800;
+            oscillator.type = 'sine';
+
+            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.5);
+        }
+
+        // Load settings from localStorage
+        function loadSettings() {
+            const settings = localStorage.getItem('pomodoroSettings');
+            if (settings) {
+                const parsed = JSON.parse(settings);
+                document.getElementById('workDuration').value = parsed.workDuration || 25;
+                document.getElementById('breakDuration').value = parsed.breakDuration || 5;
+                document.getElementById('longBreakDuration').value = parsed.longBreakDuration || 15;
+                document.getElementById('sessionsBeforeLongBreak').value = parsed.sessionsBeforeLongBreak || 4;
+                document.getElementById('autoStart').checked = parsed.autoStart || false;
+            }
+
+            const stats = localStorage.getItem('pomodoroStats');
+            if (stats) {
+                const parsed = JSON.parse(stats);
+                const today = new Date().toDateString();
+                if (parsed.date === today) {
+                    todayStats = parsed;
+                }
+            }
+            updateStats();
+        }
+
+        // Save settings
+        function saveSettings() {
+            const settings = {
+                workDuration: parseInt(document.getElementById('workDuration').value),
+                breakDuration: parseInt(document.getElementById('breakDuration').value),
+                longBreakDuration: parseInt(document.getElementById('longBreakDuration').value),
+                sessionsBeforeLongBreak: parseInt(document.getElementById('sessionsBeforeLongBreak').value),
+                autoStart: document.getElementById('autoStart').checked
+            };
+            localStorage.setItem('pomodoroSettings', JSON.stringify(settings));
+        }
+
+        // Save stats
+        function saveStats() {
+            todayStats.date = new Date().toDateString();
+            localStorage.setItem('pomodoroStats', JSON.stringify(todayStats));
+        }
+
+        // Format time
+        function formatTime(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = seconds % 60;
+            return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+        }
+
+        // Update timer display
+        function updateDisplay() {
+            document.getElementById('timerTime').textContent = formatTime(remainingSeconds);
+
+            // Update progress circle
+            const progress = ((totalSeconds - remainingSeconds) / totalSeconds) * 879.65;
+            document.getElementById('progressCircle').style.strokeDashoffset = progress;
+        }
+
+        // Initialize timer
+        function initTimer(mode) {
+            currentMode = mode;
+            const circle = document.getElementById('progressCircle');
+
+            if (mode === 'work') {
+                totalSeconds = parseInt(document.getElementById('workDuration').value) * 60;
+                document.getElementById('timerLabel').textContent = 'Travail';
+                circle.className = 'timer-progress work';
+            } else if (mode === 'break') {
+                totalSeconds = parseInt(document.getElementById('breakDuration').value) * 60;
+                document.getElementById('timerLabel').textContent = 'Pause';
+                circle.className = 'timer-progress break';
+            } else if (mode === 'longBreak') {
+                totalSeconds = parseInt(document.getElementById('longBreakDuration').value) * 60;
+                document.getElementById('timerLabel').textContent = 'Longue Pause';
+                circle.className = 'timer-progress long-break';
+            }
+
+            remainingSeconds = totalSeconds;
+            updateDisplay();
+        }
+
+        // Start timer
+        document.getElementById('startBtn').addEventListener('click', function() {
+            saveSettings();
+            initTimer('work');
+            startTimer();
         });
+
+        function startTimer() {
+            if (isRunning) return;
+
+            isRunning = true;
+            isPaused = false;
+
+            timerInterval = setInterval(() => {
+                if (remainingSeconds > 0) {
+                    remainingSeconds--;
+                    updateDisplay();
+                } else {
+                    completeSession();
+                }
+            }, 1000);
+
+            // Update UI
+            document.getElementById('startBtn').style.display = 'none';
+            document.getElementById('pauseBtn').style.display = 'inline-block';
+            document.getElementById('resetBtn').style.display = 'inline-block';
+            document.getElementById('skipBtn').style.display = 'inline-block';
+        }
+
+        // Pause timer
+        document.getElementById('pauseBtn').addEventListener('click', function() {
+            clearInterval(timerInterval);
+            isRunning = false;
+            isPaused = true;
+
+            document.getElementById('pauseBtn').style.display = 'none';
+            document.getElementById('resumeBtn').style.display = 'inline-block';
+            showNotification('Minuteur en pause', 'info');
+        });
+
+        // Resume timer
+        document.getElementById('resumeBtn').addEventListener('click', function() {
+            startTimer();
+            document.getElementById('pauseBtn').style.display = 'inline-block';
+            document.getElementById('resumeBtn').style.display = 'none';
+            showNotification('Minuteur repris', 'success');
+        });
+
+        // Reset timer
+        document.getElementById('resetBtn').addEventListener('click', function() {
+            if (confirm('Recommencer depuis le début ?')) {
+                clearInterval(timerInterval);
+                isRunning = false;
+                isPaused = false;
+                completedSessions = 0;
+                todayStats = { sessions: 0, workTime: 0, date: new Date().toDateString() };
+
+                initTimer('work');
+                resetUI();
+                updateSessionBadges();
+                updateStats();
+                saveStats();
+
+                showNotification('Minuteur réinitialisé', 'success');
+            }
+        });
+
+        // Skip to next session
+        document.getElementById('skipBtn').addEventListener('click', function() {
+            if (confirm('Passer à la session suivante ?')) {
+                completeSession();
+            }
+        });
+
+        // Complete session
+        function completeSession() {
+            clearInterval(timerInterval);
+            playBeep();
+
+            if (currentMode === 'work') {
+                completedSessions++;
+                todayStats.sessions++;
+                todayStats.workTime += parseInt(document.getElementById('workDuration').value);
+                saveStats();
+                updateStats();
+                updateSessionBadges();
+
+                const sessionsBeforeLongBreak = parseInt(document.getElementById('sessionsBeforeLongBreak').value);
+
+                if (completedSessions % sessionsBeforeLongBreak === 0) {
+                    initTimer('longBreak');
+                    showNotification('Session terminée ! Temps pour une longue pause.', 'success');
+                } else {
+                    initTimer('break');
+                    showNotification('Session terminée ! Prenez une pause.', 'success');
+                }
+            } else {
+                initTimer('work');
+                showNotification('Pause terminée ! Prêt pour travailler ?', 'success');
+            }
+
+            isRunning = false;
+
+            if (document.getElementById('autoStart').checked) {
+                setTimeout(() => {
+                    startTimer();
+                }, 2000);
+            } else {
+                resetUI();
+            }
+        }
+
+        // Reset UI
+        function resetUI() {
+            document.getElementById('startBtn').style.display = 'inline-block';
+            document.getElementById('pauseBtn').style.display = 'none';
+            document.getElementById('resumeBtn').style.display = 'none';
+            document.getElementById('resetBtn').style.display = 'none';
+            document.getElementById('skipBtn').style.display = 'none';
+        }
+
+        // Update session badges
+        function updateSessionBadges() {
+            const sessionsBeforeLongBreak = parseInt(document.getElementById('sessionsBeforeLongBreak').value);
+            const container = document.getElementById('sessionBadges');
+
+            let html = '';
+            for (let i = 1; i <= sessionsBeforeLongBreak; i++) {
+                if (i <= completedSessions % sessionsBeforeLongBreak && completedSessions > 0) {
+                    html += `<span class="pomodoro-badge completed"><i class="fas fa-check"></i></span>`;
+                } else if (i === (completedSessions % sessionsBeforeLongBreak) + 1) {
+                    html += `<span class="pomodoro-badge current">${i}</span>`;
+                } else {
+                    html += `<span class="pomodoro-badge pending">${i}</span>`;
+                }
+            }
+            container.innerHTML = html;
+        }
+
+        // Update statistics
+        function updateStats() {
+            document.getElementById('todaySessions').textContent = todayStats.sessions;
+            const hours = Math.floor(todayStats.workTime / 60);
+            const mins = todayStats.workTime % 60;
+            document.getElementById('totalWorkTime').textContent = `${hours}h ${mins}m`;
+            document.getElementById('currentSessionNum').textContent = completedSessions + 1;
+
+            const sessionsBeforeLongBreak = parseInt(document.getElementById('sessionsBeforeLongBreak').value);
+            const remaining = sessionsBeforeLongBreak - (completedSessions % sessionsBeforeLongBreak);
+            document.getElementById('nextBreakType').textContent = remaining === 1 ? 'Longue' : 'Courte';
+        }
+
+        // Initialize on load
+        loadSettings();
+        initTimer('work');
+        updateSessionBadges();
     </script>
 </body>
 </html>

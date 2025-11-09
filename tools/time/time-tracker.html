@@ -8,57 +8,412 @@
     <link rel="stylesheet" href="../../assets/css/tools.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .timer-display {
+            font-size: 3rem;
+            font-weight: 700;
+            text-align: center;
+            color: var(--primary);
+            margin: 2rem 0;
+            font-family: 'Courier New', monospace;
+        }
+        .timer-controls {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin: 1rem 0;
+            flex-wrap: wrap;
+        }
+        .session-item {
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 1rem;
+            margin-bottom: 0.75rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .session-info {
+            flex: 1;
+        }
+        .session-task {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.25rem;
+        }
+        .session-time {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+        .session-duration {
+            font-weight: 700;
+            color: var(--primary);
+            font-size: 1.1rem;
+            margin-right: 1rem;
+        }
+        .current-task {
+            background: var(--primary-light);
+            border-left: 4px solid var(--primary);
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: var(--radius-sm);
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+        .status-running {
+            background: var(--success-light);
+            color: var(--success);
+        }
+        .status-paused {
+            background: var(--warning-light);
+            color: var(--warning);
+        }
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: var(--text-secondary);
+        }
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.3;
+        }
+    </style>
 </head>
 <body>
     <nav class="breadcrumb">
-        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> > 
-        <a href="../../index.html#tools">Temps</a> > 
+        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> >
+        <a href="../../index.html#tools">Temps</a> >
         <span>Time Tracker Automatique</span>
     </nav>
     <main class="tool-container">
         <header class="tool-header">
             <h1><i class="fas fa-stopwatch"></i> Time Tracker Automatique</h1>
-            <p class="tool-description">Enregistre automatiquement les temps de tâche</p>
+            <p class="tool-description">Suivez précisément le temps passé sur vos tâches et projets</p>
         </header>
+
+        <!-- Chronometer Section -->
         <section class="tool-input">
-            <h2>Configuration</h2>
-            <form id="mainForm">
-                <div class="form-group">
-                    <label for="input1" class="form-label">
-                        <i class="fas fa-clock"></i> Durée ou information
-                    </label>
-                    <input type="text" id="input1" class="form-input" placeholder="Entrez les informations" required>
-                </div>
-                <button type="submit" class="btn btn-primary">
-                    <i class="fas fa-play"></i> Démarrer/Calculer
+            <div class="form-group">
+                <label for="taskName" class="form-label">
+                    <i class="fas fa-tasks"></i> Nom de la tâche
+                </label>
+                <input type="text" id="taskName" class="form-input" placeholder="Ex: Développement feature X, Réunion client..." value="">
+            </div>
+
+            <div class="timer-display" id="timerDisplay">00:00:00</div>
+
+            <div class="timer-controls">
+                <button type="button" class="btn btn-success" id="startBtn">
+                    <i class="fas fa-play"></i> Démarrer
                 </button>
-            </form>
+                <button type="button" class="btn btn-warning" id="pauseBtn" style="display: none;">
+                    <i class="fas fa-pause"></i> Pause
+                </button>
+                <button type="button" class="btn btn-primary" id="resumeBtn" style="display: none;">
+                    <i class="fas fa-play"></i> Reprendre
+                </button>
+                <button type="button" class="btn btn-danger" id="stopBtn" style="display: none;">
+                    <i class="fas fa-stop"></i> Terminer
+                </button>
+            </div>
+
+            <div id="currentStatus" style="text-align: center; margin-top: 1rem;"></div>
         </section>
-        <section class="tool-output" id="results" style="display: none;">
-            <h2><i class="fas fa-check-circle"></i> Résultat</h2>
-            <div class="results-grid">
+
+        <!-- Sessions List -->
+        <section class="tool-output">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                <h2><i class="fas fa-history"></i> Historique des sessions</h2>
+                <div>
+                    <button type="button" class="btn btn-sm btn-secondary" id="exportBtn" style="margin-right: 0.5rem;">
+                        <i class="fas fa-download"></i> Exporter CSV
+                    </button>
+                    <button type="button" class="btn btn-sm btn-danger" id="clearBtn">
+                        <i class="fas fa-trash"></i> Effacer
+                    </button>
+                </div>
+            </div>
+
+            <div id="sessionsList"></div>
+
+            <div class="results-grid" style="margin-top: 1.5rem;">
                 <div class="result-item">
-                    <div class="result-label">Temps total</div>
+                    <div class="result-label">Sessions aujourd'hui</div>
+                    <div class="result-value" id="todaySessions">0</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Temps total aujourd'hui</div>
+                    <div class="result-value highlight" id="todayTotal">00:00:00</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Sessions total</div>
+                    <div class="result-value" id="totalSessions">0</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Temps total cumulé</div>
                     <div class="result-value highlight" id="totalTime">00:00:00</div>
                 </div>
             </div>
         </section>
+
         <section class="tool-help">
-            <h3><i class="fas fa-question-circle"></i> Utilisation</h3>
-            <p>Cet outil vous aide à gérer et optimiser votre temps de travail.</p>
+            <h3><i class="fas fa-question-circle"></i> Comment utiliser</h3>
+            <ul>
+                <li><strong>Démarrer :</strong> Entrez le nom de votre tâche et cliquez sur "Démarrer"</li>
+                <li><strong>Pause :</strong> Mettez la session en pause si vous devez vous interrompre</li>
+                <li><strong>Reprendre :</strong> Continuez votre session après une pause</li>
+                <li><strong>Terminer :</strong> Arrêtez et enregistrez la session</li>
+                <li><strong>Historique :</strong> Consultez toutes vos sessions enregistrées avec leur durée</li>
+                <li><strong>Export :</strong> Exportez vos données en CSV pour analyse dans Excel</li>
+            </ul>
         </section>
     </main>
     <footer class="tool-footer">
         <a href="../../index.html"><i class="fas fa-arrow-left"></i> Retour</a>
     </footer>
+
     <script src="../../assets/js/utils.js"></script>
     <script src="../../assets/js/main.js"></script>
     <script>
-        document.getElementById('mainForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            document.getElementById('results').style.display = 'block';
-            showNotification('Calcul effectué !', 'success');
+        // Timer state
+        let timerInterval = null;
+        let elapsedSeconds = 0;
+        let isPaused = false;
+        let currentSession = null;
+        let sessions = [];
+
+        // Load sessions from localStorage
+        function loadSessions() {
+            const stored = localStorage.getItem('timeTrackerSessions');
+            if (stored) {
+                sessions = JSON.parse(stored);
+            }
+            renderSessions();
+            updateStats();
+        }
+
+        // Save sessions to localStorage
+        function saveSessions() {
+            localStorage.setItem('timeTrackerSessions', JSON.stringify(sessions));
+        }
+
+        // Format seconds to HH:MM:SS
+        function formatTime(seconds) {
+            const hours = Math.floor(seconds / 3600);
+            const minutes = Math.floor((seconds % 3600) / 60);
+            const secs = seconds % 60;
+            return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+        }
+
+        // Format date
+        function formatDate(date) {
+            return new Date(date).toLocaleString('fr-FR', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        // Update timer display
+        function updateDisplay() {
+            document.getElementById('timerDisplay').textContent = formatTime(elapsedSeconds);
+        }
+
+        // Start timer
+        document.getElementById('startBtn').addEventListener('click', function() {
+            const taskName = document.getElementById('taskName').value.trim();
+            if (!taskName) {
+                showNotification('Veuillez entrer un nom de tâche', 'error');
+                return;
+            }
+
+            currentSession = {
+                task: taskName,
+                startTime: new Date().toISOString(),
+                pauseDuration: 0,
+                pauses: []
+            };
+
+            elapsedSeconds = 0;
+            isPaused = false;
+
+            timerInterval = setInterval(() => {
+                if (!isPaused) {
+                    elapsedSeconds++;
+                    updateDisplay();
+                }
+            }, 1000);
+
+            // Update UI
+            document.getElementById('startBtn').style.display = 'none';
+            document.getElementById('pauseBtn').style.display = 'inline-block';
+            document.getElementById('stopBtn').style.display = 'inline-block';
+            document.getElementById('taskName').disabled = true;
+            document.getElementById('currentStatus').innerHTML = '<span class="status-badge status-running"><i class="fas fa-circle"></i> En cours</span>';
+
+            showNotification('Session démarrée !', 'success');
         });
+
+        // Pause timer
+        document.getElementById('pauseBtn').addEventListener('click', function() {
+            isPaused = true;
+            currentSession.pauses.push({ start: new Date().toISOString() });
+
+            document.getElementById('pauseBtn').style.display = 'none';
+            document.getElementById('resumeBtn').style.display = 'inline-block';
+            document.getElementById('currentStatus').innerHTML = '<span class="status-badge status-paused"><i class="fas fa-pause-circle"></i> En pause</span>';
+
+            showNotification('Session en pause', 'info');
+        });
+
+        // Resume timer
+        document.getElementById('resumeBtn').addEventListener('click', function() {
+            isPaused = false;
+            const lastPause = currentSession.pauses[currentSession.pauses.length - 1];
+            lastPause.end = new Date().toISOString();
+            const pauseTime = Math.floor((new Date(lastPause.end) - new Date(lastPause.start)) / 1000);
+            currentSession.pauseDuration += pauseTime;
+
+            document.getElementById('pauseBtn').style.display = 'inline-block';
+            document.getElementById('resumeBtn').style.display = 'none';
+            document.getElementById('currentStatus').innerHTML = '<span class="status-badge status-running"><i class="fas fa-circle"></i> En cours</span>';
+
+            showNotification('Session reprise', 'success');
+        });
+
+        // Stop timer
+        document.getElementById('stopBtn').addEventListener('click', function() {
+            clearInterval(timerInterval);
+
+            currentSession.endTime = new Date().toISOString();
+            currentSession.duration = elapsedSeconds;
+
+            sessions.unshift(currentSession);
+            saveSessions();
+            renderSessions();
+            updateStats();
+
+            // Reset UI
+            elapsedSeconds = 0;
+            updateDisplay();
+            document.getElementById('startBtn').style.display = 'inline-block';
+            document.getElementById('pauseBtn').style.display = 'none';
+            document.getElementById('resumeBtn').style.display = 'none';
+            document.getElementById('stopBtn').style.display = 'none';
+            document.getElementById('taskName').disabled = false;
+            document.getElementById('taskName').value = '';
+            document.getElementById('currentStatus').innerHTML = '';
+            currentSession = null;
+
+            showNotification('Session enregistrée !', 'success');
+        });
+
+        // Render sessions list
+        function renderSessions() {
+            const container = document.getElementById('sessionsList');
+
+            if (sessions.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-clock"></i>
+                        <p>Aucune session enregistrée</p>
+                        <p style="font-size: 0.9rem;">Démarrez votre première session de travail !</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = sessions.map((session, index) => `
+                <div class="session-item">
+                    <div class="session-info">
+                        <div class="session-task">${session.task}</div>
+                        <div class="session-time">
+                            <i class="fas fa-calendar"></i> ${formatDate(session.startTime)}
+                            ${session.pauseDuration > 0 ? `<span style="margin-left: 0.5rem;"><i class="fas fa-pause"></i> ${Math.floor(session.pauseDuration / 60)}m de pause</span>` : ''}
+                        </div>
+                    </div>
+                    <div style="display: flex; align-items: center;">
+                        <div class="session-duration">${formatTime(session.duration)}</div>
+                        <button class="btn btn-sm btn-danger" onclick="deleteSession(${index})">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Delete session
+        window.deleteSession = function(index) {
+            if (confirm('Supprimer cette session ?')) {
+                sessions.splice(index, 1);
+                saveSessions();
+                renderSessions();
+                updateStats();
+                showNotification('Session supprimée', 'success');
+            }
+        };
+
+        // Update statistics
+        function updateStats() {
+            const today = new Date().toDateString();
+            const todaySessions = sessions.filter(s => new Date(s.startTime).toDateString() === today);
+
+            const totalSeconds = sessions.reduce((sum, s) => sum + s.duration, 0);
+            const todaySeconds = todaySessions.reduce((sum, s) => sum + s.duration, 0);
+
+            document.getElementById('totalSessions').textContent = sessions.length;
+            document.getElementById('todaySessions').textContent = todaySessions.length;
+            document.getElementById('totalTime').textContent = formatTime(totalSeconds);
+            document.getElementById('todayTotal').textContent = formatTime(todaySeconds);
+        }
+
+        // Export to CSV
+        document.getElementById('exportBtn').addEventListener('click', function() {
+            if (sessions.length === 0) {
+                showNotification('Aucune session à exporter', 'error');
+                return;
+            }
+
+            const csv = [
+                ['Tâche', 'Date début', 'Date fin', 'Durée (s)', 'Durée formatée', 'Pauses (s)'],
+                ...sessions.map(s => [
+                    s.task,
+                    formatDate(s.startTime),
+                    formatDate(s.endTime),
+                    s.duration,
+                    formatTime(s.duration),
+                    s.pauseDuration || 0
+                ])
+            ].map(row => row.join(';')).join('\n');
+
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `time-tracker-${new Date().toISOString().split('T')[0]}.csv`;
+            link.click();
+
+            showNotification('Export CSV réussi !', 'success');
+        });
+
+        // Clear all sessions
+        document.getElementById('clearBtn').addEventListener('click', function() {
+            if (confirm('Effacer toutes les sessions ? Cette action est irréversible.')) {
+                sessions = [];
+                saveSessions();
+                renderSessions();
+                updateStats();
+                showNotification('Toutes les sessions ont été effacées', 'success');
+            }
+        });
+
+        // Load sessions on page load
+        loadSessions();
     </script>
 </body>
 </html>
