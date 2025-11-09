@@ -363,4 +363,4 @@ Si ce projet vous est utile, n'hésitez pas à :
 Contact: ludo@synoptia.fr | www.synoptia.fr
 
 *Dernière mise à jour : Novembre 2025*
-*Version 2.0 - 55 outils complets disponibles*
+*Version 2.0 - 57 outils complets disponibles*
