@@ -94,12 +94,12 @@ Autres outils utiles pour entreprises
 
 ## 📊 Statut du Projet
 
-**Progression globale : 22/100 outils complets (22%)**
+**Progression globale : 27/100 outils complets (27%)**
 
 | Catégorie | Progression | Outils Complets |
 |-----------|-------------|-----------------|
 | 💰 Finance | ✅ 13/13 (100%) | Tous les calculateurs financiers |
-| 🧾 Facturation | 🔄 3/10 (30%) | Invoice, Quote, Payment Tracker |
+| 🧾 Facturation | ✅ 9/10 (90%) | Invoice, Quote, Payment Tracker, Expense Tracker, Expense Report, Accounting Dashboard, Late Fee Calculator, Receipt Generator, Purchase Order |
 | ⏰ Temps | 🔄 3/15 (20%) | Time Tracker, Pomodoro, Kanban |
 | 📢 Marketing | 🔄 1/17 (6%) | QR Code Generator |
 | 👥 RH | 🔄 1/10 (10%) | Calculateur Salaire |
@@ -107,7 +107,7 @@ Autres outils utiles pour entreprises
 | 📊 Analytics | ⏳ 0/10 (0%) | À développer |
 | 🔧 Divers | ⏳ 0/15 (0%) | À développer |
 
-**Prochaines étapes** : Compléter les 78 outils restants (voir Roadmap ci-dessous)
+**Prochaines étapes** : Compléter les 73 outils restants (voir Roadmap ci-dessous)
 
 ## ⭐ Outils Complets et Avancés
 
