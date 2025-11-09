@@ -237,7 +237,9 @@ Cela signifie que vous pouvez :
 
 ## 👨‍💻 Auteur
 
-Développé avec ❤️ pour la communauté entrepreneuriale
+**Synoptia** - Développé avec ❤️ pour la communauté entrepreneuriale
+
+Un projet open-source de Synoptia pour démocratiser l'accès aux outils de gestion d'entreprise.
 
 ## 🙏 Remerciements
 
@@ -248,9 +250,10 @@ Développé avec ❤️ pour la communauté entrepreneuriale
 
 ## 📞 Support
 
-- 🐛 **Bugs** : Ouvrez une [issue](https://github.com/votre-username/100-business-tools/issues)
-- 💡 **Suggestions** : Proposez une [feature request](https://github.com/votre-username/100-business-tools/issues)
-- 📧 **Contact** : [votre-email@example.com](mailto:votre-email@example.com)
+- 🐛 **Bugs** : Ouvrez une [issue](https://github.com/ludovicsanchez38-creator/Synoptia-Opentools/issues)
+- 💡 **Suggestions** : Proposez une [feature request](https://github.com/ludovicsanchez38-creator/Synoptia-Opentools/issues)
+- 📧 **Contact** : [ludo@synoptia.fr](mailto:ludo@synoptia.fr)
+- 🌐 **Site web** : [www.synoptia.fr](https://www.synoptia.fr)
 
 ## ⭐ Soutenez le Projet
 
@@ -262,6 +265,9 @@ Si ce projet vous est utile, n'hésitez pas à :
 
 ---
 
-**Made with ❤️ by the Business Tools Team**
+**Made with ❤️ by Synoptia**
 
-*Dernière mise à jour : 2025*
+© 2025 Synoptia - Tous droits réservés sous Licence MIT
+Contact: ludo@synoptia.fr | www.synoptia.fr
+
+*Dernière mise à jour : Janvier 2025*

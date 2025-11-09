@@ -1,8 +1,10 @@
 # Guide de Contribution
 
-Merci de votre intérêt pour contribuer à **100 Business Tools** ! 🎉
+Merci de votre intérêt pour contribuer à **100 Business Tools** par Synoptia ! 🎉
 
 Nous accueillons toutes les contributions : corrections de bugs, nouveaux outils, améliorations de design, traductions, documentation, etc.
+
+**Contact :** ludo@synoptia.fr
 
 ## Comment Contribuer
 
