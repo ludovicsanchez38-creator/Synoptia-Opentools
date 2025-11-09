@@ -8,57 +8,663 @@
     <link rel="stylesheet" href="../../assets/css/tools.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .planner-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .stats-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-card.warning {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        }
+
+        .stat-card.success {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        }
+
+        .stat-card.info {
+            background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .task-input-section {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+        }
+
+        .task-form {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr auto;
+            gap: 0.75rem;
+            align-items: end;
+        }
+
+        @media (max-width: 768px) {
+            .task-form {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .task-form input,
+        .task-form select {
+            padding: 0.75rem;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            font-size: 0.95rem;
+        }
+
+        .task-form button {
+            padding: 0.75rem 1.5rem;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .task-form button:hover {
+            background: var(--primary-dark);
+        }
+
+        .filters-section {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 0.5rem 1rem;
+            border: 2px solid #e9ecef;
+            background: white;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+
+        .filter-btn:hover {
+            border-color: var(--primary);
+        }
+
+        .filter-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .tasks-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .task-item {
+            background: white;
+            border: 2px solid #e9ecef;
+            border-left: 4px solid #6c757d;
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.2s;
+        }
+
+        .task-item:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+        }
+
+        .task-item.priority-high {
+            border-left-color: #dc3545;
+        }
+
+        .task-item.priority-medium {
+            border-left-color: #ffc107;
+        }
+
+        .task-item.priority-low {
+            border-left-color: #28a745;
+        }
+
+        .task-item.completed {
+            opacity: 0.6;
+            background: #f8f9fa;
+        }
+
+        .task-item.completed .task-title {
+            text-decoration: line-through;
+        }
+
+        .task-item.overdue {
+            background: #fff3cd;
+            border-color: #ffc107;
+        }
+
+        .task-content {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .task-checkbox {
+            width: 24px;
+            height: 24px;
+            cursor: pointer;
+        }
+
+        .task-info {
+            flex: 1;
+        }
+
+        .task-title {
+            font-weight: 600;
+            font-size: 1.05rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .task-meta {
+            display: flex;
+            gap: 1rem;
+            font-size: 0.85rem;
+            color: #6c757d;
+        }
+
+        .task-meta span {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .priority-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .priority-badge.high {
+            background: #dc354520;
+            color: #dc3545;
+        }
+
+        .priority-badge.medium {
+            background: #ffc10720;
+            color: #d39e00;
+        }
+
+        .priority-badge.low {
+            background: #28a74520;
+            color: #28a745;
+        }
+
+        .task-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .task-actions button {
+            padding: 0.5rem 0.75rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+
+        .btn-edit {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-edit:hover {
+            background: #5a6268;
+        }
+
+        .btn-delete {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-delete:hover {
+            background: #c82333;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: #6c757d;
+        }
+
+        .empty-state i {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.3;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .view-btn {
+            padding: 0.5rem 1rem;
+            border: 2px solid #e9ecef;
+            background: white;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .view-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+    </style>
 </head>
 <body>
     <nav class="breadcrumb">
-        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> > 
-        <a href="../../index.html#tools">Temps</a> > 
+        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> >
+        <a href="../../index.html#tools">Temps</a> >
         <span>Planificateur de Tâches</span>
     </nav>
     <main class="tool-container">
         <header class="tool-header">
             <h1><i class="fas fa-tasks"></i> Planificateur de Tâches</h1>
-            <p class="tool-description">DESC_PLACEHOLDER</p>
+            <p class="tool-description">Organisez et priorisez vos tâches avec alertes et rappels</p>
         </header>
-        <section class="tool-input">
-            <h2>Configuration</h2>
-            <form id="mainForm">
-                <div class="form-group">
-                    <label for="input1" class="form-label">
-                        <i class="fas fa-clock"></i> Durée ou information
-                    </label>
-                    <input type="text" id="input1" class="form-input" placeholder="Entrez les informations" required>
-                </div>
-                <button type="submit" class="btn btn-primary">
-                    <i class="fas fa-play"></i> Démarrer/Calculer
+
+        <div class="stats-cards" id="statsCards" style="display: none;">
+            <div class="stat-card">
+                <div class="stat-value" id="totalTasks">0</div>
+                <div class="stat-label">Total Tâches</div>
+            </div>
+            <div class="stat-card warning">
+                <div class="stat-value" id="pendingTasks">0</div>
+                <div class="stat-label">À Faire</div>
+            </div>
+            <div class="stat-card info">
+                <div class="stat-value" id="inProgressTasks">0</div>
+                <div class="stat-label">En Cours</div>
+            </div>
+            <div class="stat-card success">
+                <div class="stat-value" id="completedTasks">0</div>
+                <div class="stat-label">Terminées</div>
+            </div>
+        </div>
+
+        <div class="task-input-section">
+            <h2 style="margin-top: 0; margin-bottom: 1rem;"><i class="fas fa-plus-circle"></i> Nouvelle Tâche</h2>
+            <form class="task-form" id="taskForm">
+                <input type="text" id="taskTitle" placeholder="Titre de la tâche" required>
+                <input type="date" id="taskDueDate" required>
+                <select id="taskPriority" required>
+                    <option value="">Priorité</option>
+                    <option value="high">Haute</option>
+                    <option value="medium">Moyenne</option>
+                    <option value="low">Basse</option>
+                </select>
+                <select id="taskStatus" required>
+                    <option value="todo">À faire</option>
+                    <option value="in-progress">En cours</option>
+                    <option value="completed">Terminé</option>
+                </select>
+                <button type="submit">
+                    <i class="fas fa-plus"></i> Ajouter
                 </button>
             </form>
-        </section>
-        <section class="tool-output" id="results" style="display: none;">
-            <h2><i class="fas fa-check-circle"></i> Résultat</h2>
-            <div class="results-grid">
-                <div class="result-item">
-                    <div class="result-label">Temps total</div>
-                    <div class="result-value highlight" id="totalTime">00:00:00</div>
-                </div>
+        </div>
+
+        <div class="planner-header">
+            <div class="filters-section">
+                <button class="filter-btn active" data-filter="all">
+                    <i class="fas fa-list"></i> Toutes
+                </button>
+                <button class="filter-btn" data-filter="todo">
+                    <i class="fas fa-circle"></i> À faire
+                </button>
+                <button class="filter-btn" data-filter="in-progress">
+                    <i class="fas fa-spinner"></i> En cours
+                </button>
+                <button class="filter-btn" data-filter="completed">
+                    <i class="fas fa-check-circle"></i> Terminées
+                </button>
+                <button class="filter-btn" data-filter="overdue">
+                    <i class="fas fa-exclamation-triangle"></i> En retard
+                </button>
             </div>
-        </section>
-        <section class="tool-help">
-            <h3><i class="fas fa-question-circle"></i> Utilisation</h3>
-            <p>Cet outil vous aide à gérer et optimiser votre temps de travail.</p>
+
+            <div class="action-buttons">
+                <button class="btn btn-accent" id="exportBtn">
+                    <i class="fas fa-download"></i> Exporter
+                </button>
+                <button class="btn btn-outline" id="clearCompletedBtn">
+                    <i class="fas fa-trash"></i> Nettoyer
+                </button>
+            </div>
+        </div>
+
+        <div class="tasks-list" id="tasksList">
+            <div class="empty-state">
+                <i class="fas fa-clipboard-list"></i>
+                <h3>Aucune tâche</h3>
+                <p>Ajoutez votre première tâche ci-dessus</p>
+            </div>
+        </div>
+
+        <section class="tool-help" style="margin-top: 3rem;">
+            <h3><i class="fas fa-question-circle"></i> Comment utiliser cet outil ?</h3>
+            <ol>
+                <li>Cliquez sur <strong>Nouvelle Tâche</strong> et remplissez les informations</li>
+                <li>Définissez une <strong>date d'échéance</strong> et une <strong>priorité</strong></li>
+                <li>Utilisez les filtres pour voir différentes vues de vos tâches</li>
+                <li>Cochez les tâches terminées ou modifiez-les selon l'avancement</li>
+                <li>Exportez votre liste pour la sauvegarder ou la partager</li>
+            </ol>
+            <h3><i class="fas fa-lightbulb"></i> Conseils</h3>
+            <ul>
+                <li><strong>Priorité Haute (Rouge)</strong> : Tâches urgentes et importantes</li>
+                <li><strong>Priorité Moyenne (Jaune)</strong> : Tâches importantes mais pas urgentes</li>
+                <li><strong>Priorité Basse (Vert)</strong> : Tâches à faire quand vous avez du temps</li>
+                <li>Les tâches en retard sont surlignées en jaune</li>
+                <li>Toutes les données sont sauvegardées automatiquement dans votre navigateur</li>
+            </ul>
         </section>
     </main>
     <footer class="tool-footer">
-        <a href="../../index.html"><i class="fas fa-arrow-left"></i> Retour</a>
+        <a href="../../index.html"><i class="fas fa-arrow-left"></i> Retour aux outils</a>
     </footer>
     <script src="../../assets/js/utils.js"></script>
     <script src="../../assets/js/main.js"></script>
     <script>
-        document.getElementById('mainForm').addEventListener('submit', function(e) {
+        let tasks = [];
+        let currentFilter = 'all';
+
+        // Set today as min date
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('taskDueDate').value = today;
+        document.getElementById('taskDueDate').min = today;
+
+        // Load tasks from localStorage
+        function loadTasks() {
+            const saved = localStorage.getItem('taskPlanner');
+            if (saved) {
+                tasks = JSON.parse(saved);
+                renderTasks();
+                updateStats();
+            }
+        }
+
+        // Save tasks to localStorage
+        function saveTasks() {
+            localStorage.setItem('taskPlanner', JSON.stringify(tasks));
+        }
+
+        // Add new task
+        document.getElementById('taskForm').addEventListener('submit', function(e) {
             e.preventDefault();
-            document.getElementById('results').style.display = 'block';
-            showNotification('Calcul effectué !', 'success');
+
+            const title = document.getElementById('taskTitle').value.trim();
+            const dueDate = document.getElementById('taskDueDate').value;
+            const priority = document.getElementById('taskPriority').value;
+            const status = document.getElementById('taskStatus').value;
+
+            if (!title || !dueDate || !priority) {
+                showNotification('Veuillez remplir tous les champs', 'error');
+                return;
+            }
+
+            const task = {
+                id: Date.now(),
+                title: title,
+                dueDate: dueDate,
+                priority: priority,
+                status: status,
+                completed: status === 'completed',
+                createdAt: new Date().toISOString()
+            };
+
+            tasks.unshift(task);
+            saveTasks();
+            renderTasks();
+            updateStats();
+
+            // Reset form
+            document.getElementById('taskTitle').value = '';
+            document.getElementById('taskPriority').value = '';
+            document.getElementById('taskStatus').value = 'todo';
+
+            showNotification('Tâche ajoutée avec succès', 'success');
         });
+
+        // Toggle task completion
+        window.toggleTask = function(id) {
+            const task = tasks.find(t => t.id === id);
+            if (task) {
+                task.completed = !task.completed;
+                task.status = task.completed ? 'completed' : 'todo';
+                saveTasks();
+                renderTasks();
+                updateStats();
+            }
+        };
+
+        // Delete task
+        window.deleteTask = function(id) {
+            if (confirm('Supprimer cette tâche ?')) {
+                tasks = tasks.filter(t => t.id !== id);
+                saveTasks();
+                renderTasks();
+                updateStats();
+                showNotification('Tâche supprimée', 'success');
+            }
+        };
+
+        // Edit task
+        window.editTask = function(id) {
+            const task = tasks.find(t => t.id === id);
+            if (task) {
+                const newTitle = prompt('Nouveau titre:', task.title);
+                if (newTitle && newTitle.trim()) {
+                    task.title = newTitle.trim();
+                    saveTasks();
+                    renderTasks();
+                    showNotification('Tâche modifiée', 'success');
+                }
+            }
+        };
+
+        // Check if task is overdue
+        function isOverdue(dueDate, completed) {
+            if (completed) return false;
+            const due = new Date(dueDate + 'T23:59:59');
+            return due < new Date();
+        }
+
+        // Render tasks
+        function renderTasks() {
+            const container = document.getElementById('tasksList');
+
+            let filteredTasks = tasks;
+
+            // Apply filter
+            if (currentFilter === 'overdue') {
+                filteredTasks = tasks.filter(t => isOverdue(t.dueDate, t.completed));
+            } else if (currentFilter !== 'all') {
+                filteredTasks = tasks.filter(t => t.status === currentFilter);
+            }
+
+            if (filteredTasks.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-clipboard-list"></i>
+                        <h3>Aucune tâche</h3>
+                        <p>${currentFilter === 'all' ? 'Ajoutez votre première tâche ci-dessus' : 'Aucune tâche dans cette catégorie'}</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = filteredTasks.map(task => {
+                const overdue = isOverdue(task.dueDate, task.completed);
+                const daysUntilDue = Math.ceil((new Date(task.dueDate + 'T23:59:59') - new Date()) / (1000 * 60 * 60 * 24));
+
+                return `
+                    <div class="task-item priority-${task.priority} ${task.completed ? 'completed' : ''} ${overdue ? 'overdue' : ''}">
+                        <div class="task-content">
+                            <input type="checkbox"
+                                   class="task-checkbox"
+                                   ${task.completed ? 'checked' : ''}
+                                   onchange="toggleTask(${task.id})">
+                            <div class="task-info">
+                                <div class="task-title">${task.title}</div>
+                                <div class="task-meta">
+                                    <span><i class="fas fa-calendar"></i> ${formatDate(task.dueDate)}</span>
+                                    ${overdue ? '<span style="color: #dc3545;"><i class="fas fa-exclamation-triangle"></i> En retard</span>' :
+                                      daysUntilDue === 0 ? '<span style="color: #ffc107;"><i class="fas fa-clock"></i> Aujourd\'hui</span>' :
+                                      daysUntilDue === 1 ? '<span style="color: #ffc107;"><i class="fas fa-clock"></i> Demain</span>' :
+                                      daysUntilDue > 0 ? `<span><i class="fas fa-clock"></i> Dans ${daysUntilDue} jours</span>` : ''}
+                                </div>
+                            </div>
+                            <span class="priority-badge ${task.priority}">
+                                ${task.priority === 'high' ? 'Haute' : task.priority === 'medium' ? 'Moyenne' : 'Basse'}
+                            </span>
+                        </div>
+                        <div class="task-actions">
+                            <button class="btn-edit" onclick="editTask(${task.id})">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn-delete" onclick="deleteTask(${task.id})">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            // Show stats if there are tasks
+            if (tasks.length > 0) {
+                document.getElementById('statsCards').style.display = 'grid';
+            }
+        }
+
+        // Update statistics
+        function updateStats() {
+            const total = tasks.length;
+            const pending = tasks.filter(t => t.status === 'todo').length;
+            const inProgress = tasks.filter(t => t.status === 'in-progress').length;
+            const completed = tasks.filter(t => t.completed).length;
+
+            document.getElementById('totalTasks').textContent = total;
+            document.getElementById('pendingTasks').textContent = pending;
+            document.getElementById('inProgressTasks').textContent = inProgress;
+            document.getElementById('completedTasks').textContent = completed;
+        }
+
+        // Filter buttons
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                currentFilter = this.getAttribute('data-filter');
+                renderTasks();
+            });
+        });
+
+        // Export tasks
+        document.getElementById('exportBtn').addEventListener('click', function() {
+            if (tasks.length === 0) {
+                showNotification('Aucune tâche à exporter', 'error');
+                return;
+            }
+
+            let csv = 'Titre,Date d\'échéance,Priorité,Statut,Terminée\n';
+            tasks.forEach(task => {
+                csv += `"${task.title}",${task.dueDate},${task.priority},${task.status},${task.completed ? 'Oui' : 'Non'}\n`;
+            });
+
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `taches_${new Date().toISOString().split('T')[0]}.csv`;
+            link.click();
+
+            showNotification('Export CSV généré avec succès', 'success');
+        });
+
+        // Clear completed tasks
+        document.getElementById('clearCompletedBtn').addEventListener('click', function() {
+            const completedCount = tasks.filter(t => t.completed).length;
+            if (completedCount === 0) {
+                showNotification('Aucune tâche terminée à nettoyer', 'info');
+                return;
+            }
+
+            if (confirm(`Supprimer ${completedCount} tâche(s) terminée(s) ?`)) {
+                tasks = tasks.filter(t => !t.completed);
+                saveTasks();
+                renderTasks();
+                updateStats();
+                showNotification(`${completedCount} tâche(s) supprimée(s)`, 'success');
+            }
+        });
+
+        // Helper functions
+        function formatDate(dateString) {
+            const date = new Date(dateString + 'T00:00:00');
+            return date.toLocaleDateString('fr-FR', {
+                day: '2-digit',
+                month: 'long',
+                year: 'numeric'
+            });
+        }
+
+        // Check for overdue tasks on load
+        function checkOverdueTasks() {
+            const overdue = tasks.filter(t => isOverdue(t.dueDate, t.completed));
+            if (overdue.length > 0) {
+                showNotification(`Vous avez ${overdue.length} tâche(s) en retard`, 'warning');
+            }
+        }
+
+        // Initialize
+        loadTasks();
+        setTimeout(checkOverdueTasks, 1000);
     </script>
 </body>
 </html>

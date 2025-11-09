@@ -50,13 +50,15 @@ Gestion du temps et planification
 - Planificateur de tâches
 - Et plus encore...
 
-### 📢 Marketing (15 outils)
+### 📢 Marketing (18 outils)
 Analyse marketing et ROI publicitaire
 - Calculateur de ROAS
 - Calculateur de Break-even ROAS
 - Calculateur de CPC/CPM
 - Calculateur de taux de conversion
 - Calculateur LTV/CAC
+- Générateur de QR codes
+- Landing Page Generator
 - Et plus encore...
 
 ### 👥 Ressources Humaines (10 outils)
@@ -94,24 +96,24 @@ Autres outils utiles pour entreprises
 
 ## 📊 Statut du Projet
 
-**Progression globale : 27/100 outils complets (27%)**
+**Progression globale : 57/100 outils complets (57%)**
 
 | Catégorie | Progression | Outils Complets |
 |-----------|-------------|-----------------|
 | 💰 Finance | ✅ 13/13 (100%) | Tous les calculateurs financiers |
-| 🧾 Facturation | ✅ 9/10 (90%) | Invoice, Quote, Payment Tracker, Expense Tracker, Expense Report, Accounting Dashboard, Late Fee Calculator, Receipt Generator, Purchase Order |
-| ⏰ Temps | 🔄 3/15 (20%) | Time Tracker, Pomodoro, Kanban |
-| 📢 Marketing | 🔄 1/17 (6%) | QR Code Generator |
-| 👥 RH | 🔄 1/10 (10%) | Calculateur Salaire |
+| 🧾 Facturation | ✅ 10/10 (100%) | Invoice, Quote, Payment Tracker, Expense Tracker, Expense Report, Accounting Dashboard, Late Fee Calculator, Receipt Generator, Purchase Order, Bank Reconciliation |
+| ⏰ Temps | ✅ 15/15 (100%) | Time Tracker, Pomodoro, Kanban, Task Planner, Hours Calculator, Hourly Rate, Timesheet, Availability Calendar, Productivity Calculator, Gantt Chart, Workload Calculator, Milestone Tracker, Project Estimator, Overtime Calculator, Team Schedule |
+| 📢 Marketing | ✅ 16/18 (89%) | QR Code Generator, ROAS Calculator, Break-even ROAS, CPC Calculator, CPM Calculator, Conversion Rate, CTR Calculator, Churn Rate, LTV Calculator, CAC Calculator, Price Comparison, Landing Page Generator, Engagement Rate, Ad Budget Simulator, Reach Estimator, Lead Scoring |
+| 👥 RH | 🔄 3/10 (30%) | Salary Calculator, Payroll Taxes Calculator, Vacation Calculator |
 | 📦 Inventaire | ⏳ 0/10 (0%) | À développer |
 | 📊 Analytics | ⏳ 0/10 (0%) | À développer |
 | 🔧 Divers | ⏳ 0/15 (0%) | À développer |
 
-**Prochaines étapes** : Compléter les 73 outils restants (voir Roadmap ci-dessous)
+**Prochaines étapes** : Compléter les 43 outils restants (voir Roadmap ci-dessous)
 
 ## ⭐ Outils Complets et Avancés
 
-**8 outils phares** ont été développés avec des fonctionnalités avancées et complètes :
+**6 outils phares** ont été développés avec des fonctionnalités avancées et complètes :
 
 ### 1. 🧾 Générateur de Factures Professionnel
 **[`/tools/invoicing/invoice-generator.html`](tools/invoicing/invoice-generator.html)**
@@ -360,5 +362,5 @@ Si ce projet vous est utile, n'hésitez pas à :
 © 2025 Synoptia - Tous droits réservés sous Licence MIT
 Contact: ludo@synoptia.fr | www.synoptia.fr
 
-*Dernière mise à jour : Février 2025*
-*Version 1.1 - 6 outils complets disponibles*
+*Dernière mise à jour : Novembre 2025*
+*Version 2.0 - 55 outils complets disponibles*

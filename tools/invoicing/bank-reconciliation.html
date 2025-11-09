@@ -8,60 +8,372 @@
     <link rel="stylesheet" href="../../assets/css/tools.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .reconciliation-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        @media (max-width: 768px) {
+            .reconciliation-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .account-section {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 8px;
+            border: 2px solid #e9ecef;
+        }
+
+        .account-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #dee2e6;
+        }
+
+        .account-header h3 {
+            margin: 0;
+            font-size: 1.1rem;
+            color: var(--primary);
+        }
+
+        .balance-display {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .entry-form {
+            display: grid;
+            grid-template-columns: 2fr 1fr auto;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .entry-form input {
+            padding: 0.5rem;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+
+        .entry-form button {
+            padding: 0.5rem 1rem;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        .entry-form button:hover {
+            background: var(--primary-dark);
+        }
+
+        .entries-list {
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 1rem;
+        }
+
+        .entry-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem;
+            background: white;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            margin-bottom: 0.5rem;
+            transition: all 0.2s;
+        }
+
+        .entry-item:hover {
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .entry-item.matched {
+            background: #d4edda;
+            border-color: #28a745;
+        }
+
+        .entry-item.unmatched {
+            background: #fff3cd;
+            border-color: #ffc107;
+        }
+
+        .entry-info {
+            flex: 1;
+        }
+
+        .entry-description {
+            font-weight: 500;
+            margin-bottom: 0.25rem;
+        }
+
+        .entry-date {
+            font-size: 0.85rem;
+            color: #6c757d;
+        }
+
+        .entry-amount {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin: 0 1rem;
+        }
+
+        .entry-amount.positive {
+            color: #28a745;
+        }
+
+        .entry-amount.negative {
+            color: #dc3545;
+        }
+
+        .entry-actions button {
+            padding: 0.25rem 0.5rem;
+            margin-left: 0.25rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.85rem;
+        }
+
+        .btn-match {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-match:hover {
+            background: #218838;
+        }
+
+        .btn-unmatch {
+            background: #ffc107;
+            color: #000;
+        }
+
+        .btn-unmatch:hover {
+            background: #e0a800;
+        }
+
+        .btn-delete {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-delete:hover {
+            background: #c82333;
+        }
+
+        .reconciliation-summary {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            border: 2px solid var(--primary);
+            margin-top: 2rem;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 1rem;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .summary-row:last-child {
+            border-bottom: none;
+            font-weight: 700;
+            font-size: 1.2rem;
+            background: #f8f9fa;
+            margin: 1rem -2rem -2rem;
+            padding: 1.5rem 2rem;
+        }
+
+        .summary-label {
+            font-weight: 500;
+        }
+
+        .summary-value {
+            font-weight: 700;
+        }
+
+        .summary-value.balanced {
+            color: #28a745;
+        }
+
+        .summary-value.unbalanced {
+            color: #dc3545;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 2rem;
+            color: #6c757d;
+            font-style: italic;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+    </style>
 </head>
 <body>
     <nav class="breadcrumb">
-        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> > 
-        <a href="../../index.html#tools">Facturation</a> > 
+        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> >
+        <a href="../../index.html#tools">Facturation</a> >
         <span>Réconciliation Bancaire</span>
     </nav>
     <main class="tool-container">
         <header class="tool-header">
             <h1><i class="fas fa-university"></i> Réconciliation Bancaire</h1>
-            <p class="tool-description">Fait correspondre opérations et relevés</p>
+            <p class="tool-description">Rapprochez vos écritures comptables avec vos relevés bancaires et identifiez les écarts</p>
         </header>
-        <section class="tool-input">
-            <h2>Informations</h2>
-            <form id="mainForm">
-                <div class="form-group">
-                    <label for="input1" class="form-label">
-                        <i class="fas fa-edit"></i> Champ principal
-                    </label>
-                    <input type="text" id="input1" class="form-input" placeholder="Entrez les informations" required>
-                </div>
-                <div class="action-buttons">
-                    <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-save"></i> Générer
-                    </button>
-                    <button type="button" class="btn btn-outline" id="resetBtn">
-                        <i class="fas fa-redo"></i> Réinitialiser
-                    </button>
-                </div>
-            </form>
-        </section>
-        <section class="tool-output" id="results" style="display: none;">
-            <h2><i class="fas fa-check-circle"></i> Résultat</h2>
-            <div class="alert alert-success">
-                <strong>✓ Succès !</strong> Votre document a été généré.
+
+        <div class="stats-grid" id="statsGrid" style="display: none;">
+            <div class="stat-card">
+                <div class="stat-value" id="matchedCount">0</div>
+                <div class="stat-label">Opérations rapprochées</div>
             </div>
-            <div class="action-buttons">
-                <button class="btn btn-accent" id="downloadBtn">
-                    <i class="fas fa-download"></i> Télécharger
-                </button>
-                <button class="btn btn-secondary" id="printBtn">
-                    <i class="fas fa-print"></i> Imprimer
-                </button>
+            <div class="stat-card">
+                <div class="stat-value" id="unmatchedCount">0</div>
+                <div class="stat-label">Opérations non rapprochées</div>
             </div>
-        </section>
+            <div class="stat-card">
+                <div class="stat-value" id="differenceAmount">0,00 €</div>
+                <div class="stat-label">Écart</div>
+            </div>
+        </div>
+
+        <div class="reconciliation-container">
+            <!-- Comptabilité -->
+            <div class="account-section">
+                <div class="account-header">
+                    <h3><i class="fas fa-book"></i> Écritures Comptables</h3>
+                    <span class="balance-display" id="accountingBalance">0,00 €</span>
+                </div>
+
+                <div class="entry-form">
+                    <input type="text" id="accountingDesc" placeholder="Description" required>
+                    <input type="number" id="accountingAmount" placeholder="Montant (€)" step="0.01" required>
+                    <button type="button" id="addAccountingBtn"><i class="fas fa-plus"></i></button>
+                </div>
+                <input type="date" id="accountingDate" class="form-input" style="width: 100%; margin-bottom: 1rem;" required>
+
+                <div class="entries-list" id="accountingList">
+                    <div class="empty-state">
+                        <i class="fas fa-inbox fa-2x"></i>
+                        <p>Aucune écriture comptable</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Relevé bancaire -->
+            <div class="account-section">
+                <div class="account-header">
+                    <h3><i class="fas fa-university"></i> Relevé Bancaire</h3>
+                    <span class="balance-display" id="bankBalance">0,00 €</span>
+                </div>
+
+                <div class="entry-form">
+                    <input type="text" id="bankDesc" placeholder="Description" required>
+                    <input type="number" id="bankAmount" placeholder="Montant (€)" step="0.01" required>
+                    <button type="button" id="addBankBtn"><i class="fas fa-plus"></i></button>
+                </div>
+                <input type="date" id="bankDate" class="form-input" style="width: 100%; margin-bottom: 1rem;" required>
+
+                <div class="entries-list" id="bankList">
+                    <div class="empty-state">
+                        <i class="fas fa-inbox fa-2x"></i>
+                        <p>Aucune opération bancaire</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="reconciliation-summary" id="summary" style="display: none;">
+            <h2 style="margin-top: 0;"><i class="fas fa-balance-scale"></i> Récapitulatif de Réconciliation</h2>
+
+            <div class="summary-row">
+                <span class="summary-label">Total Écritures Comptables</span>
+                <span class="summary-value" id="summaryAccounting">0,00 €</span>
+            </div>
+            <div class="summary-row">
+                <span class="summary-label">Total Relevé Bancaire</span>
+                <span class="summary-value" id="summaryBank">0,00 €</span>
+            </div>
+            <div class="summary-row">
+                <span class="summary-label">Opérations Rapprochées</span>
+                <span class="summary-value" id="summaryMatched">0</span>
+            </div>
+            <div class="summary-row">
+                <span class="summary-label">Opérations Non Rapprochées</span>
+                <span class="summary-value" id="summaryUnmatched">0</span>
+            </div>
+            <div class="summary-row">
+                <span class="summary-label">État</span>
+                <span class="summary-value" id="summaryStatus">-</span>
+            </div>
+        </div>
+
+        <div class="action-buttons" style="margin-top: 2rem;">
+            <button class="btn btn-primary" id="autoMatchBtn">
+                <i class="fas fa-magic"></i> Rapprochement Automatique
+            </button>
+            <button class="btn btn-accent" id="exportBtn">
+                <i class="fas fa-download"></i> Exporter CSV
+            </button>
+            <button class="btn btn-outline" id="resetAllBtn">
+                <i class="fas fa-redo"></i> Tout Réinitialiser
+            </button>
+        </div>
+
         <section class="tool-help">
             <h3><i class="fas fa-question-circle"></i> Comment utiliser cet outil ?</h3>
             <ol>
-                <li>Remplissez les informations requises</li>
-                <li>Cliquez sur <strong>Générer</strong></li>
-                <li>Téléchargez ou imprimez le document</li>
+                <li>Ajoutez vos <strong>écritures comptables</strong> dans la colonne de gauche (montant positif = crédit, négatif = débit)</li>
+                <li>Ajoutez les <strong>opérations bancaires</strong> dans la colonne de droite</li>
+                <li>Utilisez le <strong>rapprochement automatique</strong> ou rapprochez manuellement les opérations correspondantes</li>
+                <li>Consultez le récapitulatif pour identifier les écarts éventuels</li>
+                <li>Exportez le rapport pour votre comptabilité</li>
             </ol>
-            <h3><i class="fas fa-lightbulb"></i> Conseil</h3>
-            <p>Conservez une copie de tous vos documents pour votre comptabilité.</p>
+            <h3><i class="fas fa-lightbulb"></i> Conseils</h3>
+            <ul>
+                <li>Les opérations rapprochées apparaissent en <span style="color: #28a745;">vert</span></li>
+                <li>Les opérations non rapprochées apparaissent en <span style="color: #ffc107;">jaune</span></li>
+                <li>Le rapprochement automatique cherche les montants et dates identiques</li>
+                <li>Un solde équilibré indique que toutes les opérations sont rapprochées</li>
+            </ul>
         </section>
     </main>
     <footer class="tool-footer">
@@ -70,27 +382,346 @@
     <script src="../../assets/js/utils.js"></script>
     <script src="../../assets/js/main.js"></script>
     <script>
-        document.getElementById('mainForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            // Simulation de génération
-            document.getElementById('results').style.display = 'block';
-            scrollToElement('#results', 100);
-            showNotification('Document généré avec succès !', 'success');
+        // Data storage
+        let accountingEntries = [];
+        let bankEntries = [];
+        let matchedPairs = [];
+
+        // Set today's date by default
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('accountingDate').value = today;
+        document.getElementById('bankDate').value = today;
+
+        // Load from localStorage
+        function loadData() {
+            const saved = localStorage.getItem('bankReconciliation');
+            if (saved) {
+                const data = JSON.parse(saved);
+                accountingEntries = data.accounting || [];
+                bankEntries = data.bank || [];
+                matchedPairs = data.matched || [];
+                renderAll();
+            }
+        }
+
+        // Save to localStorage
+        function saveData() {
+            localStorage.setItem('bankReconciliation', JSON.stringify({
+                accounting: accountingEntries,
+                bank: bankEntries,
+                matched: matchedPairs
+            }));
+        }
+
+        // Add accounting entry
+        document.getElementById('addAccountingBtn').addEventListener('click', function() {
+            const desc = document.getElementById('accountingDesc').value.trim();
+            const amount = parseFloat(document.getElementById('accountingAmount').value);
+            const date = document.getElementById('accountingDate').value;
+
+            if (!desc || isNaN(amount) || !date) {
+                showNotification('Veuillez remplir tous les champs', 'error');
+                return;
+            }
+
+            accountingEntries.push({
+                id: Date.now(),
+                description: desc,
+                amount: amount,
+                date: date,
+                matched: false
+            });
+
+            document.getElementById('accountingDesc').value = '';
+            document.getElementById('accountingAmount').value = '';
+
+            saveData();
+            renderAll();
+            showNotification('Écriture comptable ajoutée', 'success');
         });
 
-        document.getElementById('resetBtn').addEventListener('click', function() {
-            document.getElementById('mainForm').reset();
-            document.getElementById('results').style.display = 'none';
+        // Add bank entry
+        document.getElementById('addBankBtn').addEventListener('click', function() {
+            const desc = document.getElementById('bankDesc').value.trim();
+            const amount = parseFloat(document.getElementById('bankAmount').value);
+            const date = document.getElementById('bankDate').value;
+
+            if (!desc || isNaN(amount) || !date) {
+                showNotification('Veuillez remplir tous les champs', 'error');
+                return;
+            }
+
+            bankEntries.push({
+                id: Date.now(),
+                description: desc,
+                amount: amount,
+                date: date,
+                matched: false
+            });
+
+            document.getElementById('bankDesc').value = '';
+            document.getElementById('bankAmount').value = '';
+
+            saveData();
+            renderAll();
+            showNotification('Opération bancaire ajoutée', 'success');
         });
 
-        document.getElementById('downloadBtn')?.addEventListener('click', function() {
-            showNotification('Fonctionnalité de téléchargement à implémenter', 'info');
+        // Render accounting entries
+        function renderAccountingEntries() {
+            const list = document.getElementById('accountingList');
+            if (accountingEntries.length === 0) {
+                list.innerHTML = '<div class="empty-state"><i class="fas fa-inbox fa-2x"></i><p>Aucune écriture comptable</p></div>';
+                return;
+            }
+
+            list.innerHTML = accountingEntries.map(entry => `
+                <div class="entry-item ${entry.matched ? 'matched' : 'unmatched'}">
+                    <div class="entry-info">
+                        <div class="entry-description">${entry.description}</div>
+                        <div class="entry-date">${formatDate(entry.date)}</div>
+                    </div>
+                    <div class="entry-amount ${entry.amount >= 0 ? 'positive' : 'negative'}">
+                        ${formatCurrency(entry.amount)}
+                    </div>
+                    <div class="entry-actions">
+                        ${!entry.matched ? `<button class="btn-match" onclick="matchEntry('accounting', ${entry.id})"><i class="fas fa-check"></i></button>` : `<button class="btn-unmatch" onclick="unmatchEntry('accounting', ${entry.id})"><i class="fas fa-times"></i></button>`}
+                        <button class="btn-delete" onclick="deleteEntry('accounting', ${entry.id})"><i class="fas fa-trash"></i></button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Render bank entries
+        function renderBankEntries() {
+            const list = document.getElementById('bankList');
+            if (bankEntries.length === 0) {
+                list.innerHTML = '<div class="empty-state"><i class="fas fa-inbox fa-2x"></i><p>Aucune opération bancaire</p></div>';
+                return;
+            }
+
+            list.innerHTML = bankEntries.map(entry => `
+                <div class="entry-item ${entry.matched ? 'matched' : 'unmatched'}">
+                    <div class="entry-info">
+                        <div class="entry-description">${entry.description}</div>
+                        <div class="entry-date">${formatDate(entry.date)}</div>
+                    </div>
+                    <div class="entry-amount ${entry.amount >= 0 ? 'positive' : 'negative'}">
+                        ${formatCurrency(entry.amount)}
+                    </div>
+                    <div class="entry-actions">
+                        ${!entry.matched ? `<button class="btn-match" onclick="matchEntry('bank', ${entry.id})"><i class="fas fa-check"></i></button>` : `<button class="btn-unmatch" onclick="unmatchEntry('bank', ${entry.id})"><i class="fas fa-times"></i></button>`}
+                        <button class="btn-delete" onclick="deleteEntry('bank', ${entry.id})"><i class="fas fa-trash"></i></button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Calculate balances
+        function updateBalances() {
+            const accountingTotal = accountingEntries.reduce((sum, e) => sum + e.amount, 0);
+            const bankTotal = bankEntries.reduce((sum, e) => sum + e.amount, 0);
+
+            document.getElementById('accountingBalance').textContent = formatCurrency(accountingTotal);
+            document.getElementById('bankBalance').textContent = formatCurrency(bankTotal);
+        }
+
+        // Update statistics
+        function updateStats() {
+            const matchedCount = accountingEntries.filter(e => e.matched).length + bankEntries.filter(e => e.matched).length;
+            const unmatchedCount = accountingEntries.filter(e => !e.matched).length + bankEntries.filter(e => !e.matched).length;
+            const difference = Math.abs(
+                accountingEntries.reduce((sum, e) => sum + e.amount, 0) -
+                bankEntries.reduce((sum, e) => sum + e.amount, 0)
+            );
+
+            if (accountingEntries.length > 0 || bankEntries.length > 0) {
+                document.getElementById('statsGrid').style.display = 'grid';
+                document.getElementById('matchedCount').textContent = matchedCount / 2; // Divide by 2 because each match counts twice
+                document.getElementById('unmatchedCount').textContent = unmatchedCount;
+                document.getElementById('differenceAmount').textContent = formatCurrency(difference);
+            } else {
+                document.getElementById('statsGrid').style.display = 'none';
+            }
+        }
+
+        // Update summary
+        function updateSummary() {
+            if (accountingEntries.length === 0 && bankEntries.length === 0) {
+                document.getElementById('summary').style.display = 'none';
+                return;
+            }
+
+            document.getElementById('summary').style.display = 'block';
+
+            const accountingTotal = accountingEntries.reduce((sum, e) => sum + e.amount, 0);
+            const bankTotal = bankEntries.reduce((sum, e) => sum + e.amount, 0);
+            const matchedCount = matchedPairs.length;
+            const unmatchedCount = accountingEntries.filter(e => !e.matched).length + bankEntries.filter(e => !e.matched).length;
+            const difference = accountingTotal - bankTotal;
+
+            document.getElementById('summaryAccounting').textContent = formatCurrency(accountingTotal);
+            document.getElementById('summaryBank').textContent = formatCurrency(bankTotal);
+            document.getElementById('summaryMatched').textContent = matchedCount;
+            document.getElementById('summaryUnmatched').textContent = unmatchedCount;
+
+            const statusEl = document.getElementById('summaryStatus');
+            if (Math.abs(difference) < 0.01 && unmatchedCount === 0) {
+                statusEl.textContent = '✓ Équilibré';
+                statusEl.className = 'summary-value balanced';
+            } else {
+                statusEl.textContent = `Écart: ${formatCurrency(difference)}`;
+                statusEl.className = 'summary-value unbalanced';
+            }
+        }
+
+        // Match entry manually
+        window.matchEntry = function(type, id) {
+            if (type === 'accounting') {
+                const entry = accountingEntries.find(e => e.id === id);
+                if (entry) entry.matched = true;
+            } else {
+                const entry = bankEntries.find(e => e.id === id);
+                if (entry) entry.matched = true;
+            }
+            saveData();
+            renderAll();
+        };
+
+        // Unmatch entry
+        window.unmatchEntry = function(type, id) {
+            if (type === 'accounting') {
+                const entry = accountingEntries.find(e => e.id === id);
+                if (entry) entry.matched = false;
+            } else {
+                const entry = bankEntries.find(e => e.id === id);
+                if (entry) entry.matched = false;
+            }
+            // Remove from matched pairs
+            matchedPairs = matchedPairs.filter(pair =>
+                !(pair.accounting === id || pair.bank === id)
+            );
+            saveData();
+            renderAll();
+        };
+
+        // Delete entry
+        window.deleteEntry = function(type, id) {
+            if (confirm('Supprimer cette opération ?')) {
+                if (type === 'accounting') {
+                    accountingEntries = accountingEntries.filter(e => e.id !== id);
+                } else {
+                    bankEntries = bankEntries.filter(e => e.id !== id);
+                }
+                matchedPairs = matchedPairs.filter(pair =>
+                    !(pair.accounting === id || pair.bank === id)
+                );
+                saveData();
+                renderAll();
+                showNotification('Opération supprimée', 'success');
+            }
+        };
+
+        // Auto match
+        document.getElementById('autoMatchBtn').addEventListener('click', function() {
+            let matchCount = 0;
+
+            accountingEntries.forEach(accEntry => {
+                if (!accEntry.matched) {
+                    const match = bankEntries.find(bankEntry =>
+                        !bankEntry.matched &&
+                        Math.abs(bankEntry.amount - accEntry.amount) < 0.01 &&
+                        bankEntry.date === accEntry.date
+                    );
+
+                    if (match) {
+                        accEntry.matched = true;
+                        match.matched = true;
+                        matchedPairs.push({
+                            accounting: accEntry.id,
+                            bank: match.id
+                        });
+                        matchCount++;
+                    }
+                }
+            });
+
+            saveData();
+            renderAll();
+
+            if (matchCount > 0) {
+                showNotification(`${matchCount} opération(s) rapprochée(s) automatiquement`, 'success');
+            } else {
+                showNotification('Aucune correspondance automatique trouvée', 'info');
+            }
         });
 
-        document.getElementById('printBtn')?.addEventListener('click', function() {
-            window.print();
+        // Export to CSV
+        document.getElementById('exportBtn').addEventListener('click', function() {
+            if (accountingEntries.length === 0 && bankEntries.length === 0) {
+                showNotification('Aucune donnée à exporter', 'error');
+                return;
+            }
+
+            let csv = 'Type,Description,Date,Montant,Statut\n';
+
+            accountingEntries.forEach(entry => {
+                csv += `Comptabilité,"${entry.description}",${entry.date},${entry.amount},${entry.matched ? 'Rapproché' : 'Non rapproché'}\n`;
+            });
+
+            bankEntries.forEach(entry => {
+                csv += `Banque,"${entry.description}",${entry.date},${entry.amount},${entry.matched ? 'Rapproché' : 'Non rapproché'}\n`;
+            });
+
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `reconciliation_${new Date().toISOString().split('T')[0]}.csv`;
+            link.click();
+
+            showNotification('Export CSV généré avec succès', 'success');
         });
+
+        // Reset all
+        document.getElementById('resetAllBtn').addEventListener('click', function() {
+            if (confirm('Supprimer toutes les opérations ? Cette action est irréversible.')) {
+                accountingEntries = [];
+                bankEntries = [];
+                matchedPairs = [];
+                localStorage.removeItem('bankReconciliation');
+                renderAll();
+                showNotification('Toutes les données ont été supprimées', 'success');
+            }
+        });
+
+        // Render all
+        function renderAll() {
+            renderAccountingEntries();
+            renderBankEntries();
+            updateBalances();
+            updateStats();
+            updateSummary();
+        }
+
+        // Helper functions
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('fr-FR', {
+                style: 'currency',
+                currency: 'EUR'
+            }).format(amount);
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString + 'T00:00:00');
+            return date.toLocaleDateString('fr-FR', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric'
+            });
+        }
+
+        // Initialize
+        loadData();
     </script>
 </body>
 </html>
