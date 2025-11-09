@@ -3,62 +3,486 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Timesheet Hebdomadaire - Business Tools</title>
+    <title>Timesheet Hebdomadaire - Business Tools by Synoptia</title>
     <link rel="stylesheet" href="../../assets/css/main.css">
     <link rel="stylesheet" href="../../assets/css/tools.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .timesheet-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            overflow-x: auto;
+            display: block;
+        }
+        .timesheet-table table {
+            width: 100%;
+            min-width: 800px;
+        }
+        .timesheet-table th,
+        .timesheet-table td {
+            padding: 0.75rem;
+            text-align: center;
+            border: 1px solid var(--border-color, #e0e0e0);
+        }
+        .timesheet-table th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-weight: 600;
+        }
+        .timesheet-table td input {
+            width: 80px;
+            padding: 0.5rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            text-align: center;
+        }
+        .timesheet-table .project-name {
+            text-align: left;
+            font-weight: 500;
+        }
+        .timesheet-table .row-total {
+            background: #f5f5f5;
+            font-weight: 600;
+            color: #667eea;
+        }
+        .timesheet-table .col-total {
+            background: #fff3e0;
+            font-weight: 600;
+        }
+        .week-selector {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+        .week-selector button {
+            padding: 0.5rem 1rem;
+            background: var(--primary-color, #667eea);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+        .summary-item {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            text-align: center;
+        }
+        .summary-item.success {
+            background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
+        }
+        .summary-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            margin-bottom: 0.5rem;
+        }
+        .summary-value {
+            font-size: 2rem;
+            font-weight: 700;
+        }
+        @media (max-width: 768px) {
+            .timesheet-table td input {
+                width: 60px;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
 </head>
 <body>
     <nav class="breadcrumb">
-        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> > 
-        <a href="../../index.html#tools">Temps</a> > 
+        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> >
+        <a href="../../index.html#tools">Temps</a> >
         <span>Timesheet Hebdomadaire</span>
     </nav>
     <main class="tool-container">
         <header class="tool-header">
             <h1><i class="fas fa-calendar-week"></i> Timesheet Hebdomadaire</h1>
-            <p class="tool-description">DESC_PLACEHOLDER</p>
+            <p class="tool-description">Suivez vos heures de travail par projet et par jour pour une meilleure gestion de votre temps</p>
         </header>
+
         <section class="tool-input">
             <h2>Configuration</h2>
-            <form id="mainForm">
-                <div class="form-group">
-                    <label for="input1" class="form-label">
-                        <i class="fas fa-clock"></i> Durée ou information
-                    </label>
-                    <input type="text" id="input1" class="form-input" placeholder="Entrez les informations" required>
+            <div class="week-selector">
+                <button onclick="previousWeek()"><i class="fas fa-chevron-left"></i> Semaine précédente</button>
+                <div>
+                    <label for="weekStart" style="margin-right: 0.5rem;">Semaine du :</label>
+                    <input type="date" id="weekStart" class="form-input" style="display: inline-block; width: auto;">
+                </div>
+                <button onclick="nextWeek()">Semaine suivante <i class="fas fa-chevron-right"></i></button>
+                <button onclick="currentWeek()" class="btn-outline">Semaine actuelle</button>
+            </div>
+
+            <h3>Ajouter un projet</h3>
+            <form id="projectForm" style="margin-bottom: 1.5rem;">
+                <div class="input-grid">
+                    <div class="form-group">
+                        <label for="projectName" class="form-label">Nom du projet</label>
+                        <input type="text" id="projectName" class="form-input" placeholder="Ex: Développement Site Web" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="projectCode" class="form-label">Code (optionnel)</label>
+                        <input type="text" id="projectCode" class="form-input" placeholder="Ex: WEB-2025">
+                    </div>
                 </div>
                 <button type="submit" class="btn btn-primary">
-                    <i class="fas fa-play"></i> Démarrer/Calculer
+                    <i class="fas fa-plus"></i> Ajouter projet
                 </button>
             </form>
         </section>
-        <section class="tool-output" id="results" style="display: none;">
-            <h2><i class="fas fa-check-circle"></i> Résultat</h2>
-            <div class="results-grid">
-                <div class="result-item">
-                    <div class="result-label">Temps total</div>
-                    <div class="result-value highlight" id="totalTime">00:00:00</div>
+
+        <section class="tool-output" id="timesheetSection">
+            <h2><i class="fas fa-table"></i> Feuille de temps</h2>
+            <div class="timesheet-table" id="timesheetTable"></div>
+
+            <h3>Résumé hebdomadaire</h3>
+            <div class="summary-grid">
+                <div class="summary-item">
+                    <div class="summary-label">Total heures</div>
+                    <div class="summary-value" id="totalHours">0.0</div>
+                </div>
+                <div class="summary-item success">
+                    <div class="summary-label">Nombre de projets</div>
+                    <div class="summary-value" id="projectCount">0</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-label">Moyenne/jour</div>
+                    <div class="summary-value" id="averagePerDay">0.0</div>
+                </div>
+                <div class="summary-item success">
+                    <div class="summary-label">Taux remplissage</div>
+                    <div class="summary-value" id="fillRate">0%</div>
                 </div>
             </div>
+
+            <div class="action-buttons">
+                <button class="btn btn-primary" id="saveBtn">
+                    <i class="fas fa-save"></i> Sauvegarder
+                </button>
+                <button class="btn btn-accent" id="exportBtn">
+                    <i class="fas fa-file-csv"></i> Exporter CSV
+                </button>
+                <button class="btn btn-secondary" id="printBtn">
+                    <i class="fas fa-print"></i> Imprimer
+                </button>
+            </div>
         </section>
+
         <section class="tool-help">
-            <h3><i class="fas fa-question-circle"></i> Utilisation</h3>
-            <p>Cet outil vous aide à gérer et optimiser votre temps de travail.</p>
+            <h3><i class="fas fa-question-circle"></i> Comment utiliser cet outil ?</h3>
+            <ol>
+                <li>Sélectionnez la semaine de travail</li>
+                <li>Ajoutez vos projets</li>
+                <li>Saisissez les heures travaillées pour chaque jour</li>
+                <li>Les totaux sont calculés automatiquement</li>
+                <li>Exportez votre timesheet en CSV</li>
+            </ol>
+            <h3><i class="fas fa-lightbulb"></i> Conseils</h3>
+            <ul>
+                <li>Saisissez vos heures quotidiennement pour plus de précision</li>
+                <li>Utilisez les codes projet pour faciliter le suivi</li>
+                <li>Le taux de remplissage est basé sur 40h/semaine</li>
+                <li>Double-cliquez sur une cellule pour la modifier</li>
+            </ul>
         </section>
     </main>
+
     <footer class="tool-footer">
-        <a href="../../index.html"><i class="fas fa-arrow-left"></i> Retour</a>
+        <p>Développé avec ❤️ par <strong>Synoptia</strong> | Contact: <a href="mailto:ludo@synoptia.fr">ludo@synoptia.fr</a></p>
+        <a href="../../index.html"><i class="fas fa-arrow-left"></i> Retour aux outils</a>
     </footer>
+
     <script src="../../assets/js/utils.js"></script>
     <script src="../../assets/js/main.js"></script>
     <script>
-        document.getElementById('mainForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            document.getElementById('results').style.display = 'block';
-            showNotification('Calcul effectué !', 'success');
+        let projects = [];
+        let timeEntries = {}; // { projectId: { day: hours } }
+        let currentWeekStart = null;
+
+        // Initialize
+        function init() {
+            currentWeek();
+            loadData();
+            renderTimesheet();
+        }
+
+        // Get Monday of current week
+        function getMonday(date) {
+            const d = new Date(date);
+            const day = d.getDay();
+            const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+            return new Date(d.setDate(diff));
+        }
+
+        // Set current week
+        function currentWeek() {
+            currentWeekStart = getMonday(new Date());
+            document.getElementById('weekStart').value = formatDateInput(currentWeekStart);
+            renderTimesheet();
+        }
+
+        // Previous week
+        function previousWeek() {
+            currentWeekStart.setDate(currentWeekStart.getDate() - 7);
+            document.getElementById('weekStart').value = formatDateInput(currentWeekStart);
+            renderTimesheet();
+        }
+
+        // Next week
+        function nextWeek() {
+            currentWeekStart.setDate(currentWeekStart.getDate() + 7);
+            document.getElementById('weekStart').value = formatDateInput(currentWeekStart);
+            renderTimesheet();
+        }
+
+        // Week change from input
+        document.getElementById('weekStart').addEventListener('change', function(e) {
+            currentWeekStart = getMonday(new Date(e.target.value));
+            renderTimesheet();
         });
+
+        // Add project
+        document.getElementById('projectForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const project = {
+                id: Date.now(),
+                name: document.getElementById('projectName').value,
+                code: document.getElementById('projectCode').value
+            };
+
+            projects.push(project);
+            timeEntries[project.id] = {};
+
+            document.getElementById('projectForm').reset();
+            renderTimesheet();
+            saveData();
+            showNotification('Projet ajouté !', 'success');
+        });
+
+        // Render timesheet
+        function renderTimesheet() {
+            if (projects.length === 0) {
+                document.getElementById('timesheetTable').innerHTML =
+                    '<p style="text-align: center; color: #999; padding: 2rem;">Ajoutez un projet pour commencer</p>';
+                updateSummary();
+                return;
+            }
+
+            const days = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
+            const weekDates = days.map((day, i) => {
+                const date = new Date(currentWeekStart);
+                date.setDate(date.getDate() + i);
+                return date;
+            });
+
+            let html = '<table><thead><tr>';
+            html += '<th>Projet</th>';
+            days.forEach((day, i) => {
+                html += `<th>${day}<br><small>${formatDateShort(weekDates[i])}</small></th>`;
+            });
+            html += '<th>Total</th>';
+            html += '<th>Actions</th>';
+            html += '</tr></thead><tbody>';
+
+            // Project rows
+            projects.forEach(project => {
+                html += '<tr>';
+                html += `<td class="project-name">${project.name}${project.code ? ` <small>(${project.code})</small>` : ''}</td>`;
+
+                let rowTotal = 0;
+                days.forEach((day, i) => {
+                    const dayKey = formatDateKey(weekDates[i]);
+                    const hours = timeEntries[project.id]?.[dayKey] || 0;
+                    rowTotal += hours;
+                    html += `<td><input type="number"
+                                       step="0.5"
+                                       min="0"
+                                       max="24"
+                                       value="${hours}"
+                                       onchange="updateEntry(${project.id}, '${dayKey}', this.value)"
+                                       placeholder="0"></td>`;
+                });
+
+                html += `<td class="row-total">${rowTotal.toFixed(1)}h</td>`;
+                html += `<td><button class="btn-icon" onclick="deleteProject(${project.id})" title="Supprimer"><i class="fas fa-trash"></i></button></td>`;
+                html += '</tr>';
+            });
+
+            // Column totals
+            html += '<tr>';
+            html += '<td class="col-total"><strong>Total</strong></td>';
+            let grandTotal = 0;
+            days.forEach((day, i) => {
+                const dayKey = formatDateKey(weekDates[i]);
+                let dayTotal = 0;
+                projects.forEach(project => {
+                    dayTotal += timeEntries[project.id]?.[dayKey] || 0;
+                });
+                grandTotal += dayTotal;
+                html += `<td class="col-total">${dayTotal.toFixed(1)}h</td>`;
+            });
+            html += `<td class="col-total"><strong>${grandTotal.toFixed(1)}h</strong></td>`;
+            html += '<td></td>';
+            html += '</tr>';
+
+            html += '</tbody></table>';
+            document.getElementById('timesheetTable').innerHTML = html;
+
+            updateSummary();
+        }
+
+        // Update time entry
+        function updateEntry(projectId, dayKey, hours) {
+            if (!timeEntries[projectId]) {
+                timeEntries[projectId] = {};
+            }
+            timeEntries[projectId][dayKey] = parseFloat(hours) || 0;
+            renderTimesheet();
+            saveData();
+        }
+
+        // Delete project
+        function deleteProject(projectId) {
+            if (confirm('Supprimer ce projet et toutes ses heures ?')) {
+                projects = projects.filter(p => p.id !== projectId);
+                delete timeEntries[projectId];
+                renderTimesheet();
+                saveData();
+                showNotification('Projet supprimé', 'info');
+            }
+        }
+
+        // Update summary
+        function updateSummary() {
+            let totalHours = 0;
+            projects.forEach(project => {
+                Object.values(timeEntries[project.id] || {}).forEach(hours => {
+                    totalHours += hours;
+                });
+            });
+
+            const workDays = 5; // Lun-Ven
+            const avgPerDay = totalHours / workDays;
+            const fillRate = (totalHours / 40) * 100; // 40h standard week
+
+            document.getElementById('totalHours').textContent = totalHours.toFixed(1) + 'h';
+            document.getElementById('projectCount').textContent = projects.length;
+            document.getElementById('averagePerDay').textContent = avgPerDay.toFixed(1) + 'h';
+            document.getElementById('fillRate').textContent = fillRate.toFixed(0) + '%';
+        }
+
+        // Save data
+        document.getElementById('saveBtn').addEventListener('click', function() {
+            saveData();
+            showNotification('Timesheet sauvegardé !', 'success');
+        });
+
+        function saveData() {
+            const data = {
+                projects,
+                timeEntries,
+                weekStart: formatDateInput(currentWeekStart)
+            };
+            localStorage.setItem('timesheet', JSON.stringify(data));
+        }
+
+        // Load data
+        function loadData() {
+            const saved = localStorage.getItem('timesheet');
+            if (saved) {
+                const data = JSON.parse(saved);
+                projects = data.projects || [];
+                timeEntries = data.timeEntries || {};
+            }
+        }
+
+        // Export CSV
+        document.getElementById('exportBtn').addEventListener('click', function() {
+            if (projects.length === 0) {
+                showNotification('Aucun projet à exporter', 'warning');
+                return;
+            }
+
+            const days = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
+            const weekDates = days.map((day, i) => {
+                const date = new Date(currentWeekStart);
+                date.setDate(date.getDate() + i);
+                return date;
+            });
+
+            let csv = `Semaine du ${formatDateShort(currentWeekStart)}\n\n`;
+            csv += 'Projet,Code,' + days.map((d, i) => `${d} ${formatDateShort(weekDates[i])}`).join(',') + ',Total\n';
+
+            projects.forEach(project => {
+                let row = [project.name, project.code || ''];
+                let rowTotal = 0;
+
+                days.forEach((day, i) => {
+                    const dayKey = formatDateKey(weekDates[i]);
+                    const hours = timeEntries[project.id]?.[dayKey] || 0;
+                    rowTotal += hours;
+                    row.push(hours);
+                });
+
+                row.push(rowTotal.toFixed(1));
+                csv += row.join(',') + '\n';
+            });
+
+            // Totals row
+            let totals = ['TOTAL', ''];
+            let grandTotal = 0;
+            days.forEach((day, i) => {
+                const dayKey = formatDateKey(weekDates[i]);
+                let dayTotal = 0;
+                projects.forEach(project => {
+                    dayTotal += timeEntries[project.id]?.[dayKey] || 0;
+                });
+                grandTotal += dayTotal;
+                totals.push(dayTotal.toFixed(1));
+            });
+            totals.push(grandTotal.toFixed(1));
+            csv += totals.join(',') + '\n';
+
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `timesheet_${formatDateKey(currentWeekStart)}.csv`;
+            a.click();
+            showNotification('Export CSV réussi !', 'success');
+        });
+
+        // Print
+        document.getElementById('printBtn').addEventListener('click', function() {
+            window.print();
+        });
+
+        // Date formatting helpers
+        function formatDateInput(date) {
+            return date.toISOString().split('T')[0];
+        }
+
+        function formatDateShort(date) {
+            return date.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' });
+        }
+
+        function formatDateKey(date) {
+            return formatDateInput(date);
+        }
+
+        // Initialize on load
+        init();
     </script>
 </body>
 </html>

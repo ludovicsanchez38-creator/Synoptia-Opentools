@@ -8,57 +8,646 @@
     <link rel="stylesheet" href="../../assets/css/tools.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .gantt-controls {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .gantt-container {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            overflow-x: auto;
+            margin-top: 1rem;
+        }
+        .gantt-chart {
+            min-width: 800px;
+            position: relative;
+        }
+        .gantt-header {
+            display: flex;
+            margin-bottom: 1rem;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 0.5rem;
+        }
+        .gantt-task-label {
+            width: 200px;
+            flex-shrink: 0;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        .gantt-timeline {
+            flex: 1;
+            display: flex;
+            position: relative;
+        }
+        .gantt-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.75rem;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid var(--light);
+        }
+        .gantt-row:hover {
+            background: var(--light);
+        }
+        .task-name {
+            width: 200px;
+            flex-shrink: 0;
+            padding-right: 1rem;
+            font-weight: 500;
+        }
+        .task-timeline {
+            flex: 1;
+            position: relative;
+            height: 40px;
+        }
+        .task-bar {
+            position: absolute;
+            height: 30px;
+            background: linear-gradient(135deg, var(--primary), var(--success));
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .task-bar:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        .task-bar.completed {
+            background: linear-gradient(135deg, #10B981, #059669);
+        }
+        .task-bar.inprogress {
+            background: linear-gradient(135deg, #3B82F6, #2563EB);
+        }
+        .task-bar.todo {
+            background: linear-gradient(135deg, #6B7280, #4B5563);
+        }
+        .timeline-dates {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-top: 0.5rem;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal.active {
+            display: flex;
+        }
+        .modal-content {
+            background: white;
+            border-radius: var(--radius-lg);
+            padding: 2rem;
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        .modal-close {
+            cursor: pointer;
+            font-size: 1.5rem;
+            color: var(--text-secondary);
+        }
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: var(--text-secondary);
+        }
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.3;
+        }
+        .task-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            margin-top: 1.5rem;
+        }
+        .task-item {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .task-info {
+            flex: 1;
+        }
+        .task-title {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        .task-dates {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-top: 0.25rem;
+        }
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: var(--radius-sm);
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-right: 0.5rem;
+        }
+        .view-toggle {
+            display: flex;
+            gap: 0.5rem;
+        }
+    </style>
 </head>
 <body>
     <nav class="breadcrumb">
-        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> > 
-        <a href="../../index.html#tools">Temps</a> > 
+        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> >
+        <a href="../../index.html#tools">Temps</a> >
         <span>Diagramme de Gantt</span>
     </nav>
     <main class="tool-container">
         <header class="tool-header">
             <h1><i class="fas fa-project-diagram"></i> Diagramme de Gantt</h1>
-            <p class="tool-description">Timeline projet multi-tâche visuelle</p>
+            <p class="tool-description">Visualisez vos tâches sur une timeline avec un diagramme de Gantt interactif</p>
         </header>
+
         <section class="tool-input">
-            <h2>Configuration</h2>
-            <form id="mainForm">
-                <div class="form-group">
-                    <label for="input1" class="form-label">
-                        <i class="fas fa-clock"></i> Durée ou information
-                    </label>
-                    <input type="text" id="input1" class="form-input" placeholder="Entrez les informations" required>
-                </div>
-                <button type="submit" class="btn btn-primary">
-                    <i class="fas fa-play"></i> Démarrer/Calculer
+            <div class="gantt-controls">
+                <button type="button" class="btn btn-primary" id="addTaskBtn">
+                    <i class="fas fa-plus"></i> Nouvelle tâche
                 </button>
-            </form>
+                <button type="button" class="btn btn-secondary" id="exportBtn">
+                    <i class="fas fa-download"></i> Exporter CSV
+                </button>
+                <button type="button" class="btn btn-danger" id="clearBtn">
+                    <i class="fas fa-trash"></i> Tout effacer
+                </button>
+                <div class="view-toggle" style="margin-left: auto;">
+                    <button type="button" class="btn btn-sm btn-primary" id="viewGanttBtn">
+                        <i class="fas fa-chart-bar"></i> Vue Gantt
+                    </button>
+                    <button type="button" class="btn btn-sm btn-secondary" id="viewListBtn">
+                        <i class="fas fa-list"></i> Vue Liste
+                    </button>
+                </div>
+            </div>
+
+            <div id="ganttView" class="gantt-container">
+                <div id="ganttChart" class="gantt-chart"></div>
+            </div>
+
+            <div id="listView" class="task-list" style="display: none;"></div>
         </section>
-        <section class="tool-output" id="results" style="display: none;">
-            <h2><i class="fas fa-check-circle"></i> Résultat</h2>
+
+        <section class="tool-output">
+            <h2><i class="fas fa-chart-pie"></i> Statistiques</h2>
             <div class="results-grid">
                 <div class="result-item">
-                    <div class="result-label">Temps total</div>
-                    <div class="result-value highlight" id="totalTime">00:00:00</div>
+                    <div class="result-label">Tâches totales</div>
+                    <div class="result-value" id="statTotal">0</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Tâches en cours</div>
+                    <div class="result-value" id="statInProgress">0</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Tâches terminées</div>
+                    <div class="result-value highlight" id="statCompleted">0</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Durée totale</div>
+                    <div class="result-value highlight" id="statDuration">0 jours</div>
                 </div>
             </div>
         </section>
+
         <section class="tool-help">
-            <h3><i class="fas fa-question-circle"></i> Utilisation</h3>
-            <p>Cet outil vous aide à gérer et optimiser votre temps de travail.</p>
+            <h3><i class="fas fa-question-circle"></i> Guide d'utilisation</h3>
+            <ul>
+                <li><strong>Ajouter une tâche :</strong> Cliquez sur "Nouvelle tâche" et définissez les dates</li>
+                <li><strong>Statuts :</strong> À faire (gris), En cours (bleu), Terminé (vert)</li>
+                <li><strong>Vue Gantt :</strong> Visualisez les tâches sur une timeline avec barres</li>
+                <li><strong>Vue Liste :</strong> Affichez toutes les tâches sous forme de liste</li>
+                <li><strong>Modifier :</strong> Cliquez sur une barre ou une tâche pour la modifier</li>
+            </ul>
         </section>
     </main>
+
+    <!-- Task Modal -->
+    <div class="modal" id="taskModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Nouvelle tâche</h2>
+                <span class="modal-close" onclick="closeTaskModal()">&times;</span>
+            </div>
+            <form id="taskForm">
+                <div class="form-group">
+                    <label for="taskName" class="form-label"><i class="fas fa-tasks"></i> Nom de la tâche *</label>
+                    <input type="text" id="taskName" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label for="taskDescription" class="form-label"><i class="fas fa-align-left"></i> Description</label>
+                    <textarea id="taskDescription" class="form-input" rows="2"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="taskStartDate" class="form-label"><i class="fas fa-calendar-day"></i> Date de début *</label>
+                    <input type="date" id="taskStartDate" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label for="taskEndDate" class="form-label"><i class="fas fa-calendar-day"></i> Date de fin *</label>
+                    <input type="date" id="taskEndDate" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label for="taskStatus" class="form-label"><i class="fas fa-info-circle"></i> Statut</label>
+                    <select id="taskStatus" class="form-input">
+                        <option value="todo">À faire</option>
+                        <option value="inprogress">En cours</option>
+                        <option value="completed">Terminé</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary btn-lg" style="width: 100%; margin-top: 1rem;">
+                    <i class="fas fa-save"></i> Enregistrer
+                </button>
+            </form>
+        </div>
+    </div>
+
     <footer class="tool-footer">
         <a href="../../index.html"><i class="fas fa-arrow-left"></i> Retour</a>
+        <p>Développé avec ❤️ par <strong>Synoptia</strong> | Contact: <a href="mailto:ludo@synoptia.fr">ludo@synoptia.fr</a></p>
     </footer>
+
     <script src="../../assets/js/utils.js"></script>
     <script src="../../assets/js/main.js"></script>
     <script>
-        document.getElementById('mainForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            document.getElementById('results').style.display = 'block';
-            showNotification('Calcul effectué !', 'success');
+        let tasks = [];
+        let editingTaskId = null;
+        let showGantt = true;
+
+        // Load data from localStorage
+        function loadData() {
+            const stored = localStorage.getItem('ganttChartData');
+            if (stored) {
+                tasks = JSON.parse(stored);
+            }
+            renderView();
+            updateStats();
+        }
+
+        // Save data to localStorage
+        function saveData() {
+            localStorage.setItem('ganttChartData', JSON.stringify(tasks));
+        }
+
+        // Add task modal
+        document.getElementById('addTaskBtn').addEventListener('click', () => {
+            editingTaskId = null;
+            document.getElementById('modalTitle').textContent = 'Nouvelle tâche';
+            document.getElementById('taskForm').reset();
+
+            // Set default dates
+            const today = new Date();
+            document.getElementById('taskStartDate').valueAsDate = today;
+            const nextWeek = new Date(today);
+            nextWeek.setDate(nextWeek.getDate() + 7);
+            document.getElementById('taskEndDate').valueAsDate = nextWeek;
+
+            document.getElementById('taskModal').classList.add('active');
         });
+
+        // Close modal
+        window.closeTaskModal = function() {
+            document.getElementById('taskModal').classList.remove('active');
+            document.getElementById('taskForm').reset();
+            editingTaskId = null;
+        };
+
+        // Submit form
+        document.getElementById('taskForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            const startDate = document.getElementById('taskStartDate').value;
+            const endDate = document.getElementById('taskEndDate').value;
+
+            if (new Date(startDate) > new Date(endDate)) {
+                showNotification('La date de fin doit être après la date de début', 'error');
+                return;
+            }
+
+            const taskData = {
+                name: document.getElementById('taskName').value.trim(),
+                description: document.getElementById('taskDescription').value.trim(),
+                startDate,
+                endDate,
+                status: document.getElementById('taskStatus').value
+            };
+
+            if (editingTaskId) {
+                const task = tasks.find(t => t.id === editingTaskId);
+                Object.assign(task, taskData);
+                showNotification('Tâche modifiée !', 'success');
+            } else {
+                tasks.push({ ...taskData, id: Date.now() });
+                showNotification('Tâche créée !', 'success');
+            }
+
+            saveData();
+            renderView();
+            updateStats();
+            closeTaskModal();
+        });
+
+        // Edit task
+        window.editTask = function(taskId) {
+            const task = tasks.find(t => t.id === taskId);
+            if (!task) return;
+
+            editingTaskId = taskId;
+            document.getElementById('modalTitle').textContent = 'Modifier la tâche';
+            document.getElementById('taskName').value = task.name;
+            document.getElementById('taskDescription').value = task.description || '';
+            document.getElementById('taskStartDate').value = task.startDate;
+            document.getElementById('taskEndDate').value = task.endDate;
+            document.getElementById('taskStatus').value = task.status;
+            document.getElementById('taskModal').classList.add('active');
+        };
+
+        // Delete task
+        window.deleteTask = function(taskId) {
+            if (confirm('Supprimer cette tâche ?')) {
+                tasks = tasks.filter(t => t.id !== taskId);
+                saveData();
+                renderView();
+                updateStats();
+                showNotification('Tâche supprimée', 'success');
+            }
+        };
+
+        // Format date
+        function formatDate(date) {
+            return new Date(date).toLocaleDateString('fr-FR', {
+                day: '2-digit',
+                month: 'short'
+            });
+        }
+
+        // Get status label
+        function getStatusLabel(status) {
+            const labels = {
+                todo: 'À faire',
+                inprogress: 'En cours',
+                completed: 'Terminé'
+            };
+            return labels[status] || status;
+        }
+
+        // Calculate task position and width
+        function getTaskPosition(task, minDate, maxDate) {
+            const totalDays = Math.ceil((maxDate - minDate) / (1000 * 60 * 60 * 24));
+            const taskStart = new Date(task.startDate);
+            const taskEnd = new Date(task.endDate);
+
+            const offsetDays = Math.ceil((taskStart - minDate) / (1000 * 60 * 60 * 24));
+            const durationDays = Math.ceil((taskEnd - taskStart) / (1000 * 60 * 60 * 24)) + 1;
+
+            const left = (offsetDays / totalDays) * 100;
+            const width = (durationDays / totalDays) * 100;
+
+            return { left, width };
+        }
+
+        // Render Gantt view
+        function renderGanttView() {
+            const container = document.getElementById('ganttChart');
+
+            if (tasks.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-project-diagram"></i>
+                        <p>Aucune tâche définie</p>
+                        <p style="font-size: 0.9rem;">Créez votre première tâche pour voir le diagramme de Gantt</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const sorted = [...tasks].sort((a, b) => new Date(a.startDate) - new Date(b.startDate));
+
+            // Calculate date range
+            const allDates = tasks.flatMap(t => [new Date(t.startDate), new Date(t.endDate)]);
+            const minDate = new Date(Math.min(...allDates));
+            const maxDate = new Date(Math.max(...allDates));
+
+            // Add padding
+            minDate.setDate(minDate.getDate() - 2);
+            maxDate.setDate(maxDate.getDate() + 2);
+
+            container.innerHTML = `
+                <div class="gantt-header">
+                    <div class="gantt-task-label">Tâches</div>
+                    <div class="gantt-timeline">
+                        <div style="flex: 1; text-align: center; color: var(--text-secondary); font-size: 0.9rem;">
+                            ${formatDate(minDate)} - ${formatDate(maxDate)}
+                        </div>
+                    </div>
+                </div>
+                ${sorted.map(task => {
+                    const { left, width } = getTaskPosition(task, minDate, maxDate);
+                    const duration = Math.ceil((new Date(task.endDate) - new Date(task.startDate)) / (1000 * 60 * 60 * 24)) + 1;
+
+                    return `
+                        <div class="gantt-row">
+                            <div class="task-name">${task.name}</div>
+                            <div class="task-timeline">
+                                <div class="task-bar ${task.status}"
+                                     style="left: ${left}%; width: ${width}%;"
+                                     onclick="editTask(${task.id})"
+                                     title="${task.name}\n${formatDate(task.startDate)} - ${formatDate(task.endDate)}">
+                                    ${duration}j
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('')}
+            `;
+        }
+
+        // Render list view
+        function renderListView() {
+            const container = document.getElementById('listView');
+
+            if (tasks.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-list"></i>
+                        <p>Aucune tâche définie</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const sorted = [...tasks].sort((a, b) => new Date(a.startDate) - new Date(b.startDate));
+
+            container.innerHTML = sorted.map(task => {
+                const duration = Math.ceil((new Date(task.endDate) - new Date(task.startDate)) / (1000 * 60 * 60 * 24)) + 1;
+
+                return `
+                    <div class="task-item">
+                        <div class="task-info">
+                            <div class="task-title">${task.name}</div>
+                            ${task.description ? `<div style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.25rem;">${task.description}</div>` : ''}
+                            <div class="task-dates">
+                                <i class="fas fa-calendar"></i> ${formatDate(task.startDate)} - ${formatDate(task.endDate)}
+                                <span style="margin-left: 0.5rem;">• ${duration} jour${duration > 1 ? 's' : ''}</span>
+                            </div>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                            <span class="status-badge status-${task.status}" style="background: ${
+                                task.status === 'completed' ? '#D1FAE5' :
+                                task.status === 'inprogress' ? '#DBEAFE' : '#F3F4F6'
+                            }; color: ${
+                                task.status === 'completed' ? '#065F46' :
+                                task.status === 'inprogress' ? '#1E40AF' : '#374151'
+                            };">
+                                ${getStatusLabel(task.status)}
+                            </span>
+                            <button class="btn btn-sm btn-primary" onclick="editTask(${task.id})">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-sm btn-danger" onclick="deleteTask(${task.id})">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Render view
+        function renderView() {
+            if (showGantt) {
+                renderGanttView();
+            } else {
+                renderListView();
+            }
+        }
+
+        // View toggles
+        document.getElementById('viewGanttBtn').addEventListener('click', () => {
+            showGantt = true;
+            document.getElementById('ganttView').style.display = 'block';
+            document.getElementById('listView').style.display = 'none';
+            document.getElementById('viewGanttBtn').classList.remove('btn-secondary');
+            document.getElementById('viewGanttBtn').classList.add('btn-primary');
+            document.getElementById('viewListBtn').classList.remove('btn-primary');
+            document.getElementById('viewListBtn').classList.add('btn-secondary');
+            renderView();
+        });
+
+        document.getElementById('viewListBtn').addEventListener('click', () => {
+            showGantt = false;
+            document.getElementById('ganttView').style.display = 'none';
+            document.getElementById('listView').style.display = 'flex';
+            document.getElementById('viewGanttBtn').classList.remove('btn-primary');
+            document.getElementById('viewGanttBtn').classList.add('btn-secondary');
+            document.getElementById('viewListBtn').classList.remove('btn-secondary');
+            document.getElementById('viewListBtn').classList.add('btn-primary');
+            renderView();
+        });
+
+        // Update statistics
+        function updateStats() {
+            const total = tasks.length;
+            const inprogress = tasks.filter(t => t.status === 'inprogress').length;
+            const completed = tasks.filter(t => t.status === 'completed').length;
+
+            const totalDuration = tasks.reduce((sum, task) => {
+                const days = Math.ceil((new Date(task.endDate) - new Date(task.startDate)) / (1000 * 60 * 60 * 24)) + 1;
+                return sum + days;
+            }, 0);
+
+            document.getElementById('statTotal').textContent = total;
+            document.getElementById('statInProgress').textContent = inprogress;
+            document.getElementById('statCompleted').textContent = completed;
+            document.getElementById('statDuration').textContent = totalDuration + ' jour' + (totalDuration > 1 ? 's' : '');
+        }
+
+        // Export to CSV
+        document.getElementById('exportBtn').addEventListener('click', () => {
+            if (tasks.length === 0) {
+                showNotification('Aucune donnée à exporter', 'error');
+                return;
+            }
+
+            const csv = [
+                ['Tâche', 'Description', 'Date début', 'Date fin', 'Durée (jours)', 'Statut'],
+                ...tasks.map(t => {
+                    const duration = Math.ceil((new Date(t.endDate) - new Date(t.startDate)) / (1000 * 60 * 60 * 24)) + 1;
+                    return [
+                        t.name,
+                        t.description || '',
+                        t.startDate,
+                        t.endDate,
+                        duration,
+                        getStatusLabel(t.status)
+                    ];
+                })
+            ].map(row => row.join(';')).join('\n');
+
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `gantt-chart-${new Date().toISOString().split('T')[0]}.csv`;
+            link.click();
+
+            showNotification('Export CSV réussi !', 'success');
+        });
+
+        // Clear all data
+        document.getElementById('clearBtn').addEventListener('click', () => {
+            if (confirm('Effacer toutes les tâches ? Cette action est irréversible.')) {
+                tasks = [];
+                saveData();
+                renderView();
+                updateStats();
+                showNotification('Toutes les tâches ont été effacées', 'success');
+            }
+        });
+
+        // Close modal on outside click
+        document.getElementById('taskModal').addEventListener('click', (e) => {
+            if (e.target.id === 'taskModal') closeTaskModal();
+        });
+
+        // Initialize
+        loadData();
     </script>
 </body>
 </html>

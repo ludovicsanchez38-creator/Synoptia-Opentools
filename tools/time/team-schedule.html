@@ -8,57 +8,605 @@
     <link rel="stylesheet" href="../../assets/css/tools.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .view-controls {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .view-toggle {
+            display: flex;
+            gap: 0.5rem;
+        }
+        .schedule-grid {
+            overflow-x: auto;
+            margin-top: 1rem;
+        }
+        .schedule-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 800px;
+        }
+        .schedule-table th {
+            background: var(--primary);
+            color: white;
+            padding: 0.75rem;
+            text-align: center;
+            font-weight: 600;
+            border: 1px solid var(--border);
+        }
+        .schedule-table td {
+            border: 1px solid var(--border);
+            padding: 0.5rem;
+            min-height: 80px;
+            vertical-align: top;
+        }
+        .schedule-table th.member-col {
+            width: 150px;
+            background: var(--text-primary);
+        }
+        .time-slot {
+            background: var(--primary-light);
+            border-left: 3px solid var(--primary);
+            padding: 0.5rem;
+            margin-bottom: 0.25rem;
+            border-radius: var(--radius-sm);
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .time-slot:hover {
+            background: var(--primary);
+            color: white;
+            transform: translateX(2px);
+        }
+        .time-slot-content {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+        .time-slot-time {
+            font-size: 0.75rem;
+            opacity: 0.8;
+        }
+        .member-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+        .member-item {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .member-name {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal.active {
+            display: flex;
+        }
+        .modal-content {
+            background: white;
+            border-radius: var(--radius-lg);
+            padding: 2rem;
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        .modal-close {
+            cursor: pointer;
+            font-size: 1.5rem;
+            color: var(--text-secondary);
+        }
+        @media (max-width: 768px) {
+            .schedule-table th.member-col {
+                width: 100px;
+            }
+        }
+    </style>
 </head>
 <body>
     <nav class="breadcrumb">
-        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> > 
-        <a href="../../index.html#tools">Temps</a> > 
+        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> >
+        <a href="../../index.html#tools">Temps</a> >
         <span>Planning d'Équipe</span>
     </nav>
     <main class="tool-container">
         <header class="tool-header">
             <h1><i class="fas fa-users-cog"></i> Planning d'Équipe</h1>
-            <p class="tool-description">DESC_PLACEHOLDER</p>
+            <p class="tool-description">Organisez le planning hebdomadaire de votre équipe avec attribution de créneaux horaires</p>
         </header>
+
         <section class="tool-input">
-            <h2>Configuration</h2>
-            <form id="mainForm">
-                <div class="form-group">
-                    <label for="input1" class="form-label">
-                        <i class="fas fa-clock"></i> Durée ou information
-                    </label>
-                    <input type="text" id="input1" class="form-input" placeholder="Entrez les informations" required>
-                </div>
-                <button type="submit" class="btn btn-primary">
-                    <i class="fas fa-play"></i> Démarrer/Calculer
+            <div class="view-controls">
+                <button type="button" class="btn btn-primary" id="addMemberBtn">
+                    <i class="fas fa-user-plus"></i> Ajouter un membre
                 </button>
-            </form>
-        </section>
-        <section class="tool-output" id="results" style="display: none;">
-            <h2><i class="fas fa-check-circle"></i> Résultat</h2>
-            <div class="results-grid">
-                <div class="result-item">
-                    <div class="result-label">Temps total</div>
-                    <div class="result-value highlight" id="totalTime">00:00:00</div>
+                <button type="button" class="btn btn-success" id="addSlotBtn">
+                    <i class="fas fa-calendar-plus"></i> Ajouter un créneau
+                </button>
+                <button type="button" class="btn btn-secondary" id="exportBtn">
+                    <i class="fas fa-download"></i> Exporter CSV
+                </button>
+                <button type="button" class="btn btn-danger" id="clearBtn">
+                    <i class="fas fa-trash"></i> Tout effacer
+                </button>
+                <div class="view-toggle" style="margin-left: auto;">
+                    <button type="button" class="btn btn-sm btn-primary" id="viewWeekBtn">
+                        <i class="fas fa-calendar-week"></i> Vue semaine
+                    </button>
+                    <button type="button" class="btn btn-sm btn-secondary" id="viewMemberBtn">
+                        <i class="fas fa-user"></i> Vue membre
+                    </button>
                 </div>
             </div>
+
+            <div id="weekView" class="schedule-grid">
+                <table class="schedule-table">
+                    <thead>
+                        <tr>
+                            <th class="member-col">Membre</th>
+                            <th>Lundi</th>
+                            <th>Mardi</th>
+                            <th>Mercredi</th>
+                            <th>Jeudi</th>
+                            <th>Vendredi</th>
+                            <th>Samedi</th>
+                            <th>Dimanche</th>
+                        </tr>
+                    </thead>
+                    <tbody id="scheduleBody">
+                        <tr>
+                            <td colspan="8" style="text-align: center; padding: 2rem; color: var(--text-secondary);">
+                                <i class="fas fa-users" style="font-size: 2rem; margin-bottom: 1rem; opacity: 0.3; display: block;"></i>
+                                Ajoutez des membres pour commencer
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div id="memberView" style="display: none;">
+                <div class="member-list" id="memberList"></div>
+            </div>
         </section>
+
         <section class="tool-help">
-            <h3><i class="fas fa-question-circle"></i> Utilisation</h3>
-            <p>Cet outil vous aide à gérer et optimiser votre temps de travail.</p>
+            <h3><i class="fas fa-question-circle"></i> Guide d'utilisation</h3>
+            <ul>
+                <li><strong>Ajouter un membre :</strong> Cliquez sur "Ajouter un membre" et entrez le nom</li>
+                <li><strong>Créer un créneau :</strong> Cliquez sur "Ajouter un créneau", sélectionnez le membre, le jour et l'heure</li>
+                <li><strong>Vue semaine :</strong> Visualisez le planning par jour de la semaine</li>
+                <li><strong>Vue membre :</strong> Visualisez tous les créneaux par membre</li>
+                <li><strong>Exporter :</strong> Téléchargez le planning au format CSV</li>
+            </ul>
         </section>
     </main>
+
+    <!-- Member Modal -->
+    <div class="modal" id="memberModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Ajouter un membre</h2>
+                <span class="modal-close" onclick="closeMemberModal()">&times;</span>
+            </div>
+            <form id="memberForm">
+                <div class="form-group">
+                    <label for="memberName" class="form-label"><i class="fas fa-user"></i> Nom du membre</label>
+                    <input type="text" id="memberName" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label for="memberRole" class="form-label"><i class="fas fa-briefcase"></i> Rôle (optionnel)</label>
+                    <input type="text" id="memberRole" class="form-input" placeholder="Ex: Développeur, Designer...">
+                </div>
+                <button type="submit" class="btn btn-primary btn-lg" style="width: 100%; margin-top: 1rem;">
+                    <i class="fas fa-save"></i> Enregistrer
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Slot Modal -->
+    <div class="modal" id="slotModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="slotModalTitle">Ajouter un créneau</h2>
+                <span class="modal-close" onclick="closeSlotModal()">&times;</span>
+            </div>
+            <form id="slotForm">
+                <div class="form-group">
+                    <label for="slotMember" class="form-label"><i class="fas fa-user"></i> Membre</label>
+                    <select id="slotMember" class="form-input" required>
+                        <option value="">Sélectionnez un membre</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="slotDay" class="form-label"><i class="fas fa-calendar"></i> Jour</label>
+                    <select id="slotDay" class="form-input" required>
+                        <option value="0">Lundi</option>
+                        <option value="1">Mardi</option>
+                        <option value="2">Mercredi</option>
+                        <option value="3">Jeudi</option>
+                        <option value="4">Vendredi</option>
+                        <option value="5">Samedi</option>
+                        <option value="6">Dimanche</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="slotStart" class="form-label"><i class="fas fa-clock"></i> Heure de début</label>
+                    <input type="time" id="slotStart" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label for="slotEnd" class="form-label"><i class="fas fa-clock"></i> Heure de fin</label>
+                    <input type="time" id="slotEnd" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label for="slotTask" class="form-label"><i class="fas fa-tasks"></i> Tâche</label>
+                    <input type="text" id="slotTask" class="form-input" placeholder="Ex: Réunion, Développement..." required>
+                </div>
+                <button type="submit" class="btn btn-primary btn-lg" style="width: 100%; margin-top: 1rem;">
+                    <i class="fas fa-save"></i> Enregistrer
+                </button>
+            </form>
+        </div>
+    </div>
+
     <footer class="tool-footer">
         <a href="../../index.html"><i class="fas fa-arrow-left"></i> Retour</a>
+        <p>Développé avec ❤️ par <strong>Synoptia</strong> | Contact: <a href="mailto:ludo@synoptia.fr">ludo@synoptia.fr</a></p>
     </footer>
+
     <script src="../../assets/js/utils.js"></script>
     <script src="../../assets/js/main.js"></script>
     <script>
-        document.getElementById('mainForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            document.getElementById('results').style.display = 'block';
-            showNotification('Calcul effectué !', 'success');
+        let members = [];
+        let slots = [];
+        let editingSlotId = null;
+        const days = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'];
+
+        // Load data from localStorage
+        function loadData() {
+            const storedMembers = localStorage.getItem('teamScheduleMembers');
+            const storedSlots = localStorage.getItem('teamScheduleSlots');
+
+            if (storedMembers) members = JSON.parse(storedMembers);
+            if (storedSlots) slots = JSON.parse(storedSlots);
+
+            renderSchedule();
+        }
+
+        // Save data to localStorage
+        function saveData() {
+            localStorage.setItem('teamScheduleMembers', JSON.stringify(members));
+            localStorage.setItem('teamScheduleSlots', JSON.stringify(slots));
+        }
+
+        // Add member modal
+        document.getElementById('addMemberBtn').addEventListener('click', () => {
+            document.getElementById('memberModal').classList.add('active');
         });
+
+        // Close member modal
+        window.closeMemberModal = function() {
+            document.getElementById('memberModal').classList.remove('active');
+            document.getElementById('memberForm').reset();
+        };
+
+        // Submit member form
+        document.getElementById('memberForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const name = document.getElementById('memberName').value.trim();
+            const role = document.getElementById('memberRole').value.trim();
+
+            members.push({
+                id: Date.now(),
+                name,
+                role
+            });
+
+            saveData();
+            renderSchedule();
+            closeMemberModal();
+            showNotification('Membre ajouté !', 'success');
+        });
+
+        // Add slot modal
+        document.getElementById('addSlotBtn').addEventListener('click', () => {
+            if (members.length === 0) {
+                showNotification('Ajoutez d\'abord des membres', 'error');
+                return;
+            }
+
+            editingSlotId = null;
+            document.getElementById('slotModalTitle').textContent = 'Ajouter un créneau';
+            document.getElementById('slotForm').reset();
+            updateMemberSelect();
+            document.getElementById('slotModal').classList.add('active');
+        });
+
+        // Close slot modal
+        window.closeSlotModal = function() {
+            document.getElementById('slotModal').classList.remove('active');
+            document.getElementById('slotForm').reset();
+            editingSlotId = null;
+        };
+
+        // Update member select options
+        function updateMemberSelect() {
+            const select = document.getElementById('slotMember');
+            select.innerHTML = '<option value="">Sélectionnez un membre</option>' +
+                members.map(m => `<option value="${m.id}">${m.name}</option>`).join('');
+        }
+
+        // Submit slot form
+        document.getElementById('slotForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            const slotData = {
+                memberId: parseInt(document.getElementById('slotMember').value),
+                day: parseInt(document.getElementById('slotDay').value),
+                start: document.getElementById('slotStart').value,
+                end: document.getElementById('slotEnd').value,
+                task: document.getElementById('slotTask').value.trim()
+            };
+
+            if (editingSlotId) {
+                const slot = slots.find(s => s.id === editingSlotId);
+                Object.assign(slot, slotData);
+                showNotification('Créneau modifié !', 'success');
+            } else {
+                slots.push({ ...slotData, id: Date.now() });
+                showNotification('Créneau ajouté !', 'success');
+            }
+
+            saveData();
+            renderSchedule();
+            closeSlotModal();
+        });
+
+        // Edit slot
+        window.editSlot = function(slotId) {
+            const slot = slots.find(s => s.id === slotId);
+            if (!slot) return;
+
+            editingSlotId = slotId;
+            document.getElementById('slotModalTitle').textContent = 'Modifier le créneau';
+            document.getElementById('slotMember').value = slot.memberId;
+            document.getElementById('slotDay').value = slot.day;
+            document.getElementById('slotStart').value = slot.start;
+            document.getElementById('slotEnd').value = slot.end;
+            document.getElementById('slotTask').value = slot.task;
+            updateMemberSelect();
+            document.getElementById('slotModal').classList.add('active');
+        };
+
+        // Delete slot
+        window.deleteSlot = function(slotId) {
+            if (confirm('Supprimer ce créneau ?')) {
+                slots = slots.filter(s => s.id !== slotId);
+                saveData();
+                renderSchedule();
+                showNotification('Créneau supprimé', 'success');
+            }
+        };
+
+        // Delete member
+        window.deleteMember = function(memberId) {
+            if (confirm('Supprimer ce membre et tous ses créneaux ?')) {
+                members = members.filter(m => m.id !== memberId);
+                slots = slots.filter(s => s.memberId !== memberId);
+                saveData();
+                renderSchedule();
+                showNotification('Membre supprimé', 'success');
+            }
+        };
+
+        // Render schedule
+        function renderSchedule() {
+            const view = document.getElementById('weekView').style.display !== 'none' ? 'week' : 'member';
+
+            if (view === 'week') {
+                renderWeekView();
+            } else {
+                renderMemberView();
+            }
+        }
+
+        // Render week view
+        function renderWeekView() {
+            const tbody = document.getElementById('scheduleBody');
+
+            if (members.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="8" style="text-align: center; padding: 2rem; color: var(--text-secondary);">
+                            <i class="fas fa-users" style="font-size: 2rem; margin-bottom: 1rem; opacity: 0.3; display: block;"></i>
+                            Ajoutez des membres pour commencer
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = members.map(member => {
+                const memberSlots = slots.filter(s => s.memberId === member.id);
+
+                return `
+                    <tr>
+                        <td class="member-col">
+                            <div style="font-weight: 600;">${member.name}</div>
+                            ${member.role ? `<div style="font-size: 0.85rem; color: var(--text-secondary);">${member.role}</div>` : ''}
+                            <button class="btn btn-sm btn-danger" onclick="deleteMember(${member.id})" style="margin-top: 0.5rem;">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                        ${Array(7).fill(0).map((_, dayIndex) => {
+                            const daySlots = memberSlots.filter(s => s.day === dayIndex);
+                            return `
+                                <td>
+                                    ${daySlots.map(slot => `
+                                        <div class="time-slot" onclick="editSlot(${slot.id})">
+                                            <div class="time-slot-content">${slot.task}</div>
+                                            <div class="time-slot-time">${slot.start} - ${slot.end}</div>
+                                        </div>
+                                    `).join('')}
+                                </td>
+                            `;
+                        }).join('')}
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // Render member view
+        function renderMemberView() {
+            const container = document.getElementById('memberList');
+
+            if (members.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 3rem; color: var(--text-secondary);">
+                        <i class="fas fa-users" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.3; display: block;"></i>
+                        <p>Ajoutez des membres pour commencer</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = members.map(member => {
+                const memberSlots = slots.filter(s => s.memberId === member.id).sort((a, b) => a.day - b.day);
+
+                return `
+                    <div class="member-item" style="flex-direction: column; align-items: flex-start;">
+                        <div style="width: 100%; display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                            <div>
+                                <div class="member-name">${member.name}</div>
+                                ${member.role ? `<div style="font-size: 0.85rem; color: var(--text-secondary);">${member.role}</div>` : ''}
+                            </div>
+                            <button class="btn btn-sm btn-danger" onclick="deleteMember(${member.id})">
+                                <i class="fas fa-trash"></i> Supprimer
+                            </button>
+                        </div>
+                        ${memberSlots.length > 0 ? `
+                            <div style="width: 100%;">
+                                ${memberSlots.map(slot => `
+                                    <div class="time-slot" onclick="editSlot(${slot.id})" style="margin-bottom: 0.5rem;">
+                                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                                            <div>
+                                                <div class="time-slot-content">${days[slot.day]} - ${slot.task}</div>
+                                                <div class="time-slot-time">${slot.start} - ${slot.end}</div>
+                                            </div>
+                                            <button class="btn btn-sm btn-danger" onclick="event.stopPropagation(); deleteSlot(${slot.id})">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        ` : '<div style="color: var(--text-secondary); font-size: 0.9rem;">Aucun créneau</div>'}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // View toggles
+        document.getElementById('viewWeekBtn').addEventListener('click', () => {
+            document.getElementById('weekView').style.display = 'block';
+            document.getElementById('memberView').style.display = 'none';
+            document.getElementById('viewWeekBtn').classList.remove('btn-secondary');
+            document.getElementById('viewWeekBtn').classList.add('btn-primary');
+            document.getElementById('viewMemberBtn').classList.remove('btn-primary');
+            document.getElementById('viewMemberBtn').classList.add('btn-secondary');
+            renderSchedule();
+        });
+
+        document.getElementById('viewMemberBtn').addEventListener('click', () => {
+            document.getElementById('weekView').style.display = 'none';
+            document.getElementById('memberView').style.display = 'block';
+            document.getElementById('viewWeekBtn').classList.remove('btn-primary');
+            document.getElementById('viewWeekBtn').classList.add('btn-secondary');
+            document.getElementById('viewMemberBtn').classList.remove('btn-secondary');
+            document.getElementById('viewMemberBtn').classList.add('btn-primary');
+            renderSchedule();
+        });
+
+        // Export to CSV
+        document.getElementById('exportBtn').addEventListener('click', () => {
+            if (members.length === 0 || slots.length === 0) {
+                showNotification('Aucune donnée à exporter', 'error');
+                return;
+            }
+
+            const csv = [
+                ['Membre', 'Rôle', 'Jour', 'Heure début', 'Heure fin', 'Tâche'],
+                ...slots.map(slot => {
+                    const member = members.find(m => m.id === slot.memberId);
+                    return [
+                        member.name,
+                        member.role || '',
+                        days[slot.day],
+                        slot.start,
+                        slot.end,
+                        slot.task
+                    ];
+                })
+            ].map(row => row.join(';')).join('\n');
+
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `planning-equipe-${new Date().toISOString().split('T')[0]}.csv`;
+            link.click();
+
+            showNotification('Export CSV réussi !', 'success');
+        });
+
+        // Clear all data
+        document.getElementById('clearBtn').addEventListener('click', () => {
+            if (confirm('Effacer toutes les données ? Cette action est irréversible.')) {
+                members = [];
+                slots = [];
+                saveData();
+                renderSchedule();
+                showNotification('Toutes les données ont été effacées', 'success');
+            }
+        });
+
+        // Close modals on outside click
+        document.getElementById('memberModal').addEventListener('click', (e) => {
+            if (e.target.id === 'memberModal') closeMemberModal();
+        });
+        document.getElementById('slotModal').addEventListener('click', (e) => {
+            if (e.target.id === 'slotModal') closeSlotModal();
+        });
+
+        // Initialize
+        loadData();
     </script>
 </body>
 </html>

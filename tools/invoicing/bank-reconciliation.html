@@ -3,94 +3,591 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Réconciliation Bancaire - Business Tools</title>
+    <title>Réconciliation Bancaire - Business Tools by Synoptia</title>
     <link rel="stylesheet" href="../../assets/css/main.css">
     <link rel="stylesheet" href="../../assets/css/tools.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .reconciliation-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        .transaction-list {
+            border: 1px solid var(--border-color, #e0e0e0);
+            border-radius: 8px;
+            padding: 1rem;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .transaction-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem;
+            margin-bottom: 0.5rem;
+            border: 1px solid var(--border-color, #e0e0e0);
+            border-radius: 6px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .transaction-item:hover {
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .transaction-item.matched {
+            background: #e8f5e9;
+            border-color: #4caf50;
+        }
+        .transaction-item.selected {
+            background: #fff3e0;
+            border-color: #ff9800;
+        }
+        .transaction-info {
+            flex: 1;
+        }
+        .transaction-date {
+            font-size: 0.85rem;
+            color: #666;
+        }
+        .transaction-desc {
+            font-weight: 500;
+            margin: 0.25rem 0;
+        }
+        .transaction-amount {
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+        .amount-positive {
+            color: #4caf50;
+        }
+        .amount-negative {
+            color: #f44336;
+        }
+        .match-controls {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            align-items: center;
+            margin: 2rem 0;
+        }
+        .reconciliation-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        .summary-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            text-align: center;
+        }
+        .summary-card.success {
+            background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
+        }
+        .summary-card.warning {
+            background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
+        }
+        .summary-card.danger {
+            background: linear-gradient(135deg, #f44336 0%, #e53935 100%);
+        }
+        .summary-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            margin-bottom: 0.5rem;
+        }
+        .summary-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+        @media (max-width: 768px) {
+            .reconciliation-grid {
+                grid-template-columns: 1fr;
+            }
+            .match-controls {
+                flex-direction: column;
+            }
+        }
+    </style>
 </head>
 <body>
     <nav class="breadcrumb">
-        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> > 
-        <a href="../../index.html#tools">Facturation</a> > 
+        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> >
+        <a href="../../index.html#tools">Facturation</a> >
         <span>Réconciliation Bancaire</span>
     </nav>
     <main class="tool-container">
         <header class="tool-header">
             <h1><i class="fas fa-university"></i> Réconciliation Bancaire</h1>
-            <p class="tool-description">Fait correspondre opérations et relevés</p>
+            <p class="tool-description">Rapprochez vos opérations comptables avec vos relevés bancaires pour garantir la cohérence de vos comptes</p>
         </header>
+
         <section class="tool-input">
-            <h2>Informations</h2>
-            <form id="mainForm">
+            <h2>Configuration</h2>
+            <div class="input-grid">
                 <div class="form-group">
-                    <label for="input1" class="form-label">
-                        <i class="fas fa-edit"></i> Champ principal
+                    <label for="periodStart" class="form-label">
+                        <i class="fas fa-calendar"></i> Date de début
                     </label>
-                    <input type="text" id="input1" class="form-input" placeholder="Entrez les informations" required>
+                    <input type="date" id="periodStart" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label for="periodEnd" class="form-label">
+                        <i class="fas fa-calendar"></i> Date de fin
+                    </label>
+                    <input type="date" id="periodEnd" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label for="accountBalance" class="form-label">
+                        <i class="fas fa-euro-sign"></i> Solde compte (€)
+                    </label>
+                    <input type="number" id="accountBalance" class="form-input" placeholder="0.00" step="0.01" required>
+                </div>
+                <div class="form-group">
+                    <label for="bankBalance" class="form-label">
+                        <i class="fas fa-university"></i> Solde banque (€)
+                    </label>
+                    <input type="number" id="bankBalance" class="form-input" placeholder="0.00" step="0.01" required>
+                </div>
+            </div>
+
+            <h3 style="margin-top: 2rem;">Ajouter une transaction</h3>
+            <form id="transactionForm">
+                <div class="input-grid">
+                    <div class="form-group">
+                        <label for="transType" class="form-label">Type</label>
+                        <select id="transType" class="form-input" required>
+                            <option value="account">Comptabilité</option>
+                            <option value="bank">Banque</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="transDate" class="form-label">Date</label>
+                        <input type="date" id="transDate" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="transDesc" class="form-label">Description</label>
+                        <input type="text" id="transDesc" class="form-input" placeholder="Ex: Facture client #1234" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="transAmount" class="form-label">Montant (€)</label>
+                        <input type="number" id="transAmount" class="form-input" placeholder="0.00" step="0.01" required>
+                    </div>
                 </div>
                 <div class="action-buttons">
                     <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-save"></i> Générer
+                        <i class="fas fa-plus"></i> Ajouter transaction
                     </button>
-                    <button type="button" class="btn btn-outline" id="resetBtn">
-                        <i class="fas fa-redo"></i> Réinitialiser
+                    <button type="button" class="btn btn-outline" id="loadSampleBtn">
+                        <i class="fas fa-database"></i> Charger exemple
                     </button>
                 </div>
             </form>
         </section>
-        <section class="tool-output" id="results" style="display: none;">
-            <h2><i class="fas fa-check-circle"></i> Résultat</h2>
-            <div class="alert alert-success">
-                <strong>✓ Succès !</strong> Votre document a été généré.
+
+        <section class="tool-output" id="reconciliationSection" style="display: none;">
+            <h2><i class="fas fa-balance-scale"></i> Rapprochement</h2>
+
+            <div class="reconciliation-grid">
+                <div>
+                    <h3><i class="fas fa-book"></i> Comptabilité</h3>
+                    <div id="accountTransactions" class="transaction-list"></div>
+                </div>
+                <div>
+                    <h3><i class="fas fa-university"></i> Banque</h3>
+                    <div id="bankTransactions" class="transaction-list"></div>
+                </div>
             </div>
-            <div class="action-buttons">
-                <button class="btn btn-accent" id="downloadBtn">
-                    <i class="fas fa-download"></i> Télécharger
+
+            <div class="match-controls">
+                <button class="btn btn-accent" id="matchBtn" disabled>
+                    <i class="fas fa-link"></i> Rapprocher sélection
+                </button>
+                <button class="btn btn-secondary" id="unmatchBtn" disabled>
+                    <i class="fas fa-unlink"></i> Annuler rapprochement
+                </button>
+                <button class="btn btn-outline" id="autoMatchBtn">
+                    <i class="fas fa-magic"></i> Rapprochement automatique
+                </button>
+            </div>
+
+            <h3>Résumé de réconciliation</h3>
+            <div class="reconciliation-summary">
+                <div class="summary-card success">
+                    <div class="summary-label">Transactions rapprochées</div>
+                    <div class="summary-value" id="matchedCount">0</div>
+                </div>
+                <div class="summary-card warning">
+                    <div class="summary-label">Comptabilité non rapprochée</div>
+                    <div class="summary-value" id="unmatchedAccountCount">0</div>
+                </div>
+                <div class="summary-card warning">
+                    <div class="summary-label">Banque non rapprochée</div>
+                    <div class="summary-value" id="unmatchedBankCount">0</div>
+                </div>
+                <div class="summary-card" id="differenceCard">
+                    <div class="summary-label">Écart (€)</div>
+                    <div class="summary-value" id="differenceAmount">0.00</div>
+                </div>
+            </div>
+
+            <div class="action-buttons" style="margin-top: 2rem;">
+                <button class="btn btn-primary" id="exportBtn">
+                    <i class="fas fa-file-csv"></i> Exporter CSV
                 </button>
                 <button class="btn btn-secondary" id="printBtn">
                     <i class="fas fa-print"></i> Imprimer
                 </button>
+                <button class="btn btn-outline" id="resetBtn">
+                    <i class="fas fa-redo"></i> Réinitialiser
+                </button>
             </div>
         </section>
+
         <section class="tool-help">
             <h3><i class="fas fa-question-circle"></i> Comment utiliser cet outil ?</h3>
             <ol>
-                <li>Remplissez les informations requises</li>
-                <li>Cliquez sur <strong>Générer</strong></li>
-                <li>Téléchargez ou imprimez le document</li>
+                <li>Définissez la période de réconciliation et les soldes</li>
+                <li>Ajoutez vos transactions comptables et bancaires</li>
+                <li>Sélectionnez une transaction de chaque côté et cliquez sur "Rapprocher"</li>
+                <li>Utilisez le rapprochement automatique pour gagner du temps</li>
+                <li>Vérifiez que l'écart final est nul</li>
             </ol>
-            <h3><i class="fas fa-lightbulb"></i> Conseil</h3>
-            <p>Conservez une copie de tous vos documents pour votre comptabilité.</p>
+            <h3><i class="fas fa-lightbulb"></i> Conseils</h3>
+            <ul>
+                <li>Une réconciliation mensuelle facilite la détection d'erreurs</li>
+                <li>L'écart doit être égal à zéro pour une réconciliation complète</li>
+                <li>Les transactions rapprochées s'affichent en vert</li>
+                <li>Le rapprochement automatique compare dates et montants</li>
+            </ul>
         </section>
     </main>
+
     <footer class="tool-footer">
+        <p>Développé avec ❤️ par <strong>Synoptia</strong> | Contact: <a href="mailto:ludo@synoptia.fr">ludo@synoptia.fr</a></p>
         <a href="../../index.html"><i class="fas fa-arrow-left"></i> Retour aux outils</a>
     </footer>
+
     <script src="../../assets/js/utils.js"></script>
     <script src="../../assets/js/main.js"></script>
     <script>
-        document.getElementById('mainForm').addEventListener('submit', function(e) {
+        // State
+        let accountTransactions = [];
+        let bankTransactions = [];
+        let matches = [];
+        let selectedAccount = null;
+        let selectedBank = null;
+
+        // Load from localStorage
+        function loadData() {
+            const saved = localStorage.getItem('bankReconciliation');
+            if (saved) {
+                const data = JSON.parse(saved);
+                accountTransactions = data.accountTransactions || [];
+                bankTransactions = data.bankTransactions || [];
+                matches = data.matches || [];
+                document.getElementById('periodStart').value = data.periodStart || '';
+                document.getElementById('periodEnd').value = data.periodEnd || '';
+                document.getElementById('accountBalance').value = data.accountBalance || '';
+                document.getElementById('bankBalance').value = data.bankBalance || '';
+
+                if (accountTransactions.length > 0 || bankTransactions.length > 0) {
+                    document.getElementById('reconciliationSection').style.display = 'block';
+                    renderTransactions();
+                }
+            }
+        }
+
+        // Save to localStorage
+        function saveData() {
+            const data = {
+                accountTransactions,
+                bankTransactions,
+                matches,
+                periodStart: document.getElementById('periodStart').value,
+                periodEnd: document.getElementById('periodEnd').value,
+                accountBalance: document.getElementById('accountBalance').value,
+                bankBalance: document.getElementById('bankBalance').value
+            };
+            localStorage.setItem('bankReconciliation', JSON.stringify(data));
+        }
+
+        // Add transaction
+        document.getElementById('transactionForm').addEventListener('submit', function(e) {
             e.preventDefault();
-            
-            // Simulation de génération
-            document.getElementById('results').style.display = 'block';
-            scrollToElement('#results', 100);
-            showNotification('Document généré avec succès !', 'success');
+
+            const transaction = {
+                id: Date.now() + Math.random(),
+                type: document.getElementById('transType').value,
+                date: document.getElementById('transDate').value,
+                description: document.getElementById('transDesc').value,
+                amount: parseFloat(document.getElementById('transAmount').value)
+            };
+
+            if (transaction.type === 'account') {
+                accountTransactions.push(transaction);
+            } else {
+                bankTransactions.push(transaction);
+            }
+
+            document.getElementById('transactionForm').reset();
+            document.getElementById('reconciliationSection').style.display = 'block';
+            renderTransactions();
+            saveData();
+            showNotification('Transaction ajoutée avec succès !', 'success');
         });
 
-        document.getElementById('resetBtn').addEventListener('click', function() {
-            document.getElementById('mainForm').reset();
-            document.getElementById('results').style.display = 'none';
+        // Render transactions
+        function renderTransactions() {
+            renderList('accountTransactions', accountTransactions, 'account');
+            renderList('bankTransactions', bankTransactions, 'bank');
+            updateSummary();
+        }
+
+        function renderList(elementId, transactions, type) {
+            const container = document.getElementById(elementId);
+
+            if (transactions.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #999; padding: 2rem;">Aucune transaction</p>';
+                return;
+            }
+
+            container.innerHTML = transactions.map(trans => {
+                const isMatched = matches.some(m =>
+                    (type === 'account' && m.accountId === trans.id) ||
+                    (type === 'bank' && m.bankId === trans.id)
+                );
+                const isSelected = (type === 'account' && selectedAccount === trans.id) ||
+                                 (type === 'bank' && selectedBank === trans.id);
+
+                return `
+                    <div class="transaction-item ${isMatched ? 'matched' : ''} ${isSelected ? 'selected' : ''}"
+                         data-id="${trans.id}"
+                         data-type="${type}"
+                         onclick="selectTransaction('${trans.id}', '${type}')">
+                        <div class="transaction-info">
+                            <div class="transaction-date">${formatDate(trans.date)}</div>
+                            <div class="transaction-desc">${trans.description}</div>
+                        </div>
+                        <div class="transaction-amount ${trans.amount >= 0 ? 'amount-positive' : 'amount-negative'}">
+                            ${trans.amount >= 0 ? '+' : ''}${trans.amount.toFixed(2)} €
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Select transaction
+        function selectTransaction(id, type) {
+            // Check if already matched
+            const isMatched = matches.some(m =>
+                (type === 'account' && m.accountId === id) ||
+                (type === 'bank' && m.bankId === id)
+            );
+
+            if (isMatched) {
+                selectedAccount = null;
+                selectedBank = null;
+                const match = matches.find(m => m.accountId === id || m.bankId === id);
+                if (match) {
+                    selectedAccount = match.accountId;
+                    selectedBank = match.bankId;
+                    document.getElementById('unmatchBtn').disabled = false;
+                    document.getElementById('matchBtn').disabled = true;
+                }
+            } else {
+                if (type === 'account') {
+                    selectedAccount = selectedAccount === id ? null : id;
+                } else {
+                    selectedBank = selectedBank === id ? null : id;
+                }
+                document.getElementById('matchBtn').disabled = !(selectedAccount && selectedBank);
+                document.getElementById('unmatchBtn').disabled = true;
+            }
+
+            renderTransactions();
+        }
+
+        // Match transactions
+        document.getElementById('matchBtn').addEventListener('click', function() {
+            if (selectedAccount && selectedBank) {
+                matches.push({
+                    accountId: selectedAccount,
+                    bankId: selectedBank,
+                    date: new Date().toISOString()
+                });
+
+                selectedAccount = null;
+                selectedBank = null;
+                document.getElementById('matchBtn').disabled = true;
+
+                renderTransactions();
+                saveData();
+                showNotification('Transactions rapprochées !', 'success');
+            }
         });
 
-        document.getElementById('downloadBtn')?.addEventListener('click', function() {
-            showNotification('Fonctionnalité de téléchargement à implémenter', 'info');
+        // Unmatch transactions
+        document.getElementById('unmatchBtn').addEventListener('click', function() {
+            matches = matches.filter(m =>
+                m.accountId !== selectedAccount || m.bankId !== selectedBank
+            );
+
+            selectedAccount = null;
+            selectedBank = null;
+            document.getElementById('unmatchBtn').disabled = true;
+
+            renderTransactions();
+            saveData();
+            showNotification('Rapprochement annulé', 'info');
         });
 
-        document.getElementById('printBtn')?.addEventListener('click', function() {
+        // Auto match
+        document.getElementById('autoMatchBtn').addEventListener('click', function() {
+            let matchCount = 0;
+
+            accountTransactions.forEach(accTrans => {
+                // Skip if already matched
+                if (matches.some(m => m.accountId === accTrans.id)) return;
+
+                // Find matching bank transaction
+                const bankMatch = bankTransactions.find(bankTrans => {
+                    if (matches.some(m => m.bankId === bankTrans.id)) return false;
+                    return Math.abs(accTrans.amount - bankTrans.amount) < 0.01 &&
+                           accTrans.date === bankTrans.date;
+                });
+
+                if (bankMatch) {
+                    matches.push({
+                        accountId: accTrans.id,
+                        bankId: bankMatch.id,
+                        date: new Date().toISOString(),
+                        auto: true
+                    });
+                    matchCount++;
+                }
+            });
+
+            renderTransactions();
+            saveData();
+            showNotification(`${matchCount} transaction(s) rapprochée(s) automatiquement`, 'success');
+        });
+
+        // Update summary
+        function updateSummary() {
+            const matchedAccount = matches.length;
+            const unmatchedAccount = accountTransactions.length - matchedAccount;
+            const unmatchedBank = bankTransactions.length - matches.length;
+
+            document.getElementById('matchedCount').textContent = matchedAccount;
+            document.getElementById('unmatchedAccountCount').textContent = unmatchedAccount;
+            document.getElementById('unmatchedBankCount').textContent = unmatchedBank;
+
+            // Calculate difference
+            const accountBalance = parseFloat(document.getElementById('accountBalance').value) || 0;
+            const bankBalance = parseFloat(document.getElementById('bankBalance').value) || 0;
+            const difference = Math.abs(accountBalance - bankBalance);
+
+            document.getElementById('differenceAmount').textContent = difference.toFixed(2);
+
+            const diffCard = document.getElementById('differenceCard');
+            if (difference < 0.01) {
+                diffCard.className = 'summary-card success';
+            } else if (difference < 100) {
+                diffCard.className = 'summary-card warning';
+            } else {
+                diffCard.className = 'summary-card danger';
+            }
+        }
+
+        // Export CSV
+        document.getElementById('exportBtn').addEventListener('click', function() {
+            let csv = 'Type,Date,Description,Montant,Statut\n';
+
+            accountTransactions.forEach(trans => {
+                const matched = matches.some(m => m.accountId === trans.id);
+                csv += `Comptabilité,${trans.date},"${trans.description}",${trans.amount},${matched ? 'Rapproché' : 'Non rapproché'}\n`;
+            });
+
+            bankTransactions.forEach(trans => {
+                const matched = matches.some(m => m.bankId === trans.id);
+                csv += `Banque,${trans.date},"${trans.description}",${trans.amount},${matched ? 'Rapproché' : 'Non rapproché'}\n`;
+            });
+
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `reconciliation_${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+            showNotification('Export CSV réussi !', 'success');
+        });
+
+        // Print
+        document.getElementById('printBtn').addEventListener('click', function() {
             window.print();
         });
+
+        // Reset
+        document.getElementById('resetBtn').addEventListener('click', function() {
+            if (confirm('Voulez-vous vraiment réinitialiser toutes les données ?')) {
+                accountTransactions = [];
+                bankTransactions = [];
+                matches = [];
+                selectedAccount = null;
+                selectedBank = null;
+                localStorage.removeItem('bankReconciliation');
+                document.getElementById('reconciliationSection').style.display = 'none';
+                showNotification('Données réinitialisées', 'info');
+            }
+        });
+
+        // Load sample data
+        document.getElementById('loadSampleBtn').addEventListener('click', function() {
+            const today = new Date();
+            const startDate = new Date(today.getFullYear(), today.getMonth(), 1);
+            const endDate = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+
+            document.getElementById('periodStart').value = startDate.toISOString().split('T')[0];
+            document.getElementById('periodEnd').value = endDate.toISOString().split('T')[0];
+            document.getElementById('accountBalance').value = '15000.00';
+            document.getElementById('bankBalance').value = '15000.00';
+
+            accountTransactions = [
+                { id: 1, type: 'account', date: '2025-02-05', description: 'Facture #1001 - Client A', amount: 1200.00 },
+                { id: 2, type: 'account', date: '2025-02-10', description: 'Facture #1002 - Client B', amount: 800.50 },
+                { id: 3, type: 'account', date: '2025-02-15', description: 'Fournisseur XYZ', amount: -350.00 },
+                { id: 4, type: 'account', date: '2025-02-20', description: 'Salaires', amount: -3500.00 },
+                { id: 5, type: 'account', date: '2025-02-25', description: 'Facture #1003 - Client C', amount: 2100.00 }
+            ];
+
+            bankTransactions = [
+                { id: 11, type: 'bank', date: '2025-02-05', description: 'Virement Client A', amount: 1200.00 },
+                { id: 12, type: 'bank', date: '2025-02-10', description: 'Virement Client B', amount: 800.50 },
+                { id: 13, type: 'bank', date: '2025-02-16', description: 'Prélèvement Fournisseur', amount: -350.00 },
+                { id: 14, type: 'bank', date: '2025-02-20', description: 'Virement salaires', amount: -3500.00 },
+                { id: 15, type: 'bank', date: '2025-02-26', description: 'Virement Client C', amount: 2100.00 }
+            ];
+
+            matches = [];
+            document.getElementById('reconciliationSection').style.display = 'block';
+            renderTransactions();
+            saveData();
+            showNotification('Données exemple chargées !', 'success');
+        });
+
+        // Format date
+        function formatDate(dateStr) {
+            const date = new Date(dateStr);
+            return date.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+        }
+
+        // Initialize
+        loadData();
     </script>
 </body>
 </html>

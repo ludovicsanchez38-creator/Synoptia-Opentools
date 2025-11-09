@@ -8,57 +8,617 @@
     <link rel="stylesheet" href="../../assets/css/tools.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .calendar-controls {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .calendar-nav {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            background: white;
+            padding: 1rem;
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border);
+        }
+        .calendar-nav button {
+            padding: 0.5rem 1rem;
+        }
+        .current-month {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            min-width: 200px;
+            text-align: center;
+        }
+        .calendar-container {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            margin-top: 1rem;
+        }
+        .calendar {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 0.5rem;
+        }
+        .calendar-header {
+            text-align: center;
+            font-weight: 700;
+            color: var(--text-primary);
+            padding: 0.75rem;
+            background: var(--light);
+            border-radius: var(--radius-sm);
+        }
+        .calendar-day {
+            aspect-ratio: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid var(--border);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: all 0.2s;
+            padding: 0.5rem;
+            position: relative;
+        }
+        .calendar-day:hover {
+            border-color: var(--primary);
+            transform: scale(1.05);
+        }
+        .calendar-day.other-month {
+            opacity: 0.3;
+            cursor: default;
+        }
+        .calendar-day.other-month:hover {
+            border-color: var(--border);
+            transform: none;
+        }
+        .calendar-day.today {
+            border-color: var(--primary);
+            border-width: 3px;
+        }
+        .calendar-day.available {
+            background: linear-gradient(135deg, #D1FAE5, #A7F3D0);
+            border-color: var(--success);
+        }
+        .calendar-day.busy {
+            background: linear-gradient(135deg, #FEF3C7, #FDE68A);
+            border-color: #F59E0B;
+        }
+        .calendar-day.unavailable {
+            background: linear-gradient(135deg, #FEE2E2, #FECACA);
+            border-color: var(--danger);
+        }
+        .day-number {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+        .day-icon {
+            font-size: 0.9rem;
+        }
+        .legend {
+            display: flex;
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+            flex-wrap: wrap;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .legend-color {
+            width: 30px;
+            height: 30px;
+            border-radius: var(--radius-sm);
+            border: 2px solid;
+        }
+        .legend-color.available {
+            background: linear-gradient(135deg, #D1FAE5, #A7F3D0);
+            border-color: var(--success);
+        }
+        .legend-color.busy {
+            background: linear-gradient(135deg, #FEF3C7, #FDE68A);
+            border-color: #F59E0B;
+        }
+        .legend-color.unavailable {
+            background: linear-gradient(135deg, #FEE2E2, #FECACA);
+            border-color: var(--danger);
+        }
+        .status-selector {
+            display: flex;
+            gap: 0.5rem;
+            background: var(--light);
+            padding: 0.5rem;
+            border-radius: var(--radius-lg);
+        }
+        .status-btn {
+            flex: 1;
+            padding: 0.75rem;
+            border: 2px solid transparent;
+            border-radius: var(--radius-md);
+            background: white;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 600;
+        }
+        .status-btn.active {
+            border-color: var(--primary);
+            background: var(--primary-light);
+        }
+        .share-box {
+            background: var(--light);
+            padding: 1rem;
+            border-radius: var(--radius-md);
+            margin-top: 1rem;
+        }
+        .share-text {
+            width: 100%;
+            min-height: 100px;
+            padding: 1rem;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            font-family: monospace;
+            font-size: 0.9rem;
+            resize: vertical;
+        }
+        @media (max-width: 768px) {
+            .calendar {
+                gap: 0.25rem;
+            }
+            .calendar-day {
+                padding: 0.25rem;
+            }
+            .day-number {
+                font-size: 0.9rem;
+            }
+            .day-icon {
+                font-size: 0.7rem;
+            }
+        }
+    </style>
 </head>
 <body>
     <nav class="breadcrumb">
-        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> > 
-        <a href="../../index.html#tools">Temps</a> > 
+        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> >
+        <a href="../../index.html#tools">Temps</a> >
         <span>Calendrier de Disponibilité</span>
     </nav>
     <main class="tool-container">
         <header class="tool-header">
             <h1><i class="fas fa-calendar-check"></i> Calendrier de Disponibilité</h1>
-            <p class="tool-description">DESC_PLACEHOLDER</p>
+            <p class="tool-description">Gérez et partagez vos disponibilités avec un calendrier visuel interactif</p>
         </header>
+
         <section class="tool-input">
-            <h2>Configuration</h2>
-            <form id="mainForm">
-                <div class="form-group">
-                    <label for="input1" class="form-label">
-                        <i class="fas fa-clock"></i> Durée ou information
-                    </label>
-                    <input type="text" id="input1" class="form-input" placeholder="Entrez les informations" required>
-                </div>
-                <button type="submit" class="btn btn-primary">
-                    <i class="fas fa-play"></i> Démarrer/Calculer
+            <div class="calendar-controls">
+                <button type="button" class="btn btn-secondary" id="exportBtn">
+                    <i class="fas fa-download"></i> Exporter CSV
                 </button>
-            </form>
+                <button type="button" class="btn btn-success" id="shareBtn">
+                    <i class="fas fa-share-alt"></i> Générer texte de partage
+                </button>
+                <button type="button" class="btn btn-danger" id="clearBtn">
+                    <i class="fas fa-trash"></i> Tout effacer
+                </button>
+            </div>
+
+            <div class="status-selector">
+                <button class="status-btn active" data-status="available">
+                    <i class="fas fa-check-circle"></i> Disponible
+                </button>
+                <button class="status-btn" data-status="busy">
+                    <i class="fas fa-clock"></i> Occupé
+                </button>
+                <button class="status-btn" data-status="unavailable">
+                    <i class="fas fa-times-circle"></i> Absent
+                </button>
+                <button class="status-btn" data-status="none">
+                    <i class="fas fa-eraser"></i> Effacer
+                </button>
+            </div>
+
+            <div class="calendar-nav">
+                <button type="button" class="btn btn-sm btn-secondary" id="prevMonthBtn">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                <div class="current-month" id="currentMonth"></div>
+                <button type="button" class="btn btn-sm btn-secondary" id="nextMonthBtn">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+                <button type="button" class="btn btn-sm btn-primary" id="todayBtn" style="margin-left: auto;">
+                    <i class="fas fa-calendar-day"></i> Aujourd'hui
+                </button>
+            </div>
+
+            <div class="calendar-container">
+                <div class="calendar">
+                    <div class="calendar-header">Lun</div>
+                    <div class="calendar-header">Mar</div>
+                    <div class="calendar-header">Mer</div>
+                    <div class="calendar-header">Jeu</div>
+                    <div class="calendar-header">Ven</div>
+                    <div class="calendar-header">Sam</div>
+                    <div class="calendar-header">Dim</div>
+                </div>
+                <div class="calendar" id="calendarDays"></div>
+
+                <div class="legend">
+                    <div class="legend-item">
+                        <div class="legend-color available"></div>
+                        <span>Disponible</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color busy"></div>
+                        <span>Occupé</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color unavailable"></div>
+                        <span>Absent</span>
+                    </div>
+                </div>
+            </div>
+
+            <div id="shareBox" class="share-box" style="display: none;">
+                <h3 style="margin-bottom: 1rem;"><i class="fas fa-share-alt"></i> Texte de partage</h3>
+                <textarea id="shareText" class="share-text" readonly></textarea>
+                <button type="button" class="btn btn-primary" id="copyBtn" style="margin-top: 0.5rem;">
+                    <i class="fas fa-copy"></i> Copier
+                </button>
+            </div>
         </section>
-        <section class="tool-output" id="results" style="display: none;">
-            <h2><i class="fas fa-check-circle"></i> Résultat</h2>
+
+        <section class="tool-output">
+            <h2><i class="fas fa-chart-pie"></i> Statistiques du mois</h2>
             <div class="results-grid">
                 <div class="result-item">
-                    <div class="result-label">Temps total</div>
-                    <div class="result-value highlight" id="totalTime">00:00:00</div>
+                    <div class="result-label">Jours disponibles</div>
+                    <div class="result-value highlight" id="statAvailable">0</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Jours occupés</div>
+                    <div class="result-value" id="statBusy">0</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Jours absents</div>
+                    <div class="result-value" id="statUnavailable">0</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Taux de disponibilité</div>
+                    <div class="result-value highlight" id="statRate">0%</div>
                 </div>
             </div>
         </section>
+
         <section class="tool-help">
-            <h3><i class="fas fa-question-circle"></i> Utilisation</h3>
-            <p>Cet outil vous aide à gérer et optimiser votre temps de travail.</p>
+            <h3><i class="fas fa-question-circle"></i> Guide d'utilisation</h3>
+            <ul>
+                <li><strong>Sélectionner le statut :</strong> Cliquez sur un statut (Disponible, Occupé, Absent)</li>
+                <li><strong>Marquer une date :</strong> Cliquez sur un jour du calendrier</li>
+                <li><strong>Navigation :</strong> Utilisez les flèches pour changer de mois</li>
+                <li><strong>Partager :</strong> Générez un texte résumant vos disponibilités</li>
+                <li><strong>Export :</strong> Téléchargez vos disponibilités au format CSV</li>
+            </ul>
         </section>
     </main>
+
     <footer class="tool-footer">
         <a href="../../index.html"><i class="fas fa-arrow-left"></i> Retour</a>
+        <p>Développé avec ❤️ par <strong>Synoptia</strong> | Contact: <a href="mailto:ludo@synoptia.fr">ludo@synoptia.fr</a></p>
     </footer>
+
     <script src="../../assets/js/utils.js"></script>
     <script src="../../assets/js/main.js"></script>
     <script>
-        document.getElementById('mainForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            document.getElementById('results').style.display = 'block';
-            showNotification('Calcul effectué !', 'success');
+        let availability = {};
+        let currentDate = new Date();
+        let selectedStatus = 'available';
+
+        // Load data from localStorage
+        function loadData() {
+            const stored = localStorage.getItem('availabilityCalendarData');
+            if (stored) {
+                availability = JSON.parse(stored);
+            }
+            renderCalendar();
+            updateStats();
+        }
+
+        // Save data to localStorage
+        function saveData() {
+            localStorage.setItem('availabilityCalendarData', JSON.stringify(availability));
+        }
+
+        // Get date key
+        function getDateKey(date) {
+            return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+        }
+
+        // Status selector
+        document.querySelectorAll('.status-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.status-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                selectedStatus = btn.dataset.status;
+            });
         });
+
+        // Render calendar
+        function renderCalendar() {
+            const year = currentDate.getFullYear();
+            const month = currentDate.getMonth();
+
+            // Update month display
+            document.getElementById('currentMonth').textContent = new Date(year, month, 1).toLocaleDateString('fr-FR', {
+                month: 'long',
+                year: 'numeric'
+            });
+
+            // Get first day of month
+            const firstDay = new Date(year, month, 1);
+            const lastDay = new Date(year, month + 1, 0);
+
+            // Get day of week (0 = Sunday, adjust for Monday start)
+            let startDayOfWeek = firstDay.getDay();
+            startDayOfWeek = startDayOfWeek === 0 ? 6 : startDayOfWeek - 1;
+
+            const daysInMonth = lastDay.getDate();
+            const daysInPrevMonth = new Date(year, month, 0).getDate();
+
+            const container = document.getElementById('calendarDays');
+            container.innerHTML = '';
+
+            const today = new Date();
+            const todayKey = getDateKey(today);
+
+            // Previous month days
+            for (let i = startDayOfWeek - 1; i >= 0; i--) {
+                const day = daysInPrevMonth - i;
+                const date = new Date(year, month - 1, day);
+                container.appendChild(createDayElement(date, true));
+            }
+
+            // Current month days
+            for (let day = 1; day <= daysInMonth; day++) {
+                const date = new Date(year, month, day);
+                container.appendChild(createDayElement(date, false));
+            }
+
+            // Next month days
+            const remainingDays = 42 - (startDayOfWeek + daysInMonth);
+            for (let day = 1; day <= remainingDays; day++) {
+                const date = new Date(year, month + 1, day);
+                container.appendChild(createDayElement(date, true));
+            }
+
+            updateStats();
+        }
+
+        // Create day element
+        function createDayElement(date, isOtherMonth) {
+            const day = document.createElement('div');
+            day.className = 'calendar-day';
+
+            const dateKey = getDateKey(date);
+            const status = availability[dateKey];
+            const today = new Date();
+            const todayKey = getDateKey(today);
+
+            if (isOtherMonth) {
+                day.classList.add('other-month');
+            }
+
+            if (dateKey === todayKey) {
+                day.classList.add('today');
+            }
+
+            if (status) {
+                day.classList.add(status);
+            }
+
+            const dayNumber = document.createElement('div');
+            dayNumber.className = 'day-number';
+            dayNumber.textContent = date.getDate();
+            day.appendChild(dayNumber);
+
+            if (status) {
+                const icon = document.createElement('div');
+                icon.className = 'day-icon';
+                icon.innerHTML = status === 'available' ? '<i class="fas fa-check"></i>' :
+                                 status === 'busy' ? '<i class="fas fa-clock"></i>' :
+                                 '<i class="fas fa-times"></i>';
+                day.appendChild(icon);
+            }
+
+            if (!isOtherMonth) {
+                day.addEventListener('click', () => {
+                    if (selectedStatus === 'none') {
+                        delete availability[dateKey];
+                    } else {
+                        availability[dateKey] = selectedStatus;
+                    }
+                    saveData();
+                    renderCalendar();
+                    showNotification('Disponibilité mise à jour', 'success');
+                });
+            }
+
+            return day;
+        }
+
+        // Navigation
+        document.getElementById('prevMonthBtn').addEventListener('click', () => {
+            currentDate.setMonth(currentDate.getMonth() - 1);
+            renderCalendar();
+        });
+
+        document.getElementById('nextMonthBtn').addEventListener('click', () => {
+            currentDate.setMonth(currentDate.getMonth() + 1);
+            renderCalendar();
+        });
+
+        document.getElementById('todayBtn').addEventListener('click', () => {
+            currentDate = new Date();
+            renderCalendar();
+        });
+
+        // Update statistics
+        function updateStats() {
+            const year = currentDate.getFullYear();
+            const month = currentDate.getMonth();
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+            let available = 0, busy = 0, unavailable = 0;
+
+            for (let day = 1; day <= daysInMonth; day++) {
+                const date = new Date(year, month, day);
+                const dateKey = getDateKey(date);
+                const status = availability[dateKey];
+
+                if (status === 'available') available++;
+                else if (status === 'busy') busy++;
+                else if (status === 'unavailable') unavailable++;
+            }
+
+            const rate = daysInMonth > 0 ? Math.round((available / daysInMonth) * 100) : 0;
+
+            document.getElementById('statAvailable').textContent = available;
+            document.getElementById('statBusy').textContent = busy;
+            document.getElementById('statUnavailable').textContent = unavailable;
+            document.getElementById('statRate').textContent = rate + '%';
+        }
+
+        // Generate share text
+        document.getElementById('shareBtn').addEventListener('click', () => {
+            const year = currentDate.getFullYear();
+            const month = currentDate.getMonth();
+            const monthName = new Date(year, month, 1).toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
+
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+            const availableDays = [];
+            const busyDays = [];
+            const unavailableDays = [];
+
+            for (let day = 1; day <= daysInMonth; day++) {
+                const date = new Date(year, month, day);
+                const dateKey = getDateKey(date);
+                const status = availability[dateKey];
+
+                if (status === 'available') availableDays.push(day);
+                else if (status === 'busy') busyDays.push(day);
+                else if (status === 'unavailable') unavailableDays.push(day);
+            }
+
+            let text = `Mes disponibilités - ${monthName}\n\n`;
+
+            if (availableDays.length > 0) {
+                text += `✅ Disponible (${availableDays.length} jours):\n`;
+                text += formatDaysList(availableDays) + '\n\n';
+            }
+
+            if (busyDays.length > 0) {
+                text += `⏰ Occupé (${busyDays.length} jours):\n`;
+                text += formatDaysList(busyDays) + '\n\n';
+            }
+
+            if (unavailableDays.length > 0) {
+                text += `❌ Absent (${unavailableDays.length} jours):\n`;
+                text += formatDaysList(unavailableDays) + '\n\n';
+            }
+
+            if (availableDays.length === 0 && busyDays.length === 0 && unavailableDays.length === 0) {
+                text += 'Aucune disponibilité définie pour ce mois.\n';
+            }
+
+            document.getElementById('shareText').value = text;
+            document.getElementById('shareBox').style.display = 'block';
+            showNotification('Texte de partage généré !', 'success');
+        });
+
+        // Format days list
+        function formatDaysList(days) {
+            const ranges = [];
+            let start = days[0];
+            let end = days[0];
+
+            for (let i = 1; i <= days.length; i++) {
+                if (i < days.length && days[i] === end + 1) {
+                    end = days[i];
+                } else {
+                    if (start === end) {
+                        ranges.push(`${start}`);
+                    } else if (end === start + 1) {
+                        ranges.push(`${start}, ${end}`);
+                    } else {
+                        ranges.push(`${start}-${end}`);
+                    }
+                    if (i < days.length) {
+                        start = days[i];
+                        end = days[i];
+                    }
+                }
+            }
+
+            return ranges.join(', ');
+        }
+
+        // Copy share text
+        document.getElementById('copyBtn').addEventListener('click', () => {
+            const text = document.getElementById('shareText');
+            text.select();
+            document.execCommand('copy');
+            showNotification('Texte copié dans le presse-papier !', 'success');
+        });
+
+        // Export to CSV
+        document.getElementById('exportBtn').addEventListener('click', () => {
+            const dates = Object.keys(availability).sort();
+
+            if (dates.length === 0) {
+                showNotification('Aucune donnée à exporter', 'error');
+                return;
+            }
+
+            const csv = [
+                ['Date', 'Statut'],
+                ...dates.map(dateKey => {
+                    const status = availability[dateKey];
+                    const statusLabel = status === 'available' ? 'Disponible' :
+                                       status === 'busy' ? 'Occupé' : 'Absent';
+                    return [dateKey, statusLabel];
+                })
+            ].map(row => row.join(';')).join('\n');
+
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `disponibilites-${new Date().toISOString().split('T')[0]}.csv`;
+            link.click();
+
+            showNotification('Export CSV réussi !', 'success');
+        });
+
+        // Clear all data
+        document.getElementById('clearBtn').addEventListener('click', () => {
+            if (confirm('Effacer toutes les disponibilités ? Cette action est irréversible.')) {
+                availability = {};
+                saveData();
+                renderCalendar();
+                document.getElementById('shareBox').style.display = 'none';
+                showNotification('Toutes les disponibilités ont été effacées', 'success');
+            }
+        });
+
+        // Initialize
+        loadData();
     </script>
 </body>
 </html>

@@ -8,57 +8,531 @@
     <link rel="stylesheet" href="../../assets/css/tools.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .input-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        .productivity-score {
+            text-align: center;
+            padding: 2rem;
+            background: var(--white);
+            border: 2px solid var(--border);
+            border-radius: var(--radius-lg);
+            margin: 2rem 0;
+        }
+        .score-value {
+            font-size: 4rem;
+            font-weight: 700;
+            line-height: 1;
+            margin: 1rem 0;
+        }
+        .score-label {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+        }
+        .score-description {
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            margin-top: 1rem;
+        }
+        .score-excellent { color: var(--success); }
+        .score-good { color: var(--primary); }
+        .score-average { color: var(--warning); }
+        .score-poor { color: var(--danger); }
+
+        .breakdown-section {
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        .breakdown-title {
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+        .breakdown-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid var(--border);
+        }
+        .breakdown-item:last-child {
+            border-bottom: none;
+        }
+        .breakdown-label {
+            color: var(--text-secondary);
+        }
+        .breakdown-value {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .chart-container {
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        .chart-bar {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        .chart-label {
+            width: 150px;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+        .chart-bar-fill {
+            flex: 1;
+            height: 30px;
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            padding: 0 0.75rem;
+            color: var(--white);
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        .bar-productive {
+            background: var(--success);
+        }
+        .bar-unproductive {
+            background: var(--danger-light);
+            color: var(--danger);
+        }
+
+        .tips-section {
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        .tip-item {
+            padding: 0.75rem;
+            background: var(--gray-light);
+            border-left: 3px solid var(--primary);
+            border-radius: var(--radius-sm);
+            margin-bottom: 0.75rem;
+        }
+        .tip-item:last-child {
+            margin-bottom: 0;
+        }
+        .tip-icon {
+            color: var(--primary);
+            margin-right: 0.5rem;
+        }
+
+        .history-item {
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 1rem;
+            margin-bottom: 0.75rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .history-info {
+            flex: 1;
+        }
+        .history-score {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-right: 1rem;
+        }
+        .history-date {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: var(--text-secondary);
+        }
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.3;
+        }
+
+        @media (max-width: 768px) {
+            .chart-label {
+                width: 100px;
+                font-size: 0.9rem;
+            }
+            .score-value {
+                font-size: 3rem;
+            }
+        }
+    </style>
 </head>
 <body>
     <nav class="breadcrumb">
-        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> > 
-        <a href="../../index.html#tools">Temps</a> > 
+        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> >
+        <a href="../../index.html#tools">Temps</a> >
         <span>Calculateur de Productivité</span>
     </nav>
     <main class="tool-container">
         <header class="tool-header">
             <h1><i class="fas fa-chart-area"></i> Calculateur de Productivité</h1>
-            <p class="tool-description">Analyse efficacité vs temps passé</p>
+            <p class="tool-description">Analysez votre efficacité et optimisez votre temps de travail</p>
         </header>
+
+        <!-- Input Section -->
         <section class="tool-input">
-            <h2>Configuration</h2>
-            <form id="mainForm">
+            <h3><i class="fas fa-keyboard"></i> Saisir les données</h3>
+            <div class="input-grid">
                 <div class="form-group">
-                    <label for="input1" class="form-label">
-                        <i class="fas fa-clock"></i> Durée ou information
+                    <label for="totalHours" class="form-label">
+                        <i class="fas fa-clock"></i> Heures travaillées
                     </label>
-                    <input type="text" id="input1" class="form-input" placeholder="Entrez les informations" required>
+                    <input type="number" id="totalHours" class="form-input" placeholder="Ex: 8" step="0.5" value="8">
                 </div>
-                <button type="submit" class="btn btn-primary">
-                    <i class="fas fa-play"></i> Démarrer/Calculer
-                </button>
-            </form>
-        </section>
-        <section class="tool-output" id="results" style="display: none;">
-            <h2><i class="fas fa-check-circle"></i> Résultat</h2>
-            <div class="results-grid">
-                <div class="result-item">
-                    <div class="result-label">Temps total</div>
-                    <div class="result-value highlight" id="totalTime">00:00:00</div>
+                <div class="form-group">
+                    <label for="productiveHours" class="form-label">
+                        <i class="fas fa-check-circle"></i> Heures productives
+                    </label>
+                    <input type="number" id="productiveHours" class="form-input" placeholder="Ex: 6" step="0.5" value="6">
                 </div>
             </div>
+
+            <button type="button" class="btn btn-primary btn-block" id="calculateBtn">
+                <i class="fas fa-calculator"></i> Analyser ma productivité
+            </button>
         </section>
+
+        <!-- Results -->
+        <section class="tool-output" id="resultsSection" style="display: none;">
+            <h2><i class="fas fa-chart-line"></i> Votre score de productivité</h2>
+
+            <!-- Productivity Score -->
+            <div class="productivity-score" id="scoreDisplay">
+                <div class="score-label">Taux de productivité</div>
+                <div class="score-value" id="scoreValue">0%</div>
+                <div class="score-description" id="scoreDescription">-</div>
+            </div>
+
+            <!-- Time Breakdown -->
+            <div class="breakdown-section">
+                <div class="breakdown-title">Répartition du temps</div>
+                <div class="breakdown-item">
+                    <span class="breakdown-label">Heures travaillées</span>
+                    <span class="breakdown-value" id="displayTotal">-</span>
+                </div>
+                <div class="breakdown-item">
+                    <span class="breakdown-label">Heures productives</span>
+                    <span class="breakdown-value" id="displayProductive">-</span>
+                </div>
+                <div class="breakdown-item">
+                    <span class="breakdown-label">Temps non productif</span>
+                    <span class="breakdown-value" id="displayUnproductive">-</span>
+                </div>
+            </div>
+
+            <!-- Visual Chart -->
+            <div class="chart-container">
+                <div class="breakdown-title">Visualisation</div>
+                <div class="chart-bar">
+                    <div class="chart-label">Temps productif</div>
+                    <div class="chart-bar-fill bar-productive" id="productiveBar" style="width: 0%;">0%</div>
+                </div>
+                <div class="chart-bar">
+                    <div class="chart-label">Temps non productif</div>
+                    <div class="chart-bar-fill bar-unproductive" id="unproductiveBar" style="width: 0%;">0%</div>
+                </div>
+            </div>
+
+            <!-- Tips -->
+            <div class="tips-section" id="tipsSection">
+                <div class="breakdown-title"><i class="fas fa-lightbulb"></i> Conseils d'amélioration</div>
+                <div id="tipsList"></div>
+            </div>
+
+            <div style="margin-top: 1rem;">
+                <button type="button" class="btn btn-secondary" id="saveBtn">
+                    <i class="fas fa-save"></i> Enregistrer cette analyse
+                </button>
+                <button type="button" class="btn btn-secondary" id="exportBtn" style="margin-left: 0.5rem;">
+                    <i class="fas fa-download"></i> Exporter CSV
+                </button>
+            </div>
+        </section>
+
+        <!-- History -->
+        <section class="tool-output">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                <h2><i class="fas fa-history"></i> Historique hebdomadaire</h2>
+                <button type="button" class="btn btn-sm btn-danger" id="clearHistoryBtn">
+                    <i class="fas fa-trash"></i> Effacer
+                </button>
+            </div>
+            <div id="historyList"></div>
+        </section>
+
         <section class="tool-help">
-            <h3><i class="fas fa-question-circle"></i> Utilisation</h3>
-            <p>Cet outil vous aide à gérer et optimiser votre temps de travail.</p>
+            <h3><i class="fas fa-question-circle"></i> Comment utiliser</h3>
+            <ul>
+                <li><strong>Heures travaillées :</strong> Total des heures que vous avez passées au travail</li>
+                <li><strong>Heures productives :</strong> Temps réellement consacré à des tâches importantes et efficaces</li>
+                <li><strong>Score :</strong> Pourcentage indiquant votre efficacité (heures productives / heures travaillées)</li>
+                <li><strong>Interprétation :</strong> 80%+ = Excellent, 60-80% = Bon, 40-60% = Moyen, <40% = À améliorer</li>
+                <li><strong>Conseils :</strong> Recommandations personnalisées selon votre score pour améliorer votre productivité</li>
+                <li><strong>Historique :</strong> Suivez l'évolution de votre productivité sur la semaine</li>
+            </ul>
         </section>
     </main>
     <footer class="tool-footer">
         <a href="../../index.html"><i class="fas fa-arrow-left"></i> Retour</a>
+        <span style="margin-left: auto; opacity: 0.7;">Synoptia - ludo@synoptia.fr</span>
     </footer>
+
     <script src="../../assets/js/utils.js"></script>
     <script src="../../assets/js/main.js"></script>
     <script>
-        document.getElementById('mainForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            document.getElementById('results').style.display = 'block';
-            showNotification('Calcul effectué !', 'success');
+        let history = [];
+        let currentAnalysis = null;
+
+        // Load history
+        function loadHistory() {
+            const stored = localStorage.getItem('productivityHistory');
+            if (stored) {
+                history = JSON.parse(stored);
+            }
+            renderHistory();
+        }
+
+        // Save history
+        function saveHistory() {
+            localStorage.setItem('productivityHistory', JSON.stringify(history));
+        }
+
+        // Get productivity tips based on score
+        function getTips(score) {
+            if (score >= 80) {
+                return [
+                    'Excellent travail ! Continuez à maintenir cette efficacité.',
+                    'Partagez vos méthodes de travail avec votre équipe.',
+                    'Pensez à prendre des pauses régulières pour maintenir ce niveau.'
+                ];
+            } else if (score >= 60) {
+                return [
+                    'Bon niveau de productivité. Identifiez les moments de distraction.',
+                    'Utilisez la technique Pomodoro (25 min de focus, 5 min de pause).',
+                    'Essayez de bloquer des créneaux sans interruption dans votre agenda.'
+                ];
+            } else if (score >= 40) {
+                return [
+                    'Productivité moyenne. Identifiez vos principales sources de distraction.',
+                    'Désactivez les notifications non essentielles pendant les tâches importantes.',
+                    'Planifiez vos tâches par ordre de priorité le matin.',
+                    'Limitez le multitâche et concentrez-vous sur une tâche à la fois.'
+                ];
+            } else {
+                return [
+                    'Votre productivité peut être significativement améliorée.',
+                    'Commencez par éliminer les distractions majeures (réseaux sociaux, emails).',
+                    'Adoptez la règle des 2 minutes : si ça prend moins de 2 min, faites-le immédiatement.',
+                    'Utilisez un timer pour mesurer le temps réel passé sur chaque tâche.',
+                    'Organisez votre espace de travail pour minimiser les interruptions.',
+                    'Fixez-vous des objectifs quotidiens clairs et mesurables.'
+                ];
+            }
+        }
+
+        // Get score class
+        function getScoreClass(score) {
+            if (score >= 80) return 'score-excellent';
+            if (score >= 60) return 'score-good';
+            if (score >= 40) return 'score-average';
+            return 'score-poor';
+        }
+
+        // Get score description
+        function getScoreDescription(score) {
+            if (score >= 80) return 'Excellent ! Vous êtes très efficace dans votre travail.';
+            if (score >= 60) return 'Bon niveau de productivité. Quelques améliorations possibles.';
+            if (score >= 40) return 'Productivité moyenne. Des optimisations sont recommandées.';
+            return 'Productivité faible. Il y a beaucoup de marge d\'amélioration.';
+        }
+
+        // Calculate
+        document.getElementById('calculateBtn').addEventListener('click', function() {
+            const totalHours = parseFloat(document.getElementById('totalHours').value);
+            const productiveHours = parseFloat(document.getElementById('productiveHours').value);
+
+            if (!totalHours || !productiveHours || totalHours <= 0) {
+                showNotification('Veuillez remplir tous les champs correctement', 'error');
+                return;
+            }
+
+            if (productiveHours > totalHours) {
+                showNotification('Les heures productives ne peuvent pas dépasser les heures travaillées', 'error');
+                return;
+            }
+
+            // Calculate
+            const unproductiveHours = totalHours - productiveHours;
+            const productivityScore = (productiveHours / totalHours) * 100;
+            const productivePercent = productivityScore;
+            const unproductivePercent = 100 - productivityScore;
+
+            // Store analysis
+            currentAnalysis = {
+                date: new Date().toISOString(),
+                totalHours,
+                productiveHours,
+                unproductiveHours,
+                score: productivityScore
+            };
+
+            // Display score
+            const scoreClass = getScoreClass(productivityScore);
+            document.getElementById('scoreValue').textContent = productivityScore.toFixed(0) + '%';
+            document.getElementById('scoreValue').className = 'score-value ' + scoreClass;
+            document.getElementById('scoreDescription').textContent = getScoreDescription(productivityScore);
+
+            // Display breakdown
+            document.getElementById('displayTotal').textContent = totalHours.toFixed(1) + 'h';
+            document.getElementById('displayProductive').textContent = productiveHours.toFixed(1) + 'h';
+            document.getElementById('displayUnproductive').textContent = unproductiveHours.toFixed(1) + 'h';
+
+            // Display chart
+            document.getElementById('productiveBar').style.width = productivePercent + '%';
+            document.getElementById('productiveBar').textContent = productivePercent.toFixed(0) + '%';
+            document.getElementById('unproductiveBar').style.width = unproductivePercent + '%';
+            document.getElementById('unproductiveBar').textContent = unproductivePercent.toFixed(0) + '%';
+
+            // Display tips
+            const tips = getTips(productivityScore);
+            document.getElementById('tipsList').innerHTML = tips.map(tip => `
+                <div class="tip-item">
+                    <i class="fas fa-check-circle tip-icon"></i>
+                    ${tip}
+                </div>
+            `).join('');
+
+            document.getElementById('resultsSection').style.display = 'block';
+            showNotification('Analyse effectuée !', 'success');
         });
+
+        // Save analysis
+        document.getElementById('saveBtn').addEventListener('click', function() {
+            if (!currentAnalysis) {
+                showNotification('Aucune analyse à enregistrer', 'error');
+                return;
+            }
+
+            history.unshift({...currentAnalysis});
+            if (history.length > 14) history = history.slice(0, 14); // Keep 2 weeks
+            saveHistory();
+            renderHistory();
+            showNotification('Analyse enregistrée !', 'success');
+        });
+
+        // Export to CSV
+        document.getElementById('exportBtn').addEventListener('click', function() {
+            if (!currentAnalysis) {
+                showNotification('Aucune analyse à exporter', 'error');
+                return;
+            }
+
+            const c = currentAnalysis;
+            const csv = [
+                ['ANALYSE DE PRODUCTIVITÉ'],
+                ['Date', new Date(c.date).toLocaleDateString('fr-FR')],
+                [''],
+                ['DONNÉES'],
+                ['Heures travaillées', c.totalHours + 'h'],
+                ['Heures productives', c.productiveHours + 'h'],
+                ['Heures non productives', c.unproductiveHours.toFixed(1) + 'h'],
+                [''],
+                ['RÉSULTAT'],
+                ['Score de productivité', c.score.toFixed(0) + '%'],
+                ['Évaluation', getScoreDescription(c.score)],
+                [''],
+                ['CONSEILS'],
+                ...getTips(c.score).map(tip => ['', tip])
+            ].map(row => row.join(';')).join('\n');
+
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `productivity-${new Date().toISOString().split('T')[0]}.csv`;
+            link.click();
+
+            showNotification('Export CSV réussi !', 'success');
+        });
+
+        // Render history
+        function renderHistory() {
+            const container = document.getElementById('historyList');
+
+            if (history.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-history"></i>
+                        <p>Aucune analyse enregistrée</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = history.map((item, index) => {
+                const scoreClass = getScoreClass(item.score);
+                return `
+                    <div class="history-item">
+                        <div class="history-info">
+                            <div class="history-score ${scoreClass}">${item.score.toFixed(0)}%</div>
+                            <div class="history-date">
+                                <i class="fas fa-calendar"></i> ${new Date(item.date).toLocaleDateString('fr-FR', {
+                                    weekday: 'long',
+                                    year: 'numeric',
+                                    month: 'long',
+                                    day: 'numeric'
+                                })}
+                            </div>
+                            <div style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.25rem;">
+                                ${item.productiveHours}h / ${item.totalHours}h productives
+                            </div>
+                        </div>
+                        <button class="btn btn-sm btn-danger" onclick="deleteHistory(${index})">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Delete history item
+        window.deleteHistory = function(index) {
+            history.splice(index, 1);
+            saveHistory();
+            renderHistory();
+            showNotification('Analyse supprimée', 'success');
+        };
+
+        // Clear all history
+        document.getElementById('clearHistoryBtn').addEventListener('click', function() {
+            if (confirm('Effacer tout l\'historique ?')) {
+                history = [];
+                saveHistory();
+                renderHistory();
+                showNotification('Historique effacé', 'success');
+            }
+        });
+
+        // Initialize
+        loadHistory();
     </script>
 </body>
 </html>

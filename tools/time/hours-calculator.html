@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculateur d'Heures de Travail - Business Tools</title>
+    <title>Calculateur d'Heures - Business Tools by Synoptia</title>
     <link rel="stylesheet" href="../../assets/css/main.css">
     <link rel="stylesheet" href="../../assets/css/tools.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -11,54 +11,263 @@
 </head>
 <body>
     <nav class="breadcrumb">
-        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> > 
-        <a href="../../index.html#tools">Temps</a> > 
-        <span>Calculateur d'Heures de Travail</span>
+        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> >
+        <a href="../../index.html#tools">Temps</a> >
+        <span>Calculateur d'Heures</span>
     </nav>
     <main class="tool-container">
         <header class="tool-header">
-            <h1><i class="fas fa-business-time"></i> Calculateur d'Heures de Travail</h1>
-            <p class="tool-description">Compte exact d'heures effectuées</p>
+            <h1><i class="fas fa-clock"></i> Calculateur d'Heures de Travail</h1>
+            <p class="tool-description">Calculez facilement vos heures de travail entre deux horaires avec pause déjeuner</p>
         </header>
+
         <section class="tool-input">
-            <h2>Configuration</h2>
-            <form id="mainForm">
-                <div class="form-group">
-                    <label for="input1" class="form-label">
-                        <i class="fas fa-clock"></i> Durée ou information
-                    </label>
-                    <input type="text" id="input1" class="form-input" placeholder="Entrez les informations" required>
+            <h2>Calcul des heures</h2>
+            <form id="hoursForm">
+                <div class="input-grid">
+                    <div class="form-group">
+                        <label for="startTime" class="form-label">
+                            <i class="fas fa-play-circle"></i> Heure de début
+                        </label>
+                        <input type="time" id="startTime" class="form-input" value="09:00" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="endTime" class="form-label">
+                            <i class="fas fa-stop-circle"></i> Heure de fin
+                        </label>
+                        <input type="time" id="endTime" class="form-input" value="17:30" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="breakTime" class="form-label">
+                            <i class="fas fa-coffee"></i> Pause (minutes)
+                        </label>
+                        <input type="number" id="breakTime" class="form-input" value="60" min="0" step="15">
+                    </div>
+                    <div class="form-group">
+                        <label for="hourlyRate" class="form-label">
+                            <i class="fas fa-euro-sign"></i> Taux horaire (€) - optionnel
+                        </label>
+                        <input type="number" id="hourlyRate" class="form-input" placeholder="0.00" step="0.01" min="0">
+                    </div>
                 </div>
                 <button type="submit" class="btn btn-primary">
-                    <i class="fas fa-play"></i> Démarrer/Calculer
+                    <i class="fas fa-calculator"></i> Calculer
                 </button>
             </form>
         </section>
+
         <section class="tool-output" id="results" style="display: none;">
             <h2><i class="fas fa-check-circle"></i> Résultat</h2>
             <div class="results-grid">
                 <div class="result-item">
                     <div class="result-label">Temps total</div>
-                    <div class="result-value highlight" id="totalTime">00:00:00</div>
+                    <div class="result-value highlight" id="totalTime">0h 00min</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Heures travaillées</div>
+                    <div class="result-value" id="workedHours">0h 00min</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Format décimal</div>
+                    <div class="result-value" id="decimalHours">0.00 h</div>
+                </div>
+                <div class="result-item" id="earningsBox" style="display: none;">
+                    <div class="result-label">Rémunération</div>
+                    <div class="result-value success" id="earnings">0.00 €</div>
                 </div>
             </div>
+
+            <h3>Historique</h3>
+            <div id="historyList"></div>
+
+            <div class="action-buttons">
+                <button class="btn btn-accent" id="exportBtn">
+                    <i class="fas fa-file-csv"></i> Exporter CSV
+                </button>
+                <button class="btn btn-outline" id="clearHistoryBtn">
+                    <i class="fas fa-trash"></i> Effacer historique
+                </button>
+            </div>
         </section>
+
         <section class="tool-help">
-            <h3><i class="fas fa-question-circle"></i> Utilisation</h3>
-            <p>Cet outil vous aide à gérer et optimiser votre temps de travail.</p>
+            <h3><i class="fas fa-question-circle"></i> Comment utiliser cet outil ?</h3>
+            <ol>
+                <li>Saisissez votre heure de début</li>
+                <li>Saisissez votre heure de fin</li>
+                <li>Indiquez la durée de pause en minutes</li>
+                <li>Optionnel : ajoutez votre taux horaire pour calculer la rémunération</li>
+                <li>Cliquez sur "Calculer"</li>
+            </ol>
+            <h3><i class="fas fa-lightbulb"></i> Conseils</h3>
+            <ul>
+                <li>Le format décimal est pratique pour les logiciels RH</li>
+                <li>L'historique est sauvegardé automatiquement</li>
+                <li>Utilisez le taux horaire pour estimer vos revenus</li>
+            </ul>
         </section>
     </main>
+
     <footer class="tool-footer">
-        <a href="../../index.html"><i class="fas fa-arrow-left"></i> Retour</a>
+        <p>Développé avec ❤️ par <strong>Synoptia</strong> | Contact: <a href="mailto:ludo@synoptia.fr">ludo@synoptia.fr</a></p>
+        <a href="../../index.html"><i class="fas fa-arrow-left"></i> Retour aux outils</a>
     </footer>
+
     <script src="../../assets/js/utils.js"></script>
     <script src="../../assets/js/main.js"></script>
     <script>
-        document.getElementById('mainForm').addEventListener('submit', function(e) {
+        let history = [];
+
+        // Load history
+        function loadHistory() {
+            const saved = localStorage.getItem('hoursHistory');
+            if (saved) {
+                history = JSON.parse(saved);
+                renderHistory();
+            }
+        }
+
+        // Calculate hours
+        document.getElementById('hoursForm').addEventListener('submit', function(e) {
             e.preventDefault();
+
+            const startTime = document.getElementById('startTime').value;
+            const endTime = document.getElementById('endTime').value;
+            const breakMinutes = parseInt(document.getElementById('breakTime').value) || 0;
+            const hourlyRate = parseFloat(document.getElementById('hourlyRate').value) || 0;
+
+            // Parse times
+            const [startHour, startMin] = startTime.split(':').map(Number);
+            const [endHour, endMin] = endTime.split(':').map(Number);
+
+            // Calculate total minutes
+            const startTotalMin = startHour * 60 + startMin;
+            let endTotalMin = endHour * 60 + endMin;
+
+            // Handle overnight shifts
+            if (endTotalMin < startTotalMin) {
+                endTotalMin += 24 * 60;
+            }
+
+            const totalMinutes = endTotalMin - startTotalMin;
+            const workedMinutes = totalMinutes - breakMinutes;
+
+            // Convert to hours and minutes
+            const totalHours = Math.floor(totalMinutes / 60);
+            const totalMins = totalMinutes % 60;
+            const workedHours = Math.floor(workedMinutes / 60);
+            const workedMins = workedMinutes % 60;
+
+            // Decimal format
+            const decimalHours = (workedMinutes / 60).toFixed(2);
+
+            // Earnings
+            const earnings = hourlyRate > 0 ? (decimalHours * hourlyRate).toFixed(2) : 0;
+
+            // Display results
+            document.getElementById('totalTime').textContent = `${totalHours}h ${totalMins}min`;
+            document.getElementById('workedHours').textContent = `${workedHours}h ${workedMins}min`;
+            document.getElementById('decimalHours').textContent = `${decimalHours} h`;
+
+            if (hourlyRate > 0) {
+                document.getElementById('earningsBox').style.display = 'block';
+                document.getElementById('earnings').textContent = `${earnings} €`;
+            } else {
+                document.getElementById('earningsBox').style.display = 'none';
+            }
+
+            // Add to history
+            const entry = {
+                date: new Date().toLocaleString('fr-FR'),
+                start: startTime,
+                end: endTime,
+                break: breakMinutes,
+                worked: `${workedHours}h ${workedMins}min`,
+                decimal: decimalHours,
+                earnings: earnings > 0 ? earnings : null
+            };
+
+            history.unshift(entry);
+            if (history.length > 20) history.pop();
+
+            localStorage.setItem('hoursHistory', JSON.stringify(history));
+            renderHistory();
+
             document.getElementById('results').style.display = 'block';
-            showNotification('Calcul effectué !', 'success');
+            scrollToElement('#results', 100);
+            showNotification('Heures calculées !', 'success');
         });
+
+        // Render history
+        function renderHistory() {
+            const container = document.getElementById('historyList');
+
+            if (history.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #999;">Aucun historique</p>';
+                return;
+            }
+
+            let html = '<div style="overflow-x: auto;"><table style="width: 100%; border-collapse: collapse;">';
+            html += '<thead><tr style="background: #667eea; color: white;">';
+            html += '<th style="padding: 0.75rem; border: 1px solid #ddd;">Date</th>';
+            html += '<th style="padding: 0.75rem; border: 1px solid #ddd;">Début</th>';
+            html += '<th style="padding: 0.75rem; border: 1px solid #ddd;">Fin</th>';
+            html += '<th style="padding: 0.75rem; border: 1px solid #ddd;">Pause</th>';
+            html += '<th style="padding: 0.75rem; border: 1px solid #ddd;">Travaillées</th>';
+            html += '<th style="padding: 0.75rem; border: 1px solid #ddd;">Décimal</th>';
+            html += '<th style="padding: 0.75rem; border: 1px solid #ddd;">Gains</th>';
+            html += '</tr></thead><tbody>';
+
+            history.forEach(entry => {
+                html += '<tr>';
+                html += `<td style="padding: 0.5rem; border: 1px solid #ddd;">${entry.date}</td>`;
+                html += `<td style="padding: 0.5rem; border: 1px solid #ddd; text-align: center;">${entry.start}</td>`;
+                html += `<td style="padding: 0.5rem; border: 1px solid #ddd; text-align: center;">${entry.end}</td>`;
+                html += `<td style="padding: 0.5rem; border: 1px solid #ddd; text-align: center;">${entry.break} min</td>`;
+                html += `<td style="padding: 0.5rem; border: 1px solid #ddd; text-align: center; font-weight: 600;">${entry.worked}</td>`;
+                html += `<td style="padding: 0.5rem; border: 1px solid #ddd; text-align: center;">${entry.decimal}h</td>`;
+                html += `<td style="padding: 0.5rem; border: 1px solid #ddd; text-align: center;">${entry.earnings ? entry.earnings + ' €' : '-'}</td>`;
+                html += '</tr>';
+            });
+
+            html += '</tbody></table></div>';
+            container.innerHTML = html;
+        }
+
+        // Export CSV
+        document.getElementById('exportBtn').addEventListener('click', function() {
+            if (history.length === 0) {
+                showNotification('Aucun historique à exporter', 'warning');
+                return;
+            }
+
+            let csv = 'Date,Heure début,Heure fin,Pause (min),Heures travaillées,Format décimal,Gains (€)\n';
+
+            history.forEach(entry => {
+                csv += `"${entry.date}",${entry.start},${entry.end},${entry.break},"${entry.worked}",${entry.decimal},${entry.earnings || ''}\n`;
+            });
+
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `heures_travail_${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+            showNotification('Export CSV réussi !', 'success');
+        });
+
+        // Clear history
+        document.getElementById('clearHistoryBtn').addEventListener('click', function() {
+            if (confirm('Effacer tout l\'historique ?')) {
+                history = [];
+                localStorage.removeItem('hoursHistory');
+                renderHistory();
+                showNotification('Historique effacé', 'info');
+            }
+        });
+
+        // Initialize
+        loadHistory();
     </script>
 </body>
 </html>

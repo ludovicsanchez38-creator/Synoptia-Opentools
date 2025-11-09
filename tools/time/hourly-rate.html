@@ -3,62 +3,500 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculateur de Coût Horaire - Business Tools</title>
+    <title>Calculateur de Taux Horaire - Business Tools</title>
     <link rel="stylesheet" href="../../assets/css/main.css">
     <link rel="stylesheet" href="../../assets/css/tools.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .calculation-mode {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+        .mode-btn {
+            flex: 1;
+            padding: 1rem;
+            border: 2px solid var(--border);
+            background: var(--white);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+            min-width: 150px;
+        }
+        .mode-btn:hover {
+            border-color: var(--primary);
+        }
+        .mode-btn.active {
+            background: var(--primary);
+            color: var(--white);
+            border-color: var(--primary);
+        }
+        .mode-btn i {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+        .mode-btn .mode-title {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+        .mode-btn .mode-desc {
+            font-size: 0.85rem;
+            opacity: 0.8;
+        }
+        .input-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        .breakdown-card {
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        .breakdown-title {
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+        .breakdown-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid var(--border);
+        }
+        .breakdown-item:last-child {
+            border-bottom: none;
+        }
+        .breakdown-label {
+            color: var(--text-secondary);
+        }
+        .breakdown-value {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        .breakdown-value.highlight {
+            color: var(--primary);
+            font-size: 1.1rem;
+        }
+        .info-card {
+            background: var(--primary-light);
+            border-left: 4px solid var(--primary);
+            padding: 1rem;
+            border-radius: var(--radius-sm);
+            margin-top: 1rem;
+        }
+        .info-card i {
+            color: var(--primary);
+            margin-right: 0.5rem;
+        }
+        .session-item {
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 1rem;
+            margin-bottom: 0.75rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .session-info {
+            flex: 1;
+        }
+        .session-task {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.25rem;
+        }
+        .session-time {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: var(--text-secondary);
+        }
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.3;
+        }
+    </style>
 </head>
 <body>
     <nav class="breadcrumb">
-        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> > 
-        <a href="../../index.html#tools">Temps</a> > 
-        <span>Calculateur de Coût Horaire</span>
+        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> >
+        <a href="../../index.html#tools">Temps</a> >
+        <span>Calculateur de Taux Horaire</span>
     </nav>
     <main class="tool-container">
         <header class="tool-header">
-            <h1><i class="fas fa-dollar-sign"></i> Calculateur de Coût Horaire</h1>
-            <p class="tool-description">Calcule le vrai coût de revient horaire</p>
+            <h1><i class="fas fa-money-bill-wave"></i> Calculateur de Taux Horaire</h1>
+            <p class="tool-description">Calculez votre taux horaire à partir de votre salaire ou inversement</p>
         </header>
+
+        <!-- Calculation Mode -->
         <section class="tool-input">
-            <h2>Configuration</h2>
-            <form id="mainForm">
-                <div class="form-group">
-                    <label for="input1" class="form-label">
-                        <i class="fas fa-clock"></i> Durée ou information
-                    </label>
-                    <input type="text" id="input1" class="form-input" placeholder="Entrez les informations" required>
-                </div>
-                <button type="submit" class="btn btn-primary">
-                    <i class="fas fa-play"></i> Démarrer/Calculer
-                </button>
-            </form>
-        </section>
-        <section class="tool-output" id="results" style="display: none;">
-            <h2><i class="fas fa-check-circle"></i> Résultat</h2>
-            <div class="results-grid">
-                <div class="result-item">
-                    <div class="result-label">Temps total</div>
-                    <div class="result-value highlight" id="totalTime">00:00:00</div>
+            <div class="form-group">
+                <label class="form-label">
+                    <i class="fas fa-calculator"></i> Mode de calcul
+                </label>
+                <div class="calculation-mode">
+                    <div class="mode-btn active" data-mode="salary">
+                        <div><i class="fas fa-arrow-right"></i></div>
+                        <div class="mode-title">Salaire → Taux</div>
+                        <div class="mode-desc">Calculer le taux horaire</div>
+                    </div>
+                    <div class="mode-btn" data-mode="hourly">
+                        <div><i class="fas fa-arrow-left"></i></div>
+                        <div class="mode-title">Taux → Salaire</div>
+                        <div class="mode-desc">Calculer le salaire annuel</div>
+                    </div>
                 </div>
             </div>
+
+            <!-- Salary to Hourly Mode -->
+            <div id="salaryMode">
+                <div class="input-group">
+                    <div class="form-group">
+                        <label for="annualSalary" class="form-label">Salaire annuel (€)</label>
+                        <input type="number" id="annualSalary" class="form-input" placeholder="Ex: 45000" value="45000">
+                    </div>
+                    <div class="form-group">
+                        <label for="hoursPerWeek" class="form-label">Heures par semaine</label>
+                        <input type="number" id="hoursPerWeek" class="form-input" placeholder="Ex: 35" value="35">
+                    </div>
+                    <div class="form-group">
+                        <label for="weeksPerYear" class="form-label">Semaines par an</label>
+                        <input type="number" id="weeksPerYear" class="form-input" placeholder="Ex: 47" value="47">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Hourly to Salary Mode -->
+            <div id="hourlyMode" style="display: none;">
+                <div class="input-group">
+                    <div class="form-group">
+                        <label for="hourlyRate" class="form-label">Taux horaire (€)</label>
+                        <input type="number" id="hourlyRate" class="form-input" placeholder="Ex: 27.34" step="0.01" value="27.34">
+                    </div>
+                    <div class="form-group">
+                        <label for="hoursPerWeek2" class="form-label">Heures par semaine</label>
+                        <input type="number" id="hoursPerWeek2" class="form-input" placeholder="Ex: 35" value="35">
+                    </div>
+                    <div class="form-group">
+                        <label for="weeksPerYear2" class="form-label">Semaines par an</label>
+                        <input type="number" id="weeksPerYear2" class="form-input" placeholder="Ex: 47" value="47">
+                    </div>
+                </div>
+            </div>
+
+            <button type="button" class="btn btn-primary btn-block" id="calculateBtn">
+                <i class="fas fa-calculator"></i> Calculer
+            </button>
         </section>
+
+        <!-- Results -->
+        <section class="tool-output" id="resultsSection" style="display: none;">
+            <h2><i class="fas fa-chart-line"></i> Résultats détaillés</h2>
+
+            <div class="breakdown-card">
+                <div class="breakdown-title">Répartition temporelle</div>
+                <div class="breakdown-item">
+                    <span class="breakdown-label"><i class="fas fa-clock"></i> Taux horaire</span>
+                    <span class="breakdown-value highlight" id="resultHourly">-</span>
+                </div>
+                <div class="breakdown-item">
+                    <span class="breakdown-label"><i class="fas fa-calendar-day"></i> Revenu journalier (8h)</span>
+                    <span class="breakdown-value" id="resultDaily">-</span>
+                </div>
+                <div class="breakdown-item">
+                    <span class="breakdown-label"><i class="fas fa-calendar-week"></i> Revenu hebdomadaire</span>
+                    <span class="breakdown-value" id="resultWeekly">-</span>
+                </div>
+                <div class="breakdown-item">
+                    <span class="breakdown-label"><i class="fas fa-calendar-alt"></i> Revenu mensuel (4.33 sem)</span>
+                    <span class="breakdown-value" id="resultMonthly">-</span>
+                </div>
+                <div class="breakdown-item">
+                    <span class="breakdown-label"><i class="fas fa-calendar"></i> Revenu annuel</span>
+                    <span class="breakdown-value highlight" id="resultYearly">-</span>
+                </div>
+            </div>
+
+            <div class="breakdown-card">
+                <div class="breakdown-title">Analyse du temps de travail</div>
+                <div class="breakdown-item">
+                    <span class="breakdown-label">Heures par semaine</span>
+                    <span class="breakdown-value" id="analysisWeekly">-</span>
+                </div>
+                <div class="breakdown-item">
+                    <span class="breakdown-label">Heures par an</span>
+                    <span class="breakdown-value" id="analysisYearly">-</span>
+                </div>
+                <div class="breakdown-item">
+                    <span class="breakdown-label">Semaines travaillées</span>
+                    <span class="breakdown-value" id="analysisWeeks">-</span>
+                </div>
+                <div class="breakdown-item">
+                    <span class="breakdown-label">Semaines de congés</span>
+                    <span class="breakdown-value" id="analysisVacation">-</span>
+                </div>
+            </div>
+
+            <div class="info-card">
+                <i class="fas fa-info-circle"></i>
+                <strong>Note :</strong> Ces calculs sont basés sur le temps de travail déclaré.
+                Les charges sociales et impôts ne sont pas inclus dans ces montants.
+            </div>
+
+            <div style="margin-top: 1rem;">
+                <button type="button" class="btn btn-secondary" id="saveBtn">
+                    <i class="fas fa-save"></i> Enregistrer ce calcul
+                </button>
+                <button type="button" class="btn btn-secondary" id="exportBtn" style="margin-left: 0.5rem;">
+                    <i class="fas fa-download"></i> Exporter CSV
+                </button>
+            </div>
+        </section>
+
+        <!-- History -->
+        <section class="tool-output" id="historySection">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                <h2><i class="fas fa-history"></i> Historique des calculs</h2>
+                <button type="button" class="btn btn-sm btn-danger" id="clearHistoryBtn">
+                    <i class="fas fa-trash"></i> Effacer
+                </button>
+            </div>
+            <div id="historyList"></div>
+        </section>
+
         <section class="tool-help">
-            <h3><i class="fas fa-question-circle"></i> Utilisation</h3>
-            <p>Cet outil vous aide à gérer et optimiser votre temps de travail.</p>
+            <h3><i class="fas fa-question-circle"></i> Comment utiliser</h3>
+            <ul>
+                <li><strong>Salaire → Taux :</strong> Entrez votre salaire annuel pour calculer votre taux horaire</li>
+                <li><strong>Taux → Salaire :</strong> Entrez votre taux horaire pour calculer votre salaire annuel</li>
+                <li><strong>Heures/semaine :</strong> Nombre d'heures travaillées par semaine (35h, 39h, etc.)</li>
+                <li><strong>Semaines/an :</strong> Nombre de semaines travaillées (52 semaines - congés payés)</li>
+                <li><strong>Répartition :</strong> Visualisez votre rémunération par heure, jour, semaine, mois et année</li>
+                <li><strong>Historique :</strong> Enregistrez et comparez plusieurs calculs</li>
+            </ul>
         </section>
     </main>
     <footer class="tool-footer">
         <a href="../../index.html"><i class="fas fa-arrow-left"></i> Retour</a>
+        <span style="margin-left: auto; opacity: 0.7;">Synoptia - ludo@synoptia.fr</span>
     </footer>
+
     <script src="../../assets/js/utils.js"></script>
     <script src="../../assets/js/main.js"></script>
     <script>
-        document.getElementById('mainForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            document.getElementById('results').style.display = 'block';
+        let currentMode = 'salary';
+        let history = [];
+        let currentCalculation = null;
+
+        // Load history
+        function loadHistory() {
+            const stored = localStorage.getItem('hourlyRateHistory');
+            if (stored) {
+                history = JSON.parse(stored);
+            }
+            renderHistory();
+        }
+
+        // Save history
+        function saveHistory() {
+            localStorage.setItem('hourlyRateHistory', JSON.stringify(history));
+        }
+
+        // Mode switch
+        document.querySelectorAll('.mode-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                currentMode = this.dataset.mode;
+
+                if (currentMode === 'salary') {
+                    document.getElementById('salaryMode').style.display = 'block';
+                    document.getElementById('hourlyMode').style.display = 'none';
+                } else {
+                    document.getElementById('salaryMode').style.display = 'none';
+                    document.getElementById('hourlyMode').style.display = 'block';
+                }
+            });
+        });
+
+        // Calculate
+        document.getElementById('calculateBtn').addEventListener('click', function() {
+            let hourlyRate, annualSalary, hoursPerWeek, weeksPerYear;
+
+            if (currentMode === 'salary') {
+                annualSalary = parseFloat(document.getElementById('annualSalary').value);
+                hoursPerWeek = parseFloat(document.getElementById('hoursPerWeek').value);
+                weeksPerYear = parseFloat(document.getElementById('weeksPerYear').value);
+
+                if (!annualSalary || !hoursPerWeek || !weeksPerYear) {
+                    showNotification('Veuillez remplir tous les champs', 'error');
+                    return;
+                }
+
+                hourlyRate = annualSalary / (hoursPerWeek * weeksPerYear);
+            } else {
+                hourlyRate = parseFloat(document.getElementById('hourlyRate').value);
+                hoursPerWeek = parseFloat(document.getElementById('hoursPerWeek2').value);
+                weeksPerYear = parseFloat(document.getElementById('weeksPerYear2').value);
+
+                if (!hourlyRate || !hoursPerWeek || !weeksPerYear) {
+                    showNotification('Veuillez remplir tous les champs', 'error');
+                    return;
+                }
+
+                annualSalary = hourlyRate * hoursPerWeek * weeksPerYear;
+            }
+
+            // Calculate all values
+            const hourlyValue = hourlyRate;
+            const dailyValue = hourlyRate * 8;
+            const weeklyValue = hourlyRate * hoursPerWeek;
+            const monthlyValue = weeklyValue * 4.33;
+            const yearlyValue = annualSalary;
+            const totalHoursPerYear = hoursPerWeek * weeksPerYear;
+            const vacationWeeks = 52 - weeksPerYear;
+
+            // Store calculation
+            currentCalculation = {
+                mode: currentMode,
+                hourlyRate: hourlyValue,
+                annualSalary: yearlyValue,
+                hoursPerWeek: hoursPerWeek,
+                weeksPerYear: weeksPerYear,
+                dailyValue: dailyValue,
+                weeklyValue: weeklyValue,
+                monthlyValue: monthlyValue,
+                totalHoursPerYear: totalHoursPerYear,
+                vacationWeeks: vacationWeeks,
+                date: new Date().toISOString()
+            };
+
+            // Display results
+            document.getElementById('resultHourly').textContent = hourlyValue.toFixed(2) + ' €';
+            document.getElementById('resultDaily').textContent = dailyValue.toFixed(2) + ' €';
+            document.getElementById('resultWeekly').textContent = weeklyValue.toFixed(2) + ' €';
+            document.getElementById('resultMonthly').textContent = monthlyValue.toFixed(2) + ' €';
+            document.getElementById('resultYearly').textContent = yearlyValue.toFixed(2) + ' €';
+
+            document.getElementById('analysisWeekly').textContent = hoursPerWeek + ' heures';
+            document.getElementById('analysisYearly').textContent = totalHoursPerYear.toFixed(0) + ' heures';
+            document.getElementById('analysisWeeks').textContent = weeksPerYear + ' semaines';
+            document.getElementById('analysisVacation').textContent = vacationWeeks + ' semaines';
+
+            document.getElementById('resultsSection').style.display = 'block';
+
             showNotification('Calcul effectué !', 'success');
         });
+
+        // Save calculation
+        document.getElementById('saveBtn').addEventListener('click', function() {
+            if (!currentCalculation) {
+                showNotification('Aucun calcul à enregistrer', 'error');
+                return;
+            }
+
+            history.unshift({...currentCalculation});
+            if (history.length > 10) history = history.slice(0, 10); // Keep only 10 items
+            saveHistory();
+            renderHistory();
+            showNotification('Calcul enregistré !', 'success');
+        });
+
+        // Export to CSV
+        document.getElementById('exportBtn').addEventListener('click', function() {
+            if (!currentCalculation) {
+                showNotification('Aucun calcul à exporter', 'error');
+                return;
+            }
+
+            const csv = [
+                ['Métrique', 'Valeur'],
+                ['Taux horaire', currentCalculation.hourlyRate.toFixed(2) + ' €'],
+                ['Revenu journalier (8h)', currentCalculation.dailyValue.toFixed(2) + ' €'],
+                ['Revenu hebdomadaire', currentCalculation.weeklyValue.toFixed(2) + ' €'],
+                ['Revenu mensuel', currentCalculation.monthlyValue.toFixed(2) + ' €'],
+                ['Revenu annuel', currentCalculation.annualSalary.toFixed(2) + ' €'],
+                ['Heures par semaine', currentCalculation.hoursPerWeek],
+                ['Heures par an', currentCalculation.totalHoursPerYear.toFixed(0)],
+                ['Semaines travaillées', currentCalculation.weeksPerYear],
+                ['Semaines de congés', currentCalculation.vacationWeeks]
+            ].map(row => row.join(';')).join('\n');
+
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `hourly-rate-${new Date().toISOString().split('T')[0]}.csv`;
+            link.click();
+
+            showNotification('Export CSV réussi !', 'success');
+        });
+
+        // Render history
+        function renderHistory() {
+            const container = document.getElementById('historyList');
+
+            if (history.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-history"></i>
+                        <p>Aucun calcul enregistré</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = history.map((calc, index) => `
+                <div class="session-item">
+                    <div class="session-info">
+                        <div class="session-task">
+                            ${calc.hourlyRate.toFixed(2)} €/h • ${calc.annualSalary.toFixed(0)} € /an
+                        </div>
+                        <div class="session-time">
+                            <i class="fas fa-calendar"></i> ${new Date(calc.date).toLocaleDateString('fr-FR')}
+                            • ${calc.hoursPerWeek}h/sem • ${calc.weeksPerYear} sem/an
+                        </div>
+                    </div>
+                    <button class="btn btn-sm btn-danger" onclick="deleteHistory(${index})">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        // Delete history item
+        window.deleteHistory = function(index) {
+            history.splice(index, 1);
+            saveHistory();
+            renderHistory();
+            showNotification('Calcul supprimé', 'success');
+        };
+
+        // Clear all history
+        document.getElementById('clearHistoryBtn').addEventListener('click', function() {
+            if (confirm('Effacer tout l\'historique ?')) {
+                history = [];
+                saveHistory();
+                renderHistory();
+                showNotification('Historique effacé', 'success');
+            }
+        });
+
+        // Load on page load
+        loadHistory();
     </script>
 </body>
 </html>
