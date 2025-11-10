@@ -6,8 +6,18 @@
     <title>Générateur de Notes de Frais - Business Tools</title>
     <link rel="stylesheet" href="../../assets/css/main.css">
     <link rel="stylesheet" href="../../assets/css/tools.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Font Awesome avec SRI pour sécurité -->
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+          integrity="sha384-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw=="
+          crossorigin="anonymous"
+          referrerpolicy="no-referrer">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- DOMPurify pour sanitization XSS -->
+    <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.6/dist/purify.min.js"
+            integrity="sha384-LhPJK12eZWQ+j+V7A48VQQnLzOLJB8C7wYvDWbdBxBh1QdXbYbYVZYY6YGnQgzEi=="
+            crossorigin="anonymous"></script>
     <style>
         .report-preview {
             background: white;
@@ -268,6 +278,7 @@
             // Calculate total
             const total = reportData.expenses.reduce((sum, exp) => sum + exp.amount, 0);
 
+            // SÉCURITÉ: Utilise escapeHtml() pour éviter les XSS sur toutes les données utilisateur
             // Generate preview
             const reportNumber = `NF-${new Date().getFullYear()}-${String(Date.now()).slice(-6)}`;
             const preview = `
@@ -286,8 +297,8 @@
 
                 <div style="background: var(--light); padding: 1.5rem; border-radius: var(--radius); margin: 2rem 0;">
                     <h3>Informations employé</h3>
-                    <p><strong>Nom :</strong> ${reportData.employee.name}</p>
-                    <p><strong>Département :</strong> ${reportData.employee.dept}</p>
+                    <p><strong>Nom :</strong> ${escapeHtml(reportData.employee.name)}</p>
+                    <p><strong>Département :</strong> ${escapeHtml(reportData.employee.dept)}</p>
                     <p><strong>Période :</strong> Du ${new Date(reportData.period.start).toLocaleDateString('fr-FR')} au ${new Date(reportData.period.end).toLocaleDateString('fr-FR')}</p>
                 </div>
 
@@ -306,8 +317,8 @@
                         ${reportData.expenses.map(exp => `
                             <tr>
                                 <td>${new Date(exp.date).toLocaleDateString('fr-FR')}</td>
-                                <td>${exp.category}</td>
-                                <td>${exp.description}</td>
+                                <td>${escapeHtml(exp.category)}</td>
+                                <td>${escapeHtml(exp.description)}</td>
                                 <td style="text-align: center;">${exp.receipt}</td>
                                 <td style="text-align: right;">${formatCurrency(exp.amount)}</td>
                             </tr>
