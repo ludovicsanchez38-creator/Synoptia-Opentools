@@ -9,6 +9,97 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha384-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous">
     <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.6/dist/purify.min.js" integrity="sha384-LhPJK12eZWQ+j+V7A48VQQnLzOLJB8C7wYvDWbdBxBh1QdXbYbYVZYY6YGnQgzEi==" crossorigin="anonymous"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .slide-card {
+            background: white;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border-left: 4px solid var(--primary);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md);
+        }
+        .slide-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        .slide-number {
+            width: 40px;
+            height: 40px;
+            background: var(--primary);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            margin-right: 1rem;
+            font-size: 1.1rem;
+        }
+        .slide-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .slide-content {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: var(--light);
+            border-radius: var(--radius-md);
+        }
+        .slide-content textarea {
+            width: 100%;
+            min-height: 100px;
+            resize: vertical;
+        }
+        .preview-slide {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 3rem;
+            margin-bottom: 2rem;
+            border-radius: var(--radius-lg);
+            min-height: 400px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+            box-shadow: var(--shadow-xl);
+        }
+        .preview-slide h2 {
+            color: white;
+            margin-bottom: 1.5rem;
+            font-size: 2.5rem;
+        }
+        .preview-slide p {
+            color: rgba(255,255,255,0.95);
+            font-size: 1.1rem;
+            line-height: 1.8;
+        }
+        .preview-number {
+            position: absolute;
+            bottom: 1rem;
+            right: 1rem;
+            font-size: 0.9rem;
+            opacity: 0.7;
+        }
+        .tips-box {
+            background: #E8F5E9;
+            border-left: 4px solid #4CAF50;
+            padding: 1rem;
+            margin-top: 1rem;
+            border-radius: var(--radius-md);
+        }
+        .tips-box strong {
+            color: #2E7D32;
+        }
+        @media print {
+            .tool-input, .btn, .breadcrumb, .tool-footer, .tool-help { display: none; }
+            .preview-slide { page-break-after: always; }
+        }
+    </style>
 </head>
 <body>
     <nav class="breadcrumb" role="navigation" aria-label="Fil d'ariane">
@@ -19,72 +110,413 @@
     <main class="tool-container">
         <header class="tool-header">
             <h1><i class="fas fa-presentation"></i> Générateur de Pitch Deck</h1>
-            <p class="tool-description">Créez la structure de votre présentation investisseurs.</p>
+            <p class="tool-description">Créez votre présentation investisseurs complète avec structure professionnelle et conseils pour chaque slide</p>
         </header>
 
-        <section class="tool-input">
-            <div class="form-group" style="max-width: 400px;">
-                <label class="form-label">Nom du projet</label>
-                <input type="text" id="project" class="form-input" value="Ma Startup">
+        <section class="tool-input" role="region" aria-label="Formulaire de création du pitch deck">
+            <h2>Informations du projet</h2>
+
+            <div class="card" style="margin-bottom: 2rem;">
+                <div class="input-grid">
+                    <div class="form-group">
+                        <label class="form-label">Nom du projet *</label>
+                        <input type="text" id="projectName" class="form-input" placeholder="Ex: MaStartup" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Tagline (slogan)</label>
+                        <input type="text" id="tagline" class="form-input" placeholder="Ex: La solution X pour Y">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Votre nom</label>
+                        <input type="text" id="founderName" class="form-input" placeholder="Ex: Marie Dupont">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Votre rôle</label>
+                        <input type="text" id="founderRole" class="form-input" placeholder="Ex: CEO & Co-fondatrice">
+                    </div>
+                </div>
             </div>
 
-            <button class="btn btn-primary" id="generateBtn">
-                <i class="fas fa-file-powerpoint"></i> Générer les slides
-            </button>
+            <div id="slidesContainer">
+                <!-- Les slides seront générées ici -->
+            </div>
+
+            <div class="action-buttons">
+                <button class="btn btn-primary" id="generateBtn" aria-label="Générer l'aperçu du pitch deck">
+                    <i class="fas fa-eye" aria-hidden="true"></i> Prévisualiser
+                </button>
+                <button class="btn btn-secondary" id="saveBtn" aria-label="Sauvegarder le pitch deck">
+                    <i class="fas fa-save" aria-hidden="true"></i> Sauvegarder
+                </button>
+                <button class="btn btn-success" id="exportBtn" aria-label="Exporter au format JSON">
+                    <i class="fas fa-download" aria-hidden="true"></i> Exporter JSON
+                </button>
+                <button class="btn btn-outline" id="resetBtn" aria-label="Réinitialiser le formulaire">
+                    <i class="fas fa-redo" aria-hidden="true"></i> Réinitialiser
+                </button>
+            </div>
         </section>
 
-        <section class="tool-output">
-            <h3>📊 Structure du Pitch Deck (10-15 slides)</h3>
-            <div id="slides"></div>
+        <section class="tool-output" id="results" style="display: none;" role="region" aria-labelledby="preview-heading">
+            <h2 id="preview-heading"><i class="fas fa-presentation" aria-hidden="true"></i> Aperçu du Pitch Deck</h2>
+            <div id="preview"></div>
+
+            <div class="action-buttons" style="margin-top: 2rem;">
+                <button class="btn btn-accent" id="printBtn" aria-label="Imprimer le pitch deck">
+                    <i class="fas fa-print" aria-hidden="true"></i> Imprimer
+                </button>
+                <button class="btn btn-outline" id="editBtn" aria-label="Modifier le pitch deck">
+                    <i class="fas fa-edit" aria-hidden="true"></i> Modifier
+                </button>
+            </div>
         </section>
 
         <section class="tool-help" role="region" aria-labelledby="help-heading">
-            <h3 id="help-heading"><i class="fas fa-info-circle" aria-hidden="true"></i> Conseils</h3>
+            <h3 id="help-heading"><i class="fas fa-info-circle" aria-hidden="true"></i> Comment créer un pitch deck efficace ?</h3>
+
+            <h4>📋 Structure recommandée</h4>
+            <ol>
+                <li><strong>Slide 1 - Titre :</strong> Nom du projet, tagline, votre nom/fonction</li>
+                <li><strong>Slide 2 - Problème :</strong> Quel problème majeur résolvez-vous ? (avec chiffres si possible)</li>
+                <li><strong>Slide 3 - Solution :</strong> Votre produit/service en 1-2 phrases</li>
+                <li><strong>Slide 4 - Marché :</strong> TAM (marché total), SAM (marché adressable), SOM (marché accessible)</li>
+                <li><strong>Slide 5 - Produit :</strong> Demo, capture d'écran, fonctionnalités clés (3 max)</li>
+                <li><strong>Slide 6 - Traction :</strong> Preuves de validation (clients, revenus, croissance, partenariats)</li>
+                <li><strong>Slide 7 - Business Model :</strong> Comment gagnez-vous de l'argent ? (prix, coûts, marges)</li>
+                <li><strong>Slide 8 - Concurrence :</strong> Matrice concurrentielle, votre différenciation</li>
+                <li><strong>Slide 9 - Équipe :</strong> Fondateurs + compétences clés, advisors si pertinent</li>
+                <li><strong>Slide 10 - Financier :</strong> Prévisions 3 ans, utilisation des fonds</li>
+                <li><strong>Slide 11 - Demande :</strong> Montant recherché, pour quoi faire (milestones)</li>
+                <li><strong>Slide 12 - Vision :</strong> Où serez-vous dans 3-5 ans ? Impact long terme</li>
+            </ol>
+
+            <h4><i class="fas fa-lightbulb" aria-hidden="true"></i> Conseils d'experts</h4>
             <ul>
-                <li>Limitez-vous à 10-15 slides maximum</li>
-                <li>1 idée = 1 slide</li>
-                <li>Privilégiez les visuels aux textes</li>
-                <li>Préparez une version 3 minutes et une version 20 minutes</li>
+                <li><strong>Longueur :</strong> 10-15 slides maximum (12 idéal)</li>
+                <li><strong>Design :</strong> 1 idée = 1 slide, privilégiez les visuels aux textes longs</li>
+                <li><strong>Durée :</strong> Préparez une version 3 minutes (elevator pitch) et une version 20 minutes</li>
+                <li><strong>Chiffres :</strong> Utilisez des données concrètes et vérifiables</li>
+                <li><strong>Storytelling :</strong> Racontez une histoire cohérente du problème à la solution</li>
+                <li><strong>Pratique :</strong> Répétez 10+ fois avant votre présentation réelle</li>
+            </ul>
+
+            <h4><i class="fas fa-exclamation-triangle" aria-hidden="true"></i> Erreurs à éviter</h4>
+            <ul>
+                <li>❌ Trop de texte sur les slides (max 3-4 bullet points par slide)</li>
+                <li>❌ Prévisions financières irréalistes ou non justifiées</li>
+                <li>❌ Ignorer la concurrence ou dire "nous n'avons pas de concurrent"</li>
+                <li>❌ Équipe incomplète ou manque de compétences clés</li>
+                <li>❌ Ne pas connaître ses chiffres par cœur</li>
+                <li>❌ Oublier de préparer des réponses aux questions difficiles</li>
+            </ul>
+
+            <h4><i class="fas fa-chart-line" aria-hidden="true"></i> Métriques importantes</h4>
+            <p>Les investisseurs regardent particulièrement :</p>
+            <ul>
+                <li><strong>Traction :</strong> MRR/ARR, nombre d'utilisateurs, taux de croissance</li>
+                <li><strong>Unit economics :</strong> CAC (coût d'acquisition client), LTV (valeur vie client), LTV/CAC ratio</li>
+                <li><strong>Engagement :</strong> Taux de rétention, churn rate, utilisation produit</li>
+                <li><strong>Go-to-market :</strong> Canaux d'acquisition, coût par canal, payback period</li>
             </ul>
         </section>
     </main>
+
     <footer class="tool-footer" role="contentinfo">
-        <a href="../../index.html"><i class="fas fa-arrow-left" aria-hidden="true"></i> Retour</a>
+        <a href="../../index.html"><i class="fas fa-arrow-left" aria-hidden="true"></i> Retour aux outils</a>
     </footer>
+
     <script src="../../assets/js/utils.js"></script>
     <script src="../../assets/js/main.js"></script>
     <script>
-        document.getElementById('generateBtn').addEventListener('click', function() {
-            const project = document.getElementById('project').value || 'Projet';
+        const STORAGE_KEY = 'pitchDeckData';
 
-            const slides = [
-                { num: 1, title: 'Titre', icon: '🎯', content: '<strong>' + escapeHtml(project) + '</strong><br>Votre tagline en une phrase<br><em>Votre nom, fonction</em>' },
-                { num: 2, title: 'Problème', icon: '❗', content: 'Quel problème majeur résolvez-vous ?<br>3 points max, avec chiffres si possible' },
-                { num: 3, title: 'Solution', icon: '💡', content: 'Votre produit/service en 1-2 phrases<br>Comment résolvez-vous le problème ?' },
-                { num: 4, title: 'Marché', icon: '📊', content: 'TAM : Marché total<br>SAM : Marché adressable<br>SOM : Marché accessible' },
-                { num: 5, title: 'Produit', icon: '🎨', content: 'Demo ou capture d\'écran<br>Fonctionnalités clés (3 max)' },
-                { num: 6, title: 'Traction', icon: '📈', content: 'Preuves de validation : clients, revenus, croissance, partenariats' },
-                { num: 7, title: 'Business Model', icon: '💰', content: 'Comment vous gagnez de l\'argent<br>Prix, coûts, marges' },
-                { num: 8, title: 'Concurrence', icon: '⚔️', content: 'Matrice concurrentielle ou tableau comparatif<br>Votre différenciation' },
-                { num: 9, title: 'Équipe', icon: '👥', content: 'Fondateurs + compétences clés<br>Advisors si pertinent' },
-                { num: 10, title: 'Financier', icon: '💵', content: 'Prévisions 3 ans<br>Utilisation des fonds levés' },
-                { num: 11, title: 'Demande', icon: '🎯', content: 'Montant recherché<br>Pour quoi faire (milestones)' },
-                { num: 12, title: 'Vision', icon: '🚀', content: 'Où serez-vous dans 3-5 ans ?<br>Impact à long terme' }
-            ];
+        const slideTemplates = [
+            {
+                num: 1,
+                title: 'Titre & Introduction',
+                icon: '🎯',
+                field: 'intro',
+                placeholder: 'Votre tagline percutant\nEx: "Uber pour la livraison de plats faits maison"\n\nIncluez votre nom et fonction',
+                tips: 'Votre tagline doit expliquer ce que vous faites en 5-7 mots maximum. Ajoutez votre nom, fonction et logo si vous en avez.'
+            },
+            {
+                num: 2,
+                title: 'Le Problème',
+                icon: '❗',
+                field: 'problem',
+                placeholder: 'Décrivez le problème principal que vous résolvez\n\n3 points maximum avec chiffres:\n- Point 1 (XX% des personnes...)\n- Point 2 (Coût annuel de XX milliards...)\n- Point 3',
+                tips: 'Quantifiez le problème avec des chiffres. Les investisseurs doivent comprendre l\'ampleur et l\'urgence du problème.'
+            },
+            {
+                num: 3,
+                title: 'La Solution',
+                icon: '💡',
+                field: 'solution',
+                placeholder: 'Votre produit/service en 1-2 phrases claires\n\nComment résolvez-vous le problème de manière unique ?\n\nQuels bénéfices concrets pour l\'utilisateur ?',
+                tips: 'Concentrez-vous sur la valeur créée, pas sur les fonctionnalités. Montrez le "avant/après" si possible.'
+            },
+            {
+                num: 4,
+                title: 'Marché & Opportunité',
+                icon: '📊',
+                field: 'market',
+                placeholder: 'TAM (Total Addressable Market): XX milliards €\nSAM (Serviceable Addressable Market): XX millions €\nSOM (Serviceable Obtainable Market): XX millions €\n\nTendances du marché (croissance annuelle, évolution)',
+                tips: 'Utilisez des sources fiables (études Gartner, IDC, etc.). Expliquez votre méthodologie de calcul.'
+            },
+            {
+                num: 5,
+                title: 'Produit & Demo',
+                icon: '🎨',
+                field: 'product',
+                placeholder: 'Fonctionnalités clés (3 maximum):\n1. Feature 1 - Bénéfice utilisateur\n2. Feature 2 - Bénéfice utilisateur\n3. Feature 3 - Bénéfice utilisateur\n\n[Insérez captures d\'écran ou demo vidéo]',
+                tips: 'Montrez, ne racontez pas. Une démo vaut mieux que 1000 mots. Si possible, faites une démo live.'
+            },
+            {
+                num: 6,
+                title: 'Traction & Validation',
+                icon: '📈',
+                field: 'traction',
+                placeholder: 'Preuves de validation marché:\n- XX utilisateurs actifs (croissance +XX% MoM)\n- XX k€ MRR/ARR\n- XX clients payants\n- Partenariats: [Noms]\n- Témoignages clients',
+                tips: 'La traction est cruciale. Montrez une croissance constante et des métriques d\'engagement solides.'
+            },
+            {
+                num: 7,
+                title: 'Business Model',
+                icon: '💰',
+                field: 'business',
+                placeholder: 'Comment gagnez-vous de l\'argent ?\n\nModèle: [SaaS / Marketplace / Freemium / etc.]\nPrix: XX € par [mois/utilisateur/transaction]\nCoûts variables: XX €\nMarge brute: XX%',
+                tips: 'Les investisseurs veulent voir un modèle scalable avec de bonnes marges (>70% pour SaaS).'
+            },
+            {
+                num: 8,
+                title: 'Concurrence & Différenciation',
+                icon: '⚔️',
+                field: 'competition',
+                placeholder: 'Concurrents principaux:\n1. Concurrent A - Forces/Faiblesses\n2. Concurrent B - Forces/Faiblesses\n\nNotre avantage compétitif:\n- Différenciateur 1\n- Différenciateur 2\n- Barrières à l\'entrée',
+                tips: 'Ne dites jamais "nous n\'avons pas de concurrence". Montrez une matrice concurrentielle ou tableau comparatif.'
+            },
+            {
+                num: 9,
+                title: 'Équipe',
+                icon: '👥',
+                field: 'team',
+                placeholder: 'Fondateurs:\n- Nom 1 - Rôle - Expertise (XX ans dans...)\n- Nom 2 - Rôle - Expertise\n\nKey hires:\n- Poste à recruter: CTO, CMO...\n\nAdvisors: [Si pertinent]',
+                tips: 'Mettez en avant l\'expérience pertinente. Les investisseurs investissent d\'abord dans les équipes.'
+            },
+            {
+                num: 10,
+                title: 'Projections Financières',
+                icon: '💵',
+                field: 'financials',
+                placeholder: 'Prévisions 3 ans:\n\nAnnée 1: XX k€ revenus, XX k€ coûts\nAnnée 2: XX k€ revenus, XX k€ coûts\nAnnée 3: XX k€ revenus, XX k€ coûts\n\nSeuil de rentabilité: Mois XX\nHypothèses clés: ...',
+                tips: 'Soyez réaliste et conservateur. Préparez 3 scénarios (pessimiste, réaliste, optimiste).'
+            },
+            {
+                num: 11,
+                title: 'Levée de Fonds',
+                icon: '💎',
+                field: 'funding',
+                placeholder: 'Montant recherché: XXX k€\n\nUtilisation des fonds:\n- XX% Développement produit\n- XX% Marketing/Sales\n- XX% Recrutement\n- XX% Opérations\n\nMilestones avec ces fonds: ...',
+                tips: 'Montrez clairement comment les fonds vous permettront d\'atteindre la prochaine étape (ARR, profitabilité, etc.).'
+            },
+            {
+                num: 12,
+                title: 'Vision & Impact',
+                icon: '🚀',
+                field: 'vision',
+                placeholder: 'Vision 3-5 ans:\n\nOù serez-vous dans 3-5 ans ?\n- Position marché\n- Taille équipe\n- Revenus annuels\n\nImpact long terme:\n- Social\n- Environnemental\n- Industriel',
+                tips: 'Inspirez ! Montrez l\'ampleur de votre vision. Les grands succès commencent par de grandes ambitions.'
+            }
+        ];
 
-            const html = slides.map(function(s) {
-                return '<div style="padding:1.5rem;margin-bottom:1rem;background:white;border-left:4px solid #2196f3;border-radius:var(--radius);box-shadow:0 1px 3px rgba(0,0,0,0.1);">' +
-                    '<div style="display:flex;align-items:center;margin-bottom:0.5rem;">' +
-                    '<div style="width:40px;height:40px;background:#2196f3;color:white;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;margin-right:1rem;">' + s.num + '</div>' +
-                    '<div><h3 style="margin:0;">' + s.icon + ' ' + s.title + '</h3></div></div>' +
-                    '<div style="color:#666;line-height:1.8;">' + s.content + '</div></div>';
-            }).join('');
+        let pitchData = {};
 
-            document.getElementById('slides').innerHTML = html;
-            showNotification('Structure générée !', 'success');
+        // Génère les formulaires de slides
+        function generateSlideInputs() {
+            const container = document.getElementById('slidesContainer');
+            container.innerHTML = '';
+
+            slideTemplates.forEach(slide => {
+                const slideDiv = document.createElement('div');
+                slideDiv.className = 'slide-card';
+                slideDiv.innerHTML = `
+                    <div class="slide-header">
+                        <div class="slide-number">${slide.num}</div>
+                        <div class="slide-title">${slide.icon} ${escapeHtml(slide.title)}</div>
+                    </div>
+                    <div class="slide-content">
+                        <label class="form-label">Contenu du slide</label>
+                        <textarea
+                            id="slide-${slide.field}"
+                            class="form-input"
+                            placeholder="${escapeHtml(slide.placeholder)}"
+                            rows="5"
+                        ></textarea>
+                        <div class="tips-box">
+                            <strong>💡 Conseil :</strong> ${escapeHtml(slide.tips)}
+                        </div>
+                    </div>
+                `;
+                container.appendChild(slideDiv);
+            });
+        }
+
+        // Génère l'aperçu
+        function generatePreview() {
+            const projectName = document.getElementById('projectName').value || 'Mon Projet';
+            const tagline = document.getElementById('tagline').value || 'Votre tagline ici';
+            const founderName = document.getElementById('founderName').value || 'Votre nom';
+            const founderRole = document.getElementById('founderRole').value || 'Fondateur';
+
+            // Collecte les données
+            pitchData = {
+                projectName,
+                tagline,
+                founderName,
+                founderRole,
+                slides: {}
+            };
+
+            slideTemplates.forEach(slide => {
+                pitchData.slides[slide.field] = document.getElementById(`slide-${slide.field}`).value || slide.placeholder;
+            });
+
+            // Génère la prévisualisation
+            const preview = document.getElementById('preview');
+            let html = '';
+
+            // Slide 1 spécial (titre)
+            html += `
+                <div class="preview-slide" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                    <h2 style="font-size: 3rem; margin-bottom: 1rem;">${escapeHtml(projectName)}</h2>
+                    <p style="font-size: 1.5rem; margin-bottom: 2rem; font-weight: 300;">${escapeHtml(tagline)}</p>
+                    <p style="font-size: 1.1rem; opacity: 0.9;">${escapeHtml(founderName)} - ${escapeHtml(founderRole)}</p>
+                    <div class="preview-number">Slide 1 / 12</div>
+                </div>
+            `;
+
+            // Slides 2-12
+            slideTemplates.slice(1).forEach((slide, index) => {
+                const content = (pitchData.slides[slide.field] || slide.placeholder).replace(/\n/g, '<br>');
+                const gradients = [
+                    'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                    'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+                    'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+                    'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
+                    'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
+                    'linear-gradient(135deg, #30cfd0 0%, #330867 100%)',
+                    'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)',
+                    'linear-gradient(135deg, #ff9a56 0%, #ff6a88 100%)',
+                    'linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)',
+                    'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                    'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)'
+                ];
+
+                html += `
+                    <div class="preview-slide" style="background: ${gradients[index % gradients.length]};">
+                        <h2>${slide.icon} ${escapeHtml(slide.title)}</h2>
+                        <p>${content}</p>
+                        <div class="preview-number">Slide ${slide.num} / 12</div>
+                    </div>
+                `;
+            });
+
+            preview.innerHTML = html;
+            document.getElementById('results').style.display = 'block';
+            scrollToElement('#results', 100);
+            showNotification('Pitch deck généré avec succès !', 'success');
+        }
+
+        // Sauvegarde
+        function savePitchDeck() {
+            const projectName = document.getElementById('projectName').value;
+            if (!projectName) {
+                showNotification('Veuillez entrer le nom du projet', 'warning');
+                return;
+            }
+
+            const data = {
+                projectName: document.getElementById('projectName').value,
+                tagline: document.getElementById('tagline').value,
+                founderName: document.getElementById('founderName').value,
+                founderRole: document.getElementById('founderRole').value,
+                slides: {}
+            };
+
+            slideTemplates.forEach(slide => {
+                data.slides[slide.field] = document.getElementById(`slide-${slide.field}`).value;
+            });
+
+            saveToLocalStorage(STORAGE_KEY, data);
+            showNotification('Pitch deck sauvegardé !', 'success');
+        }
+
+        // Chargement
+        function loadPitchDeck() {
+            const saved = loadFromLocalStorage(STORAGE_KEY);
+            if (!saved) return;
+
+            document.getElementById('projectName').value = saved.projectName || '';
+            document.getElementById('tagline').value = saved.tagline || '';
+            document.getElementById('founderName').value = saved.founderName || '';
+            document.getElementById('founderRole').value = saved.founderRole || '';
+
+            slideTemplates.forEach(slide => {
+                if (saved.slides && saved.slides[slide.field]) {
+                    document.getElementById(`slide-${slide.field}`).value = saved.slides[slide.field];
+                }
+            });
+        }
+
+        // Export JSON
+        function exportPitchDeck() {
+            const data = {
+                projectName: document.getElementById('projectName').value,
+                tagline: document.getElementById('tagline').value,
+                founderName: document.getElementById('founderName').value,
+                founderRole: document.getElementById('founderRole').value,
+                slides: {}
+            };
+
+            slideTemplates.forEach(slide => {
+                data.slides[slide.field] = document.getElementById(`slide-${slide.field}`).value;
+            });
+
+            exportToJSON(data, `pitch-deck-${data.projectName.replace(/\s+/g, '-').toLowerCase()}.json`);
+            showNotification('Pitch deck exporté !', 'success');
+        }
+
+        // Réinitialisation
+        function resetPitchDeck() {
+            if (!confirm('Êtes-vous sûr de vouloir tout réinitialiser ?')) return;
+
+            document.getElementById('projectName').value = '';
+            document.getElementById('tagline').value = '';
+            document.getElementById('founderName').value = '';
+            document.getElementById('founderRole').value = '';
+
+            slideTemplates.forEach(slide => {
+                document.getElementById(`slide-${slide.field}`).value = '';
+            });
+
+            document.getElementById('results').style.display = 'none';
+            removeFromLocalStorage(STORAGE_KEY);
+            showNotification('Formulaire réinitialisé', 'success');
+        }
+
+        // Event listeners
+        document.getElementById('generateBtn').addEventListener('click', generatePreview);
+        document.getElementById('saveBtn').addEventListener('click', savePitchDeck);
+        document.getElementById('exportBtn').addEventListener('click', exportPitchDeck);
+        document.getElementById('resetBtn').addEventListener('click', resetPitchDeck);
+        document.getElementById('printBtn').addEventListener('click', () => window.print());
+        document.getElementById('editBtn').addEventListener('click', () => {
+            scrollToElement('.tool-header', 100);
         });
 
-        document.getElementById('generateBtn').click();
+        // Initialisation
+        generateSlideInputs();
+        loadPitchDeck();
     </script>
 </body>
 </html>
