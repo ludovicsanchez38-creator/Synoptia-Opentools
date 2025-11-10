@@ -183,7 +183,7 @@
                 const daysText = daysUntil > 0 ? 'dans ' + daysUntil + 'j' : daysUntil === 0 ? 'aujourd\'hui' : 'retard ' + Math.abs(daysUntil) + 'j';
 
                 return '<div style="display:flex;justify-content:space-between;align-items:center;padding:1rem;background:white;border-left:4px solid ' + statusColors[d.status] + ';border-radius:var(--radius);margin-bottom:0.5rem;box-shadow:0 1px 3px rgba(0,0,0,0.1);">' +
-                    '<div style="flex:1;"><strong>' + d.orderNumber + '</strong> - ' + d.supplier + '<br>' +
+                    '<div style="flex:1;"><strong>' + escapeHtml(d.orderNumber) + '</strong> - ' + escapeHtml(d.supplier) + '<br>' +
                     '<small style="color:#666;">Commandé: ' + new Date(d.orderDate).toLocaleDateString('fr-FR') + ' • ' +
                     'Prévu: ' + new Date(d.expectedDate).toLocaleDateString('fr-FR') + ' (' + daysText + ')<br>' +
                     statusLabels[d.status] + '</small></div>' +

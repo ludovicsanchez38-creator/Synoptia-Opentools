@@ -101,7 +101,7 @@
 
                 return `
                     <div style="margin-bottom:1.5rem;">
-                        <div style="font-weight:700;margin-bottom:0.5rem;">${task.name}</div>
+                        <div style="font-weight:700;margin-bottom:0.5rem;">${escapeHtml(task.name)}</div>
                         <div style="background:#f0f0f0;height:30px;position:relative;border-radius:var(--radius);">
                             <div style="position:absolute;left:${leftPercent}%;width:${widthPercent}%;height:100%;background:linear-gradient(135deg,var(--primary),var(--accent));border-radius:var(--radius);display:flex;align-items:center;justify-content:center;color:white;font-size:0.85rem;font-weight:600;">
                                 ${duration}j

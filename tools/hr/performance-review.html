@@ -176,7 +176,7 @@
                         <div style="padding:1rem;background:white;border-radius:var(--radius);margin-bottom:0.5rem;">
                             <div style="display:flex;justify-content:space-between;align-items:center;">
                                 <div>
-                                    <strong>${r.name}</strong> - ${new Date(r.date).toLocaleDateString('fr-FR')}
+                                    <strong>${escapeHtml(r.name)}</strong> - ${new Date(r.date).toLocaleDateString('fr-FR')}
                                     <div style="color:#666;font-size:0.9rem;">Score: ${avg.toFixed(1)}/5</div>
                                 </div>
                                 <button onclick="deleteReview(${r.id})" style="padding:0.5rem;border:none;background:#ff6b6b;color:white;border-radius:var(--radius);cursor:pointer;">

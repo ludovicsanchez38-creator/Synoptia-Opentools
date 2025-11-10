@@ -148,8 +148,8 @@
                 return `
                     <div style="display:flex;justify-content:space-between;align-items:center;padding:1rem;background:white;${lowStockClass}border-radius:var(--radius);margin-bottom:0.5rem;">
                         <div style="flex:1;">
-                            <strong>${p.name}</strong>
-                            <div style="color:#666;font-size:0.9rem;">SKU: ${p.sku} | ${p.quantity} unités | ${formatCurrency(p.price)}/u | Valeur: ${formatCurrency(value)}</div>
+                            <strong>${escapeHtml(p.name)}</strong>
+                            <div style="color:#666;font-size:0.9rem;">SKU: ${escapeHtml(p.sku)} | ${p.quantity} unités | ${formatCurrency(p.price)}/u | Valeur: ${formatCurrency(value)}</div>
                             ${p.quantity < 10 ? '<div style="color:#ff9800;font-size:0.85rem;">⚠️ Stock faible</div>' : ''}
                         </div>
                         <div style="display:flex;gap:0.5rem;align-items:center;">

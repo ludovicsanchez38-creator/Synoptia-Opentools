@@ -110,10 +110,10 @@
             }
 
             const label = '<div style="width:' + width + ';height:' + height + ';border:2px solid #333;padding:1rem;background:white;font-family:Arial,sans-serif;box-shadow:0 2px 8px rgba(0,0,0,0.1);display:flex;flex-direction:column;justify-content:space-between;">' +
-                '<div><div style="font-size:' + titleSize + ';font-weight:700;margin-bottom:0.5rem;text-align:center;border-bottom:2px solid #333;padding-bottom:0.5rem;">' + productName + '</div>' +
-                '<div style="font-size:' + fontSize + ';margin:0.3rem 0;"><strong>SKU:</strong> ' + sku + '</div>' +
-                '<div style="font-size:' + fontSize + ';margin:0.3rem 0;"><strong>Catégorie:</strong> ' + category + '</div></div>' +
-                '<div style="text-align:center;margin:0.5rem 0;"><div style="font-family:\'Courier New\',monospace;font-size:' + fontSize + ';letter-spacing:2px;background:#f0f0f0;padding:0.3rem;border:1px solid #999;">' + barcode + '</div></div>' +
+                '<div><div style="font-size:' + titleSize + ';font-weight:700;margin-bottom:0.5rem;text-align:center;border-bottom:2px solid #333;padding-bottom:0.5rem;">' + escapeHtml(productName) + '</div>' +
+                '<div style="font-size:' + fontSize + ';margin:0.3rem 0;"><strong>SKU:</strong> ' + escapeHtml(sku) + '</div>' +
+                '<div style="font-size:' + fontSize + ';margin:0.3rem 0;"><strong>Catégorie:</strong> ' + escapeHtml(category) + '</div></div>' +
+                '<div style="text-align:center;margin:0.5rem 0;"><div style="font-family:\'Courier New\',monospace;font-size:' + fontSize + ';letter-spacing:2px;background:#f0f0f0;padding:0.3rem;border:1px solid #999;">' + escapeHtml(barcode) + '</div></div>' +
                 '<div style="text-align:center;font-size:calc(' + titleSize + ' + 4px);font-weight:700;color:#e74c3c;border-top:2px solid #333;padding-top:0.5rem;">' + formatCurrency(price) + '</div></div>';
 
             document.getElementById('labelPreview').innerHTML = label;

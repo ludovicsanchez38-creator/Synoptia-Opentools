@@ -153,7 +153,7 @@
             container.innerHTML = absences.map(a => `
                 <div style="display:flex;justify-content:space-between;align-items:center;padding:1rem;background:white;border-left:4px solid ${typeColors[a.type]};border-radius:var(--radius);margin-bottom:0.5rem;">
                     <div style="flex:1;">
-                        <strong>${a.name}</strong>
+                        <strong>${escapeHtml(a.name)}</strong>
                         <div style="color:#666;font-size:0.9rem;margin-top:0.25rem;">
                             ${typeLabels[a.type]} • ${new Date(a.start).toLocaleDateString('fr-FR')} → ${new Date(a.end).toLocaleDateString('fr-FR')} • ${a.days} jour${a.days > 1 ? 's' : ''}
                         </div>

@@ -457,8 +457,8 @@
             container.innerHTML = history.map((item, index) => `
                 <div class="history-item">
                     <div>
-                        <strong>${item.mode}</strong>: ${item.details}<br>
-                        <span class="history-time">Résultat: ${item.result}</span><br>
+                        <strong>${escapeHtml(item.mode)}</strong>: ${escapeHtml(item.details)}<br>
+                        <span class="history-time">Résultat: ${escapeHtml(item.result)}</span><br>
                         <small style="color: #999;">${item.timestamp}</small>
                     </div>
                     <button class="delete-btn" onclick="deleteHistoryItem(${index})">
