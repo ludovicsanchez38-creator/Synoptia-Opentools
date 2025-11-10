@@ -482,7 +482,7 @@
         window.addEventListener('load', () => {
             const saved = localStorage.getItem('lastHourlyRateCalc');
             if (saved) {
-                const data = JSON.parse(saved);
+                const data = safeJSONParse(saved, {});
                 // Could restore values here if desired
             }
         });
