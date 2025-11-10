@@ -16,7 +16,7 @@
     --danger-dark: #DC2626;    /* Rouge foncé */
     --warning: #FBBF24;        /* Jaune avertissement */
     --dark: #1F2937;           /* Texte sombre */
-    --gray: #6B7280;           /* Gris texte secondaire */
+    --gray: #4B5563;           /* Gris texte secondaire (WCAG AA compliant) */
     --light: #F9FAFB;          /* Fond clair */
     --white: #FFFFFF;          /* Blanc pur */
     --border: #E5E7EB;         /* Bordures */
