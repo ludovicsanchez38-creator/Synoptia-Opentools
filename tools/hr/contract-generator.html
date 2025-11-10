@@ -6,8 +6,18 @@
     <title>Générateur de Contrat - Business Tools</title>
     <link rel="stylesheet" href="../../assets/css/main.css">
     <link rel="stylesheet" href="../../assets/css/tools.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Font Awesome avec SRI pour sécurité -->
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+          integrity="sha384-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw=="
+          crossorigin="anonymous"
+          referrerpolicy="no-referrer">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- DOMPurify pour sanitization XSS -->
+    <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.6/dist/purify.min.js"
+            integrity="sha384-LhPJK12eZWQ+j+V7A48VQQnLzOLJB8C7wYvDWbdBxBh1QdXbYbYVZYY6YGnQgzEi=="
+            crossorigin="anonymous"></script>
 </head>
 <body>
     <nav class="breadcrumb">
@@ -97,6 +107,7 @@
             const weeklyHours = parseFloat(document.getElementById('weeklyHours').value) || 35;
             const location = document.getElementById('location').value.trim();
 
+            // SÉCURITÉ: Utilise escapeHtml() pour éviter les XSS sur toutes les données utilisateur
             const contract = `
                 <div style="text-align:center;margin-bottom:2rem;">
                     <h2 style="margin:0;">CONTRAT DE TRAVAIL</h2>
@@ -108,21 +119,21 @@
                 </p>
 
                 <div style="margin-bottom:1.5rem;padding-left:1rem;">
-                    <p><strong>${companyName || '[NOM DE L\'ENTREPRISE]'}</strong><br>
+                    <p><strong>${escapeHtml(companyName) || '[NOM DE L\'ENTREPRISE]'}</strong><br>
                     Ci-après dénommée « l'Employeur »</p>
                 </div>
 
                 <p style="margin-bottom:1.5rem;">Et,</p>
 
                 <div style="margin-bottom:1.5rem;padding-left:1rem;">
-                    <p><strong>${employeeName || '[NOM DE L\'EMPLOYÉ]'}</strong><br>
+                    <p><strong>${escapeHtml(employeeName) || '[NOM DE L\'EMPLOYÉ]'}</strong><br>
                     Ci-après dénommé « le Salarié »</p>
                 </div>
 
                 <p style="margin-bottom:1.5rem;">Il a été convenu ce qui suit :</p>
 
                 <h3 style="margin-top:2rem;">ARTICLE 1 - ENGAGEMENT</h3>
-                <p>Le Salarié est engagé en qualité de <strong>${position || '[POSTE]'}</strong> à compter du <strong>${startDate ? new Date(startDate).toLocaleDateString('fr-FR') : '[DATE]'}</strong>.</p>
+                <p>Le Salarié est engagé en qualité de <strong>${escapeHtml(position) || '[POSTE]'}</strong> à compter du <strong>${startDate ? new Date(startDate).toLocaleDateString('fr-FR') : '[DATE]'}</strong>.</p>
 
                 <h3 style="margin-top:1.5rem;">ARTICLE 2 - DURÉE DU TRAVAIL</h3>
                 <p>La durée du travail est fixée à <strong>${weeklyHours} heures</strong> par semaine.</p>
@@ -131,7 +142,7 @@
                 <p>En contrepartie de son travail, le Salarié percevra une rémunération brute mensuelle de <strong>${formatCurrency(salary)}</strong>, payable mensuellement.</p>
 
                 <h3 style="margin-top:1.5rem;">ARTICLE 4 - LIEU DE TRAVAIL</h3>
-                <p>Le Salarié exercera ses fonctions à <strong>${location || '[LIEU]'}</strong>.</p>
+                <p>Le Salarié exercera ses fonctions à <strong>${escapeHtml(location) || '[LIEU]'}</strong>.</p>
 
                 <h3 style="margin-top:1.5rem;">ARTICLE 5 - CONGÉS PAYÉS</h3>
                 <p>Le Salarié bénéficiera des congés payés conformément aux dispositions légales en vigueur, soit 2,5 jours ouvrables par mois de travail effectif.</p>
@@ -142,7 +153,7 @@
                 <div style="margin-top:3rem;display:grid;grid-template-columns:1fr 1fr;gap:2rem;">
                     <div>
                         <p>Fait en deux exemplaires</p>
-                        <p>À ${location || '_________'}, le ${new Date().toLocaleDateString('fr-FR')}</p>
+                        <p>À ${escapeHtml(location) || '_________'}, le ${new Date().toLocaleDateString('fr-FR')}</p>
                         <p style="margin-top:2rem;border-top:1px solid #000;padding-top:0.5rem;display:inline-block;">
                             Signature de l'Employeur
                         </p>

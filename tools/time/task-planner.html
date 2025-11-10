@@ -6,8 +6,19 @@
     <title>Planificateur de Tâches - Business Tools</title>
     <link rel="stylesheet" href="../../assets/css/main.css">
     <link rel="stylesheet" href="../../assets/css/tools.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Font Awesome avec SRI pour sécurité -->
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+          integrity="sha384-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw=="
+          crossorigin="anonymous"
+          referrerpolicy="no-referrer">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- DOMPurify pour sanitization XSS -->
+    <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.6/dist/purify.min.js"
+            integrity="sha384-LhPJK12eZWQ+j+V7A48VQQnLzOLJB8C7wYvDWbdBxBh1QdXbYbYVZYY6YGnQgzEi=="
+            crossorigin="anonymous"></script>
+
     <style>
         .filter-tabs {
             display: flex;
@@ -325,7 +336,8 @@
     <script src="../../assets/js/utils.js"></script>
     <script src="../../assets/js/main.js"></script>
     <script>
-        let tasks = JSON.parse(localStorage.getItem('taskPlanner') || '[]');
+        // SÉCURITÉ: Utilise safeJSONParse() pour éviter les crashes
+        let tasks = safeJSONParse(localStorage.getItem('taskPlanner'), []);
         let currentFilter = 'all';
 
         document.getElementById('taskForm').addEventListener('submit', function(e) {
@@ -372,6 +384,7 @@
                 return;
             }
 
+            // SÉCURITÉ: Utilise escapeHtml() pour éviter les XSS sur les données utilisateur
             container.innerHTML = filteredTasks.map(task => {
                 const priorityClass = `priority-${task.priority}`;
                 const priorityLabel = task.priority === 'high' ? '🔴 Haute' :
@@ -387,7 +400,7 @@
                     <div class="task-item ${task.done ? 'done' : ''}">
                         <div class="task-content">
                             <div class="task-header">
-                                <div class="task-title">${task.title}</div>
+                                <div class="task-title">${escapeHtml(task.title)}</div>
                                 <span class="task-priority ${priorityClass}">${priorityLabel}</span>
                             </div>
                             <div class="task-meta">
@@ -397,7 +410,7 @@
                                     ${isOverdue ? '<span style="color: #d32f2f; font-weight: 700;">(En retard)</span>' : ''}
                                 </span>
                                 <span><i class="fas fa-clock"></i> ${task.duration}h</span>
-                                ${task.category ? `<span class="category-badge">${task.category}</span>` : ''}
+                                ${task.category ? `<span class="category-badge">${escapeHtml(task.category)}</span>` : ''}
                             </div>
                         </div>
                         <div class="task-actions">
