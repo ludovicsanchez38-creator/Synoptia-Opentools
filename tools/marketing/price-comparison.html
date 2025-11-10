@@ -313,7 +313,7 @@
                 div.className = 'chart-bar';
                 div.innerHTML = `
                     <div class="bar-label">
-                        <span>${product.name}${product.isYours ? ' (VOUS)' : ''}</span>
+                        <span>${escapeHtml(product.name)}${product.isYours ? ' (VOUS)' : ''}</span>
                         <span>${formatCurrency(product.price)}</span>
                     </div>
                     <div class="bar-fill ${product.isYours ? 'yours' : ''}" style="width: ${percentage}%;">
@@ -337,7 +337,7 @@
 
                 div.innerHTML = `
                     <div>
-                        <div class="competitor-name">#${index + 1} ${product.name} ${badge}</div>
+                        <div class="competitor-name">#${index + 1} ${escapeHtml(product.name)} ${badge}</div>
                         <div style="font-size: 0.9rem; color: var(--text-secondary); margin-top: 0.25rem;">
                             ${product.price < avgPrice ? '↓ ' + Math.abs(((product.price - avgPrice) / avgPrice) * 100).toFixed(1) + '% sous la moyenne' :
                               product.price > avgPrice ? '↑ ' + (((product.price - avgPrice) / avgPrice) * 100).toFixed(1) + '% au-dessus de la moyenne' :

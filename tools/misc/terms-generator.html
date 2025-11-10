@@ -78,15 +78,15 @@
             const date = new Date().toLocaleDateString('fr-FR');
 
             const cgv = '<h2 style="text-align:center;margin-bottom:2rem;">CONDITIONS GÉNÉRALES DE VENTE</h2>' +
-                '<div style="margin-bottom:2rem;"><strong>' + company + '</strong><br>SIRET : ' + siret + '<br>Adresse : ' + address + '</div>' +
+                '<div style="margin-bottom:2rem;"><strong>' + escapeHtml(company) + '</strong><br>SIRET : ' + escapeHtml(siret) + '<br>Adresse : ' + escapeHtml(address) + '</div>' +
                 '<p style="margin-bottom:1rem;"><em>En vigueur au ' + date + '</em></p>' +
-                '<h3>1. OBJET</h3><p>Les présentes Conditions Générales de Vente (CGV) régissent les ventes de produits et/ou services proposés par ' + company + '.</p>' +
+                '<h3>1. OBJET</h3><p>Les présentes Conditions Générales de Vente (CGV) régissent les ventes de produits et/ou services proposés par ' + escapeHtml(company) + '.</p>' +
                 '<h3>2. PRIX</h3><p>Les prix sont indiqués en euros hors taxes. La TVA applicable sera ajoutée au moment de la facturation.</p>' +
                 '<h3>3. COMMANDE</h3><p>Toute commande implique l\'acceptation sans réserve des présentes CGV.</p>' +
-                '<h3>4. PAIEMENT</h3><p>Le paiement des factures est dû à ' + payment + ' jours. Tout retard de paiement entraînera l\'application de pénalités de retard.</p>' +
-                '<h3>5. LIVRAISON</h3><p>Les délais de livraison sont de ' + delivery + ' jours ouvrés à compter de la validation de la commande.</p>' +
+                '<h3>4. PAIEMENT</h3><p>Le paiement des factures est dû à ' + escapeHtml(payment) + ' jours. Tout retard de paiement entraînera l\'application de pénalités de retard.</p>' +
+                '<h3>5. LIVRAISON</h3><p>Les délais de livraison sont de ' + escapeHtml(delivery) + ' jours ouvrés à compter de la validation de la commande.</p>' +
                 '<h3>6. GARANTIES</h3><p>Les produits sont garantis conformément aux dispositions légales en vigueur.</p>' +
-                '<h3>7. RESPONSABILITÉ</h3><p>' + company + ' ne saurait être tenue responsable de l\'inexécution du contrat en cas de force majeure.</p>' +
+                '<h3>7. RESPONSABILITÉ</h3><p>' + escapeHtml(company) + ' ne saurait être tenue responsable de l\'inexécution du contrat en cas de force majeure.</p>' +
                 '<h3>8. DROIT APPLICABLE</h3><p>Les présentes CGV sont soumises au droit français. Tout litige relève de la compétence des tribunaux français.</p>' +
                 '<div style="margin-top:2rem;padding:1rem;background:#f5f5f5;border-radius:var(--radius);"><strong>Note :</strong> Ce document est fourni à titre informatif. Il est recommandé de faire valider vos CGV par un professionnel du droit.</div>';
 

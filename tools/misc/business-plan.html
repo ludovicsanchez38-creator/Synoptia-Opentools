@@ -66,8 +66,8 @@
             const sector = document.getElementById('sector').value || 'Secteur';
             const funding = formatCurrency(parseFloat(document.getElementById('funding').value) || 0);
 
-            const plan = '<h1 style="text-align:center;margin-bottom:2rem;">BUSINESS PLAN<br>' + project + '</h1>' +
-                '<div style="text-align:center;margin-bottom:3rem;color:#666;">' + sector + '</div>' +
+            const plan = '<h1 style="text-align:center;margin-bottom:2rem;">BUSINESS PLAN<br>' + escapeHtml(project) + '</h1>' +
+                '<div style="text-align:center;margin-bottom:3rem;color:#666;">' + escapeHtml(sector) + '</div>' +
                 '<h2>1. EXECUTIVE SUMMARY</h2>' +
                 '<p><em>[Résumé de 1-2 pages : problème, solution, marché, traction, besoin de financement]</em></p>' +
                 '<ul><li><strong>Problème :</strong> _______________</li>' +

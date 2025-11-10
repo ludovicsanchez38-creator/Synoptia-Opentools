@@ -70,9 +70,9 @@
             const nda = '<h2 style="text-align:center;margin-bottom:2rem;">ACCORD DE CONFIDENTIALITÉ</h2>' +
                 '<p><em>Fait à __________, le ' + date + '</em></p>' +
                 '<h3>ENTRE LES SOUSSIGNÉS :</h3>' +
-                '<p><strong>' + discloser + '</strong> (ci-après « la Partie Divulgatrice »)</p>' +
+                '<p><strong>' + escapeHtml(discloser) + '</strong> (ci-après « la Partie Divulgatrice »)</p>' +
                 '<p>ET</p>' +
-                '<p><strong>' + recipient + '</strong> (ci-après « la Partie Bénéficiaire »)</p>' +
+                '<p><strong>' + escapeHtml(recipient) + '</strong> (ci-après « la Partie Bénéficiaire »)</p>' +
                 '<h3>IL A ÉTÉ CONVENU CE QUI SUIT :</h3>' +
                 '<h4>Article 1 - Objet</h4>' +
                 '<p>Le présent accord a pour objet de définir les conditions dans lesquelles la Partie Divulgatrice communiquera des informations confidentielles à la Partie Bénéficiaire.</p>' +
@@ -84,12 +84,12 @@
                 '<li>Utiliser les informations uniquement dans le cadre défini</li>' +
                 '<li>Protéger les informations avec le même niveau de protection que ses propres informations</li></ul>' +
                 '<h4>Article 4 - Durée</h4>' +
-                '<p>Le présent accord est conclu pour une durée de <strong>' + duration + ' ans</strong> à compter de sa signature.</p>' +
+                '<p>Le présent accord est conclu pour une durée de <strong>' + escapeHtml(duration) + ' ans</strong> à compter de sa signature.</p>' +
                 '<h4>Article 5 - Droit Applicable</h4>' +
                 '<p>Le présent accord est soumis au droit français.</p>' +
                 '<div style="margin-top:3rem;display:grid;grid-template-columns:1fr 1fr;gap:2rem;">' +
-                '<div><strong>Pour ' + discloser + '</strong><br><br>Signature :<br>_________________</div>' +
-                '<div><strong>Pour ' + recipient + '</strong><br><br>Signature :<br>_________________</div>' +
+                '<div><strong>Pour ' + escapeHtml(discloser) + '</strong><br><br>Signature :<br>_________________</div>' +
+                '<div><strong>Pour ' + escapeHtml(recipient) + '</strong><br><br>Signature :<br>_________________</div>' +
                 '</div>' +
                 '<div style="margin-top:2rem;padding:1rem;background:#f5f5f5;border-radius:var(--radius);"><strong>Note :</strong> Ce document est fourni à titre informatif. Consultez un avocat pour un accord adapté à votre situation.</div>';
 

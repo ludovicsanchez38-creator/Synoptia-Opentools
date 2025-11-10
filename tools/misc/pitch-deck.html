@@ -58,7 +58,7 @@
             const project = document.getElementById('project').value || 'Projet';
 
             const slides = [
-                { num: 1, title: 'Titre', icon: '🎯', content: '<strong>' + project + '</strong><br>Votre tagline en une phrase<br><em>Votre nom, fonction</em>' },
+                { num: 1, title: 'Titre', icon: '🎯', content: '<strong>' + escapeHtml(project) + '</strong><br>Votre tagline en une phrase<br><em>Votre nom, fonction</em>' },
                 { num: 2, title: 'Problème', icon: '❗', content: 'Quel problème majeur résolvez-vous ?<br>3 points max, avec chiffres si possible' },
                 { num: 3, title: 'Solution', icon: '💡', content: 'Votre produit/service en 1-2 phrases<br>Comment résolvez-vous le problème ?' },
                 { num: 4, title: 'Marché', icon: '📊', content: 'TAM : Marché total<br>SAM : Marché adressable<br>SOM : Marché accessible' },
