@@ -617,3 +617,121 @@ code {
         justify-content: center;
     }
 }
+
+/* ===================================
+   DARK MODE
+   =================================== */
+
+.dark-mode {
+    /* Couleurs inversées pour dark mode */
+    --primary: #60A5FA;        /* Bleu plus clair */
+    --primary-dark: #3B82F6;   /* Bleu */
+    --primary-light: #93C5FD;  /* Bleu très clair */
+    --secondary: #34D399;      /* Vert plus clair */
+    --secondary-dark: #10B981; /* Vert */
+    --accent: #FBBF24;         /* Orange/jaune */
+    --danger: #F87171;         /* Rouge plus clair */
+    --danger-dark: #EF4444;    /* Rouge */
+    --warning: #FCD34D;        /* Jaune plus clair */
+
+    /* Backgrounds et textes inversés */
+    --dark: #F9FAFB;           /* Texte clair */
+    --gray: #D1D5DB;           /* Gris clair */
+    --light: #1F2937;          /* Fond sombre */
+    --white: #111827;          /* Fond très sombre */
+    --border: #374151;         /* Bordures sombres */
+    --shadow: rgba(0, 0, 0, 0.3);
+
+    /* Texte secondaire */
+    --text-secondary: #9CA3AF;
+}
+
+/* Transitions pour dark mode */
+body,
+.tool-container,
+.tool-input,
+.tool-output,
+.tool-help,
+.form-input,
+.btn,
+.card {
+    transition: background-color var(--transition-normal),
+                color var(--transition-normal),
+                border-color var(--transition-normal);
+}
+
+/* Ajustements spécifiques dark mode */
+.dark-mode .form-input {
+    background: #374151;
+    color: #F9FAFB;
+    border-color: #4B5563;
+}
+
+.dark-mode .form-input::placeholder {
+    color: #6B7280;
+}
+
+.dark-mode .btn-secondary {
+    background: #374151;
+    color: #F9FAFB;
+}
+
+.dark-mode .btn-secondary:hover {
+    background: #4B5563;
+}
+
+.dark-mode code {
+    background: #374151;
+    color: #93C5FD;
+}
+
+.dark-mode .breadcrumb a {
+    color: #93C5FD;
+}
+
+.dark-mode .breadcrumb span {
+    color: #D1D5DB;
+}
+
+/* Tables en dark mode */
+.dark-mode table {
+    border-color: #374151;
+}
+
+.dark-mode th {
+    background: #374151;
+    color: #F9FAFB;
+    border-color: #4B5563;
+}
+
+.dark-mode td {
+    border-color: #374151;
+    color: #D1D5DB;
+}
+
+/* Notifications en dark mode */
+.dark-mode .notification {
+    background: #374151;
+    color: #F9FAFB;
+    border-left-width: 4px;
+}
+
+.dark-mode .notification.success {
+    border-left-color: #34D399;
+    background: #065F46;
+}
+
+.dark-mode .notification.error {
+    border-left-color: #F87171;
+    background: #7F1D1D;
+}
+
+.dark-mode .notification.warning {
+    border-left-color: #FBBF24;
+    background: #78350F;
+}
+
+.dark-mode .notification.info {
+    border-left-color: #60A5FA;
+    background: #1E3A8A;
+}
