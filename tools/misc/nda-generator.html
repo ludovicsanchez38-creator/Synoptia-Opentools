@@ -9,6 +9,73 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha384-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous">
     <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.6/dist/purify.min.js" integrity="sha384-LhPJK12eZWQ+j+V7A48VQQnLzOLJB8C7wYvDWbdBxBh1QdXbYbYVZYY6YGnQgzEi==" crossorigin="anonymous"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .nda-document {
+            padding: 3rem;
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            max-width: 900px;
+            margin: 2rem auto;
+            font-family: 'Times New Roman', serif;
+            line-height: 1.8;
+        }
+        .nda-document h2 {
+            text-align: center;
+            margin-bottom: 2rem;
+            color: var(--dark);
+            font-size: 1.8rem;
+        }
+        .nda-document h3 {
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+            color: var(--primary);
+            font-size: 1.3rem;
+        }
+        .nda-document h4 {
+            margin-top: 1.5rem;
+            margin-bottom: 0.75rem;
+            color: var(--dark);
+            font-size: 1.1rem;
+        }
+        .nda-document p {
+            text-align: justify;
+            margin-bottom: 1rem;
+        }
+        .nda-document ul, .nda-document ol {
+            margin-left: 2rem;
+            margin-bottom: 1rem;
+        }
+        .signatures {
+            margin-top: 3rem;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+        }
+        .signature-block {
+            padding: 1.5rem;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            background: var(--light);
+        }
+        .warning-box {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background: #FFF3CD;
+            border-left: 4px solid #FFC107;
+            border-radius: var(--radius-md);
+        }
+        .clause-selector {
+            margin: 1rem 0;
+            padding: 1rem;
+            background: var(--light);
+            border-radius: var(--radius-md);
+        }
+        @media print {
+            .tool-input, .btn, .breadcrumb, .tool-footer, .tool-help { display: none; }
+            .nda-document { border: none; padding: 1rem; }
+        }
+    </style>
 </head>
 <body>
     <nav class="breadcrumb" role="navigation" aria-label="Fil d'ariane">
@@ -19,89 +86,544 @@
     <main class="tool-container">
         <header class="tool-header">
             <h1><i class="fas fa-lock"></i> Générateur d'Accord de Confidentialité (NDA)</h1>
-            <p class="tool-description">Créez un accord de non-divulgation.</p>
+            <p class="tool-description">Créez un accord de non-divulgation professionnel adapté à vos besoins</p>
         </header>
 
-        <section class="tool-input">
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; margin: 1.5rem 0;">
+        <section class="tool-input" role="region" aria-label="Formulaire de création du NDA">
+            <h2>Configuration du NDA</h2>
+
+            <!-- Type de NDA -->
+            <div class="card" style="margin-bottom: 2rem;">
+                <h3>Type d'accord</h3>
                 <div class="form-group">
-                    <label class="form-label">Partie divulgatrice</label>
-                    <input type="text" id="discloser" class="form-input" value="Ma Société">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Partie bénéficiaire</label>
-                    <input type="text" id="recipient" class="form-input" value="Entreprise Partenaire">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Durée (années)</label>
-                    <input type="number" id="duration" class="form-input" value="3" min="1">
+                    <label class="form-label">Type de NDA *</label>
+                    <select id="ndaType" class="form-input">
+                        <option value="unilateral">Unilatéral (une seule partie divulgue)</option>
+                        <option value="mutual">Mutuel (les deux parties divulguent)</option>
+                    </select>
+                    <p style="font-size: 0.9rem; color: var(--gray); margin-top: 0.5rem;">
+                        <i class="fas fa-info-circle"></i>
+                        Unilatéral : Vous divulguez des infos à un partenaire | Mutuel : Échange d'informations entre deux parties
+                    </p>
                 </div>
             </div>
 
-            <button class="btn btn-primary" id="generateBtn">
-                <i class="fas fa-file-alt"></i> Générer le NDA
-            </button>
+            <!-- Partie Divulgatrice -->
+            <div class="card" style="margin-bottom: 2rem;">
+                <h3>Partie Divulgatrice</h3>
+                <div class="input-grid">
+                    <div class="form-group">
+                        <label class="form-label">Nom de la société *</label>
+                        <input type="text" id="discloserName" class="form-input" placeholder="Ex: Ma Société SAS" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">SIRET</label>
+                        <input type="text" id="discloserSiret" class="form-input" placeholder="123 456 789 00000">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Adresse complète *</label>
+                        <input type="text" id="discloserAddress" class="form-input" placeholder="12 rue Example, 75001 Paris" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Représentée par</label>
+                        <input type="text" id="discloserRep" class="form-input" placeholder="Ex: M. Jean Dupont, CEO">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Partie Bénéficiaire -->
+            <div class="card" style="margin-bottom: 2rem;">
+                <h3>Partie Bénéficiaire</h3>
+                <div class="input-grid">
+                    <div class="form-group">
+                        <label class="form-label">Nom de la société *</label>
+                        <input type="text" id="recipientName" class="form-input" placeholder="Ex: Entreprise Partenaire SARL" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">SIRET</label>
+                        <input type="text" id="recipientSiret" class="form-input" placeholder="987 654 321 00000">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Adresse complète *</label>
+                        <input type="text" id="recipientAddress" class="form-input" placeholder="45 avenue Business, 69001 Lyon" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Représentée par</label>
+                        <input type="text" id="recipientRep" class="form-input" placeholder="Ex: Mme Marie Martin, Directrice">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Paramètres du NDA -->
+            <div class="card" style="margin-bottom: 2rem;">
+                <h3>Paramètres de l'accord</h3>
+                <div class="input-grid">
+                    <div class="form-group">
+                        <label class="form-label">Objet / Contexte *</label>
+                        <textarea id="purpose" class="form-input" rows="3" placeholder="Ex: Dans le cadre d'un projet de partenariat commercial / Négociations pour une acquisition / Évaluation technique d'un produit"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Durée de confidentialité (années) *</label>
+                        <input type="number" id="duration" class="form-input" value="3" min="1" max="10">
+                        <p style="font-size: 0.85rem; color: var(--gray); margin-top: 0.5rem;">Durée standard: 2-5 ans</p>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Juridiction</label>
+                        <select id="jurisdiction" class="form-input">
+                            <option value="France">France</option>
+                            <option value="Belgique">Belgique</option>
+                            <option value="Suisse">Suisse</option>
+                            <option value="Luxembourg">Luxembourg</option>
+                            <option value="Canada">Canada (Québec)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Lieu de signature</label>
+                        <input type="text" id="signaturePlace" class="form-input" placeholder="Ex: Paris">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Clauses optionnelles -->
+            <div class="card clause-selector">
+                <h3>Clauses optionnelles</h3>
+                <p style="font-size: 0.9rem; color: var(--gray); margin-bottom: 1rem;">Cochez les clauses à inclure</p>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem;">
+                    <label style="display: flex; align-items: center; gap: 0.5rem;">
+                        <input type="checkbox" id="clauseReturn" checked>
+                        <span>Restitution des informations à la fin</span>
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 0.5rem;">
+                        <input type="checkbox" id="clausePenalty" checked>
+                        <span>Clause pénale en cas de violation</span>
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 0.5rem;">
+                        <input type="checkbox" id="clauseNonSolicitation">
+                        <span>Non-sollicitation des employés</span>
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 0.5rem;">
+                        <input type="checkbox" id="clauseArbitration">
+                        <span>Clause d'arbitrage</span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="action-buttons">
+                <button class="btn btn-primary" id="generateBtn" aria-label="Générer le NDA">
+                    <i class="fas fa-file-contract" aria-hidden="true"></i> Générer le NDA
+                </button>
+                <button class="btn btn-secondary" id="saveBtn" aria-label="Sauvegarder le brouillon">
+                    <i class="fas fa-save" aria-hidden="true"></i> Sauvegarder
+                </button>
+                <button class="btn btn-success" id="exportBtn" aria-label="Exporter en JSON">
+                    <i class="fas fa-download" aria-hidden="true"></i> Exporter JSON
+                </button>
+                <button class="btn btn-outline" id="resetBtn" aria-label="Réinitialiser">
+                    <i class="fas fa-redo" aria-hidden="true"></i> Réinitialiser
+                </button>
+            </div>
         </section>
 
-        <section class="tool-output">
-            <div id="nda" style="padding: 2rem; background: white; border-radius: var(--radius);"></div>
-            <button class="btn btn-secondary" id="printBtn" style="margin-top: 1rem;">
-                <i class="fas fa-print"></i> Imprimer
-            </button>
+        <section class="tool-output" id="results" style="display: none;" role="region" aria-labelledby="doc-heading">
+            <h2 id="doc-heading"><i class="fas fa-file-contract" aria-hidden="true"></i> Accord de Confidentialité Généré</h2>
+            <div id="ndaDocument"></div>
+
+            <div class="action-buttons" style="margin-top: 2rem;">
+                <button class="btn btn-accent" id="printBtn" aria-label="Imprimer le document">
+                    <i class="fas fa-print" aria-hidden="true"></i> Imprimer
+                </button>
+                <button class="btn btn-outline" id="editBtn" aria-label="Modifier le NDA">
+                    <i class="fas fa-edit" aria-hidden="true"></i> Modifier
+                </button>
+            </div>
         </section>
 
         <section class="tool-help" role="region" aria-labelledby="help-heading">
-            <h3 id="help-heading"><i class="fas fa-exclamation-triangle"></i> Avertissement</h3>
-            <p>Ce document est un modèle de base. Pour une protection juridique optimale, consultez un avocat.</p>
+            <h3 id="help-heading"><i class="fas fa-gavel" aria-hidden="true"></i> Guide NDA - Questions fréquentes</h3>
+
+            <h4>📋 Qu'est-ce qu'un NDA ?</h4>
+            <p>Un NDA (Non-Disclosure Agreement) ou accord de confidentialité est un contrat par lequel une partie s'engage à ne pas divulguer les informations confidentielles qui lui sont communiquées.</p>
+
+            <h4>🔒 Quand utiliser un NDA ?</h4>
+            <ul>
+                <li><strong>Négociations commerciales :</strong> Avant de partager des informations sensibles avec un potentiel partenaire/investisseur</li>
+                <li><strong>Recrutement :</strong> Pour protéger vos secrets d'affaires avec de nouveaux employés</li>
+                <li><strong>Projets collaboratifs :</strong> Lors de travaux conjoints avec des tiers</li>
+                <li><strong>Due diligence :</strong> Avant une acquisition ou levée de fonds</li>
+                <li><strong>Consultants/prestataires :</strong> Qui auront accès à des infos confidentielles</li>
+            </ul>
+
+            <h4>⚖️ Unilatéral vs Mutuel</h4>
+            <ul>
+                <li><strong>NDA Unilatéral :</strong> Une seule partie divulgue des informations (ex: vous vers un consultant). Plus simple et rapide.</li>
+                <li><strong>NDA Mutuel (bilatéral) :</strong> Les deux parties échangent des informations confidentielles (ex: deux entreprises qui négocient un partenariat). Plus équilibré.</li>
+            </ul>
+
+            <h4><i class="fas fa-clock" aria-hidden="true"></i> Durée recommandée</h4>
+            <ul>
+                <li><strong>2-3 ans :</strong> Standard pour la plupart des cas</li>
+                <li><strong>5 ans :</strong> Pour des informations très sensibles ou brevets</li>
+                <li><strong>10 ans :</strong> Pour des secrets commerciaux critiques</li>
+                <li><strong>Indéfinie :</strong> Possible mais peut être jugé abusif par un tribunal</li>
+            </ul>
+
+            <h4>❌ Exceptions à la confidentialité</h4>
+            <p>Le NDA généré inclut automatiquement les exceptions standards :</p>
+            <ul>
+                <li>Informations déjà publiques</li>
+                <li>Informations déjà connues par le bénéficiaire avant divulgation</li>
+                <li>Informations développées indépendamment par le bénéficiaire</li>
+                <li>Informations reçues légalement d'un tiers</li>
+                <li>Divulgations imposées par la loi ou décision de justice</li>
+            </ul>
+
+            <h4><i class="fas fa-shield-alt" aria-hidden="true"></i> Clauses importantes</h4>
+            <ul>
+                <li><strong>Restitution :</strong> Obligation de retourner/détruire les documents confidentiels à la fin</li>
+                <li><strong>Clause pénale :</strong> Montant forfaitaire en cas de violation (renforce la dissuasion)</li>
+                <li><strong>Non-sollicitation :</strong> Interdit de débaucher les employés de l'autre partie</li>
+                <li><strong>Arbitrage :</strong> Résolution des litiges par arbitrage plutôt que tribunal (plus rapide)</li>
+            </ul>
+
+            <h4><i class="fas fa-exclamation-triangle" aria-hidden="true"></i> Points d'attention</h4>
+            <ul>
+                <li>⚠️ Un NDA ne protège QUE les informations confidentielles, pas les idées générales</li>
+                <li>⚠️ Définissez clairement ce qui est confidentiel (évitez "toute information")</li>
+                <li>⚠️ N'utilisez pas de NDA trop restrictif, cela peut freiner les partenariats</li>
+                <li>⚠️ Pour les employés, préférez une clause de confidentialité dans le contrat de travail</li>
+                <li>⚠️ Un NDA mal rédigé peut être invalide ou inapplicable</li>
+            </ul>
+
+            <h4><i class="fas fa-balance-scale" aria-hidden="true"></i> Validité juridique</h4>
+            <p>Pour qu'un NDA soit valable :</p>
+            <ol>
+                <li>Les parties doivent avoir la capacité juridique de contracter</li>
+                <li>L'objet doit être licite et déterminé</li>
+                <li>Les informations confidentielles doivent être identifiables</li>
+                <li>La durée ne doit pas être excessive</li>
+                <li>Les obligations doivent être proportionnées</li>
+            </ol>
+
+            <div class="warning-box">
+                <h4><i class="fas fa-gavel"></i> ⚠️ AVERTISSEMENT JURIDIQUE</h4>
+                <p><strong>Ce générateur fournit un modèle de base à titre informatif uniquement.</strong></p>
+                <p>Pour une protection juridique optimale et adaptée à votre situation spécifique, il est <strong>fortement recommandé de consulter un avocat</strong> spécialisé en droit des affaires.</p>
+                <p>Les NDA peuvent avoir des conséquences juridiques importantes. Un avocat pourra :</p>
+                <ul>
+                    <li>Adapter le NDA à votre contexte et juridiction spécifique</li>
+                    <li>Ajouter des clauses particulières selon vos besoins</li>
+                    <li>Vérifier la conformité avec les lois locales</li>
+                    <li>S'assurer que vos intérêts sont correctement protégés</li>
+                </ul>
+            </div>
         </section>
     </main>
+
     <footer class="tool-footer" role="contentinfo">
-        <a href="../../index.html"><i class="fas fa-arrow-left" aria-hidden="true"></i> Retour</a>
+        <a href="../../index.html"><i class="fas fa-arrow-left" aria-hidden="true"></i> Retour aux outils</a>
     </footer>
+
     <script src="../../assets/js/utils.js"></script>
     <script src="../../assets/js/main.js"></script>
     <script>
-        document.getElementById('generateBtn').addEventListener('click', function() {
-            const discloser = document.getElementById('discloser').value || 'Partie A';
-            const recipient = document.getElementById('recipient').value || 'Partie B';
-            const duration = document.getElementById('duration').value || '3';
-            const date = new Date().toLocaleDateString('fr-FR');
+        const STORAGE_KEY = 'ndaDraftData';
 
-            const nda = '<h2 style="text-align:center;margin-bottom:2rem;">ACCORD DE CONFIDENTIALITÉ</h2>' +
-                '<p><em>Fait à __________, le ' + date + '</em></p>' +
-                '<h3>ENTRE LES SOUSSIGNÉS :</h3>' +
-                '<p><strong>' + escapeHtml(discloser) + '</strong> (ci-après « la Partie Divulgatrice »)</p>' +
-                '<p>ET</p>' +
-                '<p><strong>' + escapeHtml(recipient) + '</strong> (ci-après « la Partie Bénéficiaire »)</p>' +
-                '<h3>IL A ÉTÉ CONVENU CE QUI SUIT :</h3>' +
-                '<h4>Article 1 - Objet</h4>' +
-                '<p>Le présent accord a pour objet de définir les conditions dans lesquelles la Partie Divulgatrice communiquera des informations confidentielles à la Partie Bénéficiaire.</p>' +
-                '<h4>Article 2 - Définition des Informations Confidentielles</h4>' +
-                '<p>Sont considérées comme confidentielles toutes informations techniques, commerciales, financières, ou de toute autre nature communiquées par la Partie Divulgatrice.</p>' +
-                '<h4>Article 3 - Obligations de la Partie Bénéficiaire</h4>' +
-                '<p>La Partie Bénéficiaire s\'engage à :</p>' +
-                '<ul><li>Ne pas divulguer les informations confidentielles à des tiers</li>' +
-                '<li>Utiliser les informations uniquement dans le cadre défini</li>' +
-                '<li>Protéger les informations avec le même niveau de protection que ses propres informations</li></ul>' +
-                '<h4>Article 4 - Durée</h4>' +
-                '<p>Le présent accord est conclu pour une durée de <strong>' + escapeHtml(duration) + ' ans</strong> à compter de sa signature.</p>' +
-                '<h4>Article 5 - Droit Applicable</h4>' +
-                '<p>Le présent accord est soumis au droit français.</p>' +
-                '<div style="margin-top:3rem;display:grid;grid-template-columns:1fr 1fr;gap:2rem;">' +
-                '<div><strong>Pour ' + escapeHtml(discloser) + '</strong><br><br>Signature :<br>_________________</div>' +
-                '<div><strong>Pour ' + escapeHtml(recipient) + '</strong><br><br>Signature :<br>_________________</div>' +
-                '</div>' +
-                '<div style="margin-top:2rem;padding:1rem;background:#f5f5f5;border-radius:var(--radius);"><strong>Note :</strong> Ce document est fourni à titre informatif. Consultez un avocat pour un accord adapté à votre situation.</div>';
+        function generateNDA() {
+            // Validation
+            const requiredFields = ['discloserName', 'discloserAddress', 'recipientName', 'recipientAddress', 'purpose'];
+            for (const field of requiredFields) {
+                if (!document.getElementById(field).value.trim()) {
+                    showNotification(`Le champ "${document.querySelector(`label[for="${field}"]`).textContent}" est requis`, 'warning');
+                    return;
+                }
+            }
 
-            document.getElementById('nda').innerHTML = nda;
-            showNotification('NDA généré !', 'success');
+            const ndaType = document.getElementById('ndaType').value;
+            const data = {
+                type: ndaType,
+                discloser: {
+                    name: document.getElementById('discloserName').value,
+                    siret: document.getElementById('discloserSiret').value,
+                    address: document.getElementById('discloserAddress').value,
+                    rep: document.getElementById('discloserRep').value
+                },
+                recipient: {
+                    name: document.getElementById('recipientName').value,
+                    siret: document.getElementById('recipientSiret').value,
+                    address: document.getElementById('recipientAddress').value,
+                    rep: document.getElementById('recipientRep').value
+                },
+                purpose: document.getElementById('purpose').value,
+                duration: document.getElementById('duration').value,
+                jurisdiction: document.getElementById('jurisdiction').value,
+                signaturePlace: document.getElementById('signaturePlace').value,
+                clauses: {
+                    return: document.getElementById('clauseReturn').checked,
+                    penalty: document.getElementById('clausePenalty').checked,
+                    nonSolicitation: document.getElementById('clauseNonSolicitation').checked,
+                    arbitration: document.getElementById('clauseArbitration').checked
+                }
+            };
+
+            const today = new Date().toLocaleDateString('fr-FR', { year: 'numeric', month: 'long', day: 'numeric' });
+            const isMutual = ndaType === 'mutual';
+
+            let html = '<div class="nda-document">';
+            html += `<h2>ACCORD DE ${isMutual ? 'CONFIDENTIALITÉ MUTUELLE' : 'NON-DIVULGATION'}</h2>`;
+            html += `<p style="text-align:center;"><em>Fait à ${escapeHtml(data.signaturePlace || '__________')}, le ${today}</em></p>`;
+
+            // Parties
+            html += '<h3>ENTRE LES SOUSSIGNÉS :</h3>';
+            html += `<p><strong>${escapeHtml(data.discloser.name)}</strong>`;
+            if (data.discloser.siret) html += `<br>SIRET: ${escapeHtml(data.discloser.siret)}`;
+            html += `<br>Ayant son siège social : ${escapeHtml(data.discloser.address)}`;
+            if (data.discloser.rep) html += `<br>Représentée par ${escapeHtml(data.discloser.rep)}`;
+            html += `<br><br>(ci-après « ${isMutual ? 'la Première Partie' : 'la Partie Divulgatrice'} »)</p>`;
+
+            html += '<p style="text-align:center;margin:1.5rem 0;"><strong>ET</strong></p>';
+
+            html += `<p><strong>${escapeHtml(data.recipient.name)}</strong>`;
+            if (data.recipient.siret) html += `<br>SIRET: ${escapeHtml(data.recipient.siret)}`;
+            html += `<br>Ayant son siège social : ${escapeHtml(data.recipient.address)}`;
+            if (data.recipient.rep) html += `<br>Représentée par ${escapeHtml(data.recipient.rep)}`;
+            html += `<br><br>(ci-après « ${isMutual ? 'la Seconde Partie' : 'la Partie Bénéficiaire'} »)</p>`;
+
+            html += `<p>(ci-après ensemble désignées « les Parties »)</p>`;
+
+            html += '<h3>IL A ÉTÉ CONVENU ET ARRÊTÉ CE QUI SUIT :</h3>';
+
+            // Article 1 - Préambule
+            html += '<h4>Article 1 - Préambule</h4>';
+            html += `<p>${escapeHtml(data.purpose)}</p>`;
+            html += `<p>Dans ce contexte, ${isMutual ? 'les Parties sont amenées à échanger' : 'la Partie Divulgatrice est amenée à communiquer à la Partie Bénéficiaire'} des informations confidentielles.</p>`;
+            html += '<p>Le présent accord a pour objet de définir les conditions dans lesquelles ces informations confidentielles seront protégées.</p>';
+
+            // Article 2 - Définitions
+            html += '<h4>Article 2 - Définition des Informations Confidentielles</h4>';
+            html += '<p>Sont considérées comme Informations Confidentielles au sens du présent accord :</p>';
+            html += '<ul>';
+            html += '<li>Toutes informations techniques, technologiques, commerciales, financières, marketing, stratégiques ou de toute autre nature ;</li>';
+            html += '<li>Les documents, données, bases de données, fichiers, plans, dessins, modèles, prototypes, logiciels ;</li>';
+            html += '<li>Les savoir-faire, méthodes, processus, procédés, algorithmes ;</li>';
+            html += '<li>Les études de marché, analyses commerciales, listes de clients et prospects ;</li>';
+            html += '<li>Toute autre information qui a été identifiée comme confidentielle par écrit.</li>';
+            html += '</ul>';
+
+            html += '<p><strong>Ne sont pas considérées comme Informations Confidentielles :</strong></p>';
+            html += '<ul>';
+            html += '<li>Les informations qui sont ou deviennent publiques sans violation du présent accord ;</li>';
+            html += `<li>Les informations dont ${isMutual ? 'l\'autre Partie' : 'la Partie Bénéficiaire'} peut prouver qu'elle en avait connaissance avant leur divulgation ;</li>';
+            html += `<li>Les informations développées de manière indépendante par ${isMutual ? 'une Partie' : 'la Partie Bénéficiaire'} sans utilisation des Informations Confidentielles ;</li>';
+            html += '<li>Les informations reçues légalement d\'un tiers non lié par une obligation de confidentialité ;</li>';
+            html += '<li>Les informations dont la divulgation est imposée par une autorité administrative, réglementaire ou judiciaire.</li>';
+            html += '</ul>';
+
+            // Article 3 - Obligations
+            html += '<h4>Article 3 - Obligations de Confidentialité</h4>';
+            html += `<p>${isMutual ? 'Chaque Partie' : 'La Partie Bénéficiaire'} s'engage à :</p>`;
+            html += '<ol>';
+            html += `<li><strong>Ne pas divulguer</strong> les Informations Confidentielles à des tiers sans l'accord préalable écrit de ${isMutual ? 'l\'autre Partie' : 'la Partie Divulgatrice'} ;</li>`;
+            html += '<li><strong>Utiliser</strong> les Informations Confidentielles uniquement dans le cadre de l\'objet défini à l\'Article 1 ;</li>';
+            html += '<li><strong>Protéger</strong> les Informations Confidentielles avec le même niveau de protection que ses propres informations confidentielles, et en tout état de cause avec un niveau de protection raisonnable ;</li>';
+            html += '<li><strong>Limiter l\'accès</strong> aux Informations Confidentielles aux seuls collaborateurs, consultants ou conseillers qui ont besoin d\'en connaître pour l\'exécution de leur mission ;</li>';
+            html += '<li><strong>Informer</strong> ces personnes de la nature confidentielle des informations et s\'assurer qu\'elles respectent les mêmes obligations de confidentialité.</li>';
+            html += '</ol>';
+
+            // Article 4 - Durée
+            html += '<h4>Article 4 - Durée</h4>';
+            html += `<p>Le présent accord prend effet à compter de sa signature et est conclu pour une durée de <strong>${escapeHtml(data.duration)} ${data.duration > 1 ? 'ans' : 'an'}</strong>.</p>`;
+            html += '<p>Les obligations de confidentialité survivront à l\'expiration ou à la résiliation du présent accord pour la durée spécifiée.</p>';
+
+            // Clauses optionnelles
+            let articleNum = 5;
+
+            if (data.clauses.return) {
+                html += `<h4>Article ${articleNum} - Restitution des Informations</h4>`;
+                html += `<p>À la fin du présent accord ou sur demande de ${isMutual ? 'l\'autre Partie' : 'la Partie Divulgatrice'}, ${isMutual ? 'chaque Partie' : 'la Partie Bénéficiaire'} s'engage à :</p>`;
+                html += '<ul>';
+                html += '<li>Restituer tous les documents, supports et copies contenant des Informations Confidentielles ;</li>';
+                html += '<li>Détruire toutes les copies électroniques et certifier par écrit cette destruction.</li>';
+                html += '</ul>';
+                articleNum++;
+            }
+
+            if (data.clauses.penalty) {
+                html += `<h4>Article ${articleNum} - Clause Pénale</h4>`;
+                html += '<p>En cas de violation des obligations de confidentialité par une Partie, celle-ci sera redevable de plein droit, sans mise en demeure préalable, d\'une indemnité forfaitaire et non réductible.</p>';
+                html += '<p>Cette indemnité ne fait pas obstacle à la possibilité de demander réparation du préjudice supplémentaire effectivement subi.</p>';
+                articleNum++;
+            }
+
+            if (data.clauses.nonSolicitation) {
+                html += `<h4>Article ${articleNum} - Non-sollicitation</h4>`;
+                html += `<p>${isMutual ? 'Chaque Partie' : 'La Partie Bénéficiaire'} s'interdit, pendant la durée du présent accord et pendant une période de 12 mois suivant son expiration, de solliciter ou d'embaucher directement ou indirectement tout employé de ${isMutual ? 'l\'autre Partie' : 'la Partie Divulgatrice'} sans l'accord préalable écrit de celle-ci.</p>`;
+                articleNum++;
+            }
+
+            if (data.clauses.arbitration) {
+                html += `<h4>Article ${articleNum} - Clause d'Arbitrage</h4>`;
+                html += '<p>Tout différend relatif à la validité, l\'interprétation ou l\'exécution du présent accord sera soumis à l\'arbitrage conformément au règlement de la Chambre de Commerce Internationale.</p>';
+                html += '<p>L\'arbitrage se déroulera en langue française et aura lieu à Paris, France.</p>';
+                html += '<p>La sentence arbitrale sera définitive et obligatoire pour les Parties.</p>';
+                articleNum++;
+            }
+
+            // Dispositions générales
+            html += `<h4>Article ${articleNum} - Droit Applicable et Juridiction</h4>`;
+            html += `<p>Le présent accord est régi par le droit ${escapeHtml(data.jurisdiction === 'France' ? 'français' : 'de ' + data.jurisdiction)}.</p>`;
+            if (!data.clauses.arbitration) {
+                html += `<p>Tout litige relatif au présent accord sera soumis à la compétence exclusive des tribunaux de ${data.jurisdiction === 'France' ? 'Paris' : data.jurisdiction}.</p>`;
+            }
+            articleNum++;
+
+            html += `<h4>Article ${articleNum} - Dispositions Diverses</h4>`;
+            html += '<p><strong>Intégralité de l\'accord :</strong> Le présent accord constitue l\'intégralité de l\'accord entre les Parties concernant son objet et annule tout accord antérieur.</p>';
+            html += '<p><strong>Modification :</strong> Toute modification doit faire l\'objet d\'un avenant écrit signé par les deux Parties.</p>';
+            html += '<p><strong>Divisibilité :</strong> Si une clause est déclarée invalide, les autres clauses resteront en vigueur.</p>';
+            html += '<p><strong>Renonciation :</strong> Le fait pour une Partie de ne pas exercer un droit ne constitue pas une renonciation à ce droit.</p>';
+
+            // Signatures
+            html += '<div class="signatures">';
+            html += '<div class="signature-block">';
+            html += `<p><strong>Pour ${escapeHtml(data.discloser.name)}</strong></p>`;
+            if (data.discloser.rep) html += `<p>${escapeHtml(data.discloser.rep)}</p>`;
+            html += '<p style="margin-top:2rem;">Date : _______________</p>';
+            html += '<p>Signature :</p>';
+            html += '<p style="margin-top:2rem;">_______________________</p>';
+            html += '</div>';
+            html += '<div class="signature-block">';
+            html += `<p><strong>Pour ${escapeHtml(data.recipient.name)}</strong></p>`;
+            if (data.recipient.rep) html += `<p>${escapeHtml(data.recipient.rep)}</p>`;
+            html += '<p style="margin-top:2rem;">Date : _______________</p>';
+            html += '<p>Signature :</p>';
+            html += '<p style="margin-top:2rem;">_______________________</p>';
+            html += '</div>';
+            html += '</div>';
+
+            html += '<div class="warning-box">';
+            html += '<p><strong><i class="fas fa-exclamation-triangle"></i> Avertissement Important</strong></p>';
+            html += '<p>Ce document est fourni à titre informatif et constitue un modèle de base. Pour une protection juridique optimale adaptée à votre situation spécifique, il est <strong>fortement recommandé de consulter un avocat</strong> spécialisé en droit des affaires avant signature.</p>';
+            html += '</div>';
+
+            html += '</div>';
+
+            document.getElementById('ndaDocument').innerHTML = html;
+            document.getElementById('results').style.display = 'block';
+            scrollToElement('#results', 100);
+            showNotification('NDA généré avec succès !', 'success');
+        }
+
+        function saveData() {
+            const data = {
+                type: document.getElementById('ndaType').value,
+                discloserName: document.getElementById('discloserName').value,
+                discloserSiret: document.getElementById('discloserSiret').value,
+                discloserAddress: document.getElementById('discloserAddress').value,
+                discloserRep: document.getElementById('discloserRep').value,
+                recipientName: document.getElementById('recipientName').value,
+                recipientSiret: document.getElementById('recipientSiret').value,
+                recipientAddress: document.getElementById('recipientAddress').value,
+                recipientRep: document.getElementById('recipientRep').value,
+                purpose: document.getElementById('purpose').value,
+                duration: document.getElementById('duration').value,
+                jurisdiction: document.getElementById('jurisdiction').value,
+                signaturePlace: document.getElementById('signaturePlace').value,
+                clauseReturn: document.getElementById('clauseReturn').checked,
+                clausePenalty: document.getElementById('clausePenalty').checked,
+                clauseNonSolicitation: document.getElementById('clauseNonSolicitation').checked,
+                clauseArbitration: document.getElementById('clauseArbitration').checked
+            };
+
+            saveToLocalStorage(STORAGE_KEY, data);
+            showNotification('Brouillon sauvegardé !', 'success');
+        }
+
+        function loadData() {
+            const saved = loadFromLocalStorage(STORAGE_KEY);
+            if (!saved) return;
+
+            document.getElementById('ndaType').value = saved.type || 'unilateral';
+            document.getElementById('discloserName').value = saved.discloserName || '';
+            document.getElementById('discloserSiret').value = saved.discloserSiret || '';
+            document.getElementById('discloserAddress').value = saved.discloserAddress || '';
+            document.getElementById('discloserRep').value = saved.discloserRep || '';
+            document.getElementById('recipientName').value = saved.recipientName || '';
+            document.getElementById('recipientSiret').value = saved.recipientSiret || '';
+            document.getElementById('recipientAddress').value = saved.recipientAddress || '';
+            document.getElementById('recipientRep').value = saved.recipientRep || '';
+            document.getElementById('purpose').value = saved.purpose || '';
+            document.getElementById('duration').value = saved.duration || '3';
+            document.getElementById('jurisdiction').value = saved.jurisdiction || 'France';
+            document.getElementById('signaturePlace').value = saved.signaturePlace || '';
+            document.getElementById('clauseReturn').checked = saved.clauseReturn !== false;
+            document.getElementById('clausePenalty').checked = saved.clausePenalty !== false;
+            document.getElementById('clauseNonSolicitation').checked = saved.clauseNonSolicitation || false;
+            document.getElementById('clauseArbitration').checked = saved.clauseArbitration || false;
+        }
+
+        function exportData() {
+            const data = {
+                type: document.getElementById('ndaType').value,
+                discloser: {
+                    name: document.getElementById('discloserName').value,
+                    siret: document.getElementById('discloserSiret').value,
+                    address: document.getElementById('discloserAddress').value,
+                    rep: document.getElementById('discloserRep').value
+                },
+                recipient: {
+                    name: document.getElementById('recipientName').value,
+                    siret: document.getElementById('recipientSiret').value,
+                    address: document.getElementById('recipientAddress').value,
+                    rep: document.getElementById('recipientRep').value
+                },
+                purpose: document.getElementById('purpose').value,
+                duration: document.getElementById('duration').value,
+                jurisdiction: document.getElementById('jurisdiction').value,
+                signaturePlace: document.getElementById('signaturePlace').value,
+                clauses: {
+                    return: document.getElementById('clauseReturn').checked,
+                    penalty: document.getElementById('clausePenalty').checked,
+                    nonSolicitation: document.getElementById('clauseNonSolicitation').checked,
+                    arbitration: document.getElementById('clauseArbitration').checked
+                }
+            };
+
+            exportToJSON(data, `nda-${data.discloser.name.replace(/\s+/g, '-').toLowerCase()}.json`);
+            showNotification('NDA exporté en JSON !', 'success');
+        }
+
+        function resetForm() {
+            if (!confirm('Êtes-vous sûr de vouloir réinitialiser le formulaire ?')) return;
+
+            document.getElementById('discloserName').value = '';
+            document.getElementById('discloserSiret').value = '';
+            document.getElementById('discloserAddress').value = '';
+            document.getElementById('discloserRep').value = '';
+            document.getElementById('recipientName').value = '';
+            document.getElementById('recipientSiret').value = '';
+            document.getElementById('recipientAddress').value = '';
+            document.getElementById('recipientRep').value = '';
+            document.getElementById('purpose').value = '';
+            document.getElementById('duration').value = '3';
+            document.getElementById('signaturePlace').value = '';
+
+            document.getElementById('results').style.display = 'none';
+            removeFromLocalStorage(STORAGE_KEY);
+            showNotification('Formulaire réinitialisé', 'success');
+        }
+
+        // Event listeners
+        document.getElementById('generateBtn').addEventListener('click', generateNDA);
+        document.getElementById('saveBtn').addEventListener('click', saveData);
+        document.getElementById('exportBtn').addEventListener('click', exportData);
+        document.getElementById('resetBtn').addEventListener('click', resetForm);
+        document.getElementById('printBtn').addEventListener('click', () => window.print());
+        document.getElementById('editBtn').addEventListener('click', () => {
+            scrollToElement('.tool-header', 100);
         });
 
-        document.getElementById('printBtn').addEventListener('click', function() {
-            window.print();
-        });
-
-        document.getElementById('generateBtn').click();
+        // Chargement initial
+        loadData();
     </script>
 </body>
 </html>
