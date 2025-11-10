@@ -107,7 +107,7 @@
 
         document.getElementById('exportBtn').addEventListener('click', function() {
             const csv = 'Nom,Contact,Délai (jours),Note\n' +
-                suppliers.map(function(s) { return '"' + s.name + '","' + s.contact + '",' + s.leadTime + ',' + s.rating; }).join('\n');
+                suppliers.map(function(s) { return '"' + escapeHtml(s.name) + '","' + escapeHtml(s.contact) + '",' + s.leadTime + ',' + s.rating; }).join('\n');
             const blob = new Blob([csv], { type: 'text/csv' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
@@ -135,8 +135,8 @@
             container.innerHTML = suppliers.map(function(s) {
                 const stars = '⭐'.repeat(Math.round(s.rating));
                 return '<div style="display:flex;justify-content:space-between;align-items:center;padding:1rem;background:white;border-radius:var(--radius);margin-bottom:0.5rem;box-shadow:0 1px 3px rgba(0,0,0,0.1);">' +
-                    '<div style="flex:1;"><strong>' + s.name + '</strong><br>' +
-                    '<small style="color:#666;">' + s.contact + ' • ' + s.leadTime + 'j • ' + stars + '</small></div>' +
+                    '<div style="flex:1;"><strong>' + escapeHtml(s.name) + '</strong><br>' +
+                    '<small style="color:#666;">' + escapeHtml(s.contact) + ' • ' + s.leadTime + 'j • ' + stars + '</small></div>' +
                     '<button onclick="deleteSupplier(' + s.id + ')" style="padding:0.5rem 1rem;border:none;background:#ff6b6b;color:white;border-radius:var(--radius);cursor:pointer;">' +
                     '<i class="fas fa-trash"></i></button></div>';
             }).join('');
