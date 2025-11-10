@@ -6,8 +6,19 @@
     <title>Générateur de Bons de Commande - Business Tools</title>
     <link rel="stylesheet" href="../../assets/css/main.css">
     <link rel="stylesheet" href="../../assets/css/tools.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Font Awesome avec SRI pour sécurité -->
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+          integrity="sha384-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw=="
+          crossorigin="anonymous"
+          referrerpolicy="no-referrer">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- DOMPurify pour sanitization XSS -->
+    <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.6/dist/purify.min.js"
+            integrity="sha384-LhPJK12eZWQ+j+V7A48VQQnLzOLJB8C7wYvDWbdBxBh1QdXbYbYVZYY6YGnQgzEi=="
+            crossorigin="anonymous"></script>
+
     <style>
         .po-preview {
             background: white;
@@ -246,16 +257,17 @@
             const total = subtotal + tva;
 
             // Generate preview
+            // SÉCURITÉ: Utilise escapeHtml() pour éviter les XSS sur toutes les données utilisateur
             const preview = `
                 <div class="po-header">
                     <div>
-                        <h2>${poData.buyer.name}</h2>
-                        <p>${poData.buyer.email}</p>
-                        ${poData.buyer.address ? `<p style="white-space: pre-line;">${poData.buyer.address}</p>` : ''}
+                        <h2>${escapeHtml(poData.buyer.name)}</h2>
+                        <p>${escapeHtml(poData.buyer.email)}</p>
+                        ${poData.buyer.address ? `<p style="white-space: pre-line;">${escapeHtml(poData.buyer.address)}</p>` : ''}
                     </div>
                     <div style="text-align: right;">
                         <div style="font-size: 1.5rem; font-weight: 700; color: var(--primary);">BON DE COMMANDE</div>
-                        <div style="font-weight: 600; margin-top: 0.5rem;">${poData.po.number}</div>
+                        <div style="font-weight: 600; margin-top: 0.5rem;">${escapeHtml(poData.po.number)}</div>
                         <p>Date : ${new Date(poData.po.date).toLocaleDateString('fr-FR')}</p>
                     </div>
                 </div>
@@ -263,16 +275,16 @@
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin: 2rem 0;">
                     <div style="background: var(--light); padding: 1.5rem; border-radius: var(--radius);">
                         <h3>Fournisseur</h3>
-                        <p><strong>${poData.supplier.name}</strong></p>
-                        ${poData.supplier.email ? `<p>${poData.supplier.email}</p>` : ''}
-                        ${poData.supplier.address ? `<p style="white-space: pre-line;">${poData.supplier.address}</p>` : ''}
+                        <p><strong>${escapeHtml(poData.supplier.name)}</strong></p>
+                        ${poData.supplier.email ? `<p>${escapeHtml(poData.supplier.email)}</p>` : ''}
+                        ${poData.supplier.address ? `<p style="white-space: pre-line;">${escapeHtml(poData.supplier.address)}</p>` : ''}
                     </div>
                     <div style="background: var(--light); padding: 1.5rem; border-radius: var(--radius);">
                         <h3>Livraison</h3>
                         <p><strong>Date souhaitée :</strong></p>
                         <p style="font-size: 1.1rem; font-weight: 600;">${new Date(poData.po.deliveryDate).toLocaleDateString('fr-FR')}</p>
                         <p style="margin-top: 0.5rem;"><strong>Adresse de livraison :</strong></p>
-                        <p>${poData.buyer.address || 'Adresse du siège'}</p>
+                        <p>${escapeHtml(poData.buyer.address) || 'Adresse du siège'}</p>
                     </div>
                 </div>
 
@@ -290,8 +302,8 @@
                     <tbody>
                         ${poData.items.map(item => `
                             <tr>
-                                <td>${item.reference}</td>
-                                <td>${item.description}</td>
+                                <td>${escapeHtml(item.reference)}</td>
+                                <td>${escapeHtml(item.description)}</td>
                                 <td style="text-align: center;">${item.quantity}</td>
                                 <td style="text-align: right;">${formatCurrency(item.unitPrice)}</td>
                                 <td style="text-align: right;">${formatCurrency(item.total)}</td>
