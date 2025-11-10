@@ -20,10 +20,10 @@
             crossorigin="anonymous"></script>
 </head>
 <body>
-    <nav class="breadcrumb">
-        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> >
+    <nav class="breadcrumb" role="navigation" aria-label="Fil d'ariane">
+        <a href="../../index.html"><i class="fas fa-home" aria-hidden="true"></i> Accueil</a> >
         <a href="../../index.html#tools">Facturation</a> >
-        <span>Générateur de Factures</span>
+        <span aria-current="page">Générateur de Factures</span>
     </nav>
     <main class="tool-container">
         <header class="tool-header">
@@ -31,9 +31,9 @@
             <p class="tool-description">Créez des factures professionnelles en quelques clics. Ajoutez vos informations, vos lignes de produits/services et générez un document prêt à imprimer.</p>
         </header>
 
-        <section class="tool-input">
-            <h2>Informations de facturation</h2>
-            <form id="invoiceForm">
+        <section class="tool-input" role="region" aria-labelledby="form-heading">
+            <h2 id="form-heading">Informations de facturation</h2>
+            <form id="invoiceForm" aria-label="Formulaire de création de facture">
                 <!-- Informations entreprise -->
                 <div class="card" style="margin-bottom: 2rem;">
                     <h3>Votre entreprise</h3>
@@ -108,8 +108,8 @@
                 <div class="card" style="margin-bottom: 2rem;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
                         <h3>Produits / Services</h3>
-                        <button type="button" class="btn btn-secondary btn-sm" id="addLineBtn">
-                            <i class="fas fa-plus"></i> Ajouter une ligne
+                        <button type="button" class="btn btn-secondary btn-sm" id="addLineBtn" aria-label="Ajouter une ligne de produit ou service">
+                            <i class="fas fa-plus" aria-hidden="true"></i> Ajouter une ligne
                         </button>
                     </div>
                     <div id="linesContainer">
@@ -118,38 +118,38 @@
                 </div>
 
                 <div class="action-buttons">
-                    <button type="button" class="btn btn-primary" id="generateBtn">
-                        <i class="fas fa-file-invoice"></i> Générer la facture
+                    <button type="button" class="btn btn-primary" id="generateBtn" aria-label="Générer l'aperçu de la facture">
+                        <i class="fas fa-file-invoice" aria-hidden="true"></i> Générer la facture
                     </button>
-                    <button type="reset" class="btn btn-outline">
-                        <i class="fas fa-redo"></i> Réinitialiser
+                    <button type="reset" class="btn btn-outline" aria-label="Réinitialiser le formulaire">
+                        <i class="fas fa-redo" aria-hidden="true"></i> Réinitialiser
                     </button>
                 </div>
             </form>
         </section>
 
-        <section class="tool-output" id="results" style="display: none;">
-            <h2><i class="fas fa-file-pdf"></i> Aperçu de la facture</h2>
+        <section class="tool-output" id="results" style="display: none;" role="region" aria-labelledby="preview-heading" aria-live="polite">
+            <h2 id="preview-heading"><i class="fas fa-file-pdf" aria-hidden="true"></i> Aperçu de la facture</h2>
 
-            <div id="invoicePreview" style="background: white; padding: 3rem; border: 1px solid var(--border); border-radius: var(--radius-lg); max-width: 800px; margin: 0 auto;">
+            <div id="invoicePreview" style="background: white; padding: 3rem; border: 1px solid var(--border); border-radius: var(--radius-lg); max-width: 800px; margin: 0 auto;" role="document">
                 <!-- Le contenu de la facture sera généré ici -->
             </div>
 
             <div class="action-buttons" style="margin-top: 2rem;">
-                <button class="btn btn-accent" id="printBtn">
-                    <i class="fas fa-print"></i> Imprimer
+                <button class="btn btn-accent" id="printBtn" aria-label="Imprimer la facture">
+                    <i class="fas fa-print" aria-hidden="true"></i> Imprimer
                 </button>
-                <button class="btn btn-secondary" id="downloadBtn">
-                    <i class="fas fa-download"></i> Télécharger PDF
+                <button class="btn btn-secondary" id="downloadBtn" aria-label="Télécharger la facture en PDF">
+                    <i class="fas fa-download" aria-hidden="true"></i> Télécharger PDF
                 </button>
-                <button class="btn btn-outline" id="newInvoiceBtn">
-                    <i class="fas fa-plus"></i> Nouvelle facture
+                <button class="btn btn-outline" id="newInvoiceBtn" aria-label="Créer une nouvelle facture">
+                    <i class="fas fa-plus" aria-hidden="true"></i> Nouvelle facture
                 </button>
             </div>
         </section>
 
-        <section class="tool-help">
-            <h3><i class="fas fa-question-circle"></i> Comment utiliser ce générateur ?</h3>
+        <section class="tool-help" role="region" aria-labelledby="help-heading">
+            <h3 id="help-heading"><i class="fas fa-question-circle" aria-hidden="true"></i> Comment utiliser ce générateur ?</h3>
             <ol>
                 <li>Remplissez vos <strong>informations d'entreprise</strong></li>
                 <li>Ajoutez les <strong>informations du client</strong></li>
@@ -213,8 +213,8 @@
                         <input type="number" class="form-input line-price" value="0" min="0" step="0.01" required>
                     </div>
                     <div class="form-group" style="display: flex; align-items: flex-end;">
-                        <button type="button" class="btn btn-danger btn-sm" onclick="removeLine(${lineCount})">
-                            <i class="fas fa-trash"></i>
+                        <button type="button" class="btn btn-danger btn-sm" onclick="removeLine(${lineCount})" aria-label="Supprimer cette ligne">
+                            <i class="fas fa-trash" aria-hidden="true"></i>
                         </button>
                     </div>
                 </div>

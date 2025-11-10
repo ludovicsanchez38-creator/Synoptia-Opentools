@@ -166,10 +166,10 @@
     </style>
 </head>
 <body>
-    <nav class="breadcrumb">
-        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> >
+    <nav class="breadcrumb" role="navigation" aria-label="Fil d'ariane">
+        <a href="../../index.html"><i class="fas fa-home" aria-hidden="true"></i> Accueil</a> >
         <a href="../../index.html#tools">Temps</a> >
-        <span>Tableau Kanban Projet</span>
+        <span aria-current="page">Tableau Kanban Projet</span>
     </nav>
     <main class="tool-container">
         <header class="tool-header">
@@ -177,72 +177,72 @@
             <p class="tool-description">Organisez vos tâches visuellement avec le drag & drop</p>
         </header>
 
-        <section class="tool-input">
+        <section class="tool-input" role="region" aria-label="Zone de travail Kanban">
             <div class="kanban-controls">
-                <button type="button" class="btn btn-primary" id="addTaskBtn">
-                    <i class="fas fa-plus"></i> Nouvelle tâche
+                <button type="button" class="btn btn-primary" id="addTaskBtn" aria-label="Créer une nouvelle tâche">
+                    <i class="fas fa-plus" aria-hidden="true"></i> Nouvelle tâche
                 </button>
-                <button type="button" class="btn btn-secondary" id="clearAllBtn">
-                    <i class="fas fa-trash"></i> Tout effacer
+                <button type="button" class="btn btn-secondary" id="clearAllBtn" aria-label="Effacer toutes les tâches">
+                    <i class="fas fa-trash" aria-hidden="true"></i> Tout effacer
                 </button>
-                <button type="button" class="btn btn-success" id="exportBtn">
-                    <i class="fas fa-download"></i> Exporter JSON
+                <button type="button" class="btn btn-success" id="exportBtn" aria-label="Exporter les tâches au format JSON">
+                    <i class="fas fa-download" aria-hidden="true"></i> Exporter JSON
                 </button>
             </div>
 
-            <div class="kanban-board" id="kanbanBoard">
+            <div class="kanban-board" id="kanbanBoard" role="group" aria-label="Colonnes du tableau Kanban">
                 <!-- To Do Column -->
-                <div class="kanban-column todo" data-status="todo">
+                <div class="kanban-column todo" data-status="todo" role="region" aria-labelledby="col-todo">
                     <div class="kanban-column-header">
-                        <div class="column-title">
-                            <i class="fas fa-circle-notch"></i>
+                        <div class="column-title" id="col-todo">
+                            <i class="fas fa-circle-notch" aria-hidden="true"></i>
                             À faire
-                            <span class="column-count" id="count-todo">0</span>
+                            <span class="column-count" id="count-todo" aria-label="Nombre de tâches">0</span>
                         </div>
                     </div>
-                    <div class="kanban-cards" data-status="todo"></div>
+                    <div class="kanban-cards" data-status="todo" role="list" aria-label="Tâches à faire"></div>
                 </div>
 
                 <!-- In Progress Column -->
-                <div class="kanban-column inprogress" data-status="inprogress">
+                <div class="kanban-column inprogress" data-status="inprogress" role="region" aria-labelledby="col-inprogress">
                     <div class="kanban-column-header">
-                        <div class="column-title">
-                            <i class="fas fa-spinner"></i>
+                        <div class="column-title" id="col-inprogress">
+                            <i class="fas fa-spinner" aria-hidden="true"></i>
                             En cours
-                            <span class="column-count" id="count-inprogress">0</span>
+                            <span class="column-count" id="count-inprogress" aria-label="Nombre de tâches">0</span>
                         </div>
                     </div>
-                    <div class="kanban-cards" data-status="inprogress"></div>
+                    <div class="kanban-cards" data-status="inprogress" role="list" aria-label="Tâches en cours"></div>
                 </div>
 
                 <!-- Review Column -->
-                <div class="kanban-column review" data-status="review">
+                <div class="kanban-column review" data-status="review" role="region" aria-labelledby="col-review">
                     <div class="kanban-column-header">
-                        <div class="column-title">
-                            <i class="fas fa-eye"></i>
+                        <div class="column-title" id="col-review">
+                            <i class="fas fa-eye" aria-hidden="true"></i>
                             Revue
-                            <span class="column-count" id="count-review">0</span>
+                            <span class="column-count" id="count-review" aria-label="Nombre de tâches">0</span>
                         </div>
                     </div>
-                    <div class="kanban-cards" data-status="review"></div>
+                    <div class="kanban-cards" data-status="review" role="list" aria-label="Tâches en revue"></div>
                 </div>
 
                 <!-- Done Column -->
-                <div class="kanban-column done" data-status="done">
+                <div class="kanban-column done" data-status="done" role="region" aria-labelledby="col-done">
                     <div class="kanban-column-header">
-                        <div class="column-title">
-                            <i class="fas fa-check-circle"></i>
+                        <div class="column-title" id="col-done">
+                            <i class="fas fa-check-circle" aria-hidden="true"></i>
                             Terminé
-                            <span class="column-count" id="count-done">0</span>
+                            <span class="column-count" id="count-done" aria-label="Nombre de tâches">0</span>
                         </div>
                     </div>
-                    <div class="kanban-cards" data-status="done"></div>
+                    <div class="kanban-cards" data-status="done" role="list" aria-label="Tâches terminées"></div>
                 </div>
             </div>
         </section>
 
-        <section class="tool-help" style="margin-top: 2rem;">
-            <h3><i class="fas fa-question-circle"></i> Guide d'utilisation</h3>
+        <section class="tool-help" style="margin-top: 2rem;" role="region" aria-labelledby="help-heading">
+            <h3 id="help-heading"><i class="fas fa-question-circle" aria-hidden="true"></i> Guide d'utilisation</h3>
             <ul>
                 <li><strong>Ajouter une tâche :</strong> Cliquez sur "Nouvelle tâche" et remplissez le formulaire</li>
                 <li><strong>Déplacer une tâche :</strong> Glissez-déposez les cartes entre les colonnes</li>
@@ -254,13 +254,13 @@
     </main>
 
     <!-- Task Modal -->
-    <div class="modal" id="taskModal">
+    <div class="modal" id="taskModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
         <div class="modal-content">
             <div class="modal-header">
                 <h2 id="modalTitle">Nouvelle tâche</h2>
-                <span class="modal-close" onclick="closeModal()">&times;</span>
+                <button type="button" class="modal-close" onclick="closeModal()" aria-label="Fermer la fenêtre">&times;</button>
             </div>
-            <form id="taskForm">
+            <form id="taskForm" aria-label="Formulaire de tâche">
                 <div class="form-group">
                     <label for="taskTitle" class="form-label"><i class="fas fa-heading"></i> Titre *</label>
                     <input type="text" id="taskTitle" class="form-input" required>
@@ -290,8 +290,8 @@
                         <option value="done">Terminé</option>
                     </select>
                 </div>
-                <button type="submit" class="btn btn-primary btn-lg" style="width: 100%; margin-top: 1rem;">
-                    <i class="fas fa-save"></i> Enregistrer
+                <button type="submit" class="btn btn-primary btn-lg" style="width: 100%; margin-top: 1rem;" aria-label="Enregistrer la tâche">
+                    <i class="fas fa-save" aria-hidden="true"></i> Enregistrer
                 </button>
             </form>
         </div>
@@ -364,6 +364,8 @@
             card.className = 'kanban-card';
             card.draggable = true;
             card.dataset.taskId = task.id;
+            card.setAttribute('role', 'listitem');
+            card.setAttribute('aria-label', `Tâche: ${task.title}`);
 
             // SÉCURITÉ: Utilise escapeHtml() pour éviter les XSS
             card.innerHTML = `
@@ -371,14 +373,14 @@
                 ${task.description ? `<div class="card-description">${escapeHtml(task.description)}</div>` : ''}
                 <div class="card-meta">
                     <span class="card-priority priority-${task.priority}">${escapeHtml(getPriorityLabel(task.priority))}</span>
-                    ${task.assignee ? `<span class="card-assignee"><i class="fas fa-user"></i> ${escapeHtml(task.assignee)}</span>` : ''}
+                    ${task.assignee ? `<span class="card-assignee"><i class="fas fa-user" aria-hidden="true"></i> ${escapeHtml(task.assignee)}</span>` : ''}
                 </div>
                 <div class="card-actions">
-                    <button class="btn btn-sm btn-primary" onclick="editTask(${task.id})">
-                        <i class="fas fa-edit"></i> Modifier
+                    <button class="btn btn-sm btn-primary" onclick="editTask(${task.id})" aria-label="Modifier la tâche ${escapeHtml(task.title)}">
+                        <i class="fas fa-edit" aria-hidden="true"></i> Modifier
                     </button>
-                    <button class="btn btn-sm btn-danger" onclick="deleteTask(${task.id})">
-                        <i class="fas fa-trash"></i> Supprimer
+                    <button class="btn btn-sm btn-danger" onclick="deleteTask(${task.id})" aria-label="Supprimer la tâche ${escapeHtml(task.title)}">
+                        <i class="fas fa-trash" aria-hidden="true"></i> Supprimer
                     </button>
                 </div>
             `;
@@ -478,6 +480,16 @@
         window.closeModal = function() {
             document.getElementById('taskModal').classList.remove('active');
         };
+
+        // Keyboard support: Escape key to close modal
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                const modal = document.getElementById('taskModal');
+                if (modal.classList.contains('active')) {
+                    closeModal();
+                }
+            }
+        });
 
         // Save task
         document.getElementById('taskForm').addEventListener('submit', (e) => {
