@@ -3,102 +3,650 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Générateur CGV - Business Tools</title>
+    <title>Générateur CGV/CGU - Business Tools</title>
     <link rel="stylesheet" href="../../assets/css/main.css">
     <link rel="stylesheet" href="../../assets/css/tools.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha384-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous">
     <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.6/dist/purify.min.js" integrity="sha384-LhPJK12eZWQ+j+V7A48VQQnLzOLJB8C7wYvDWbdBxBh1QdXbYbYVZYY6YGnQgzEi==" crossorigin="anonymous"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .legal-document {
+            padding: 3rem;
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            max-width: 900px;
+            margin: 2rem auto;
+            font-family: 'Georgia', serif;
+            line-height: 1.8;
+        }
+        .legal-document h1 {
+            text-align: center;
+            margin-bottom: 2rem;
+            color: var(--dark);
+            font-size: 2rem;
+        }
+        .legal-document h2 {
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+            color: var(--primary);
+            font-size: 1.5rem;
+        }
+        .legal-document h3 {
+            margin-top: 1.5rem;
+            margin-bottom: 0.75rem;
+            color: var(--dark);
+            font-size: 1.2rem;
+        }
+        .legal-document p, .legal-document li {
+            text-align: justify;
+            margin-bottom: 0.75rem;
+        }
+        .legal-document ul, .legal-document ol {
+            margin-left: 2rem;
+            margin-bottom: 1rem;
+        }
+        .company-info {
+            padding: 1.5rem;
+            background: var(--light);
+            border-radius: var(--radius-md);
+            margin-bottom: 2rem;
+        }
+        .warning-box {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background: #FFF3CD;
+            border-left: 4px solid #FFC107;
+            border-radius: var(--radius-md);
+        }
+        @media print {
+            .tool-input, .btn, .breadcrumb, .tool-footer, .tool-help { display: none; }
+            .legal-document { border: none; padding: 1rem; }
+        }
+    </style>
 </head>
 <body>
     <nav class="breadcrumb" role="navigation" aria-label="Fil d'ariane">
         <a href="../../index.html"><i class="fas fa-home" aria-hidden="true"></i> Accueil</a> >
         <a href="../../index.html#tools">Divers</a> >
-        <span aria-current="page">CGV</span>
+        <span aria-current="page">CGV/CGU</span>
     </nav>
     <main class="tool-container">
         <header class="tool-header">
-            <h1><i class="fas fa-file-contract"></i> Générateur de CGV</h1>
-            <p class="tool-description">Créez vos Conditions Générales de Vente.</p>
+            <h1><i class="fas fa-file-contract"></i> Générateur CGV/CGU & Mentions Légales</h1>
+            <p class="tool-description">Créez vos conditions générales et mentions légales conformes à la réglementation française</p>
         </header>
 
-        <section class="tool-input">
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; margin: 1.5rem 0;">
+        <section class="tool-input" role="region" aria-label="Formulaire de création des documents légaux">
+            <h2>Type de document</h2>
+
+            <div class="card" style="margin-bottom: 2rem;">
                 <div class="form-group">
-                    <label class="form-label">Nom de l'entreprise</label>
-                    <input type="text" id="company" class="form-input" value="Ma Société SARL">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">SIRET</label>
-                    <input type="text" id="siret" class="form-input" value="123 456 789 00012">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Adresse</label>
-                    <input type="text" id="address" class="form-input" value="1 rue Example, 75001 Paris">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Délai de livraison (jours)</label>
-                    <input type="number" id="delivery" class="form-input" value="7" min="0">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Délai de paiement (jours)</label>
-                    <input type="number" id="payment" class="form-input" value="30" min="0">
+                    <label class="form-label">Type de document *</label>
+                    <select id="docType" class="form-input">
+                        <option value="cgv">CGV - Conditions Générales de Vente</option>
+                        <option value="cgu">CGU - Conditions Générales d'Utilisation</option>
+                        <option value="mentions">Mentions Légales</option>
+                    </select>
+                    <p style="font-size: 0.9rem; color: var(--gray); margin-top: 0.5rem;">
+                        <i class="fas fa-info-circle"></i>
+                        CGV: pour vente de produits/services | CGU: pour utilisation site/app | Mentions: obligatoires pour tout site
+                    </p>
                 </div>
             </div>
 
-            <button class="btn btn-primary" id="generateBtn">
-                <i class="fas fa-file-alt"></i> Générer les CGV
-            </button>
+            <!-- Informations entreprise -->
+            <div class="card" style="margin-bottom: 2rem;">
+                <h3>Informations de l'entreprise</h3>
+                <div class="input-grid">
+                    <div class="form-group">
+                        <label class="form-label">Raison sociale *</label>
+                        <input type="text" id="company" class="form-input" placeholder="Ex: Ma Société SARL" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Forme juridique</label>
+                        <select id="legalForm" class="form-input">
+                            <option value="SARL">SARL</option>
+                            <option value="SAS">SAS</option>
+                            <option value="SASU">SASU</option>
+                            <option value="EURL">EURL</option>
+                            <option value="SA">SA</option>
+                            <option value="SNC">SNC</option>
+                            <option value="Auto-entrepreneur">Auto-entrepreneur</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">SIRET *</label>
+                        <input type="text" id="siret" class="form-input" placeholder="123 456 789 00012" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Capital social (€)</label>
+                        <input type="number" id="capital" class="form-input" placeholder="10000" min="0">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Adresse du siège *</label>
+                        <input type="text" id="address" class="form-input" placeholder="1 rue Example, 75001 Paris" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Email de contact *</label>
+                        <input type="email" id="email" class="form-input" placeholder="contact@example.fr" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Téléphone</label>
+                        <input type="tel" id="phone" class="form-input" placeholder="01 23 45 67 89">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Site web</label>
+                        <input type="url" id="website" class="form-input" placeholder="https://www.example.fr">
+                    </div>
+                </div>
+
+                <div class="input-grid" style="margin-top: 1rem;">
+                    <div class="form-group">
+                        <label class="form-label">RCS (Registre du Commerce)</label>
+                        <input type="text" id="rcs" class="form-input" placeholder="RCS Paris B 123 456 789">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">N° TVA intracommunautaire</label>
+                        <input type="text" id="tva" class="form-input" placeholder="FR 12 345678901">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Nom du directeur de publication</label>
+                        <input type="text" id="director" class="form-input" placeholder="M. Jean Dupont">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Hébergeur du site</label>
+                        <input type="text" id="host" class="form-input" placeholder="OVH, 2 rue Kellermann, Roubaix">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Paramètres CGV -->
+            <div class="card" id="cgvParams" style="margin-bottom: 2rem; display: none;">
+                <h3>Paramètres spécifiques CGV</h3>
+                <div class="input-grid">
+                    <div class="form-group">
+                        <label class="form-label">Type d'activité</label>
+                        <select id="businessType" class="form-input">
+                            <option value="ecommerce">E-commerce (vente en ligne)</option>
+                            <option value="services">Prestations de services</option>
+                            <option value="saas">SaaS / Logiciel</option>
+                            <option value="mixed">Mixte (produits + services)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Délai de livraison (jours)</label>
+                        <input type="number" id="delivery" class="form-input" value="7" min="1">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Délai de paiement (jours)</label>
+                        <input type="number" id="payment" class="form-input" value="30" min="0">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Délai de rétractation (jours)</label>
+                        <input type="number" id="retraction" class="form-input" value="14" min="7" max="30">
+                        <p style="font-size: 0.85rem; color: var(--gray); margin-top: 0.5rem;">Légal: 14 jours minimum</p>
+                    </div>
+                </div>
+
+                <div style="margin-top: 1rem;">
+                    <label style="display: flex; align-items: center; gap: 0.5rem;">
+                        <input type="checkbox" id="hasWarranty" checked>
+                        <span>Inclure clause de garantie légale de conformité</span>
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 0.5rem; margin-top: 0.5rem;">
+                        <input type="checkbox" id="hasGDPR" checked>
+                        <span>Inclure clause RGPD (traitement des données personnelles)</span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="action-buttons">
+                <button class="btn btn-primary" id="generateBtn" aria-label="Générer le document">
+                    <i class="fas fa-file-contract" aria-hidden="true"></i> Générer le document
+                </button>
+                <button class="btn btn-secondary" id="saveBtn" aria-label="Sauvegarder le brouillon">
+                    <i class="fas fa-save" aria-hidden="true"></i> Sauvegarder
+                </button>
+                <button class="btn btn-success" id="exportBtn" aria-label="Exporter en JSON">
+                    <i class="fas fa-download" aria-hidden="true"></i> Exporter JSON
+                </button>
+                <button class="btn btn-outline" id="resetBtn" aria-label="Réinitialiser">
+                    <i class="fas fa-redo" aria-hidden="true"></i> Réinitialiser
+                </button>
+            </div>
         </section>
 
-        <section class="tool-output">
-            <div id="cgv" style="padding: 2rem; background: white; border-radius: var(--radius);"></div>
-            <button class="btn btn-secondary" id="printBtn" style="margin-top: 1rem;">
-                <i class="fas fa-print"></i> Imprimer
-            </button>
+        <section class="tool-output" id="results" style="display: none;" role="region" aria-labelledby="doc-heading">
+            <h2 id="doc-heading"><i class="fas fa-file-contract" aria-hidden="true"></i> Document Généré</h2>
+            <div id="legalDocument"></div>
+
+            <div class="action-buttons" style="margin-top: 2rem;">
+                <button class="btn btn-accent" id="printBtn" aria-label="Imprimer le document">
+                    <i class="fas fa-print" aria-hidden="true"></i> Imprimer
+                </button>
+                <button class="btn btn-outline" id="editBtn" aria-label="Modifier">
+                    <i class="fas fa-edit" aria-hidden="true"></i> Modifier
+                </button>
+            </div>
         </section>
 
         <section class="tool-help" role="region" aria-labelledby="help-heading">
-            <h3 id="help-heading"><i class="fas fa-exclamation-triangle"></i> Avertissement</h3>
-            <p>Ce générateur crée un document de base. Pour une utilisation professionnelle, consultez un avocat pour adapter les CGV à votre activité spécifique.</p>
+            <h3 id="help-heading"><i class="fas fa-balance-scale" aria-hidden="true"></i> Guide CGV/CGU/Mentions Légales</h3>
+
+            <h4>📋 Documents légaux obligatoires</h4>
+            <ul>
+                <li><strong>Mentions Légales :</strong> OBLIGATOIRES pour tout site web (loi LCEN). Sanction: 75 000€ d'amende</li>
+                <li><strong>CGV :</strong> Obligatoires si vous vendez des produits/services (Code de la consommation)</li>
+                <li><strong>CGU :</strong> Recommandées pour tout site/application avec inscription utilisateurs</li>
+                <li><strong>Politique de confidentialité :</strong> Obligatoire si collecte de données personnelles (RGPD)</li>
+            </ul>
+
+            <h4>🔍 CGV vs CGU - Différences</h4>
+            <p><strong>CGV (Conditions Générales de Vente) :</strong></p>
+            <ul>
+                <li>Régissent la <strong>vente de produits ou services</strong></li>
+                <li>Définissent prix, livraison, paiement, garanties</li>
+                <li>Protègent le vendeur et informent l'acheteur</li>
+                <li>Doivent être acceptées <strong>avant</strong> toute commande</li>
+            </ul>
+
+            <p><strong>CGU (Conditions Générales d'Utilisation) :</strong></p>
+            <ul>
+                <li>Régissent l'<strong>utilisation d'un site web ou application</strong></li>
+                <li>Définissent droits et obligations des utilisateurs</li>
+                <li>Couvrent contenu, propriété intellectuelle, responsabilités</li>
+                <li>Pas de transaction commerciale directe</li>
+            </ul>
+
+            <h4><i class="fas fa-check-circle" aria-hidden="true"></i> Contenu minimum CGV</h4>
+            <ol>
+                <li><strong>Identification du vendeur :</strong> Raison sociale, SIRET, adresse, contact</li>
+                <li><strong>Caractéristiques des produits/services :</strong> Description précise</li>
+                <li><strong>Prix :</strong> TTC, frais de livraison, taxes</li>
+                <li><strong>Modalités de paiement :</strong> Moyens acceptés, délais</li>
+                <li><strong>Livraison :</strong> Délais, modalités, risques</li>
+                <li><strong>Droit de rétractation :</strong> 14 jours minimum (vente à distance)</li>
+                <li><strong>Garanties légales :</strong> Conformité (2 ans) et vices cachés</li>
+                <li><strong>Médiation :</strong> Plateforme RLL (Règlement en Ligne des Litiges)</li>
+                <li><strong>Protection des données :</strong> Conformité RGPD</li>
+            </ol>
+
+            <h4><i class="fas fa-shield-alt" aria-hidden="true"></i> Droit de rétractation (e-commerce)</h4>
+            <ul>
+                <li><strong>Délai légal :</strong> 14 jours calendaires (extensible volontairement)</li>
+                <li><strong>Point de départ :</strong> Réception du produit (ou conclusion du contrat pour services)</li>
+                <li><strong>Remboursement :</strong> Sous 14 jours après rétractation</li>
+                <li><strong>Exceptions :</strong> Produits personnalisés, denrées périssables, presse, contenu numérique téléchargé</li>
+            </ul>
+
+            <h4><i class="fas fa-user-shield" aria-hidden="true"></i> RGPD - Protection des données</h4>
+            <p>Vos CGV/CGU doivent mentionner :</p>
+            <ul>
+                <li>Quelles données sont collectées et pourquoi</li>
+                <li>Durée de conservation des données</li>
+                <li>Droits des utilisateurs (accès, rectification, effacement, portabilité)</li>
+                <li>Coordonnées du DPO (Délégué à la Protection des Données) si applicable</li>
+                <li>Transferts de données hors UE (si applicable)</li>
+                <li>Cookies et traceurs (nécessite consentement actif)</li>
+            </ul>
+
+            <h4><i class="fas fa-gavel" aria-hidden="true"></i> Garanties légales (France)</h4>
+            <ul>
+                <li><strong>Garantie de conformité :</strong> 2 ans (article L217-4 du Code de la consommation)</li>
+                <li><strong>Garantie des vices cachés :</strong> 2 ans à compter de la découverte du vice</li>
+                <li><strong>Garantie commerciale :</strong> Optionnelle, vient en complément</li>
+            </ul>
+
+            <h4><i class="fas fa-exclamation-triangle" aria-hidden="true"></i> Points d'attention</h4>
+            <ul>
+                <li>⚠️ Les CGV doivent être <strong>accessibles facilement</strong> (lien footer, page dédiée)</li>
+                <li>⚠️ L'acceptation doit être <strong>explicite</strong> (case à cocher avant commande)</li>
+                <li>⚠️ Toute modification des CGV doit être <strong>notifiée aux clients</strong></li>
+                <li>⚠️ Les clauses abusives sont <strong>interdites</strong> (ex: exonération totale de responsabilité)</li>
+                <li>⚠️ Le droit français s'applique pour les ventes B2C en France</li>
+            </ul>
+
+            <h4><i class="fas fa-link" aria-hidden="true"></i> Médiation de la consommation</h4>
+            <p>Depuis 2016, obligation de mentionner un médiateur :</p>
+            <ul>
+                <li>Coordonnées du médiateur de la consommation</li>
+                <li>Lien vers la plateforme européenne RLL: <a href="https://ec.europa.eu/consumers/odr" target="_blank">https://ec.europa.eu/consumers/odr</a></li>
+            </ul>
+
+            <div class="warning-box">
+                <h4><i class="fas fa-gavel"></i> ⚠️ AVERTISSEMENT JURIDIQUE</h4>
+                <p><strong>Ce générateur fournit un modèle de base à titre informatif.</strong></p>
+                <p>Les CGV/CGU ont des implications juridiques importantes. Pour une protection optimale :</p>
+                <ul>
+                    <li><strong>Consultez un avocat</strong> spécialisé en droit commercial/consommation</li>
+                    <li>Adaptez le document à votre activité spécifique</li>
+                    <li>Vérifiez la conformité avec les réglementations sectorielles</li>
+                    <li>Mettez à jour régulièrement (évolution législative)</li>
+                </ul>
+                <p>Sanctions en cas de non-conformité : amendes administratives pouvant aller jusqu'à <strong>75 000€ pour une personne morale</strong>.</p>
+            </div>
         </section>
     </main>
+
     <footer class="tool-footer" role="contentinfo">
-        <a href="../../index.html"><i class="fas fa-arrow-left" aria-hidden="true"></i> Retour</a>
+        <a href="../../index.html"><i class="fas fa-arrow-left" aria-hidden="true"></i> Retour aux outils</a>
     </footer>
+
     <script src="../../assets/js/utils.js"></script>
     <script src="../../assets/js/main.js"></script>
     <script>
-        document.getElementById('generateBtn').addEventListener('click', function() {
-            const company = document.getElementById('company').value || 'Entreprise';
-            const siret = document.getElementById('siret').value || 'N/A';
-            const address = document.getElementById('address').value || 'N/A';
-            const delivery = document.getElementById('delivery').value || '7';
-            const payment = document.getElementById('payment').value || '30';
-            const date = new Date().toLocaleDateString('fr-FR');
+        const STORAGE_KEY = 'legalDocsData';
 
-            const cgv = '<h2 style="text-align:center;margin-bottom:2rem;">CONDITIONS GÉNÉRALES DE VENTE</h2>' +
-                '<div style="margin-bottom:2rem;"><strong>' + escapeHtml(company) + '</strong><br>SIRET : ' + escapeHtml(siret) + '<br>Adresse : ' + escapeHtml(address) + '</div>' +
-                '<p style="margin-bottom:1rem;"><em>En vigueur au ' + date + '</em></p>' +
-                '<h3>1. OBJET</h3><p>Les présentes Conditions Générales de Vente (CGV) régissent les ventes de produits et/ou services proposés par ' + escapeHtml(company) + '.</p>' +
-                '<h3>2. PRIX</h3><p>Les prix sont indiqués en euros hors taxes. La TVA applicable sera ajoutée au moment de la facturation.</p>' +
-                '<h3>3. COMMANDE</h3><p>Toute commande implique l\'acceptation sans réserve des présentes CGV.</p>' +
-                '<h3>4. PAIEMENT</h3><p>Le paiement des factures est dû à ' + escapeHtml(payment) + ' jours. Tout retard de paiement entraînera l\'application de pénalités de retard.</p>' +
-                '<h3>5. LIVRAISON</h3><p>Les délais de livraison sont de ' + escapeHtml(delivery) + ' jours ouvrés à compter de la validation de la commande.</p>' +
-                '<h3>6. GARANTIES</h3><p>Les produits sont garantis conformément aux dispositions légales en vigueur.</p>' +
-                '<h3>7. RESPONSABILITÉ</h3><p>' + escapeHtml(company) + ' ne saurait être tenue responsable de l\'inexécution du contrat en cas de force majeure.</p>' +
-                '<h3>8. DROIT APPLICABLE</h3><p>Les présentes CGV sont soumises au droit français. Tout litige relève de la compétence des tribunaux français.</p>' +
-                '<div style="margin-top:2rem;padding:1rem;background:#f5f5f5;border-radius:var(--radius);"><strong>Note :</strong> Ce document est fourni à titre informatif. Il est recommandé de faire valider vos CGV par un professionnel du droit.</div>';
-
-            document.getElementById('cgv').innerHTML = cgv;
-            showNotification('CGV générées !', 'success');
+        // Toggle CGV params visibility
+        document.getElementById('docType').addEventListener('change', function() {
+            const cgvParams = document.getElementById('cgvParams');
+            cgvParams.style.display = this.value === 'cgv' ? 'block' : 'none';
         });
 
-        document.getElementById('printBtn').addEventListener('click', function() {
-            window.print();
-        });
+        function generateDocument() {
+            const docType = document.getElementById('docType').value;
+            const data = {
+                company: document.getElementById('company').value,
+                legalForm: document.getElementById('legalForm').value,
+                siret: document.getElementById('siret').value,
+                capital: document.getElementById('capital').value,
+                address: document.getElementById('address').value,
+                email: document.getElementById('email').value,
+                phone: document.getElementById('phone').value,
+                website: document.getElementById('website').value,
+                rcs: document.getElementById('rcs').value,
+                tva: document.getElementById('tva').value,
+                director: document.getElementById('director').value,
+                host: document.getElementById('host').value
+            };
 
-        document.getElementById('generateBtn').click();
+            // Validation
+            if (!data.company || !data.siret || !data.address || !data.email) {
+                showNotification('Veuillez remplir tous les champs obligatoires', 'warning');
+                return;
+            }
+
+            let html = '<div class="legal-document">';
+
+            if (docType === 'cgv') {
+                html += generateCGV(data);
+            } else if (docType === 'cgu') {
+                html += generateCGU(data);
+            } else {
+                html += generateMentions(data);
+            }
+
+            html += '</div>';
+
+            document.getElementById('legalDocument').innerHTML = html;
+            document.getElementById('results').style.display = 'block';
+            scrollToElement('#results', 100);
+            showNotification('Document généré avec succès !', 'success');
+        }
+
+        function generateCGV(data) {
+            const businessType = document.getElementById('businessType').value;
+            const delivery = document.getElementById('delivery').value;
+            const payment = document.getElementById('payment').value;
+            const retraction = document.getElementById('retraction').value;
+            const hasWarranty = document.getElementById('hasWarranty').checked;
+            const hasGDPR = document.getElementById('hasGDPR').checked;
+
+            let html = '<h1>CONDITIONS GÉNÉRALES DE VENTE</h1>';
+            html += '<p style="text-align:center;"><em>En vigueur au ' + new Date().toLocaleDateString('fr-FR') + '</em></p>';
+
+            // Article 1
+            html += '<h2>Article 1 - Identification du vendeur</h2>';
+            html += '<div class="company-info">';
+            html += `<p><strong>${escapeHtml(data.company)}</strong> ${data.legalForm}`;
+            if (data.capital) html += `<br>Capital social : ${formatCurrency(parseFloat(data.capital))}`;
+            html += `<br>Siège social : ${escapeHtml(data.address)}`;
+            html += `<br>SIRET : ${escapeHtml(data.siret)}`;
+            if (data.rcs) html += `<br>${escapeHtml(data.rcs)}`;
+            if (data.tva) html += `<br>TVA intracommunautaire : ${escapeHtml(data.tva)}`;
+            html += `<br>Email : ${escapeHtml(data.email)}`;
+            if (data.phone) html += `<br>Téléphone : ${escapeHtml(data.phone)}`;
+            if (data.website) html += `<br>Site web : ${escapeHtml(data.website)}`;
+            html += '</p></div>';
+
+            // Article 2
+            html += '<h2>Article 2 - Champ d\'application</h2>';
+            html += '<p>Les présentes Conditions Générales de Vente (CGV) s\'appliquent à toutes les ventes conclues entre ' + escapeHtml(data.company) + ' et tout acheteur professionnel ou particulier.</p>';
+            html += '<p>Ces CGV sont systématiquement communiquées à tout acheteur qui en fait la demande et prévalent sur tout autre document.</p>';
+
+            // Article 3
+            html += '<h2>Article 3 - Prix</h2>';
+            html += '<p>Les prix de nos produits et services sont indiqués en euros toutes taxes comprises (TTC).</p>';
+            html += '<p>Le vendeur se réserve le droit de modifier ses prix à tout moment, étant entendu que le prix figurant au catalogue le jour de la commande sera le seul applicable à l\'acheteur.</p>';
+            if (businessType === 'ecommerce') {
+                html += '<p>Les frais de livraison sont facturés en supplément du prix des produits et sont indiqués avant la validation de la commande.</p>';
+            }
+
+            // Article 4
+            html += '<h2>Article 4 - Commande</h2>';
+            html += '<p>La vente ne sera considérée comme définitive qu\'après l\'envoi à l\'acheteur de la confirmation de l\'acceptation de la commande par le vendeur.</p>';
+            html += '<p>Toute commande passée sur le site internet constitue la formation d\'un contrat conclu à distance entre l\'acheteur et le vendeur.</p>';
+            html += '<p>Le vendeur se réserve le droit d\'annuler ou de refuser toute commande d\'un acheteur avec lequel il existerait un litige relatif au paiement d\'une commande antérieure.</p>';
+
+            // Article 5
+            html += '<h2>Article 5 - Modalités de paiement</h2>';
+            html += '<p>Les règlements sont exigibles immédiatement à la commande, y compris pour les produits en précommande.</p>';
+            html += `<p>Délai de paiement : ${payment} jours à compter de la date de facturation.</p>';
+            html += '<p>Modes de paiement acceptés : carte bancaire, virement bancaire, chèque.</p>';
+            html += '<p>En cas de retard de paiement, des pénalités égales à 3 fois le taux d\'intérêt légal seront exigibles sans qu\'un rappel soit nécessaire, ainsi qu\'une indemnité forfaitaire de 40 euros pour frais de recouvrement.</p>';
+
+            // Article 6
+            if (businessType === 'ecommerce' || businessType === 'mixed') {
+                html += '<h2>Article 6 - Livraison</h2>';
+                html += `<p>Délai de livraison : ${delivery} jours ouvrables à compter de la réception du paiement.</p>';
+                html += '<p>La livraison est effectuée à l\'adresse indiquée par l\'acheteur lors de sa commande.</p>';
+                html += '<p>En cas de retard de livraison supérieur à 7 jours, l\'acheteur pourra procéder à la résolution de la vente.</p>';
+                html += '<p>Le transfert des risques s\'effectue lors de la livraison.</p>';
+            }
+
+            // Article 7
+            html += `<h2>Article ${businessType === 'ecommerce' ? 7 : 6} - Droit de rétractation</h2>`;
+            html += `<p>Conformément aux dispositions de l\'article L221-18 du Code de la consommation, l\'acheteur dispose d\'un délai de ${retraction} jours pour exercer son droit de rétractation à compter de la réception du produit, sans avoir à justifier de motifs ni à payer de pénalités.</p>`;
+            html += '<p>Les retours sont à effectuer dans leur état d\'origine et complets (emballage, accessoires, notice) permettant leur recommercialisation à l\'état neuf.</p>';
+            html += '<p>Les frais de retour restent à la charge de l\'acheteur.</p>';
+            html += '<p>L\'échange ou le remboursement sera effectué dans un délai de 14 jours à compter de la réception du produit retourné.</p>';
+
+            // Article 8 - Garanties
+            if (hasWarranty) {
+                let articleNum = businessType === 'ecommerce' ? 8 : 7;
+                html += `<h2>Article ${articleNum} - Garanties légales</h2>`;
+                html += '<h3>Garantie légale de conformité</h3>';
+                html += '<p>Le vendeur est tenu de la garantie légale de conformité prévue aux articles L217-4 à L217-14 du Code de la consommation.</p>';
+                html += '<p>L\'acheteur bénéficie d\'un délai de 2 ans à compter de la délivrance du bien pour agir.</p>';
+                html += '<p>L\'acheteur peut décider de mettre en œuvre la garantie contre les défauts cachés de la chose vendue au sens de l\'article 1641 du Code civil. Dans cette hypothèse, il peut choisir entre la résolution de la vente ou une réduction du prix de vente.</p>';
+            }
+
+            // RGPD
+            if (hasGDPR) {
+                let articleNum = businessType === 'ecommerce' ? (hasWarranty ? 9 : 8) : (hasWarranty ? 8 : 7);
+                html += `<h2>Article ${articleNum} - Protection des données personnelles</h2>`;
+                html += `<p>Les données personnelles collectées sont traitées par ${escapeHtml(data.company)} conformément au Règlement Général sur la Protection des Données (RGPD).</p>`;
+                html += '<p>Les données collectées sont destinées au traitement de votre commande et à l\'amélioration de nos services.</p>';
+                html += '<p>Conformément à la loi Informatique et Libertés et au RGPD, vous disposez d\'un droit d\'accès, de rectification, de portabilité et d\'effacement de vos données personnelles.</p>';
+                html += `<p>Pour exercer ces droits, contactez-nous à l\'adresse : ${escapeHtml(data.email)}</p>`;
+            }
+
+            // Médiation
+            let lastArticle = businessType === 'ecommerce' ? (hasWarranty ? (hasGDPR ? 10 : 9) : (hasGDPR ? 9 : 8)) : (hasWarranty ? (hasGDPR ? 9 : 8) : (hasGDPR ? 8 : 7));
+            html += `<h2>Article ${lastArticle} - Médiation - Règlement des litiges</h2>`;
+            html += '<p>Conformément à l\'article L.612-1 du Code de la consommation, il est proposé, en cas de litige qui n\'aurait pu être résolu à l\'amiable, le recours à une procédure de médiation conventionnelle.</p>';
+            html += '<p>Plateforme de règlement en ligne des litiges : <a href="https://ec.europa.eu/consumers/odr" target="_blank">https://ec.europa.eu/consumers/odr</a></p>';
+
+            html += '<div class="warning-box">';
+            html += '<p><strong>⚠️ Avertissement</strong> : Ce document est un modèle type. Consultez un avocat pour l\'adapter à votre activité spécifique.</p>';
+            html += '</div>';
+
+            return html;
+        }
+
+        function generateCGU(data) {
+            let html = '<h1>CONDITIONS GÉNÉRALES D\'UTILISATION</h1>';
+            html += '<p style="text-align:center;"><em>En vigueur au ' + new Date().toLocaleDateString('fr-FR') + '</em></p>';
+
+            html += '<h2>Article 1 - Objet</h2>';
+            html += `<p>Les présentes Conditions Générales d\'Utilisation (CGU) définissent les modalités et conditions dans lesquelles ${escapeHtml(data.company)} met à disposition son site web et les services associés.</p>`;
+
+            html += '<h2>Article 2 - Mentions légales</h2>';
+            html += '<div class="company-info">';
+            html += `<p><strong>${escapeHtml(data.company)}</strong> ${data.legalForm}`;
+            html += `<br>Siège social : ${escapeHtml(data.address)}`;
+            html += `<br>SIRET : ${escapeHtml(data.siret)}`;
+            if (data.director) html += `<br>Directeur de publication : ${escapeHtml(data.director)}`;
+            if (data.host) html += `<br>Hébergeur : ${escapeHtml(data.host)}`;
+            html += '</p></div>';
+
+            html += '<h2>Article 3 - Accès au service</h2>';
+            html += `<p>Le service est accessible gratuitement à tout utilisateur disposant d\'un accès internet. Tous les frais nécessaires pour accéder au service (matériel informatique, connexion internet) sont à la charge de l\'utilisateur.</p>`;
+            html += `<p>${escapeHtml(data.company)} se réserve le droit de suspendre, interrompre ou limiter l\'accès à tout ou partie du site, notamment pour des raisons de maintenance.</p>`;
+
+            html += '<h2>Article 4 - Propriété intellectuelle</h2>';
+            html += `<p>Tous les contenus présents sur le site (textes, images, graphismes, logo, icônes, sons, logiciels) sont la propriété exclusive de ${escapeHtml(data.company)} ou de ses partenaires.</p>`;
+            html += '<p>Toute reproduction, représentation, modification, publication, adaptation totale ou partielle des éléments du site est interdite sauf autorisation écrite préalable.</p>';
+
+            html += '<h2>Article 5 - Responsabilité</h2>';
+            html += `<p>${escapeHtml(data.company)} ne peut être tenu responsable des dommages directs et indirects causés au matériel de l\'utilisateur lors de l\'accès au site.</p>`;
+            html += `<p>${escapeHtml(data.company)} décline toute responsabilité quant aux éventuels virus pouvant infecter le matériel informatique de l\'utilisateur.</p>`;
+
+            html += '<h2>Article 6 - Données personnelles</h2>';
+            html += `<p>Les données personnelles collectées sont traitées conformément au RGPD. Pour plus d\'informations, consultez notre Politique de Confidentialité.</p>`;
+            html += `<p>Contact DPO : ${escapeHtml(data.email)}</p>`;
+
+            html += '<h2>Article 7 - Droit applicable</h2>';
+            html += '<p>Les présentes CGU sont régies par le droit français. En cas de litige, les tribunaux français seront seuls compétents.</p>';
+
+            html += '<div class="warning-box">';
+            html += '<p><strong>⚠️ Avertissement</strong> : Modèle de base. Consultez un avocat pour une rédaction adaptée.</p>';
+            html += '</div>';
+
+            return html;
+        }
+
+        function generateMentions(data) {
+            let html = '<h1>MENTIONS LÉGALES</h1>';
+
+            html += '<h2>1. Éditeur du site</h2>';
+            html += '<div class="company-info">';
+            html += `<p><strong>${escapeHtml(data.company)}</strong> ${data.legalForm}`;
+            if (data.capital) html += `<br>Capital social : ${formatCurrency(parseFloat(data.capital))}`;
+            html += `<br>Siège social : ${escapeHtml(data.address)}`;
+            html += `<br>SIRET : ${escapeHtml(data.siret)}`;
+            if (data.rcs) html += `<br>${escapeHtml(data.rcs)}`;
+            if (data.tva) html += `<br>TVA : ${escapeHtml(data.tva)}`;
+            html += `<br>Email : ${escapeHtml(data.email)}`;
+            if (data.phone) html += `<br>Téléphone : ${escapeHtml(data.phone)}`;
+            if (data.director) html += `<br>Directeur de publication : ${escapeHtml(data.director)}`;
+            html += '</p></div>';
+
+            html += '<h2>2. Hébergement</h2>';
+            html += `<p>${data.host ? escapeHtml(data.host) : '[À compléter]'}</p>`;
+
+            html += '<h2>3. Propriété intellectuelle</h2>';
+            html += `<p>L\'ensemble du contenu de ce site (textes, images, vidéos) est la propriété de ${escapeHtml(data.company)}.</p>`;
+            html += '<p>Toute reproduction ou représentation, totale ou partielle, est interdite sans autorisation préalable écrite.</p>';
+
+            html += '<h2>4. Protection des données personnelles</h2>';
+            html += '<p>Conformément au RGPD et à la loi Informatique et Libertés, vous disposez d\'un droit d\'accès, de rectification et de suppression de vos données personnelles.</p>';
+            html += `<p>Pour exercer ces droits, contactez : ${escapeHtml(data.email)}</p>`;
+
+            html += '<h2>5. Cookies</h2>';
+            html += '<p>Ce site utilise des cookies pour améliorer l\'expérience utilisateur. Vous pouvez gérer vos préférences dans les paramètres de votre navigateur.</p>';
+
+            html += '<h2>6. Droit applicable</h2>';
+            html += '<p>Les présentes mentions légales sont régies par le droit français.</p>';
+
+            html += '<div class="warning-box">';
+            html += '<p><strong>⚠️ Important</strong> : Les mentions légales sont OBLIGATOIRES pour tout site web (loi LCEN). Sanction: jusqu\'à 75 000€ d\'amende.</p>';
+            html += '</div>';
+
+            return html;
+        }
+
+        // Save/Load/Export
+        function saveData() {
+            const data = {
+                docType: document.getElementById('docType').value,
+                company: document.getElementById('company').value,
+                legalForm: document.getElementById('legalForm').value,
+                siret: document.getElementById('siret').value,
+                capital: document.getElementById('capital').value,
+                address: document.getElementById('address').value,
+                email: document.getElementById('email').value,
+                phone: document.getElementById('phone').value,
+                website: document.getElementById('website').value,
+                rcs: document.getElementById('rcs').value,
+                tva: document.getElementById('tva').value,
+                director: document.getElementById('director').value,
+                host: document.getElementById('host').value,
+                businessType: document.getElementById('businessType').value,
+                delivery: document.getElementById('delivery').value,
+                payment: document.getElementById('payment').value,
+                retraction: document.getElementById('retraction').value,
+                hasWarranty: document.getElementById('hasWarranty').checked,
+                hasGDPR: document.getElementById('hasGDPR').checked
+            };
+
+            saveToLocalStorage(STORAGE_KEY, data);
+            showNotification('Brouillon sauvegardé !', 'success');
+        }
+
+        function loadData() {
+            const saved = loadFromLocalStorage(STORAGE_KEY);
+            if (!saved) return;
+
+            document.getElementById('docType').value = saved.docType || 'cgv';
+            document.getElementById('company').value = saved.company || '';
+            document.getElementById('legalForm').value = saved.legalForm || 'SARL';
+            document.getElementById('siret').value = saved.siret || '';
+            document.getElementById('capital').value = saved.capital || '';
+            document.getElementById('address').value = saved.address || '';
+            document.getElementById('email').value = saved.email || '';
+            document.getElementById('phone').value = saved.phone || '';
+            document.getElementById('website').value = saved.website || '';
+            document.getElementById('rcs').value = saved.rcs || '';
+            document.getElementById('tva').value = saved.tva || '';
+            document.getElementById('director').value = saved.director || '';
+            document.getElementById('host').value = saved.host || '';
+            document.getElementById('businessType').value = saved.businessType || 'ecommerce';
+            document.getElementById('delivery').value = saved.delivery || 7;
+            document.getElementById('payment').value = saved.payment || 30;
+            document.getElementById('retraction').value = saved.retraction || 14;
+            document.getElementById('hasWarranty').checked = saved.hasWarranty !== false;
+            document.getElementById('hasGDPR').checked = saved.hasGDPR !== false;
+
+            // Trigger type change
+            document.getElementById('docType').dispatchEvent(new Event('change'));
+        }
+
+        // Event listeners
+        document.getElementById('generateBtn').addEventListener('click', generateDocument);
+        document.getElementById('saveBtn').addEventListener('click', saveData);
+        document.getElementById('exportBtn').addEventListener('click', () => {
+            const data = {
+                docType: document.getElementById('docType').value,
+                company: document.getElementById('company').value,
+                siret: document.getElementById('siret').value,
+                address: document.getElementById('address').value,
+                email: document.getElementById('email').value
+            };
+            exportToJSON(data, `${data.docType}-${data.company.replace(/\s+/g, '-').toLowerCase()}.json`);
+            showNotification('Données exportées !', 'success');
+        });
+        document.getElementById('resetBtn').addEventListener('click', () => {
+            if (confirm('Réinitialiser le formulaire ?')) {
+                location.reload();
+            }
+        });
+        document.getElementById('printBtn').addEventListener('click', () => window.print());
+        document.getElementById('editBtn').addEventListener('click', () => scrollToElement('.tool-header', 100));
+
+        // Init
+        loadData();
     </script>
 </body>
 </html>
