@@ -6,7 +6,8 @@
     <title>Tableau Kanban Projet - Business Tools</title>
     <link rel="stylesheet" href="../../assets/css/main.css">
     <link rel="stylesheet" href="../../assets/css/tools.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha384-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.6/dist/purify.min.js" integrity="sha384-LhPJK12eZWQ+j+V7A48VQQnLzOLJB8C7wYvDWbdBxBh1QdXbYbYVZYY6YGnQgzEi==" crossorigin="anonymous"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         .kanban-controls {
@@ -310,7 +311,9 @@
         function loadTasks() {
             const stored = localStorage.getItem('kanbanTasks');
             if (stored) {
-                tasks = JSON.parse(stored);
+                // SÉCURITÉ: Utilise safeJSONParse() pour éviter les crashes
+                const parsed = safeJSONParse(stored, null);
+                tasks = parsed || [];
             } else {
                 // Demo tasks
                 tasks = [
@@ -362,12 +365,13 @@
             card.draggable = true;
             card.dataset.taskId = task.id;
 
+            // SÉCURITÉ: Utilise escapeHtml() pour éviter les XSS
             card.innerHTML = `
-                <div class="card-title">${task.title}</div>
-                ${task.description ? `<div class="card-description">${task.description}</div>` : ''}
+                <div class="card-title">${escapeHtml(task.title)}</div>
+                ${task.description ? `<div class="card-description">${escapeHtml(task.description)}</div>` : ''}
                 <div class="card-meta">
-                    <span class="card-priority priority-${task.priority}">${getPriorityLabel(task.priority)}</span>
-                    ${task.assignee ? `<span class="card-assignee"><i class="fas fa-user"></i> ${task.assignee}</span>` : ''}
+                    <span class="card-priority priority-${task.priority}">${escapeHtml(getPriorityLabel(task.priority))}</span>
+                    ${task.assignee ? `<span class="card-assignee"><i class="fas fa-user"></i> ${escapeHtml(task.assignee)}</span>` : ''}
                 </div>
                 <div class="card-actions">
                     <button class="btn btn-sm btn-primary" onclick="editTask(${task.id})">

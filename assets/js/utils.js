@@ -5,6 +5,136 @@
  * ===================================
  */
 
+/* === SÉCURITÉ === */
+
+/**
+ * Échappe les caractères HTML dangereux
+ * @param {string} text - Le texte à échapper
+ * @returns {string} Le texte échappé
+ */
+function escapeHtml(text) {
+    const map = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;',
+        '/': '&#x2F;'
+    };
+    return String(text).replace(/[&<>"'\/]/g, char => map[char]);
+}
+
+/**
+ * Sanitize HTML avec DOMPurify (si disponible) ou escapeHtml en fallback
+ * @param {string} html - Le HTML à nettoyer
+ * @param {Object} config - Configuration DOMPurify (optionnel)
+ * @returns {string} HTML nettoyé
+ */
+function sanitizeHTML(html, config = {}) {
+    // Si DOMPurify est disponible, l'utiliser
+    if (typeof DOMPurify !== 'undefined') {
+        return DOMPurify.sanitize(html, config);
+    }
+
+    // Sinon, fallback sur escapeHtml (moins sécurisé mais mieux que rien)
+    console.warn('DOMPurify non disponible, utilisation de escapeHtml()');
+    return escapeHtml(html);
+}
+
+/**
+ * Parse JSON de manière sécurisée avec gestion d'erreurs
+ * @param {string} jsonString - La chaîne JSON à parser
+ * @param {any} defaultValue - Valeur par défaut si échec (défaut: null)
+ * @returns {any} L'objet parsé ou defaultValue
+ */
+function safeJSONParse(jsonString, defaultValue = null) {
+    try {
+        return JSON.parse(jsonString);
+    } catch (error) {
+        console.error('Erreur lors du parsing JSON:', error);
+        return defaultValue;
+    }
+}
+
+/**
+ * Chiffre des données sensibles pour localStorage
+ * Utilise btoa (Base64) comme chiffrement minimal
+ * NOTE: Pour un vrai chiffrement, utiliser Web Crypto API
+ * @param {any} data - Les données à chiffrer
+ * @returns {string} Données chiffrées
+ */
+function encryptData(data) {
+    try {
+        const jsonString = JSON.stringify(data);
+        // Simple obfuscation avec Base64 (PAS UN VRAI CHIFFREMENT)
+        // TODO: Implémenter Web Crypto API pour chiffrement réel
+        return btoa(encodeURIComponent(jsonString));
+    } catch (error) {
+        console.error('Erreur lors du chiffrement:', error);
+        return null;
+    }
+}
+
+/**
+ * Déchiffre des données du localStorage
+ * @param {string} encryptedData - Les données chiffrées
+ * @returns {any} Données déchiffrées ou null
+ */
+function decryptData(encryptedData) {
+    try {
+        if (!encryptedData) return null;
+        const jsonString = decodeURIComponent(atob(encryptedData));
+        return JSON.parse(jsonString);
+    } catch (error) {
+        console.error('Erreur lors du déchiffrement:', error);
+        return null;
+    }
+}
+
+/**
+ * Sauvegarde sécurisée dans localStorage avec chiffrement optionnel
+ * @param {string} key - La clé de stockage
+ * @param {any} data - Les données à sauvegarder
+ * @param {boolean} encrypt - Chiffrer les données (défaut: false)
+ * @returns {boolean} Succès de l'opération
+ */
+function saveToLocalStorageSecure(key, data, encrypt = false) {
+    try {
+        const dataToStore = encrypt ? encryptData(data) : JSON.stringify(data);
+        localStorage.setItem(key, dataToStore);
+        if (encrypt) {
+            localStorage.setItem(`${key}_encrypted`, 'true');
+        }
+        return true;
+    } catch (error) {
+        console.error('Erreur lors de la sauvegarde sécurisée:', error);
+        return false;
+    }
+}
+
+/**
+ * Charge depuis localStorage avec déchiffrement automatique
+ * @param {string} key - La clé de stockage
+ * @returns {any|null} Les données chargées ou null
+ */
+function loadFromLocalStorageSecure(key) {
+    try {
+        const isEncrypted = localStorage.getItem(`${key}_encrypted`) === 'true';
+        const data = localStorage.getItem(key);
+
+        if (!data) return null;
+
+        if (isEncrypted) {
+            return decryptData(data);
+        } else {
+            return safeJSONParse(data);
+        }
+    } catch (error) {
+        console.error('Erreur lors du chargement sécurisé:', error);
+        return null;
+    }
+}
+
 /* === VALIDATION === */
 
 /**

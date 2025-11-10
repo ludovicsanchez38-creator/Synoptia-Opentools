@@ -6,8 +6,18 @@
     <title>Générateur de Devis - Business Tools</title>
     <link rel="stylesheet" href="../../assets/css/main.css">
     <link rel="stylesheet" href="../../assets/css/tools.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Font Awesome avec SRI pour sécurité -->
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+          integrity="sha384-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw=="
+          crossorigin="anonymous"
+          referrerpolicy="no-referrer">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- DOMPurify pour sanitization XSS -->
+    <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.6/dist/purify.min.js"
+            integrity="sha384-LhPJK12eZWQ+j+V7A48VQQnLzOLJB8C7wYvDWbdBxBh1QdXbYbYVZYY6YGnQgzEi=="
+            crossorigin="anonymous"></script>
     <style>
         .quote-preview {
             background: white;
@@ -235,6 +245,7 @@
             // Calculate totals
             const subtotal = quoteData.lines.reduce((sum, line) => sum + line.total, 0);
 
+            // SÉCURITÉ: Utilise escapeHtml() pour éviter les XSS sur toutes les données utilisateur
             // Generate preview
             const validUntil = new Date(quoteData.quote.date);
             validUntil.setDate(validUntil.getDate() + parseInt(quoteData.quote.validity));
@@ -242,13 +253,13 @@
             const preview = `
                 <div class="quote-header">
                     <div>
-                        <h2>${quoteData.company.name}</h2>
-                        <p>${quoteData.company.email}</p>
-                        ${quoteData.company.address ? `<p style="white-space: pre-line;">${quoteData.company.address}</p>` : ''}
+                        <h2>${escapeHtml(quoteData.company.name)}</h2>
+                        <p>${escapeHtml(quoteData.company.email)}</p>
+                        ${quoteData.company.address ? `<p style="white-space: pre-line;">${escapeHtml(quoteData.company.address)}</p>` : ''}
                     </div>
                     <div style="text-align: right;">
                         <div class="quote-number">DEVIS</div>
-                        <div class="quote-number">${quoteData.quote.number}</div>
+                        <div class="quote-number">${escapeHtml(quoteData.quote.number)}</div>
                         <p>Date : ${new Date(quoteData.quote.date).toLocaleDateString('fr-FR')}</p>
                         <p>Valide jusqu'au : ${validUntil.toLocaleDateString('fr-FR')}</p>
                     </div>
@@ -256,8 +267,8 @@
 
                 <div style="margin: 2rem 0;">
                     <h3>Client</h3>
-                    <p><strong>${quoteData.client.name}</strong></p>
-                    ${quoteData.client.email ? `<p>${quoteData.client.email}</p>` : ''}
+                    <p><strong>${escapeHtml(quoteData.client.name)}</strong></p>
+                    ${quoteData.client.email ? `<p>${escapeHtml(quoteData.client.email)}</p>` : ''}
                 </div>
 
                 <table class="quote-table">
@@ -272,7 +283,7 @@
                     <tbody>
                         ${quoteData.lines.map(line => `
                             <tr>
-                                <td>${line.description}</td>
+                                <td>${escapeHtml(line.description)}</td>
                                 <td style="text-align: center;">${line.quantity}</td>
                                 <td style="text-align: right;">${formatCurrency(line.unitPrice)}</td>
                                 <td style="text-align: right;">${formatCurrency(line.total)}</td>

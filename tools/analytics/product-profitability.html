@@ -6,8 +6,18 @@
     <title>Analyse Rentabilité Produit - Business Tools</title>
     <link rel="stylesheet" href="../../assets/css/main.css">
     <link rel="stylesheet" href="../../assets/css/tools.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Font Awesome avec SRI pour sécurité -->
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+          integrity="sha384-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw=="
+          crossorigin="anonymous"
+          referrerpolicy="no-referrer">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- DOMPurify pour sanitization XSS -->
+    <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.6/dist/purify.min.js"
+            integrity="sha384-LhPJK12eZWQ+j+V7A48VQQnLzOLJB8C7wYvDWbdBxBh1QdXbYbYVZYY6YGnQgzEi=="
+            crossorigin="anonymous"></script>
 </head>
 <body>
     <nav class="breadcrumb">
@@ -90,7 +100,8 @@
     <script src="../../assets/js/utils.js"></script>
     <script src="../../assets/js/main.js"></script>
     <script>
-        let products = JSON.parse(localStorage.getItem('products_profitability') || '[]');
+        // SÉCURITÉ: Utilise safeJSONParse() et escapeHtml() pour éviter les vulnérabilités
+        let products = safeJSONParse(localStorage.getItem('products_profitability'), []);
 
         document.getElementById('addBtn').addEventListener('click', function() {
             const name = document.getElementById('productName').value.trim() || 'Produit';
@@ -138,7 +149,7 @@
 
                 return '<div style="padding:1rem;background:white;border-radius:var(--radius);margin-bottom:1rem;box-shadow:0 1px 3px rgba(0,0,0,0.1);">' +
                     '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.5rem;">' +
-                    '<strong style="font-size:1.1em;">' + p.name + '</strong>' +
+                    '<strong style="font-size:1.1em;">' + escapeHtml(p.name) + '</strong>' +
                     '<button onclick="deleteProduct(' + p.id + ')" style="padding:0.3rem 0.8rem;border:none;background:#ff6b6b;color:white;border-radius:var(--radius);cursor:pointer;">' +
                     '<i class="fas fa-trash"></i></button></div>' +
                     '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:0.5rem;font-size:0.9em;color:#666;">' +

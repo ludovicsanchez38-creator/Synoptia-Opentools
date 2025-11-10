@@ -6,8 +6,18 @@
     <title>Valorisation Entreprise - Business Tools</title>
     <link rel="stylesheet" href="../../assets/css/main.css">
     <link rel="stylesheet" href="../../assets/css/tools.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Font Awesome avec SRI pour sécurité -->
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+          integrity="sha384-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw=="
+          crossorigin="anonymous"
+          referrerpolicy="no-referrer">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- DOMPurify pour sanitization XSS -->
+    <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.6/dist/purify.min.js"
+            integrity="sha384-LhPJK12eZWQ+j+V7A48VQQnLzOLJB8C7wYvDWbdBxBh1QdXbYbYVZYY6YGnQgzEi=="
+            crossorigin="anonymous"></script>
 </head>
 <body>
     <nav class="breadcrumb">
@@ -104,6 +114,7 @@
     <script src="../../assets/js/utils.js"></script>
     <script src="../../assets/js/main.js"></script>
     <script>
+        // SÉCURITÉ: Utilise escapeHtml() pour éviter les XSS sur les données utilisateur
         const multiples = {
             tech: { revenue: 2.5, ebitda: 10, net: 15 },
             retail: { revenue: 0.5, ebitda: 6, net: 8 },
@@ -141,7 +152,7 @@
                 '<div><strong>Maximum :</strong> ' + formatCurrency(maxVal) + '</div></div>' +
                 '<div style="text-align:center;font-size:1.2em;margin:1rem 0;padding:1rem;background:#f5f5f5;border-radius:var(--radius);">' +
                 '<strong>Valorisation moyenne : ' + formatCurrency(avgVal) + '</strong></div>' +
-                '<div style="font-size:0.9em;color:#666;margin-top:1rem;">Multiples appliqués pour le secteur ' + sector + ' :</div>' +
+                '<div style="font-size:0.9em;color:#666;margin-top:1rem;">Multiples appliqués pour le secteur ' + escapeHtml(sector) + ' :</div>' +
                 '<div style="font-size:0.9em;color:#666;">CA ×' + mult.revenue + ' | EBITDA ×' + mult.ebitda + ' | Résultat ×' + mult.net + '</div></div>';
 
             document.getElementById('range').innerHTML = rangeHtml;

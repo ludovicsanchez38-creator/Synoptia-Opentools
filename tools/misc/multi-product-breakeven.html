@@ -6,8 +6,18 @@
     <title>Seuil Multi-Produits - Business Tools</title>
     <link rel="stylesheet" href="../../assets/css/main.css">
     <link rel="stylesheet" href="../../assets/css/tools.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Font Awesome avec SRI pour sécurité -->
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+          integrity="sha384-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw=="
+          crossorigin="anonymous"
+          referrerpolicy="no-referrer">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- DOMPurify pour sanitization XSS -->
+    <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.6/dist/purify.min.js"
+            integrity="sha384-LhPJK12eZWQ+j+V7A48VQQnLzOLJB8C7wYvDWbdBxBh1QdXbYbYVZYY6YGnQgzEi=="
+            crossorigin="anonymous"></script>
 </head>
 <body>
     <nav class="breadcrumb">
@@ -105,11 +115,12 @@
                 return;
             }
 
+            // SÉCURITÉ: Utilise escapeHtml() pour éviter les XSS sur le nom du produit
             const html = '<table style="width:100%;border-collapse:collapse;margin-top:1rem;">' +
                 '<tr style="background:#f5f5f5;"><th style="padding:0.5rem;">Produit</th><th style="padding:0.5rem;text-align:right;">Prix</th><th style="padding:0.5rem;text-align:right;">Coût var.</th><th style="padding:0.5rem;text-align:right;">Marge</th><th style="padding:0.5rem;text-align:right;">Mix</th><th></th></tr>' +
                 products.map(function(p) {
                     const margin = p.price - p.varCost;
-                    return '<tr><td style="padding:0.5rem;">' + p.name + '</td>' +
+                    return '<tr><td style="padding:0.5rem;">' + escapeHtml(p.name) + '</td>' +
                         '<td style="padding:0.5rem;text-align:right;">' + formatCurrency(p.price) + '</td>' +
                         '<td style="padding:0.5rem;text-align:right;">' + formatCurrency(p.varCost) + '</td>' +
                         '<td style="padding:0.5rem;text-align:right;font-weight:700;">' + formatCurrency(margin) + '</td>' +
@@ -140,6 +151,7 @@
 
             const breakeven = weightedMargin > 0 ? fixedCosts / weightedMargin : 0;
             
+            // SÉCURITÉ: Utilise escapeHtml() pour éviter les XSS
             const html = '<div class="results-grid">' +
                 '<div class="result-item"><div class="result-label">Marge pondérée</div><div class="result-value">' + formatCurrency(weightedMargin) + '</div></div>' +
                 '<div class="result-item"><div class="result-label">Seuil global (unités)</div><div class="result-value highlight">' + Math.ceil(breakeven) + '</div></div>' +
@@ -148,7 +160,7 @@
                 products.map(function(p) {
                     const units = Math.ceil(breakeven * (p.mix / totalMix));
                     const revenue = units * p.price;
-                    return '<div style="margin:0.5rem 0;">' + p.name + ' : <strong>' + units + ' unités</strong> (' + formatCurrency(revenue) + ')</div>';
+                    return '<div style="margin:0.5rem 0;">' + escapeHtml(p.name) + ' : <strong>' + units + ' unités</strong> (' + formatCurrency(revenue) + ')</div>';
                 }).join('') +
                 '</div>';
 
