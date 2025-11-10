@@ -88,7 +88,7 @@
     <script src="../../assets/js/utils.js"></script>
     <script src="../../assets/js/main.js"></script>
     <script>
-        let opportunities = JSON.parse(localStorage.getItem('crm_opportunities') || '[]');
+        let opportunities = safeJSONParse(localStorage.getItem('crm_opportunities'), []);
 
         document.getElementById('addBtn').addEventListener('click', function() {
             const prospect = document.getElementById('prospect').value.trim();

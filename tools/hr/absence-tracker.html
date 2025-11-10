@@ -82,7 +82,7 @@
     <script src="../../assets/js/utils.js"></script>
     <script src="../../assets/js/main.js"></script>
     <script>
-        let absences = JSON.parse(localStorage.getItem('absences') || '[]');
+        let absences = safeJSONParse(localStorage.getItem('absences'), []);
 
         const typeLabels = {
             vacation: 'Congés payés',

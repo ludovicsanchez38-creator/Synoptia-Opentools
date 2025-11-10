@@ -86,7 +86,7 @@
     <script src="../../assets/js/utils.js"></script>
     <script src="../../assets/js/main.js"></script>
     <script>
-        let periods = JSON.parse(localStorage.getItem('availability') || '[]');
+        let periods = safeJSONParse(localStorage.getItem('availability'), []);
 
         document.getElementById('addBtn').addEventListener('click', () => {
             const start = document.getElementById('startDate').value;

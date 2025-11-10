@@ -71,7 +71,7 @@
     <script src="../../assets/js/utils.js"></script>
     <script src="../../assets/js/main.js"></script>
     <script>
-        let milestones = JSON.parse(localStorage.getItem('milestones') || '[]');
+        let milestones = safeJSONParse(localStorage.getItem('milestones'), []);
 
         document.getElementById('addBtn').addEventListener('click', () => {
             const name = document.getElementById('milestoneName').value.trim();

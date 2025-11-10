@@ -75,7 +75,7 @@
     <script src="../../assets/js/utils.js"></script>
     <script src="../../assets/js/main.js"></script>
     <script>
-        let stock = JSON.parse(localStorage.getItem('stock') || '[]');
+        let stock = safeJSONParse(localStorage.getItem('stock'), []);
 
         document.getElementById('addBtn').addEventListener('click', () => {
             const name = document.getElementById('productName').value.trim();

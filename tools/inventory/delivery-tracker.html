@@ -101,7 +101,7 @@
     <script src="../../assets/js/utils.js"></script>
     <script src="../../assets/js/main.js"></script>
     <script>
-        let deliveries = JSON.parse(localStorage.getItem('deliveries') || '[]');
+        let deliveries = safeJSONParse(localStorage.getItem('deliveries'), []);
 
         const today = new Date().toISOString().split('T')[0];
         document.getElementById('orderDate').value = today;

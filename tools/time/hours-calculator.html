@@ -272,7 +272,7 @@
     <script src="../../assets/js/main.js"></script>
     <script>
         let currentMode = 'duration';
-        let history = JSON.parse(localStorage.getItem('hoursHistory') || '[]');
+        let history = safeJSONParse(localStorage.getItem('hoursHistory'), []);
 
         // Mode switching
         document.querySelectorAll('.mode-btn').forEach(btn => {

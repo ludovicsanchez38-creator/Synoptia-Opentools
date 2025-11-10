@@ -87,7 +87,7 @@
     <script src="../../assets/js/utils.js"></script>
     <script src="../../assets/js/main.js"></script>
     <script>
-        let suppliers = JSON.parse(localStorage.getItem('suppliers') || '[]');
+        let suppliers = safeJSONParse(localStorage.getItem('suppliers'), []);
 
         document.getElementById('addBtn').addEventListener('click', function() {
             const name = document.getElementById('name').value.trim();

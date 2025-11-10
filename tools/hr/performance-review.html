@@ -107,7 +107,7 @@
     <script src="../../assets/js/utils.js"></script>
     <script src="../../assets/js/main.js"></script>
     <script>
-        let reviews = JSON.parse(localStorage.getItem('reviews') || '[]');
+        let reviews = safeJSONParse(localStorage.getItem('reviews'), []);
 
         function updateDisplay() {
             const quality = parseInt(document.getElementById('quality').value);

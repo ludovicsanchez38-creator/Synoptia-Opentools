@@ -59,7 +59,7 @@
     <script src="../../assets/js/utils.js"></script>
     <script src="../../assets/js/main.js"></script>
     <script>
-        let tasks = JSON.parse(localStorage.getItem('ganttTasks') || '[]');
+        let tasks = safeJSONParse(localStorage.getItem('ganttTasks'), []);
 
         document.getElementById('addTaskBtn').addEventListener('click', () => {
             const name = document.getElementById('taskName').value.trim();
