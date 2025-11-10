@@ -116,7 +116,7 @@
     <nav class="breadcrumb" role="navigation" aria-label="Fil d'ariane">
         <a href="../../index.html"><i class="fas fa-home" aria-hidden="true"></i> Accueil</a> >
         <a href="../../index.html#tools">Marketing</a> >
-        <span>Tests A/B</span>
+        <span aria-current="page">Tests A/B</span>
     </nav>
     <main class="tool-container">
         <header class="tool-header">
@@ -270,25 +270,25 @@
             <div class="alert" id="recommendation"></div>
         </section>
 
-        <section class="tool-help">
-            <h3><i class="fas fa-question-circle" aria-hidden="true"></i> C'est quoi un test A/B ?</h3>
+        <section class="tool-help" role="region" aria-labelledby="help-heading">
+            <h3 id="help-heading"><i class="fas fa-question-circle" aria-hidden="true"></i> C'est quoi un test A/B ?</h3>
             <p>Un test A/B compare deux versions d'une page web, email ou publicité pour déterminer laquelle performe le mieux.</p>
 
-            <h3><i class="fas fa-chart-line"></i> Signification statistique</h3>
+            <h3 id="help-heading"><i class="fas fa-chart-line"></i> Signification statistique</h3>
             <ul>
                 <li><strong>95% de confiance</strong> : Standard industrie - 5% de risque de faux positif</li>
                 <li><strong>99% de confiance</strong> : Plus rigoureux - 1% de risque de faux positif</li>
                 <li><strong>P-value</strong> : Plus elle est faible, plus le résultat est fiable</li>
             </ul>
 
-            <h3><i class="fas fa-users"></i> Taille d'échantillon recommandée</h3>
+            <h3 id="help-heading"><i class="fas fa-users"></i> Taille d'échantillon recommandée</h3>
             <ul>
                 <li><strong>Minimum absolu</strong> : 100 conversions par variante</li>
                 <li><strong>Recommandé</strong> : 350-400 conversions par variante pour 95% de confiance</li>
                 <li><strong>Petites différences</strong> : 1000+ conversions si l'écart est &lt;10%</li>
             </ul>
 
-            <h3><i class="fas fa-lightbulb" aria-hidden="true"></i> Bonnes pratiques tests A/B</h3>
+            <h3 id="help-heading"><i class="fas fa-lightbulb" aria-hidden="true"></i> Bonnes pratiques tests A/B</h3>
             <ul>
                 <li><strong>Une variable à la fois</strong> : Changez un seul élément (titre, CTA, couleur...)</li>
                 <li><strong>Durée suffisante</strong> : Minimum 1-2 semaines pour capturer différents jours</li>
@@ -297,7 +297,7 @@
                 <li><strong>Testez en continu</strong> : Toujours avoir un test A/B actif</li>
             </ul>
 
-            <h3><i class="fas fa-flask"></i> Idées de tests A/B</h3>
+            <h3 id="help-heading"><i class="fas fa-flask"></i> Idées de tests A/B</h3>
             <ul>
                 <li>Titre de la page (H1)</li>
                 <li>Couleur et texte du bouton CTA</li>

@@ -23,7 +23,7 @@
     <nav class="breadcrumb" role="navigation" aria-label="Fil d'ariane">
         <a href="../../index.html"><i class="fas fa-home" aria-hidden="true"></i> Accueil</a> >
         <a href="../../index.html#tools">Analytics</a> >
-        <span>Prédicteur de Tendances</span>
+        <span aria-current="page">Prédicteur de Tendances</span>
     </nav>
     <main class="tool-container">
         <header class="tool-header">
@@ -102,8 +102,8 @@
             </div>
         </section>
 
-        <section class="tool-help">
-            <h3><i class="fas fa-info-circle" aria-hidden="true"></i> Méthode</h3>
+        <section class="tool-help" role="region" aria-labelledby="help-heading">
+            <h3 id="help-heading"><i class="fas fa-info-circle" aria-hidden="true"></i> Méthode</h3>
             <ul>
                 <li>Utilise la régression linéaire simple pour prédire les ventes futures</li>
                 <li>Basé sur la tendance moyenne des 6 derniers mois</li>

@@ -14,7 +14,7 @@
     <nav class="breadcrumb" role="navigation" aria-label="Fil d'ariane">
         <a href="../../index.html"><i class="fas fa-home" aria-hidden="true"></i> Accueil</a> >
         <a href="../../index.html#tools">Divers</a> >
-        <span>Pitch Deck</span>
+        <span aria-current="page">Pitch Deck</span>
     </nav>
     <main class="tool-container">
         <header class="tool-header">
@@ -38,8 +38,8 @@
             <div id="slides"></div>
         </section>
 
-        <section class="tool-help">
-            <h3><i class="fas fa-info-circle" aria-hidden="true"></i> Conseils</h3>
+        <section class="tool-help" role="region" aria-labelledby="help-heading">
+            <h3 id="help-heading"><i class="fas fa-info-circle" aria-hidden="true"></i> Conseils</h3>
             <ul>
                 <li>Limitez-vous à 10-15 slides maximum</li>
                 <li>1 idée = 1 slide</li>

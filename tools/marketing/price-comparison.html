@@ -97,7 +97,7 @@
     <nav class="breadcrumb" role="navigation" aria-label="Fil d'ariane">
         <a href="../../index.html"><i class="fas fa-home" aria-hidden="true"></i> Accueil</a> >
         <a href="../../index.html#tools">Marketing</a> >
-        <span>Comparateur de Prix</span>
+        <span aria-current="page">Comparateur de Prix</span>
     </nav>
     <main class="tool-container">
         <header class="tool-header">
@@ -198,8 +198,8 @@
             <div class="alert" id="recommendation"></div>
         </section>
 
-        <section class="tool-help">
-            <h3><i class="fas fa-bullseye"></i> Stratégies de pricing</h3>
+        <section class="tool-help" role="region" aria-labelledby="help-heading">
+            <h3 id="help-heading"><i class="fas fa-bullseye"></i> Stratégies de pricing</h3>
             <ul>
                 <li><strong>Pricing de pénétration</strong> : Prix bas pour gagner rapidement des parts de marché</li>
                 <li><strong>Pricing premium</strong> : Prix élevé pour positionner comme haut de gamme</li>
@@ -208,7 +208,7 @@
                 <li><strong>Value-based pricing</strong> : Prix basé sur la valeur perçue, pas le coût</li>
             </ul>
 
-            <h3><i class="fas fa-chart-line"></i> Analyse concurrentielle</h3>
+            <h3 id="help-heading"><i class="fas fa-chart-line"></i> Analyse concurrentielle</h3>
             <ul>
                 <li>Analysez non seulement le prix, mais aussi les fonctionnalités incluses</li>
                 <li>Comparez les modèles de pricing (mensuel, annuel, par utilisateur...)</li>
@@ -216,7 +216,7 @@
                 <li>Identifiez les opportunités de différenciation</li>
             </ul>
 
-            <h3><i class="fas fa-lightbulb" aria-hidden="true"></i> Conseils pricing</h3>
+            <h3 id="help-heading"><i class="fas fa-lightbulb" aria-hidden="true"></i> Conseils pricing</h3>
             <ul>
                 <li><strong>Testez plusieurs prix</strong> : A/B testez pour trouver l'optimal</li>
                 <li><strong>Ancrage de prix</strong> : Proposez 3 offres pour ancrer la valeur</li>

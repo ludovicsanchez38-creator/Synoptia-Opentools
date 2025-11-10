@@ -104,7 +104,7 @@
     <nav class="breadcrumb" role="navigation" aria-label="Fil d'ariane">
         <a href="../../index.html"><i class="fas fa-home" aria-hidden="true"></i> Accueil</a> >
         <a href="../../index.html#tools">Marketing</a> >
-        <span>Lead Scoring</span>
+        <span aria-current="page">Lead Scoring</span>
     </nav>
     <main class="tool-container">
         <header class="tool-header">
@@ -261,8 +261,8 @@
             <div class="alert" id="recommendation"></div>
         </section>
 
-        <section class="tool-help">
-            <h3><i class="fas fa-chart-bar"></i> Niveaux de qualification</h3>
+        <section class="tool-help" role="region" aria-labelledby="help-heading">
+            <h3 id="help-heading"><i class="fas fa-chart-bar"></i> Niveaux de qualification</h3>
             <ul>
                 <li><strong>🔥 Hot Lead (80-100 points)</strong> : Priorité maximale - Contacter immédiatement</li>
                 <li><strong>🔶 Warm Lead (50-79 points)</strong> : Qualifié - Nurturing actif recommandé</li>
@@ -270,12 +270,12 @@
                 <li><strong>⚫ Non qualifié (&lt; 25 points)</strong> : Ne correspond pas au profil cible</li>
             </ul>
 
-            <h3><i class="fas fa-calculator"></i> Méthodologie de scoring</h3>
+            <h3 id="help-heading"><i class="fas fa-calculator"></i> Méthodologie de scoring</h3>
             <p><strong>Fit démographique (max 70 points)</strong> : Taille entreprise, secteur, fonction, budget</p>
             <p><strong>Engagement comportemental (max ~50 points)</strong> : Emails, visites, téléchargements, vidéos</p>
             <p><strong>Intention d'achat (max 80 points)</strong> : Page tarifs, démo, essai, formulaires</p>
 
-            <h3><i class="fas fa-lightbulb" aria-hidden="true"></i> Bonnes pratiques</h3>
+            <h3 id="help-heading"><i class="fas fa-lightbulb" aria-hidden="true"></i> Bonnes pratiques</h3>
             <ul>
                 <li><strong>Ajustez les pondérations</strong> : Adaptez les points selon votre business</li>
                 <li><strong>Testez et itérez</strong> : Analysez les conversions réelles pour affiner</li>

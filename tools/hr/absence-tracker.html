@@ -14,7 +14,7 @@
     <nav class="breadcrumb" role="navigation" aria-label="Fil d'ariane">
         <a href="../../index.html"><i class="fas fa-home" aria-hidden="true"></i> Accueil</a> >
         <a href="../../index.html#tools">RH</a> >
-        <span>Suivi des Absences</span>
+        <span aria-current="page">Suivi des Absences</span>
     </nav>
     <main class="tool-container">
         <header class="tool-header">
@@ -65,8 +65,8 @@
             </div>
         </section>
 
-        <section class="tool-help">
-            <h3><i class="fas fa-info-circle" aria-hidden="true"></i> Comment utiliser ?</h3>
+        <section class="tool-help" role="region" aria-labelledby="help-heading">
+            <h3 id="help-heading"><i class="fas fa-info-circle" aria-hidden="true"></i> Comment utiliser ?</h3>
             <ol>
                 <li>Entrez le <strong>nom de l'employé</strong></li>
                 <li>Sélectionnez le <strong>type d'absence</strong></li>

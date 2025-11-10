@@ -23,7 +23,7 @@
     <nav class="breadcrumb" role="navigation" aria-label="Fil d'ariane">
         <a href="../../index.html"><i class="fas fa-home" aria-hidden="true"></i> Accueil</a> >
         <a href="../../index.html#tools">Finance</a> >
-        <span>Calculateur de ROI</span>
+        <span aria-current="page">Calculateur de ROI</span>
     </nav>
 
     <main class="tool-container">
@@ -100,15 +100,15 @@
             <div class="alert" id="interpretation"></div>
         </section>
 
-        <section class="tool-help">
-            <h3><i class="fas fa-question-circle" aria-hidden="true"></i> Comment utiliser cet outil ?</h3>
+        <section class="tool-help" role="region" aria-labelledby="help-heading">
+            <h3 id="help-heading"><i class="fas fa-question-circle" aria-hidden="true"></i> Comment utiliser cet outil ?</h3>
             <ol>
                 <li>Entrez le montant de votre <strong>investissement initial</strong></li>
                 <li>Indiquez la <strong>valeur finale</strong> (ou actuelle) de votre investissement</li>
                 <li>Précisez la <strong>durée</strong> pour calculer le ROI annualisé (optionnel)</li>
             </ol>
 
-            <h3><i class="fas fa-calculator"></i> Formule utilisée</h3>
+            <h3 id="help-heading"><i class="fas fa-calculator"></i> Formule utilisée</h3>
             <code>
 ROI = ((Valeur finale - Investissement initial) / Investissement initial) × 100
 

@@ -102,7 +102,7 @@
     <nav class="breadcrumb" role="navigation" aria-label="Fil d'ariane">
         <a href="../../index.html"><i class="fas fa-home" aria-hidden="true"></i> Accueil</a> >
         <a href="../../index.html#tools">Temps</a> >
-        <span>Calculateur d'Heures</span>
+        <span aria-current="page">Calculateur d'Heures</span>
     </nav>
     <main class="tool-container">
         <header class="tool-header">
@@ -235,8 +235,8 @@
             </div>
         </section>
 
-        <section class="tool-help">
-            <h3><i class="fas fa-info-circle" aria-hidden="true"></i> Comment utiliser ?</h3>
+        <section class="tool-help" role="region" aria-labelledby="help-heading">
+            <h3 id="help-heading"><i class="fas fa-info-circle" aria-hidden="true"></i> Comment utiliser ?</h3>
             <ol>
                 <li>Choisissez le mode de calcul (durée, addition ou soustraction)</li>
                 <li><strong>Mode Durée</strong> : Entrez l'heure de début, de fin et la pause</li>
@@ -246,7 +246,7 @@
                 <li>L'historique se sauvegarde automatiquement</li>
             </ol>
 
-            <h3><i class="fas fa-lightbulb" aria-hidden="true"></i> Conseils</h3>
+            <h3 id="help-heading"><i class="fas fa-lightbulb" aria-hidden="true"></i> Conseils</h3>
             <ul>
                 <li><strong>Format horaire</strong> : Utilisez le format 24h (17:30 et non 5:30 PM)</li>
                 <li><strong>Format décimal</strong> : Utile pour la paie (8.5h = 8h30)</li>
@@ -255,7 +255,7 @@
                 <li><strong>Export CSV</strong> : Pour archiver vos calculs ou importer dans Excel</li>
             </ul>
 
-            <h3><i class="fas fa-gavel"></i> Réglementation (France)</h3>
+            <h3 id="help-heading"><i class="fas fa-gavel"></i> Réglementation (France)</h3>
             <ul>
                 <li><strong>Durée maximale</strong> : 10h/jour (12h avec dérogations)</li>
                 <li><strong>Pause obligatoire</strong> : 20 min après 6h de travail consécutif</li>

@@ -12,7 +12,7 @@
 </head>
 <body>
     <nav class="breadcrumb" role="navigation" aria-label="Fil d'ariane">
-        <a href="../../index.html"><i class="fas fa-home" aria-hidden="true"></i> Accueil</a> > <a href="../../index.html#tools">Marketing</a> > <span>CTR</span>
+        <a href="../../index.html"><i class="fas fa-home" aria-hidden="true"></i> Accueil</a> > <a href="../../index.html#tools">Marketing</a> > <span aria-current="page">CTR</span>
     </nav>
     <main class="tool-container">
         <header class="tool-header">
@@ -57,13 +57,13 @@
             </div>
             <div class="alert" id="interpretation"></div>
         </section>
-        <section class="tool-help">
-            <h3><i class="fas fa-calculator"></i> Formule</h3>
+        <section class="tool-help" role="region" aria-labelledby="help-heading">
+            <h3 id="help-heading"><i class="fas fa-calculator"></i> Formule</h3>
             <code>CTR = (Clics / Impressions) × 100
 CPC = Coût / Clics
 Taux conversion = (Conversions / Clics) × 100
 CPA = Coût / Conversions</code>
-            <h3><i class="fas fa-chart-bar"></i> Benchmarks CTR</h3>
+            <h3 id="help-heading"><i class="fas fa-chart-bar"></i> Benchmarks CTR</h3>
             <ul>
                 <li><strong>Google Search Ads</strong> : 3% - 5% (très bon)</li>
                 <li><strong>Google Display</strong> : 0.5% - 1%</li>
@@ -71,7 +71,7 @@ CPA = Coût / Conversions</code>
                 <li><strong>Email marketing</strong> : 2% - 5%</li>
                 <li><strong>LinkedIn Ads</strong> : 0.4% - 0.8%</li>
             </ul>
-            <h3><i class="fas fa-lightbulb" aria-hidden="true"></i> Comment améliorer le CTR ?</h3>
+            <h3 id="help-heading"><i class="fas fa-lightbulb" aria-hidden="true"></i> Comment améliorer le CTR ?</h3>
             <ul>
                 <li>Titres accrocheurs et bénéfices clairs</li>
                 <li>Call-to-action (CTA) visible et incitatif</li>

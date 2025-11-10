@@ -12,7 +12,7 @@
 </head>
 <body>
     <nav class="breadcrumb" role="navigation" aria-label="Fil d'ariane">
-        <a href="../../index.html"><i class="fas fa-home" aria-hidden="true"></i> Accueil</a> > <a href="../../index.html#tools">Finance</a> > <span>Calculateur de Remise</span>
+        <a href="../../index.html"><i class="fas fa-home" aria-hidden="true"></i> Accueil</a> > <a href="../../index.html#tools">Finance</a> > <span aria-current="page">Calculateur de Remise</span>
     </nav>
 
     <main class="tool-container">
@@ -63,8 +63,8 @@
             </div>
         </section>
 
-        <section class="tool-help">
-            <h3><i class="fas fa-question-circle" aria-hidden="true"></i> Comment utiliser cet outil ?</h3>
+        <section class="tool-help" role="region" aria-labelledby="help-heading">
+            <h3 id="help-heading"><i class="fas fa-question-circle" aria-hidden="true"></i> Comment utiliser cet outil ?</h3>
             <ol>
                 <li>Entrez le <strong>prix original</strong> du produit</li>
                 <li>Indiquez le <strong>pourcentage de remise</strong> principal</li>
@@ -72,12 +72,12 @@
                 <li>Ajoutez une <strong>remise additionnelle</strong> si applicable (ex: coupon, fidélité)</li>
                 <li>Obtenez le nouveau prix et le montant économisé</li>
             </ol>
-            <h3><i class="fas fa-calculator"></i> Formules</h3>
+            <h3 id="help-heading"><i class="fas fa-calculator"></i> Formules</h3>
             <code>Prix après 1ère remise = Prix × (1 - Remise1/100)
 Prix final = Prix après 1ère remise × (1 - Remise2/100)
 Économie = Prix original - Prix final
 Prix total = Prix final × Quantité</code>
-            <h3><i class="fas fa-lightbulb" aria-hidden="true"></i> Astuce remises multiples</h3>
+            <h3 id="help-heading"><i class="fas fa-lightbulb" aria-hidden="true"></i> Astuce remises multiples</h3>
             <p>Deux remises de 20% + 10% ne font pas 30% ! Le calcul se fait en cascade : 100€ -20% = 80€, puis 80€ -10% = 72€ (soit 28% de remise totale).</p>
         </section>
     </main>

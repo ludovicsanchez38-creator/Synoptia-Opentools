@@ -11,7 +11,7 @@
     <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.6/dist/purify.min.js" integrity="sha384-LhPJK12eZWQ+j+V7A48VQQnLzOLJB8C7wYvDWbdBxBh1QdXbYbYVZYY6YGnQgzEi==" crossorigin="anonymous"></script>
 </head>
 <body>
-    <nav class="breadcrumb" role="navigation" aria-label="Fil d'ariane"><a href="../../index.html"><i class="fas fa-home" aria-hidden="true"></i> Accueil</a> > <a href="../../index.html#tools">Finance</a> > <span>Ratio Dette/Revenu</span></nav>
+    <nav class="breadcrumb" role="navigation" aria-label="Fil d'ariane"><a href="../../index.html"><i class="fas fa-home" aria-hidden="true"></i> Accueil</a> > <a href="../../index.html#tools">Finance</a> > <span aria-current="page">Ratio Dette/Revenu</span></nav>
     <main class="tool-container">
         <header class="tool-header">
             <h1><i class="fas fa-scale-balanced"></i> Calculateur Ratio Dette/Revenu</h1>
@@ -49,21 +49,21 @@
             </div>
             <div class="alert" id="interpretation"></div>
         </section>
-        <section class="tool-help">
-            <h3><i class="fas fa-info-circle" aria-hidden="true"></i> Interprétation du ratio dette/revenu</h3>
+        <section class="tool-help" role="region" aria-labelledby="help-heading">
+            <h3 id="help-heading"><i class="fas fa-info-circle" aria-hidden="true"></i> Interprétation du ratio dette/revenu</h3>
             <ul>
                 <li><strong>&lt; 30%</strong> : Excellente santé financière - forte capacité d'emprunt</li>
                 <li><strong>30-50%</strong> : Situation saine - endettement maîtrisé</li>
                 <li><strong>50-70%</strong> : Attention prudence - surveillez vos charges</li>
                 <li><strong>&gt; 70%</strong> : Endettement élevé - réduction recommandée</li>
             </ul>
-            <h3><i class="fas fa-lightbulb" aria-hidden="true"></i> Conseils</h3>
+            <h3 id="help-heading"><i class="fas fa-lightbulb" aria-hidden="true"></i> Conseils</h3>
             <ul>
                 <li>Maintenez un ratio inférieur à 33% pour optimiser votre accès au crédit</li>
                 <li>Diversifiez vos sources de financement (fonds propres, emprunts, crédit-bail)</li>
                 <li>Privilégiez le remboursement des dettes à taux élevé en priorité</li>
             </ul>
-            <h3><i class="fas fa-calculator"></i> Formules</h3>
+            <h3 id="help-heading"><i class="fas fa-calculator"></i> Formules</h3>
             <code>Ratio dette/revenu = (Dettes / Revenus) × 100
 Ratio dette/actifs = (Dettes / Actifs) × 100
 Capacité recommandée = Revenus × 0.33</code>

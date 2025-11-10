@@ -23,7 +23,7 @@
     <nav class="breadcrumb" role="navigation" aria-label="Fil d'ariane">
         <a href="../../index.html"><i class="fas fa-home" aria-hidden="true"></i> Accueil</a> >
         <a href="../../index.html#tools">Analytics</a> >
-        <span>Calculateur de Croissance</span>
+        <span aria-current="page">Calculateur de Croissance</span>
     </nav>
     <main class="tool-container">
         <header class="tool-header">
@@ -91,8 +91,8 @@
             </div>
         </section>
 
-        <section class="tool-help">
-            <h3><i class="fas fa-info-circle" aria-hidden="true"></i> Formules</h3>
+        <section class="tool-help" role="region" aria-labelledby="help-heading">
+            <h3 id="help-heading"><i class="fas fa-info-circle" aria-hidden="true"></i> Formules</h3>
             <ul>
                 <li><strong>Taux de croissance</strong> = ((Revenu final - Revenu initial) / Revenu initial) × 100</li>
                 <li><strong>Croissance mensuelle moyenne</strong> = ((Revenu final / Revenu initial)^(1/mois) - 1) × 100</li>

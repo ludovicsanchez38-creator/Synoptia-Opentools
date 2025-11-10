@@ -14,7 +14,7 @@
     <nav class="breadcrumb" role="navigation" aria-label="Fil d'ariane">
         <a href="../../index.html"><i class="fas fa-home" aria-hidden="true"></i> Accueil</a> >
         <a href="../../index.html#tools">Finance</a> >
-        <span>Calculateur de Markup</span>
+        <span aria-current="page">Calculateur de Markup</span>
     </nav>
 
     <main class="tool-container">
@@ -78,15 +78,15 @@
             </div>
         </section>
 
-        <section class="tool-help">
-            <h3><i class="fas fa-question-circle" aria-hidden="true"></i> Comment utiliser cet outil ?</h3>
+        <section class="tool-help" role="region" aria-labelledby="help-heading">
+            <h3 id="help-heading"><i class="fas fa-question-circle" aria-hidden="true"></i> Comment utiliser cet outil ?</h3>
             <ol>
                 <li>Entrez le <strong>coût d'achat</strong> ou de production de votre produit</li>
                 <li>Indiquez le <strong>pourcentage de markup</strong> que vous souhaitez appliquer</li>
                 <li>Obtenez immédiatement le <strong>prix de vente</strong> recommandé</li>
             </ol>
 
-            <h3><i class="fas fa-calculator"></i> Formules</h3>
+            <h3 id="help-heading"><i class="fas fa-calculator"></i> Formules</h3>
             <code>
 Prix de vente = Coût × (1 + Markup/100)
 

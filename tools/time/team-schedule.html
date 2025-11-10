@@ -206,7 +206,7 @@
     <nav class="breadcrumb" role="navigation" aria-label="Fil d'ariane">
         <a href="../../index.html"><i class="fas fa-home" aria-hidden="true"></i> Accueil</a> >
         <a href="../../index.html#tools">Temps</a> >
-        <span>Planning d'Équipe</span>
+        <span aria-current="page">Planning d'Équipe</span>
     </nav>
     <main class="tool-container">
         <header class="tool-header">
@@ -290,8 +290,8 @@
             </div>
         </section>
 
-        <section class="tool-help">
-            <h3><i class="fas fa-info-circle" aria-hidden="true"></i> Comment utiliser ?</h3>
+        <section class="tool-help" role="region" aria-labelledby="help-heading">
+            <h3 id="help-heading"><i class="fas fa-info-circle" aria-hidden="true"></i> Comment utiliser ?</h3>
             <ol>
                 <li>Ajoutez les membres de votre équipe</li>
                 <li>Cliquez sur le bouton <strong>"+"</strong> dans une case pour ajouter un shift</li>
@@ -301,7 +301,7 @@
                 <li>Exportez en CSV pour partager avec l'équipe</li>
             </ol>
 
-            <h3><i class="fas fa-lightbulb" aria-hidden="true"></i> Conseils de planification</h3>
+            <h3 id="help-heading"><i class="fas fa-lightbulb" aria-hidden="true"></i> Conseils de planification</h3>
             <ul>
                 <li><strong>Anticiper</strong> : Planifiez 2-3 semaines à l'avance minimum</li>
                 <li><strong>Équilibrer</strong> : Répartissez équitablement les heures entre membres</li>
@@ -310,7 +310,7 @@
                 <li><strong>Flexibilité</strong> : Gardez une marge pour les imprévus (absences, urgences)</li>
             </ul>
 
-            <h3><i class="fas fa-gavel"></i> Réglementation (France)</h3>
+            <h3 id="help-heading"><i class="fas fa-gavel"></i> Réglementation (France)</h3>
             <ul>
                 <li><strong>Durée maximale</strong> : 10h/jour, 48h/semaine (44h en moyenne sur 12 semaines)</li>
                 <li><strong>Repos quotidien</strong> : 11h consécutives minimum</li>

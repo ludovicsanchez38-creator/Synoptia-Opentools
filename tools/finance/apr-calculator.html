@@ -11,7 +11,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <nav class="breadcrumb" role="navigation" aria-label="Fil d'ariane"><a href="../../index.html"><i class="fas fa-home" aria-hidden="true"></i> Accueil</a> > <a href="../../index.html#tools">Finance</a> > <span>TAEG</span></nav>
+    <nav class="breadcrumb" role="navigation" aria-label="Fil d'ariane"><a href="../../index.html"><i class="fas fa-home" aria-hidden="true"></i> Accueil</a> > <a href="../../index.html#tools">Finance</a> > <span aria-current="page">TAEG</span></nav>
     <main class="tool-container">
         <header class="tool-header">
             <h1><i class="fas fa-percentage"></i> Calculateur de TAEG</h1>
@@ -52,17 +52,17 @@
                 <div class="result-item"><div class="result-label">Mensualité TTC</div><div class="result-value" id="monthly">-</div></div>
             </div>
         </section>
-        <section class="tool-help">
-            <h3><i class="fas fa-info-circle" aria-hidden="true"></i> Qu'est-ce que le TAEG ?</h3>
+        <section class="tool-help" role="region" aria-labelledby="help-heading">
+            <h3 id="help-heading"><i class="fas fa-info-circle" aria-hidden="true"></i> Qu'est-ce que le TAEG ?</h3>
             <p>Le TAEG (Taux Annuel Effectif Global) inclut le taux nominal + frais de dossier + assurance + tous les frais obligatoires.</p>
-            <h3><i class="fas fa-lightbulb" aria-hidden="true"></i> Pourquoi le TAEG est important ?</h3>
+            <h3 id="help-heading"><i class="fas fa-lightbulb" aria-hidden="true"></i> Pourquoi le TAEG est important ?</h3>
             <ul>
                 <li><strong>Comparaison</strong> : Permet de comparer différentes offres de crédit de manière équitable</li>
                 <li><strong>Transparence</strong> : Révèle le véritable coût total du crédit</li>
                 <li><strong>Obligation légale</strong> : Les banques doivent obligatoirement l'afficher</li>
                 <li><strong>Protection</strong> : Évite les surprises sur les coûts cachés</li>
             </ul>
-            <h3><i class="fas fa-calculator"></i> Formule</h3>
+            <h3 id="help-heading"><i class="fas fa-calculator"></i> Formule</h3>
             <code>TAEG = (Coût total / Montant emprunté) / (Durée en années) × 100</code>
         </section>
     </main>

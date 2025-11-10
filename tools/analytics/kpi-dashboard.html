@@ -23,7 +23,7 @@
     <nav class="breadcrumb" role="navigation" aria-label="Fil d'ariane">
         <a href="../../index.html"><i class="fas fa-home" aria-hidden="true"></i> Accueil</a> >
         <a href="../../index.html#tools">Analytics</a> >
-        <span>Tableau de Bord KPI</span>
+        <span aria-current="page">Tableau de Bord KPI</span>
     </nav>
     <main class="tool-container">
         <header class="tool-header">
@@ -98,8 +98,8 @@
             </div>
         </section>
 
-        <section class="tool-help">
-            <h3><i class="fas fa-info-circle" aria-hidden="true"></i> KPI suivis</h3>
+        <section class="tool-help" role="region" aria-labelledby="help-heading">
+            <h3 id="help-heading"><i class="fas fa-info-circle" aria-hidden="true"></i> KPI suivis</h3>
             <ul>
                 <li><strong>Marge brute</strong> : CA - Coûts</li>
                 <li><strong>Taux de marge</strong> : (Marge / CA) × 100</li>

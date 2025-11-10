@@ -12,7 +12,7 @@
 </head>
 <body>
     <nav class="breadcrumb" role="navigation" aria-label="Fil d'ariane">
-        <a href="../../index.html"><i class="fas fa-home" aria-hidden="true"></i> Accueil</a> > <a href="../../index.html#tools">Marketing</a> > <span>Calculateur de ROAS</span>
+        <a href="../../index.html"><i class="fas fa-home" aria-hidden="true"></i> Accueil</a> > <a href="../../index.html#tools">Marketing</a> > <span aria-current="page">Calculateur de ROAS</span>
     </nav>
 
     <main class="tool-container">
@@ -65,16 +65,16 @@
             <div class="alert" id="interpretation"></div>
         </section>
 
-        <section class="tool-help">
-            <h3><i class="fas fa-question-circle" aria-hidden="true"></i> Comment utiliser cet outil ?</h3>
+        <section class="tool-help" role="region" aria-labelledby="help-heading">
+            <h3 id="help-heading"><i class="fas fa-question-circle" aria-hidden="true"></i> Comment utiliser cet outil ?</h3>
             <ol>
                 <li>Entrez les <strong>revenus générés</strong> par votre campagne publicitaire</li>
                 <li>Indiquez le <strong>budget publicitaire</strong> dépensé</li>
                 <li>Obtenez votre <strong>ROAS</strong> et analysez la performance</li>
             </ol>
-            <h3><i class="fas fa-calculator"></i> Formules</h3>
+            <h3 id="help-heading"><i class="fas fa-calculator"></i> Formules</h3>
             <code>ROAS = Revenus / Dépenses pub\nROI = ((Revenus - Dépenses) / Dépenses) × 100</code>
-            <h3><i class="fas fa-lightbulb" aria-hidden="true"></i> Interprétation</h3>
+            <h3 id="help-heading"><i class="fas fa-lightbulb" aria-hidden="true"></i> Interprétation</h3>
             <ul>
                 <li><strong>ROAS &gt; 4</strong> : Excellente performance</li>
                 <li><strong>ROAS 2-4</strong> : Bonne performance</li>

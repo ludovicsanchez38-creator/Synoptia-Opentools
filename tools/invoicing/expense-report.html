@@ -80,7 +80,7 @@
     <nav class="breadcrumb" role="navigation" aria-label="Fil d'ariane">
         <a href="../../index.html"><i class="fas fa-home" aria-hidden="true"></i> Accueil</a> >
         <a href="../../index.html#tools">Facturation</a> >
-        <span>Générateur de Notes de Frais</span>
+        <span aria-current="page">Générateur de Notes de Frais</span>
     </nav>
     <main class="tool-container">
         <header class="tool-header">
@@ -137,8 +137,8 @@
             <div class="report-preview" id="reportPreview"></div>
         </section>
 
-        <section class="tool-help">
-            <h3><i class="fas fa-question-circle" aria-hidden="true"></i> Guide</h3>
+        <section class="tool-help" role="region" aria-labelledby="help-heading">
+            <h3 id="help-heading"><i class="fas fa-question-circle" aria-hidden="true"></i> Guide</h3>
             <ul>
                 <li>Remplissez vos informations et la période concernée</li>
                 <li>Ajoutez chaque dépense avec date, catégorie, montant et justification</li>

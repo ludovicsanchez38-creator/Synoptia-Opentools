@@ -23,7 +23,7 @@
     <nav class="breadcrumb" role="navigation" aria-label="Fil d'ariane">
         <a href="../../index.html"><i class="fas fa-home" aria-hidden="true"></i> Accueil</a> >
         <a href="../../index.html#tools">Facturation</a> >
-        <span>Calculateur de Frais de Retard</span>
+        <span aria-current="page">Calculateur de Frais de Retard</span>
     </nav>
     <main class="tool-container">
         <header class="tool-header">
@@ -111,8 +111,8 @@
             </div>
         </section>
 
-        <section class="tool-help">
-            <h3><i class="fas fa-question-circle" aria-hidden="true"></i> Guide d'utilisation</h3>
+        <section class="tool-help" role="region" aria-labelledby="help-heading">
+            <h3 id="help-heading"><i class="fas fa-question-circle" aria-hidden="true"></i> Guide d'utilisation</h3>
             <ul>
                 <li>Entrez le montant de la facture impayée</li>
                 <li>Indiquez la date d'échéance et la date de paiement (ou aujourd'hui si non payé)</li>

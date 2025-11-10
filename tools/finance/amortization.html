@@ -20,7 +20,7 @@
             crossorigin="anonymous"></script>
 </head>
 <body>
-    <nav class="breadcrumb" role="navigation" aria-label="Fil d'ariane"><a href="../../index.html"><i class="fas fa-home" aria-hidden="true"></i> Accueil</a> > <a href="../../index.html#tools">Finance</a> > <span>Amortissement</span></nav>
+    <nav class="breadcrumb" role="navigation" aria-label="Fil d'ariane"><a href="../../index.html"><i class="fas fa-home" aria-hidden="true"></i> Accueil</a> > <a href="../../index.html#tools">Finance</a> > <span aria-current="page">Amortissement</span></nav>
     <main class="tool-container">
         <header class="tool-header">
             <h1><i class="fas fa-table"></i> Calculateur d'Amortissement</h1>
@@ -60,8 +60,8 @@
                 </table>
             </div>
         </section>
-        <section class="tool-help">
-            <h3><i class="fas fa-info-circle" aria-hidden="true"></i> Méthodes</h3>
+        <section class="tool-help" role="region" aria-labelledby="help-heading">
+            <h3 id="help-heading"><i class="fas fa-info-circle" aria-hidden="true"></i> Méthodes</h3>
             <ul>
                 <li><strong>Linéaire :</strong> Montant constant chaque année</li>
                 <li><strong>Dégressive :</strong> Montant dégressif (coefficient 1.75 ou 2.25)</li>

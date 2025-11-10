@@ -12,7 +12,7 @@
 </head>
 <body>
     <nav class="breadcrumb" role="navigation" aria-label="Fil d'ariane">
-        <a href="../../index.html"><i class="fas fa-home" aria-hidden="true"></i> Accueil</a> > <a href="../../index.html#tools">Marketing</a> > <span>Churn Rate</span>
+        <a href="../../index.html"><i class="fas fa-home" aria-hidden="true"></i> Accueil</a> > <a href="../../index.html#tools">Marketing</a> > <span aria-current="page">Churn Rate</span>
     </nav>
     <main class="tool-container">
         <header class="tool-header">
@@ -57,19 +57,19 @@
             </div>
             <div class="alert" id="interpretation"></div>
         </section>
-        <section class="tool-help">
-            <h3><i class="fas fa-calculator"></i> Formules</h3>
+        <section class="tool-help" role="region" aria-labelledby="help-heading">
+            <h3 id="help-heading"><i class="fas fa-calculator"></i> Formules</h3>
             <code>Churn Rate = (Clients perdus / Clients début) × 100
 Retention Rate = 100 - Churn Rate
 Revenue Churn = (MRR perdu / MRR début) × 100</code>
-            <h3><i class="fas fa-chart-bar"></i> Benchmarks Churn</h3>
+            <h3 id="help-heading"><i class="fas fa-chart-bar"></i> Benchmarks Churn</h3>
             <ul>
                 <li><strong>SaaS B2B</strong> : 5-7% annuel (excellent), 10-15% (acceptable)</li>
                 <li><strong>SaaS B2C</strong> : 3-5% mensuel (bon)</li>
                 <li><strong>E-commerce</strong> : 20-30% annuel</li>
                 <li><strong>Abonnements</strong> : 5-10% mensuel</li>
             </ul>
-            <h3><i class="fas fa-lightbulb" aria-hidden="true"></i> Réduire le Churn</h3>
+            <h3 id="help-heading"><i class="fas fa-lightbulb" aria-hidden="true"></i> Réduire le Churn</h3>
             <ul>
                 <li>Onboarding optimal pour nouveaux clients</li>
                 <li>Support client réactif et efficace</li>
