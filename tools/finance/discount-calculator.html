@@ -11,8 +11,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <nav class="breadcrumb">
-        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> > <a href="../../index.html#tools">Finance</a> > <span>Calculateur de Remise</span>
+    <nav class="breadcrumb" role="navigation" aria-label="Fil d'ariane">
+        <a href="../../index.html"><i class="fas fa-home" aria-hidden="true"></i> Accueil</a> > <a href="../../index.html#tools">Finance</a> > <span>Calculateur de Remise</span>
     </nav>
 
     <main class="tool-container">
@@ -64,7 +64,7 @@
         </section>
 
         <section class="tool-help">
-            <h3><i class="fas fa-question-circle"></i> Comment utiliser cet outil ?</h3>
+            <h3><i class="fas fa-question-circle" aria-hidden="true"></i> Comment utiliser cet outil ?</h3>
             <ol>
                 <li>Entrez le <strong>prix original</strong> du produit</li>
                 <li>Indiquez le <strong>pourcentage de remise</strong> principal</li>
@@ -77,12 +77,12 @@
 Prix final = Prix après 1ère remise × (1 - Remise2/100)
 Économie = Prix original - Prix final
 Prix total = Prix final × Quantité</code>
-            <h3><i class="fas fa-lightbulb"></i> Astuce remises multiples</h3>
+            <h3><i class="fas fa-lightbulb" aria-hidden="true"></i> Astuce remises multiples</h3>
             <p>Deux remises de 20% + 10% ne font pas 30% ! Le calcul se fait en cascade : 100€ -20% = 80€, puis 80€ -10% = 72€ (soit 28% de remise totale).</p>
         </section>
     </main>
 
-    <footer class="tool-footer"><a href="../../index.html"><i class="fas fa-arrow-left"></i> Retour aux outils</a></footer>
+    <footer class="tool-footer"><a href="../../index.html"><i class="fas fa-arrow-left" aria-hidden="true"></i> Retour aux outils</a></footer>
 
     <script src="../../assets/js/utils.js"></script>
     <script src="../../assets/js/main.js"></script>

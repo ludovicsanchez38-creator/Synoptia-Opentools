@@ -77,8 +77,8 @@
     </style>
 </head>
 <body>
-    <nav class="breadcrumb">
-        <a href="../../index.html"><i class="fas fa-home"></i> Accueil</a> >
+    <nav class="breadcrumb" role="navigation" aria-label="Fil d'ariane">
+        <a href="../../index.html"><i class="fas fa-home" aria-hidden="true"></i> Accueil</a> >
         <a href="../../index.html#tools">Marketing</a> >
         <span>Analyseur de Landing Page</span>
     </nav>
@@ -207,7 +207,7 @@
                 <li><strong>Temps sur page</strong> : &gt; 60s (engageant), 30-60s (correct), &lt; 30s (faible)</li>
             </ul>
 
-            <h3><i class="fas fa-lightbulb"></i> Éléments clés d'une landing page efficace</h3>
+            <h3><i class="fas fa-lightbulb" aria-hidden="true"></i> Éléments clés d'une landing page efficace</h3>
             <ul>
                 <li><strong>Proposition de valeur claire</strong> : Bénéfice évident en 5 secondes</li>
                 <li><strong>CTA visible et contrasté</strong> : Bouton d'action au-dessus de la ligne de flottaison</li>
@@ -219,7 +219,7 @@
             </ul>
         </section>
     </main>
-    <footer class="tool-footer"><a href="../../index.html"><i class="fas fa-arrow-left"></i> Retour</a></footer>
+    <footer class="tool-footer"><a href="../../index.html"><i class="fas fa-arrow-left" aria-hidden="true"></i> Retour</a></footer>
     <script src="../../assets/js/utils.js"></script>
     <script src="../../assets/js/main.js"></script>
     <script>
@@ -380,7 +380,7 @@
 
             const recDiv = document.getElementById('recommendations');
             if (recommendations.length > 0) {
-                recDiv.innerHTML = `<h3><i class="fas fa-lightbulb"></i> Recommandations prioritaires</h3><ul>${recommendations.map(r => `<li>${r}</li>`).join('')}</ul>`;
+                recDiv.innerHTML = `<h3><i class="fas fa-lightbulb" aria-hidden="true"></i> Recommandations prioritaires</h3><ul>${recommendations.map(r => `<li>${r}</li>`).join('')}</ul>`;
             } else {
                 recDiv.innerHTML = '<h3><i class="fas fa-check-circle"></i> Excellent !</h3><p>Votre landing page respecte toutes les bonnes pratiques. Continuez à tester et optimiser.</p>';
             }
