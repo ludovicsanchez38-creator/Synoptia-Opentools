@@ -122,10 +122,33 @@
         document.getElementById('generateBtn').addEventListener('click', generateLabel);
 
         document.getElementById('printBtn').addEventListener('click', function() {
-            const printContent = document.getElementById('labelPreview').innerHTML;
+            // SÉCURITÉ: Évite document.write() - utilise DOM API à la place
+            const printContent = document.getElementById('labelPreview').cloneNode(true);
             const printWindow = window.open('', '', 'width=800,height=600');
-            printWindow.document.write('<html><head><title>Impression Étiquette</title><style>body{margin:0;padding:20px;}@media print{body{margin:0;}}</style></head><body>' + printContent + '<script>window.onload=function(){window.print();}<\/script></body></html>');
-            printWindow.document.close();
+
+            // Créer le document d'impression de manière sécurisée
+            const html = printWindow.document.createElement('html');
+            const head = printWindow.document.createElement('head');
+            const title = printWindow.document.createElement('title');
+            title.textContent = 'Impression Étiquette';
+
+            const style = printWindow.document.createElement('style');
+            style.textContent = 'body{margin:0;padding:20px;}@media print{body{margin:0;}}';
+
+            const body = printWindow.document.createElement('body');
+
+            head.appendChild(title);
+            head.appendChild(style);
+            body.appendChild(printContent);
+            html.appendChild(head);
+            html.appendChild(body);
+
+            printWindow.document.appendChild(html);
+
+            // Attendre le chargement puis imprimer
+            printWindow.onload = function() {
+                printWindow.print();
+            };
         });
 
         ['productName', 'sku', 'price', 'barcode', 'category', 'labelSize'].forEach(function(id) {

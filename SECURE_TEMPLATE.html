@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Template sécurisé pour les outils Business Tools">
+    <title>Nom de l'Outil - Business Tools</title>
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="../../assets/css/main.css">
+    <link rel="stylesheet" href="../../assets/css/tools.css">
+
+    <!-- Font Awesome avec SRI -->
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+          integrity="sha384-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw=="
+          crossorigin="anonymous"
+          referrerpolicy="no-referrer">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+          rel="stylesheet">
+
+    <!-- DOMPurify pour sanitization XSS -->
+    <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.6/dist/purify.min.js"
+            integrity="sha384-LhPJK12eZWQ+j+V7A48VQQnLzOLJB8C7wYvDWbdBxBh1QdXbYbYVZYY6YGnQgzEi"
+            crossorigin="anonymous"></script>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <a href="../../index.html" class="logo">
+                    <i class="fas fa-tools"></i>
+                    Business Tools
+                </a>
+                <nav class="nav">
+                    <a href="../../index.html">
+                        <i class="fas fa-arrow-left"></i> Retour
+                    </a>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container container-md">
+            <div class="tool-header">
+                <h1><i class="fas fa-icon-name"></i> Nom de l'Outil</h1>
+                <p class="tool-description">Description de l'outil</p>
+            </div>
+
+            <div class="card">
+                <div class="card-body">
+                    <!-- Formulaire de l'outil -->
+                    <form id="toolForm">
+                        <div class="form-group">
+                            <label class="form-label" for="exampleInput">Exemple Input</label>
+                            <input type="text"
+                                   class="form-input"
+                                   id="exampleInput"
+                                   placeholder="Entrez une valeur"
+                                   required>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="fas fa-calculator"></i> Calculer
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Résultats -->
+            <div id="results" class="card mt-4 hidden">
+                <div class="card-header">
+                    <h3 class="card-title">Résultats</h3>
+                </div>
+                <div class="card-body">
+                    <div id="resultsContent"></div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container text-center">
+            <p>&copy; 2025 Business Tools - Open Source</p>
+            <p>
+                <a href="../../privacy-policy.html">Politique de confidentialité</a> |
+                <a href="https://github.com/ludovicsanchez38-creator/Synoptia-Opentools">GitHub</a>
+            </p>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script src="../../assets/js/utils.js"></script>
+    <script>
+        /**
+         * ===================================
+         * TEMPLATE SÉCURISÉ
+         * Bonnes pratiques de sécurité intégrées
+         * ===================================
+         */
+
+        // Initialisation au chargement du DOM
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Outil chargé');
+            initTool();
+        });
+
+        function initTool() {
+            // Charger les données depuis localStorage de manière sécurisée
+            loadDataSecure();
+
+            // Event listeners
+            document.getElementById('toolForm').addEventListener('submit', handleSubmit);
+        }
+
+        /**
+         * Gère la soumission du formulaire
+         */
+        function handleSubmit(e) {
+            e.preventDefault();
+
+            // Récupérer et valider les données
+            const input = document.getElementById('exampleInput').value;
+
+            // SÉCURITÉ: Toujours valider les inputs
+            const validation = validateRequired(input);
+            if (!validation.valid) {
+                showNotification(validation.error, 'error');
+                return;
+            }
+
+            // Traiter les données
+            try {
+                const result = processData(input);
+                displayResults(result);
+            } catch (error) {
+                console.error('Erreur:', error);
+                showNotification('Une erreur est survenue', 'error');
+            }
+        }
+
+        /**
+         * Traite les données
+         */
+        function processData(input) {
+            // Votre logique métier ici
+            return {
+                input: input,
+                result: 'Résultat de l\'exemple'
+            };
+        }
+
+        /**
+         * Affiche les résultats de manière sécurisée
+         */
+        function displayResults(data) {
+            const resultsDiv = document.getElementById('results');
+            const contentDiv = document.getElementById('resultsContent');
+
+            // SÉCURITÉ: TOUJOURS échapper les données utilisateur avec escapeHtml()
+            // OU utiliser sanitizeHTML() si vous avez besoin de HTML
+            contentDiv.innerHTML = `
+                <div class="result-item">
+                    <strong>Input:</strong> ${escapeHtml(data.input)}
+                </div>
+                <div class="result-item">
+                    <strong>Résultat:</strong> ${escapeHtml(data.result)}
+                </div>
+            `;
+
+            // Afficher les résultats
+            resultsDiv.classList.remove('hidden');
+
+            // Sauvegarder dans localStorage de manière sécurisée
+            saveDataSecure(data);
+        }
+
+        /**
+         * Sauvegarde sécurisée dans localStorage
+         */
+        function saveDataSecure(data) {
+            // SÉCURITÉ: Utiliser saveToLocalStorageSecure avec chiffrement pour données sensibles
+            const encrypt = false; // Mettre à true pour données sensibles
+            saveToLocalStorageSecure('toolData', data, encrypt);
+        }
+
+        /**
+         * Charge les données de manière sécurisée
+         */
+        function loadDataSecure() {
+            // SÉCURITÉ: Utiliser loadFromLocalStorageSecure qui gère les erreurs
+            const data = loadFromLocalStorageSecure('toolData');
+
+            if (data) {
+                console.log('Données chargées:', data);
+                // Utiliser les données chargées
+            }
+        }
+
+        /**
+         * ===================================
+         * CHECKLIST SÉCURITÉ
+         * ===================================
+         *
+         * ✅ SRI sur tous les CDNs (Font Awesome, DOMPurify)
+         * ✅ escapeHtml() sur TOUTES les données utilisateur dans innerHTML
+         * ✅ sanitizeHTML() pour HTML complexe (avec DOMPurify)
+         * ✅ safeJSONParse() au lieu de JSON.parse()
+         * ✅ saveToLocalStorageSecure() / loadFromLocalStorageSecure()
+         * ✅ Validation des inputs avec validateRequired(), validateNumber(), etc.
+         * ✅ Try-catch autour du code critique
+         * ✅ Pas de document.write(), eval(), new Function()
+         * ✅ addEventListener au lieu de onclick inline
+         * ✅ Commentaires de sécurité dans le code
+         *
+         * IMPORTANT:
+         * - JAMAIS faire: innerHTML = userInput
+         * - TOUJOURS faire: innerHTML = escapeHtml(userInput)
+         * - Pour localStorage avec mots de passe: encrypt = true
+         */
+    </script>
+</body>
+</html>

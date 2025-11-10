@@ -310,7 +310,9 @@
         function loadTasks() {
             const stored = localStorage.getItem('kanbanTasks');
             if (stored) {
-                tasks = JSON.parse(stored);
+                // SÉCURITÉ: Utilise safeJSONParse() pour éviter les crashes
+                const parsed = safeJSONParse(stored, null);
+                tasks = parsed || [];
             } else {
                 // Demo tasks
                 tasks = [
@@ -362,12 +364,13 @@
             card.draggable = true;
             card.dataset.taskId = task.id;
 
+            // SÉCURITÉ: Utilise escapeHtml() pour éviter les XSS
             card.innerHTML = `
-                <div class="card-title">${task.title}</div>
-                ${task.description ? `<div class="card-description">${task.description}</div>` : ''}
+                <div class="card-title">${escapeHtml(task.title)}</div>
+                ${task.description ? `<div class="card-description">${escapeHtml(task.description)}</div>` : ''}
                 <div class="card-meta">
-                    <span class="card-priority priority-${task.priority}">${getPriorityLabel(task.priority)}</span>
-                    ${task.assignee ? `<span class="card-assignee"><i class="fas fa-user"></i> ${task.assignee}</span>` : ''}
+                    <span class="card-priority priority-${task.priority}">${escapeHtml(getPriorityLabel(task.priority))}</span>
+                    ${task.assignee ? `<span class="card-assignee"><i class="fas fa-user"></i> ${escapeHtml(task.assignee)}</span>` : ''}
                 </div>
                 <div class="card-actions">
                     <button class="btn btn-sm btn-primary" onclick="editTask(${task.id})">
