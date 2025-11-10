@@ -6,8 +6,19 @@
     <title>Time Tracker Automatique - Business Tools</title>
     <link rel="stylesheet" href="../../assets/css/main.css">
     <link rel="stylesheet" href="../../assets/css/tools.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Font Awesome avec SRI pour sécurité -->
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+          integrity="sha384-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw=="
+          crossorigin="anonymous"
+          referrerpolicy="no-referrer">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- DOMPurify pour sanitization XSS -->
+    <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.6/dist/purify.min.js"
+            integrity="sha384-LhPJK12eZWQ+j+V7A48VQQnLzOLJB8C7wYvDWbdBxBh1QdXbYbYVZYY6YGnQgzEi=="
+            crossorigin="anonymous"></script>
+
     <style>
         .timer-display {
             font-size: 3rem;
@@ -187,10 +198,11 @@
         let sessions = [];
 
         // Load sessions from localStorage
+        // SÉCURITÉ: Utilise safeJSONParse() pour éviter les crashes
         function loadSessions() {
             const stored = localStorage.getItem('timeTrackerSessions');
             if (stored) {
-                sessions = JSON.parse(stored);
+                sessions = safeJSONParse(stored, []);
             }
             renderSessions();
             updateStats();
@@ -329,10 +341,11 @@
                 return;
             }
 
+            // SÉCURITÉ: Utilise escapeHtml() pour éviter les XSS
             container.innerHTML = sessions.map((session, index) => `
                 <div class="session-item">
                     <div class="session-info">
-                        <div class="session-task">${session.task}</div>
+                        <div class="session-task">${escapeHtml(session.task)}</div>
                         <div class="session-time">
                             <i class="fas fa-calendar"></i> ${formatDate(session.startTime)}
                             ${session.pauseDuration > 0 ? `<span style="margin-left: 0.5rem;"><i class="fas fa-pause"></i> ${Math.floor(session.pauseDuration / 60)}m de pause</span>` : ''}

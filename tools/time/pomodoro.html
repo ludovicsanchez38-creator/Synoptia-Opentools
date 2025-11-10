@@ -6,8 +6,19 @@
     <title>Minuteur Pomodoro - Business Tools</title>
     <link rel="stylesheet" href="../../assets/css/main.css">
     <link rel="stylesheet" href="../../assets/css/tools.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Font Awesome avec SRI pour sécurité -->
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+          integrity="sha384-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw=="
+          crossorigin="anonymous"
+          referrerpolicy="no-referrer">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- DOMPurify pour sanitization XSS -->
+    <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.6/dist/purify.min.js"
+            integrity="sha384-LhPJK12eZWQ+j+V7A48VQQnLzOLJB8C7wYvDWbdBxBh1QdXbYbYVZYY6YGnQgzEi=="
+            crossorigin="anonymous"></script>
+
     <style>
         .pomodoro-timer {
             position: relative;
@@ -262,10 +273,11 @@
         }
 
         // Load settings from localStorage
+        // SÉCURITÉ: Utilise safeJSONParse() pour éviter les crashes
         function loadSettings() {
             const settings = localStorage.getItem('pomodoroSettings');
             if (settings) {
-                const parsed = JSON.parse(settings);
+                const parsed = safeJSONParse(settings, {});
                 document.getElementById('workDuration').value = parsed.workDuration || 25;
                 document.getElementById('breakDuration').value = parsed.breakDuration || 5;
                 document.getElementById('longBreakDuration').value = parsed.longBreakDuration || 15;
@@ -275,7 +287,7 @@
 
             const stats = localStorage.getItem('pomodoroStats');
             if (stats) {
-                const parsed = JSON.parse(stats);
+                const parsed = safeJSONParse(stats, {});
                 const today = new Date().toDateString();
                 if (parsed.date === today) {
                     todayStats = parsed;
