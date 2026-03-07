@@ -546,7 +546,7 @@ gh issue import VULNERABILITIES_SUMMARY.csv
 ## 📞 Support et Contact
 
 ### Questions sur cet Audit
-- **Email:** ludo@synoptia.fr
+- **Email:** syn@synoptia.fr
 - **Réponse:** Sous 48h ouvrées
 
 ### Questions Techniques / Implémentation
@@ -580,7 +580,7 @@ Si vous souhaitez de l'aide pour implémenter les corrections :
 - ✅ Formation de l'équipe sur les bonnes pratiques
 - ✅ Review de code (peer review)
 
-**Contact:** ludo@synoptia.fr
+**Contact:** syn@synoptia.fr
 
 ---
 

@@ -252,7 +252,7 @@ Ces services peuvent collecter votre adresse IP.
 - Effacement : Effacez les données de navigation
 - Opposition : Bloquez les requêtes externes via AdBlock
 
-Contact: ludo@synoptia.fr
+Contact: syn@synoptia.fr
 ```
 
 ---
@@ -494,4 +494,4 @@ npm install @fontsource/inter
 
 **Date du rapport:** 2025-11-10
 **Prochain audit recommandé:** Q2 2025 (après implémentation corrections)
-**Contact:** ludo@synoptia.fr
+**Contact:** syn@synoptia.fr

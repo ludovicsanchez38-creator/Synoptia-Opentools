@@ -771,7 +771,7 @@ Ce projet contient **277+ vulnérabilités** de sécurité identifiées.
 ## 📞 Support et Contact
 
 ### Questions sur cet Audit
-- **Email:** ludo@synoptia.fr
+- **Email:** syn@synoptia.fr
 - **Repository:** https://github.com/ludovicsanchez38-creator/Synoptia-Opentools
 
 ### Ressources OWASP

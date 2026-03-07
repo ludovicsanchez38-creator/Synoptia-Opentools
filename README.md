@@ -358,7 +358,7 @@ Un projet open-source de Synoptia pour démocratiser l'accès aux outils de gest
 
 - 🐛 **Bugs** : Ouvrez une [issue](https://github.com/ludovicsanchez38-creator/Synoptia-Opentools/issues)
 - 💡 **Suggestions** : Proposez une [feature request](https://github.com/ludovicsanchez38-creator/Synoptia-Opentools/issues)
-- 📧 **Contact** : [ludo@synoptia.fr](mailto:ludo@synoptia.fr)
+- 📧 **Contact** : [syn@synoptia.fr](mailto:syn@synoptia.fr)
 - 🌐 **Site web** : [www.synoptia.fr](https://www.synoptia.fr)
 
 ## ⭐ Soutenez le Projet
@@ -374,7 +374,7 @@ Si ce projet vous est utile, n'hésitez pas à :
 **Made with ❤️ by Synoptia**
 
 © 2025 Synoptia - Tous droits réservés sous Licence MIT
-Contact: ludo@synoptia.fr | www.synoptia.fr
+Contact: syn@synoptia.fr | www.synoptia.fr
 
 *Dernière mise à jour : Février 2025*
 *Version 2.0 - 100 outils complets disponibles ✨*

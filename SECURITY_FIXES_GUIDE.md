@@ -330,7 +330,7 @@ Attendu: Fallback local fonctionne OU message d'erreur propre
 
 Questions ou problèmes lors des corrections ?
 
-- **Email:** ludo@synoptia.fr
+- **Email:** syn@synoptia.fr
 - **GitHub Issues:** https://github.com/ludovicsanchez38-creator/Synoptia-Opentools/issues
 - **Documentation complète:** Voir AUDIT_COMPLET_FINAL.md
 
